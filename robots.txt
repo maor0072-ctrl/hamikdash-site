@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://hamikdash.co.il/sitemap.xml

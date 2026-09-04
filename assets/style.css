@@ -170,6 +170,32 @@ section.tight { padding: 40px 0; }
   color: var(--gold-deep);
 }
 
+/* ---------- פרטי תרומה ---------- */
+.paybox {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  margin: 22px 0;
+}
+.paybox h3 { font-size: 19px; font-weight: 700; margin-bottom: 12px; }
+.paybox dl { margin: 0; }
+.paybox dt {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink-soft);
+  margin-top: 12px;
+}
+.paybox dt:first-child { margin-top: 0; }
+.paybox dd {
+  margin: 2px 0 0;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+.pay-cta { text-align: center; margin: 26px 0 10px; }
+.pay-cta .btn-lg { font-size: 19px; }
+.pay-note { text-align: center; color: var(--ink-soft); font-size: 16px; margin-top: 10px; }
+
 /* ---------- כותרת תחתונה ---------- */
 .site-footer {
   background: var(--white);

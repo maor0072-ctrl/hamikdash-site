@@ -149,6 +149,51 @@ section.tight { padding: 40px 0; }
   margin-bottom: 16px;
 }
 
+/* ---------- כרטיסי תרומה לחיצים ---------- */
+.cards-4 { grid-template-columns: repeat(4, 1fr); }
+.card-give {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  color: var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.card-give:hover,
+.card-give:focus {
+  text-decoration: none;
+  color: var(--ink);
+  transform: translateY(-3px);
+  border-color: var(--gold);
+  box-shadow: 0 6px 22px rgba(28, 26, 23, 0.13);
+}
+.card-give:hover .btn { background: var(--gold-deep); }
+.card-give:hover .btn-ghost { background: var(--cream-warm); }
+.give-amount {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--gold-deep);
+  font-variant-numeric: tabular-nums;
+}
+.give-amount-text { font-size: 26px; }
+.give-period {
+  font-size: 15px;
+  color: var(--ink-soft);
+  margin-bottom: 14px;
+}
+.card-give p {
+  flex: 1 1 auto;
+  font-size: 16px;
+  margin-bottom: 18px;
+}
+.card-give .btn { width: 100%; }
+.give-note {
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 16px;
+  margin-top: 20px;
+}
+
 /* ---------- פס קריאה לפעולה ---------- */
 .band {
   background: var(--ink);
@@ -196,6 +241,24 @@ section.tight { padding: 40px 0; }
 .pay-cta .btn-lg { font-size: 19px; }
 .pay-note { text-align: center; color: var(--ink-soft); font-size: 16px; margin-top: 10px; }
 
+/* הערת פנייה בוואטסאפ בלבד */
+.wa-note {
+  background: #fff8e2;
+  border: 1px solid var(--gold);
+  border-right: 4px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  margin: 26px 0;
+}
+.wa-note p { margin: 0; }
+.wa-note strong { color: var(--gold-deep); }
+.wa-note a { font-weight: 700; font-variant-numeric: tabular-nums; }
+.wa-note-ask {
+  margin-top: 8px !important;
+  font-weight: 700;
+  color: var(--gold-deep);
+}
+
 /* ---------- כותרת תחתונה ---------- */
 .site-footer {
   background: var(--white);
@@ -225,4 +288,13 @@ section.tight { padding: 40px 0; }
   .nav { gap: 16px; }
   body { font-size: 17px; }
   section { padding: 42px 0; }
+}
+
+/* כרטיסי הסכומים - אחרי בלוק 860 כדי לגבור על .cards הכללי */
+@media (max-width: 1000px) {
+  .cards.cards-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .cards.cards-4 { grid-template-columns: 1fr; }
 }

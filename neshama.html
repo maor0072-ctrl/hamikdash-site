@@ -35,7 +35,12 @@
 .niftar-remove{background:none;border:0;color:var(--ink-soft);font-size:15px;cursor:pointer;
   text-decoration:underline;font-family:inherit;padding:0}
 .form-sep{border:0;border-top:1px solid var(--line);margin:26px 0 22px}
-.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+/* שדה מלכודת הספאם, מוסתר בלי ליצור גלישה אופקית.
+   לא להחזיר לעולם ל-left:-9999px: בדף RTL זה מותח את רוחב הגלילה ל-10,000
+   פיקסלים, הדפדפן נוחת בקצה הלא נכון, וכל התוכן נשאר מחוץ למסך - הדף נראה
+   ריק לגמרי בנייד. זה קרה בפועל ב-8.9.2026. */
+.hp{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 .form-msg{margin-top:16px;padding:14px 16px;border-radius:8px;font-size:16px;display:none}
 .form-msg.err{display:block;background:#fdecea;border-right:4px solid #c0392b;color:#7b241c}
 .form-msg.ok{display:block;background:var(--cream-warm);border-right:4px solid var(--gold);

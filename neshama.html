@@ -104,6 +104,11 @@
       <p><strong>לקראת ראש השנה.</strong> זה הזמן שבו רבים מבקשים שיזכירו את יקיריהם. השמות מגיעים אלינו ישירות ומועברים לכולל. אנחנו עובדים בימים אלה על מערכת מסודרת שתשמור את תאריכי היארצייט ותשלח תזכורת מדי שנה, והיא עדיין נבנית.</p>
     </div>
 
+    <h2>השמות שנלמדים השבוע</h2>
+    <div id="week-box">
+      <p style="color:var(--ink-soft)">טוען...</p>
+    </div>
+
     <!-- מבקר חדש -->
     <div class="actions" id="intro-new">
       <button type="button" class="btn btn-lg" data-go="details">למסירת שם</button>
@@ -559,6 +564,43 @@
   });
 
   refreshIntro();
+
+  /* ---------- הרשימה השבועית ---------- */
+  // הנתונים יושבים ב-/data/neshama-week.json ולא בעמוד, כדי שעדכון שבועי
+  // יהיה עריכה של קובץ אחד קטן ולא נגיעה בקוד. הרשימה מתחלפת במוצאי שבת.
+  (function () {
+    var box = $("week-box");
+    function empty(text) {
+      box.innerHTML = '<div class="note-box"><p>' + text + "</p></div>";
+    }
+    fetch("/data/neshama-week.json?v=" + Math.floor(Date.now() / 3.6e6))
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || !d.names || !d.names.length) {
+          // מצב ריק אומר את האמת. רשימה ריקה עם כותרת נראית כמו תקלה.
+          return empty(
+            "הרשימה מתעדכנת בכל מוצאי שבת. שם שנמסר עד יום שישי נכנס לרשימה " +
+            "של השבוע הקרוב, ומי שמוסר בשבת נכנס לשבוע שאחריו.");
+        }
+        var head = d.week
+          ? '<p style="color:var(--ink-soft);margin-bottom:14px">' + esc(d.week) + "</p>"
+          : "";
+        box.innerHTML = head +
+          '<ul class="done-list">' + d.names.map(function (n) {
+            var line = typeof n === "string"
+              ? esc(n)
+              : esc(n.name) + " " + esc(n.parent);
+            var meta = (typeof n === "object" && n.date)
+              ? '<span class="meta">' + esc(n.date) + "</span>" : "";
+            return "<li><strong>" + line + "</strong>" + meta + "</li>";
+          }).join("") + "</ul>" +
+          '<p style="color:var(--ink-soft);font-size:15px">' +
+          "תהא נשמתם צרורה בצרור החיים.</p>";
+      })
+      .catch(function () {
+        empty("הרשימה מתעדכנת בכל מוצאי שבת.");
+      });
+  })();
 })();
 </script>
 

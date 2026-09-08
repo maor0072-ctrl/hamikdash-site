@@ -122,18 +122,20 @@ function niftarBlock(n, i) {
   );
 }
 
-function thanksHtml(name, niftarim) {
+function thanksHtml(name, niftarim, isFix) {
   const list = niftarim
     .map((n) => `<li style="margin:4px 0">${esc(n.name)} ${esc(n.parent)}</li>`)
     .join("");
   return (
     `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:16px;line-height:1.8;color:#1c1a17">` +
     `<p>שלום ${esc(name)},</p>` +
-    `<p>קיבלנו את בקשתך, והשמות נמסרו לאברכי הכולל.</p>` +
+    (isFix
+      ? `<p>התיקון התקבל. זו הרשימה המעודכנת, והיא מחליפה את הקודמת:</p>`
+      : `<p>קיבלנו את בקשתך, והשמות נמסרו לאברכי הכולל.</p>`) +
     `<ul style="background:#f3ece0;border-right:4px solid #b08434;padding:14px 24px 14px 18px;` +
     `border-radius:8px;list-style:none;margin:20px 0">${list}</ul>` +
     `<p>בכולל שלנו אברכים יושבים ולומדים כל יום. הלימוד של השבוע הקרוב יוקדש גם ` +
-    `לעילוי נשמת יקירך, וייאמרו קדישים ואשכבות בתפילות. נר נשמה דולק אצלנו כל השנה, ` +
+    `לעילוי נשמת יקירך, וייאמרו קדישים ואשכבות בתפילות. נר נשמה דולק כל השנה, ` +
     `בלי נדר.</p>` +
     `<p>אם משהו בפרטים לא מדויק, אפשר פשוט להשיב למייל הזה ונתקן.</p>` +
     `<hr style="border:0;border-top:1px solid #e5ddd0;margin:28px 0">` +
@@ -204,9 +206,18 @@ export default {
     // ההודעה ליעקב היא העיקר כאן ולכן היא נשלחת ראשונה. בגל האפס אין מאגר,
     // אז המייל הזה **הוא** הרשומה - אם הוא נכשל הבקשה אבודה, ולכן הכישלון
     // שלו מחזיר 502 והמבקש רואה שגיאה במקום אישור שקרי.
+    // תיקון הוא לא בקשה חדשה. הוא חייב להיראות אחרת בתיבה, אחרת יעקב יוסיף
+    // את השמות פעם שנייה במקום להחליף את הקודמים.
+    const isFix = d.kind === "correction";
     const notice =
       `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7">` +
-      `<h2 style="margin:0 0 4px">בקשה חדשה לעילוי נשמה</h2>` +
+      (isFix
+        ? `<h2 style="margin:0 0 4px;color:#b08434">תיקון לשמות שכבר נמסרו</h2>` +
+          `<p style="margin:0 0 18px;padding:10px 14px;background:#fdf6e6;` +
+          `border-right:4px solid #b08434;border-radius:6px">` +
+          `<strong>הרשימה הזאת מחליפה את מה שהאדם הזה מסר קודם.</strong> ` +
+          `לא להוסיף - להחליף.</p>`
+        : `<h2 style="margin:0 0 4px">בקשה חדשה לעילוי נשמה</h2>`) +
       `<p style="margin:0 0 18px;color:#8a8478;font-size:13px">` +
       `${niftarim.length} נפטרים · מהטופס ב-hamikdash.co.il</p>` +
       `<table style="border-collapse:collapse;margin-bottom:20px">` +
@@ -227,7 +238,8 @@ export default {
       mime({
         to: TO,
         replyTo: email,
-        subject: `עילוי נשמה: ${d.name} (${niftarim.length})`,
+        subject: (isFix ? "תיקון עילוי נשמה: " : "עילוי נשמה: ") +
+                 `${d.name} (${niftarim.length})`,
         html: notice,
       })
     );
@@ -238,8 +250,8 @@ export default {
       env,
       mime({
         to: email,
-        subject: "קיבלנו את השמות לעילוי נשמה",
-        html: thanksHtml(d.name, niftarim),
+        subject: isFix ? "התיקון התקבל" : "קיבלנו את השמות לעילוי נשמה",
+        html: thanksHtml(d.name, niftarim, isFix),
       })
     );
 

@@ -6,10 +6,10 @@
 // ותחליף את זה אחרי החגים.
 //
 // המבנה זהה ל-worker/lead.js של reshimu.co.il ומאותה סיבה: האתר סטטי
-// (GitHub Pages) ואין לו צד שרת. המייל נשלח דרך Composio אל חשבון הג'ימייל
-// המחובר, כך ששום שירות טפסים חיצוני לא רואה את הפניות.
+// (GitHub Pages) ואין לו צד שרת. שום שירות טפסים חיצוני לא רואה את הפניות.
 //
-// COMPOSIO_API_KEY מוזרק כסוד של ה-Worker ואינו נמצא בקוד.
+// הדואר יוצא דרך **ברבו** מ-info@hamikdash.co.il, וג'ימייל נשאר כגיבוי.
+// BREVO_API_KEY ו-COMPOSIO_API_KEY מוזרקים כסודות ואינם נמצאים בקוד.
 //
 // **מה אסור להבטיח כאן:** תזכורת שנתית, שמירה במאגר, או כל דבר אוטומטי.
 // אף אחד מהם עוד לא קיים. הטופס מבטיח רק את מה שהכולל עושה בפועל השבוע.
@@ -20,7 +20,14 @@ const ALLOWED = [
   "http://127.0.0.1:8903",
 ];
 const TO = "maor0072@gmail.com";
-const FROM = "הרב יעקב מאור <maor0072@gmail.com>";
+
+// **הזהות השולחת היא המוסד, לא יעקב.** מייל אוטומטי שיוצא בשמו הפרטי גורם
+// לאנשים לחשוב שהרב עונה להם אישית, וזו הבטחה שלא נאמרה. לכן השם והכתובת
+// הם info@hamikdash.co.il, ולא חשבון הג'ימייל האישי.
+const FROM_ADDR = "info@hamikdash.co.il";
+const FROM_NAME = "info@hamikdash.co.il";
+// תשובה של אדם שמשיב למייל צריכה בכל זאת להגיע ליעקב.
+const REPLY_TO_OWNER = "maor0072@gmail.com";
 const COMPOSIO_USER = "maor0072@gmail.com";
 const GMAIL_ACCOUNT = "ca_NGVDA1Vrsmz0";
 
@@ -60,7 +67,7 @@ const b64 = (str) => {
 // בניית ה-MIME בעצמנו ולא דרך GMAIL_SEND_EMAIL: הכלי המובנה שולח את הגוף בלי
 // להצהיר על קידוד, ג'ימייל מפרש כ-ASCII, וכל אות עברית יוצאת ג'יבריש.
 function mime({ to, replyTo, subject, html }) {
-  const lines = [`To: ${to}`, `From: ${encodeHeader(FROM)}`];
+  const lines = [`To: ${to}`, `From: ${encodeHeader(FROM_NAME + " <" + FROM_ADDR + ">")}`];
   if (replyTo) lines.push(`Reply-To: ${replyTo}`);
   lines.push(
     `Subject: =?UTF-8?B?${b64(subject)}?=`,
@@ -80,7 +87,37 @@ function encodeHeader(v) {
   return `=?UTF-8?B?${b64(m[1])}?= <${m[2]}>`;
 }
 
-async function sendMail(env, raw) {
+// שליחה דרך ברבו מהדומיין שלנו. ג'ימייל נשאר כגיבוי בלבד: המייל ליעקב הוא
+// **הרשומה** של הבקשה בגל אפס, ולכן אסור שכשל של ספק אחד יאבד אותה.
+async function sendMail(env, msg) {
+  if (env.BREVO_API_KEY) {
+    try {
+      const body = {
+        sender: { name: FROM_NAME, email: FROM_ADDR },
+        to: [{ email: msg.to }],
+        subject: msg.subject,
+        htmlContent: msg.html,
+      };
+      if (msg.replyTo) body.replyTo = { email: msg.replyTo };
+      const r = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": env.BREVO_API_KEY,
+          "content-type": "application/json",
+          accept: "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      if (r.ok) return true;
+      console.log("brevo rejected", r.status, (await r.text()).slice(0, 300));
+    } catch (e) {
+      console.log("brevo failed", String(e).slice(0, 200));
+    }
+  }
+  return sendViaGmail(env, mime(msg));
+}
+
+async function sendViaGmail(env, raw) {
   const res = await fetch(
     "https://backend.composio.dev/api/v3/tools/execute/proxy",
     {
@@ -320,7 +357,7 @@ export default {
 
     const okNotice = await sendMail(
       env,
-      mime({
+      ({
         to: TO,
         replyTo: email,
         subject: (isEmpty ? "הסרת שמות: " : isFix ? "תיקון עילוי נשמה: " :
@@ -343,8 +380,9 @@ export default {
     // אישור למבקש. נכשל? הבקשה כבר אצל יעקב, אז לא מפילים את הפנייה.
     await sendMail(
       env,
-      mime({
+      ({
         to: email,
+        replyTo: REPLY_TO_OWNER,
         subject: isEmpty ? "השמות הוסרו"
                : isFix ? "התיקון התקבל" : "קיבלנו את השמות לעילוי נשמה",
         html: thanksHtml(d.name, niftarim, isFix, isEmpty),

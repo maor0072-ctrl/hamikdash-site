@@ -110,20 +110,19 @@ async function sendMail(env, raw) {
   return ok;
 }
 
-// "ראובן" + "ניסן" הוא לא "ראובן ניסן" אלא "ראובן בן ניסן". המגדר נגזר
-// מהקרבה שהמבקש בחר, שהיא ממילא שדה חובה - בלי לשאול שאלה נוספת.
-// אם המבקש כבר כתב "בן"/"בת" בעצמו, לא מוסיפים פעמיים.
-const MALE = ["אב", "בעל", "בן", "אח", "סב", "דוד", "קרוב משפחה", "חבר", "רב"];
-const FEMALE = ["אם", "אישה", "בת", "אחות", "סבתא", "דודה", "קרובת משפחה", "חברה"];
+// "ראובן" + "ניסן" הוא לא "ראובן ניסן" אלא "ראובן בן ניסן".
+// המגדר הוא **שדה חובה מפורש** ולא נגזר מהקרבה: "קרוב משפחה" ו"אחר" לא
+// מסגירים מגדר, ובשם של נפטר אסור לנחש. אם המבקש כבר כתב "בן"/"בת" בשם
+// ההורה, לא מוסיפים פעמיים.
 
 function fullName(n) {
   const parent = String(n.parent || "").trim();
   const name = String(n.name || "").trim();
   if (!parent) return name;
   if (/^(בן|בת|ב"ר|בר)\s/.test(parent)) return name + " " + parent;
-  if (MALE.indexOf(n.relation) !== -1) return name + " בן " + parent;
-  if (FEMALE.indexOf(n.relation) !== -1) return name + " בת " + parent;
-  return name + " " + parent; // קרבה לא מגדרית, לא ממציאים
+  if (n.gender === "f") return name + " בת " + parent;
+  if (n.gender === "m") return name + " בן " + parent;
+  return name + " " + parent; // בלי מגדר לא ממציאים
 }
 
 function niftarBlock(n, i) {
@@ -135,6 +134,7 @@ function niftarBlock(n, i) {
     row("שם ההורה", n.parent) +
     row("תאריך הפטירה", n.date) +
     row("קרבה למבקש", n.relation) +
+    row("מין", n.gender === "f" ? "נקבה" : n.gender === "m" ? "זכר" : "לא צוין") +
     `</table>`
   );
 }
@@ -170,12 +170,66 @@ function thanksHtml(name, niftarim, isFix) {
   );
 }
 
+const KV_KEY = "public-list";
+const MAX_PUBLIC = 400; // תקרה להצגה; מעבר לזה הדף נהיה בלתי קריא
+
+// הרשימה הפומבית מחזיקה **רק** את מה שמותר להופיע באתר: שם, שם ההורה,
+// מגדר ותאריך. שם המבקש, הטלפון והמייל שלו לעולם לא נכנסים לכאן, כי הקובץ
+// הזה מוגש לכל אדם באינטרנט.
+function publicEntry(n) {
+  return { name: n.name, parent: n.parent, gender: n.gender, date: n.date };
+}
+
+async function readPublic(env) {
+  if (!env.NAMES) return [];
+  const raw = await env.NAMES.get(KV_KEY);
+  try { return raw ? JSON.parse(raw) : []; } catch (e) { return []; }
+}
+
+// KV הוא eventually consistent ואין בו טרנזקציות. שתי הגשות באותה שנייה
+// יכולות לדרוס זו את זו. בהיקף של עשרות שמות בשבוע זה לא מעשי לדאוג לזה,
+// והמייל ליעקב הוא ממילא הרשומה הקובעת - הרשימה הפומבית היא תצוגה.
+async function appendPublic(env, list, ownerKey) {
+  if (!env.NAMES) return;
+  const cur = await readPublic(env);
+  const kept = cur.filter((e) => e.owner !== ownerKey);
+  const add = list.map((n) => Object.assign(publicEntry(n), { owner: ownerKey }));
+  const next = kept.concat(add).slice(-MAX_PUBLIC);
+  await env.NAMES.put(KV_KEY, JSON.stringify(next));
+}
+
+// מפתח בעלות אנונימי: גיבוב של המייל, כדי שתיקון יחליף את השמות של אותו
+// אדם ולא יכפיל אותם - בלי לשמור את המייל עצמו בקובץ הפומבי.
+async function ownerHash(email) {
+  const buf = await crypto.subtle.digest(
+    "SHA-256", new TextEncoder().encode("hamikdash:" + email.toLowerCase()));
+  return Array.from(new Uint8Array(buf)).slice(0, 8)
+    .map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
     const headers = cors(origin);
 
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
+
+    // GET /?list=public - הרשימה שכל המבקרים רואים.
+    if (request.method === "GET") {
+      const url = new URL(request.url);
+      if (url.searchParams.get("list") === "public") {
+        const all = (await readPublic(env)).map(publicEntry);
+        return new Response(JSON.stringify({ names: all }), {
+          status: 200,
+          headers: Object.assign({}, headers, {
+            "Content-Type": "application/json; charset=utf-8",
+            "Cache-Control": "public, max-age=60",
+          }),
+        });
+      }
+      return new Response("method not allowed", { status: 405, headers });
+    }
+
     if (request.method !== "POST")
       return new Response("method not allowed", { status: 405, headers });
 
@@ -209,6 +263,7 @@ export default {
         parent: String((n && n.parent) || "").trim(),
         date: String((n && n.date) || "").trim(),
         relation: String((n && n.relation) || "").trim(),
+        gender: (n && n.gender) === "f" ? "f" : (n && n.gender) === "m" ? "m" : "",
       }))
       .filter((n) => n.name)
       .slice(0, MAX_NIFTARIM);
@@ -216,7 +271,7 @@ export default {
     if (!niftarim.length)
       return new Response("no niftarim", { status: 400, headers });
     for (const n of niftarim) {
-      if (!n.parent || !n.date || !n.relation)
+      if (!n.parent || !n.date || !n.relation || !n.gender)
         return new Response("incomplete niftar", { status: 400, headers });
     }
 
@@ -261,6 +316,16 @@ export default {
       })
     );
     if (!okNotice) return new Response("send failed", { status: 502, headers });
+
+    // רק אחרי שהמייל ליעקב יצא בהצלחה השמות עולים לרשימה הפומבית.
+    // הסדר הזה מכוון: שם שמופיע באתר ולא הגיע ליעקב הוא הבטחה ריקה.
+    // הערה למי שיבדוק את זה בעתיד: כתיבה ל-KV מתפשטת עד כדקה. בדיקה
+    // שקוראת מיד אחרי POST תראה את הערך הישן, וזה לא באג.
+    try {
+      await appendPublic(env, niftarim, await ownerHash(email));
+    } catch (e) {
+      console.log('kv append failed', String(e).slice(0, 200));
+    }
 
     // אישור למבקש. נכשל? הבקשה כבר אצל יעקב, אז לא מפילים את הפנייה.
     await sendMail(

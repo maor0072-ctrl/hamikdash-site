@@ -77,7 +77,7 @@
       <a href="/torah.html">תוכן תורני</a>
       <a href="/chagim/">חגים</a>
       <a href="/contact.html">יצירת קשר</a>
-      <a href="/donate.html" class="btn">לתרומה</a>
+      <a href="/donate.html">לתרומה</a>
     </nav>
   </div>
 </header>
@@ -296,16 +296,13 @@
   // "ראובן" + "ניסן" הוא לא "ראובן ניסן" אלא "ראובן בן ניסן". המגדר נגזר
   // מהקרבה, שהיא ממילא שדה חובה - בלי לשאול שאלה נוספת. אם המבקש כבר כתב
   // "בן"/"בת" בעצמו, לא מוסיפים פעמיים.
-  var MALE = ["אב","בעל","בן","אח","סב","דוד","קרוב משפחה","חבר","רב"];
-  var FEMALE = ["אם","אישה","בת","אחות","סבתא","דודה","קרובת משפחה","חברה"];
-
   function fullName(n) {
     var name = String(n.name || "").trim(), parent = String(n.parent || "").trim();
     if (!parent) return name;
     if (/^(בן|בת|ב"ר|בר)\s/.test(parent)) return name + " " + parent;
-    if (MALE.indexOf(n.relation) !== -1) return name + " בן " + parent;
-    if (FEMALE.indexOf(n.relation) !== -1) return name + " בת " + parent;
-    return name + " " + parent; // קרבה לא מגדרית, לא ממציאים
+    if (n.gender === "f") return name + " בת " + parent;
+    if (n.gender === "m") return name + " בן " + parent;
+    return name + " " + parent; // בלי מגדר לא ממציאים
   }
 
   // הזיכרון יושב במכשיר של המבקש. בגל האפס אין מאגר בצד השרת, ובלי זה אין
@@ -335,7 +332,7 @@
     if (!el) el = $("view-intro");
     el.classList.add("on");
     window.scrollTo(0, 0);
-    if (view === "intro") refreshIntro();
+    if (view === "intro") { refreshIntro(); loadPublic(); }
     if (view === "list") renderList();
     if (view === "edit") renderEdit();
     if (view === "names") prepNames();
@@ -429,7 +426,12 @@
       '<div class="field"><label>הקרבה אליכם</label>' +
       '<select class="n-relation"><option value="">בחרו</option>' +
       optionsHtml(v.relation) + "</select></div>" +
-      "</div>";
+      "</div>" +
+      '<div class="field"><label>הנפטר</label>' +
+      '<select class="n-gender"><option value="">בחרו</option>' +
+      '<option value="m"' + (v.gender === "m" ? " selected" : "") + ">זכר</option>" +
+      '<option value="f"' + (v.gender === "f" ? " selected" : "") + ">נקבה</option>" +
+      "</select></div>";
     d.querySelector(".niftar-remove").addEventListener("click", function () {
       var parent = d.parentNode;
       d.remove();
@@ -465,11 +467,13 @@
         name: b.querySelector(".n-name").value.trim(),
         parent: b.querySelector(".n-parent").value.trim(),
         date: b.querySelector(".n-date").value.trim(),
-        relation: b.querySelector(".n-relation").value.trim()
+        relation: b.querySelector(".n-relation").value.trim(),
+        gender: b.querySelector(".n-gender").value.trim()
       };
-      if (!n.name && !n.parent && !n.date && !n.relation) continue;
-      if (!n.name || !n.parent || !n.date || !n.relation)
-        return { error: "בנפטר " + (i + 1) + " חסרים פרטים. כל ארבעת השדות נדרשים." };
+      if (!n.name && !n.parent && !n.date && !n.relation && !n.gender) continue;
+      if (!n.name || !n.parent || !n.date || !n.relation || !n.gender)
+        return { error: "בנפטר " + (i + 1) + " חסרים פרטים. כל השדות נדרשים, " +
+                        "כולל אם הנפטר זכר או נקבה." };
       out.push(n);
     }
     if (!out.length) return { error: "נא למלא לפחות שם נפטר אחד." };
@@ -607,40 +611,52 @@
 
   refreshIntro();
 
-  /* ---------- הרשימה השבועית ---------- */
-  // הנתונים יושבים ב-/data/neshama-week.json ולא בעמוד, כדי שעדכון שבועי
-  // יהיה עריכה של קובץ אחד קטן ולא נגיעה בקוד. הרשימה מתחלפת במוצאי שבת.
-  (function () {
+  /* ---------- הרשימה הפומבית ---------- */
+  // שני מקורות: מה שאנשים מסרו דרך הטופס (יושב אצל ה-Worker), ורשימה ידנית
+  // ב-/data/neshama-week.json ליארצייטים שיעקב מזין בעצמו. עד שיהיה מנוע
+  // תאריך עברי, כל שם שנמסר מוצג ברשימה של השבוע הנוכחי.
+  function loadPublic() {
     var box = $("week-box");
     function empty(text) {
       box.innerHTML = '<div class="note-box"><p>' + text + "</p></div>";
     }
-    fetch("/data/neshama-week.json?v=" + Math.floor(Date.now() / 3.6e6))
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) {
-        if (!d || !d.names || !d.names.length) {
-          // מצב ריק אומר את האמת. רשימה ריקה עם כותרת נראית כמו תקלה.
-          return empty(
-            "הרשימה מתעדכנת בכל מוצאי שבת. שם שנמסר עד יום שישי נכנס לרשימה " +
-            "של השבוע הקרוב, ומי שמוסר בשבת נכנס לשבוע שאחריו.");
-        }
-        var head = d.week
-          ? '<p style="color:var(--ink-soft);margin-bottom:14px">' + esc(d.week) + "</p>"
-          : "";
-        box.innerHTML = head +
-          '<ul class="done-list">' + d.names.map(function (n) {
-            var line = typeof n === "string" ? esc(n) : esc(fullName(n));
-            var meta = (typeof n === "object" && n.date)
-              ? '<span class="meta">' + esc(n.date) + "</span>" : "";
-            return "<li><strong>" + line + "</strong>" + meta + "</li>";
-          }).join("") + "</ul>" +
-          '<p style="color:var(--ink-soft);font-size:15px">' +
-          "תהא נשמתם צרורה בצרור החיים.</p>";
-      })
-      .catch(function () {
-        empty("הרשימה מתעדכנת בכל מוצאי שבת.");
+    function get(url) {
+      return fetch(url).then(function (r) { return r.ok ? r.json() : null; })
+                       .catch(function () { return null; });
+    }
+    Promise.all([
+      get(ENDPOINT + "?list=public"),
+      get("/data/neshama-week.json?v=" + Math.floor(Date.now() / 3.6e6))
+    ]).then(function (res) {
+      var fromForm = (res[0] && res[0].names) || [];
+      var manual = (res[1] && res[1].names) || [];
+      var week = (res[1] && res[1].week) || "";
+      var all = manual.concat(fromForm);
+      if (!all.length) {
+        // מצב ריק אומר את האמת. רשימה ריקה עם כותרת נראית כמו תקלה.
+        return empty("עדיין לא נמסרו שמות לשבוע הזה. הרשימה מתעדכנת ברגע " +
+                     "שנמסר שם, ומתחלפת בכל מוצאי שבת.");
+      }
+      // מסירה כפולה של אותו שם לא צריכה להופיע פעמיים ברשימה פומבית
+      var seen = {}, uniq = [];
+      all.forEach(function (n) {
+        var key = typeof n === "string" ? n : fullName(n);
+        if (seen[key]) return;
+        seen[key] = 1;
+        uniq.push({ line: key, date: (typeof n === "object" && n.date) || "" });
       });
-  })();
+      box.innerHTML =
+        (week ? '<p style="color:var(--ink-soft);margin-bottom:14px">' + esc(week) + "</p>" : "") +
+        '<ul class="done-list">' + uniq.map(function (u) {
+          return "<li><strong>" + esc(u.line) + "</strong>" +
+            (u.date ? '<span class="meta">' + esc(u.date) + "</span>" : "") + "</li>";
+        }).join("") + "</ul>" +
+        '<p style="color:var(--ink-soft);font-size:15px">' +
+        uniq.length + (uniq.length === 1 ? " שם" : " שמות") +
+        " ברשימה. תהא נשמתם צרורה בצרור החיים.</p>";
+    });
+  }
+  loadPublic();
 })();
 </script>
 

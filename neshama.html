@@ -625,7 +625,9 @@
                        .catch(function () { return null; });
     }
     Promise.all([
-      get(ENDPOINT + "?list=public"),
+      // עוקף מטמון לפי דקה: בלעדיו הדפדפן והקצה מחזיקים תשובה ישנה
+      // ושם שנמסר עכשיו לא מופיע ברשימה במשך דקה שלמה.
+      get(ENDPOINT + "?list=public&v=" + Math.floor(Date.now() / 6e4)),
       get("/data/neshama-week.json?v=" + Math.floor(Date.now() / 3.6e6))
     ]).then(function (res) {
       var fromForm = (res[0] && res[0].names) || [];

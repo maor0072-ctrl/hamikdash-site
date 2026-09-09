@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מילוי משאלות - שמע בחצות | אורות האמונה - בני משה</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+.form-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:28px 26px;margin:0 auto;max-width:760px}
+.field{margin-bottom:18px}
+.field label{display:block;font-weight:700;margin-bottom:6px;font-size:16px}
+.field .hint{display:block;font-weight:400;color:var(--ink-soft);font-size:14px;margin-top:2px}
+.field input,.field select,.field textarea{width:100%;font-family:inherit;font-size:17px;
+  color:var(--ink);background:var(--cream);border:1px solid var(--line);border-radius:8px;
+  padding:11px 13px;transition:border-color .15s,background .15s}
+.field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:var(--gold);
+  background:var(--white)}
+.field textarea{min-height:80px;resize:vertical}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+@media(max-width:640px){.row-2{grid-template-columns:1fr}}
+.check-field{display:flex;align-items:flex-start;gap:10px;margin:6px 0 4px;font-size:15px;
+  color:var(--ink-soft)}
+.check-field input{width:auto;margin-top:3px}
+.wish{border:1px solid var(--line);border-radius:var(--radius);padding:20px 18px 4px;
+  margin-bottom:16px;background:var(--cream-warm)}
+.wish-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.wish-head h3{font-size:17px;color:var(--gold-deep);margin:0}
+.wish-remove{background:none;border:0;color:var(--ink-soft);font-size:15px;cursor:pointer;
+  text-decoration:underline;font-family:inherit;padding:0}
+.form-sep{border:0;border-top:1px solid var(--line);margin:26px 0 22px}
+.hp{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+.form-msg{margin-top:16px;padding:14px 16px;border-radius:8px;font-size:16px;display:none}
+.form-msg.err{display:block;background:#fdecea;border-right:4px solid #c0392b;color:#7b241c}
+.form-msg.ok{display:block;background:var(--cream-warm);border-right:4px solid var(--gold);
+  color:var(--ink)}
+.note-box{background:var(--cream-warm);border-right:4px solid var(--gold);border-radius:8px;
+  padding:16px 20px;margin:22px 0}
+.note-box p{margin:0}
+.view{display:none}
+.view.on{display:block}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.done-list{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+  padding:6px 22px;margin:22px 0}
+.done-list li{margin:12px 0;line-height:1.6}
+.done-list .meta{color:var(--ink-soft);font-size:15px;display:block}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <a href="/"><span class="brand-name">אורות האמונה - בני משה</span></a>
+      <span class="brand-sub">בראשות הרב יעקב מאור</span>
+    </div>
+    <nav class="nav">
+      <a href="/">בית</a>
+      <a href="/shema.html" class="active">שמע בחצות</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-head">
+  <div class="wrap">
+    <h1>מילוי משאלות</h1>
+    <p>עד שלוש בקשות. כל השותפים מתפללים עליהן הלילה בחצות.</p>
+  </div>
+</div>
+
+<!-- ============ שגיאה: אין טוקן / טוקן לא תקין ============ -->
+<section class="view" id="view-bad">
+  <div class="wrap">
+    <div class="form-card">
+      <h2 style="font-size:22px;margin-bottom:10px">הקישור הזה לא תקין</h2>
+      <p>ייתכן שהקישור פג תוקף או הועתק חלקית. אפשר להצטרף מחדש ולקבל מייל טרי.</p>
+      <div class="actions">
+        <a href="/shema.html" class="btn btn-lg">חזרה ל"שמע בחצות"</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ הטופס ============ -->
+<section class="view" id="view-form">
+  <div class="wrap">
+    <div class="form-card">
+      <p style="color:var(--ink-soft);font-size:15px;margin-bottom:22px">בכל שורה: שם, שם ההורה,
+      המשאלה, והקרבה שלך אליו. סמנו אם מותר לפרסם את השם ברשימה הכללית - אחרת הוא יישמר אצלנו בלבד.</p>
+
+      <div id="wishes"></div>
+
+      <p style="margin-bottom:22px">
+        <button type="button" id="add-wish" class="btn btn-ghost">הוספת בקשה נוספת</button>
+      </p>
+
+      <div class="actions">
+        <button type="button" class="btn btn-lg" id="submit-btn">שליחת המשאלות</button>
+      </div>
+      <div id="form-msg" class="form-msg"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ אישור ============ -->
+<section class="view" id="view-done">
+  <div class="wrap">
+    <div class="form-card">
+      <h2 style="font-size:26px;margin-bottom:10px">המשאלות נמסרו</h2>
+      <p id="done-sub"></p>
+      <ul class="done-list" id="done-list"></ul>
+      <div class="actions">
+        <a href="/shema.html" class="btn btn-ghost">לרשימה הכללית</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-bottom">
+      כל הזכויות שמורות לעמותת אורות האמונה - בני משה
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var ENDPOINT = "https://hamikdash-shema.maor0072.workers.dev";
+  var MAX = 3;
+  var RELATIONS = ["עצמי", "אמא", "אבא", "בעל", "אישה", "בן", "בת", "אח", "אחות",
+                   "סבא", "סבתא", "דוד", "דודה", "חבר", "חברה", "אחר"];
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function show(view) {
+    var all = document.querySelectorAll(".view");
+    for (var i = 0; i < all.length; i++) all[i].classList.remove("on");
+    ($("view-" + view) || $("view-form")).classList.add("on");
+    window.scrollTo(0, 0);
+  }
+
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get("t") || "";
+  if (!token) { show("bad"); return; }
+
+  function msg(id, kind, text) {
+    var el = $(id);
+    el.className = "form-msg " + kind;
+    el.textContent = text;
+  }
+
+  function optionsHtml() {
+    return RELATIONS.map(function (r) {
+      return '<option value="' + r + '">' + r + "</option>";
+    }).join("");
+  }
+
+  var wrap = $("wishes");
+
+  function block() {
+    var d = document.createElement("div");
+    d.className = "wish";
+    d.innerHTML =
+      '<div class="wish-head"><h3>בקשה <span class="num"></span></h3>' +
+      '<button type="button" class="wish-remove">הסרה</button></div>' +
+      '<div class="row-2">' +
+      '<div class="field"><label>שם' +
+      '<span class="hint">שם פרטי בלבד</span></label>' +
+      '<input type="text" class="w-name"></div>' +
+      '<div class="field"><label>שם ההורה' +
+      '<span class="hint">רק השם, למשל "רבקה"</span></label>' +
+      '<input type="text" class="w-parent"></div>' +
+      "</div>" +
+      '<div class="field"><label>המשאלה' +
+      '<span class="hint">למשל: רפואה שלמה, זיווג הגון, פרנסה טובה</span></label>' +
+      '<textarea class="w-wish"></textarea></div>' +
+      '<div class="field"><label>הקרבה שלך אליו/ה</label>' +
+      '<select class="w-relation"><option value="">בחרו</option>' + optionsHtml() + "</select></div>" +
+      '<label class="check-field"><input type="checkbox" class="w-public">' +
+      "<span>יש לי רשות למסור את השם הזה לרשימה הכללית הפומבית " +
+      "(יוצג שם פרטי + שם ההורה בלבד, בלי פרטים נוספים). אם לא מסומן, השם יישמר " +
+      "אצלנו בלבד ולא יוצג באתר.</span></label>";
+    d.querySelector(".wish-remove").addEventListener("click", function () {
+      d.remove();
+      renumber();
+    });
+    return d;
+  }
+
+  function renumber() {
+    var blocks = wrap.querySelectorAll(".wish");
+    for (var i = 0; i < blocks.length; i++) {
+      blocks[i].querySelector(".num").textContent = i + 1;
+      blocks[i].querySelector(".wish-remove").style.display = blocks.length > 1 ? "" : "none";
+    }
+    $("add-wish").style.display = blocks.length >= MAX ? "none" : "";
+  }
+
+  wrap.appendChild(block());
+  renumber();
+
+  $("add-wish").addEventListener("click", function () {
+    if (wrap.querySelectorAll(".wish").length >= MAX) return;
+    wrap.appendChild(block());
+    renumber();
+  });
+
+  function collect() {
+    var out = [], blocks = wrap.querySelectorAll(".wish");
+    for (var i = 0; i < blocks.length; i++) {
+      var b = blocks[i];
+      var w = {
+        name: b.querySelector(".w-name").value.trim(),
+        parent: b.querySelector(".w-parent").value.trim(),
+        wish: b.querySelector(".w-wish").value.trim(),
+        relation: b.querySelector(".w-relation").value.trim(),
+        publicOk: b.querySelector(".w-public").checked
+      };
+      w.privateOnly = !w.publicOk;
+      if (!w.name && !w.parent && !w.wish && !w.relation) continue;
+      if (!w.name || !w.parent || !w.wish || !w.relation)
+        return { error: "בבקשה " + (i + 1) + " חסרים פרטים. שם, שם ההורה, המשאלה והקרבה נדרשים." };
+      out.push(w);
+    }
+    if (!out.length) return { error: "נא למלא לפחות בקשה אחת." };
+    return { list: out };
+  }
+
+  $("submit-btn").addEventListener("click", function () {
+    var got = collect();
+    if (got.error) return msg("form-msg", "err", got.error);
+
+    var btn = $("submit-btn");
+    btn.disabled = true;
+    var original = btn.textContent;
+    btn.textContent = "שולח...";
+    msg("form-msg", "ok", "רגע אחד...");
+
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "wishes", token: token, wishes: got.list })
+    })
+      .then(function (r) { if (!r.ok) throw new Error(String(r.status)); return true; })
+      .then(function () {
+        $("done-sub").textContent =
+          "שלחנו לך אישור לדואר האלקטרוני. הלילה, בחצות, שותפי הפרויקט מתפללים גם עליהן.";
+        $("done-list").innerHTML = got.list.map(function (w) {
+          return "<li><strong>" + esc(w.name) + " - " + esc(w.parent) + "</strong>" +
+            '<span class="meta">' + esc(w.wish) + " · " +
+            (w.publicOk ? "ברשימה הכללית" : "פרטי בלבד") + "</span></li>";
+        }).join("");
+        show("done");
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = original;
+        msg("form-msg", "err",
+          "משהו השתבש בשליחה. אפשר לנסות שוב, או לפנות בוואטסאפ למספר 052-8395189.");
+      });
+  });
+})();
+</script>
+
+</body>
+</html>

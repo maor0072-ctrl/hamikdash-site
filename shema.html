@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>שמע בחצות | אורות האמונה - בני משה</title>
+<meta name="description" content="כל לילה בחצות, יהודים מכל העולם אומרים יחד 'שמע ישראל' ומתפללים זה על זה. הצטרפו לפרויקט 'שמע בחצות'.">
+<meta property="og:title" content="שמע בחצות | אורות האמונה - בני משה">
+<meta property="og:description" content="הצטרפו לאיחוד הלילי - 'שמע ישראל' יחד בחצות, ותפילה על משאלות הלב.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="he_IL">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+/* סגנונות מקומיים לעמוד הזה בלבד, זהים לדפוס ב-neshama.html כדי לא להמציא גיליון שני */
+.form-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:28px 26px;margin:0 auto;max-width:760px}
+.field{margin-bottom:18px}
+.field label{display:block;font-weight:700;margin-bottom:6px;font-size:16px}
+.field .hint{display:block;font-weight:400;color:var(--ink-soft);font-size:14px;margin-top:2px}
+.field input,.field select,.field textarea{width:100%;font-family:inherit;font-size:17px;
+  color:var(--ink);background:var(--cream);border:1px solid var(--line);border-radius:8px;
+  padding:11px 13px;transition:border-color .15s,background .15s}
+.field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:var(--gold);
+  background:var(--white)}
+.field textarea{min-height:80px;resize:vertical}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+@media(max-width:640px){.row-2{grid-template-columns:1fr}}
+.check-field{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;font-size:15px}
+.check-field input{width:auto;margin-top:3px}
+.form-sep{border:0;border-top:1px solid var(--line);margin:26px 0 22px}
+
+/* שדה מלכודת הספאם, מוסתר בלי ליצור גלישה אופקית.
+   לעולם לא left:-9999px: בדף RTL זה מותח את רוחב הגלילה ואת התוכן מחוץ למסך. */
+.hp{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+.form-msg{margin-top:16px;padding:14px 16px;border-radius:8px;font-size:16px;display:none}
+.form-msg.err{display:block;background:#fdecea;border-right:4px solid #c0392b;color:#7b241c}
+.form-msg.ok{display:block;background:var(--cream-warm);border-right:4px solid var(--gold);
+  color:var(--ink)}
+.note-box{background:var(--cream-warm);border-right:4px solid var(--gold);border-radius:8px;
+  padding:16px 20px;margin:22px 0}
+.note-box p{margin:0}
+.view{display:none}
+.view.on{display:block}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.wish-list{list-style:none;padding:0;margin:22px 0}
+.wish-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--cream-warm);border:1px solid var(--line);border-radius:8px;
+  padding:10px 16px;margin-bottom:10px;font-size:16px}
+.wish-report{background:none;border:0;color:var(--ink-soft);font-size:13px;cursor:pointer;
+  text-decoration:underline;font-family:inherit;padding:0;white-space:nowrap}
+.back-link{background:none;border:0;color:var(--ink-soft);font-family:inherit;font-size:16px;
+  text-decoration:underline;cursor:pointer;padding:0;margin-top:18px}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <a href="/"><span class="brand-name">אורות האמונה - בני משה</span></a>
+      <span class="brand-sub">בראשות הרב יעקב מאור</span>
+    </div>
+    <nav class="nav">
+      <a href="/">בית</a>
+      <a href="/about.html">אודות</a>
+      <a href="/neshama.html">עילוי נשמה</a>
+      <a href="/shema.html" class="active">שמע בחצות</a>
+      <a href="/torah.html">תוכן תורני</a>
+      <a href="/chagim/">חגים</a>
+      <a href="/contact.html">יצירת קשר</a>
+      <a href="/donate.html">לתרומה</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-head">
+  <div class="wrap">
+    <h1>שמע בחצות</h1>
+    <p>כל לילה בחצות, בכל מקום בעולם, מתאחדים יחד באמירת "שמע ישראל" - ומיד אחר כך מבקשים משאלות הלב.</p>
+  </div>
+</div>
+
+<!-- ============ מסך 1: הסבר, הצטרפות ורשימה כללית ============ -->
+<section class="view on" id="view-intro">
+  <div class="wrap prose">
+
+    <div class="actions" id="intro-new" style="margin-top:0">
+      <button type="button" class="btn btn-lg" data-go="details">אני מצטרף/ת</button>
+    </div>
+
+    <div id="intro-joined" style="display:none">
+      <div class="note-box" style="margin-top:0">
+        <p>כבר הצטרפת מהמכשיר הזה. בדוק/י את תיבת הדואר לקישור למילוי משאלות.</p>
+      </div>
+    </div>
+
+    <h2>הרעיון, במילים של הרב</h2>
+    <p>"שְׁמַע יִשְׂרָאֵל!" - את הקריאה הזאת שומעים בכל פעם שיהודי בצרה, במצב של סכנה, או כשהוא מרגיש
+    התעלות ורצון להתחבר לבורא העולם. זוהי התפילה השגורה ביותר בפי כל שכבות עם ישראל מאז ומתמיד.
+    יש כוח עצום באמירת "שמע ישראל" וקבלת עול מלכותו, אחדותו וייחודו של בורא העולם יחד, כעם אחד.</p>
+    <p>יש קבוצה שהחלה כבר במנהג הזה. ככל שנצטרף ונצרף עוד אנשים לאיחוד הזה, כוח התפילה שלנו יעלה.
+    כך נולד הרעיון של "שמע בחצות":</p>
+
+    <div class="note-box">
+      <p style="text-align:center;font-size:19px;font-weight:700;line-height:1.9">
+        כל לילה, בשעה <strong>24:00 בדיוק לפי שעון ישראל</strong> (בלי קשר לשעון קיץ),
+        בכל מקום שאתם נמצאים, בנוסף לקריאת שמע שעל המיטה -<br>
+        נאמר יחד:<br><br>
+        שְׁמַע יִשְׂרָאֵל ה' אֱלקינוּ ה' אֶחָד!<br>
+        <span style="font-weight:400;font-size:16px">(בלחש:) ברוך שם כבוד מלכותו לעולם ועד.</span>
+      </p>
+    </div>
+
+    <p><em>אם אינך יכול/ה להגיד את ה"שמע ישראל" בדיוק בשעה שתיים עשרה בלילה, אפשר להגיד קודם או
+    אחר כך ולכוון שהתפילה תהיה לשעת חצות, יחד עם כל עם ישראל.</em></p>
+
+    <p>מייד אחרי אמירת "שמע ישראל" המשותפת, נאמר:</p>
+
+    <div class="note-box">
+      <p style="text-align:center;font-size:17px;line-height:1.9">
+        "אבינו שבשמים, כשם שהתאחדנו באמירת 'שמע ישראל', יהי רצון מלפניך שתמלא כל
+        משאלות לבנו לטובה"</p>
+    </div>
+
+    <p>כעת, אפשר לבקש בקשות בכל נושא שנחפוץ - רפואת חולים, זיווג, פרנסה, עילוי נשמה. ובעיקר: קודם
+    על חברנו, ורק אחר כך על עצמנו, כי "כל המתפלל על חברו והוא צריך לאותו דבר נענה".</p>
+
+    <p style="font-size:18px;font-weight:700">דמיינו לעצמכם מיליון יהודים אומרים באותו הרגע
+    "שמע ישראל"! אחיי ואחיותיי האהובים, הצטרפו ל"שמע בחצות" ונזכה להביא את הגאולה. אמן, כן יהי רצון.</p>
+
+    <hr class="form-sep">
+
+    <h2>מתפללים גם בשבילכם</h2>
+    <p>מלבד השותפים עצמם, מתפללים למילוי המשאלות שברשימה גם אברכי הכולל, היתומים והאלמנות
+    שעמותת "אורות האמונה - בני משה" תומכת בהם, והרב יעקב מאור עצמו, בלי נדר, בכל לילה.</p>
+
+    <hr class="form-sep">
+
+    <h2>הרשימה הכללית</h2>
+    <p style="color:var(--ink-soft);font-size:15px">כל השותפים מתפללים על הרשימה הזאת כמות שהיא,
+    בלי לקרוא שם-שם - זה מה שקורה בחצות, כל לילה.</p>
+    <div id="list-box">
+      <p style="color:var(--ink-soft)">טוען...</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ מסך 2: פרטי ההצטרפות ============ -->
+<section class="view" id="view-details">
+  <div class="wrap">
+    <div class="form-card">
+      <h2 style="font-size:24px;margin-bottom:8px">הצטרפות ל"שמע בחצות"</h2>
+      <p style="color:var(--ink-soft);font-size:15px;margin-bottom:22px">שם, טלפון ומייל חובה.
+      אחרי ההצטרפות תקבל/י מייל עם קישור למסירת שם למי שתרצה/י שיתפללו עליו.</p>
+
+      <div class="field">
+        <label for="name">שם מלא</label>
+        <input type="text" id="name" autocomplete="name">
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label for="phone">טלפון נייד</label>
+          <input type="tel" id="phone" autocomplete="tel" inputmode="tel">
+        </div>
+        <div class="field">
+          <label for="email">דואר אלקטרוני</label>
+          <input type="email" id="email" autocomplete="email" inputmode="email">
+        </div>
+      </div>
+      <div class="field">
+        <label for="address">כתובת <span class="hint">לא חובה</span></label>
+        <input type="text" id="address" autocomplete="street-address">
+      </div>
+
+      <div class="hp" aria-hidden="true">
+        <label for="website">אל תמלאו שדה זה</label>
+        <input type="text" id="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-lg" id="join-btn">הצטרפות</button>
+      </div>
+      <div id="join-msg" class="form-msg"></div>
+      <button type="button" class="back-link" data-go="intro">חזרה</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ מסך 3: אישור הצטרפות ============ -->
+<section class="view" id="view-sent">
+  <div class="wrap">
+    <div class="form-card">
+      <h2 style="font-size:26px;margin-bottom:10px">שלחנו לך מייל</h2>
+      <p>בתיבת הדואר שלך מחכה מייל אימות עם קישור למילוי משאלות. אם הוא לא מגיע תוך כמה
+      דקות, כדאי לבדוק בתיקיית "דואר זבל" או "קידומים".</p>
+      <p style="color:var(--ink-soft);font-size:15px">אין צורך להיכנס לאתר כדי לומר "שמע" בחצות -
+      זה לא תנאי. אפשר לומר אותו כל לילה בלי לבקר כאן אף פעם.</p>
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" data-go="intro">חזרה לדף הבית</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="band">
+  <h2>מה שמחזיק את הכולל</h2>
+  <p>אברכים שיושבים ולומדים כל יום נשענים על אנשים שנותנים בקביעות. כל שקל הולך ממש לקודש הקודשים.</p>
+  <a href="/donate.html" class="btn btn-lg">קחו חלק בהוראת קבע</a>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>אורות האמונה - בני משה</h4>
+        <p>עמותה רשומה הפועלת לחיזוק לימוד התורה, לליווי משפחות ולסיוע ישיר למי שנזקק.</p>
+      </div>
+      <div>
+        <h4>ניווט</h4>
+        <a href="/about.html">אודות</a>
+        <a href="/neshama.html">עילוי נשמה</a>
+        <a href="/shema.html">שמע בחצות</a>
+        <a href="/torah.html">תוכן תורני</a>
+        <a href="/chagim/">חגים</a>
+        <a href="/donate.html">תרומה</a>
+        <a href="/contact.html">יצירת קשר</a>
+      </div>
+      <div>
+        <h4>עקבו אחרינו</h4>
+        <a href="https://www.youtube.com/@ravmaor" target="_blank" rel="noopener">יוטיוב</a>
+        <a href="https://wa.me/972528395189" target="_blank" rel="noopener">וואטסאפ</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      כל הזכויות שמורות לעמותת אורות האמונה - בני משה
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var ENDPOINT = "https://hamikdash-shema.maor0072.workers.dev";
+  var KEY_JOINED = "hamikdash_shema_joined";
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function show(view) {
+    var all = document.querySelectorAll(".view");
+    for (var i = 0; i < all.length; i++) all[i].classList.remove("on");
+    var el = $("view-" + view) || $("view-intro");
+    el.classList.add("on");
+    window.scrollTo(0, 0);
+    if (view === "intro") { refreshIntro(); loadPublic(); }
+  }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("[data-go]") : null;
+    if (!b) return;
+    show(b.getAttribute("data-go"));
+  });
+
+  function refreshIntro() {
+    var joined = false;
+    try { joined = !!localStorage.getItem(KEY_JOINED); } catch (e) {}
+    $("intro-new").style.display = joined ? "none" : "";
+    $("intro-joined").style.display = joined ? "" : "none";
+  }
+
+  function msg(id, kind, text) {
+    var el = $(id);
+    el.className = "form-msg " + kind;
+    el.textContent = text;
+  }
+
+  function validPhone(p) {
+    var d = String(p).replace(/[\s\-().]/g, "");
+    return /^(\+?972|0)5\d{8}$/.test(d) || /^\+\d{9,15}$/.test(d);
+  }
+
+  $("join-btn").addEventListener("click", function () {
+    var name = $("name").value.trim();
+    var phone = $("phone").value.trim();
+    var email = $("email").value.trim();
+    if (!name || !phone || !email)
+      return msg("join-msg", "err", "נא למלא שם, טלפון ודואר אלקטרוני.");
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
+      return msg("join-msg", "err", "כתובת הדואר האלקטרוני לא נראית תקינה.");
+    if (!validPhone(phone))
+      return msg("join-msg", "err", "מספר הנייד לא נראה תקין. לדוגמה: 0501234567");
+
+    var btn = $("join-btn");
+    btn.disabled = true;
+    var original = btn.textContent;
+    btn.textContent = "שולח...";
+    msg("join-msg", "ok", "רגע אחד...");
+
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "join",
+        name: name, phone: phone, email: email,
+        address: $("address").value.trim(),
+        website: $("website").value
+      })
+    })
+      .then(function (r) { if (!r.ok) throw new Error(String(r.status)); return true; })
+      .then(function () {
+        try { localStorage.setItem(KEY_JOINED, "1"); } catch (e) {}
+        btn.disabled = false;
+        btn.textContent = original;
+        show("sent");
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = original;
+        msg("join-msg", "err",
+          "משהו השתבש בשליחה. אפשר לנסות שוב, או לפנות בוואטסאפ למספר 052-8395189.");
+      });
+  });
+
+  /* ---------- הרשימה הכללית הפומבית ---------- */
+  function loadPublic() {
+    var box = $("list-box");
+    fetch(ENDPOINT + "?list=public")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; })
+      .then(function (data) {
+        var names = data && data.names ? data.names : [];
+        if (!names.length) {
+          box.innerHTML = '<div class="note-box"><p>הרשימה עדיין מתמלאת. היו הראשונים ' +
+            'למסור שם.</p></div>';
+          return;
+        }
+        box.innerHTML = '<ul class="wish-list">' + names.map(function (n) {
+          return "<li><span>" + esc(n.name) + " - " + esc(n.parent) + "</span>" +
+            '<button type="button" class="wish-report" data-id="' + esc(n.id) +
+            '">דיווח</button></li>';
+        }).join("") + "</ul>";
+      });
+  }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest(".wish-report") : null;
+    if (!b) return;
+    if (!window.confirm("לדווח על השורה הזאת ליעקב לבדיקה?")) return;
+    b.disabled = true;
+    b.textContent = "נשלח";
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "report", id: b.getAttribute("data-id") })
+    }).catch(function () {});
+  });
+
+  refreshIntro();
+  loadPublic();
+})();
+</script>
+
+</body>
+</html>

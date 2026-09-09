@@ -423,7 +423,7 @@
       '<span class="hint">שם פרטי בלבד, בלי שם משפחה</span></label>' +
       '<input type="text" class="n-name" value="' + esc(v.name) + '"></div>' +
       '<div class="field"><label>שם ההורה' +
-      '<span class="hint">רק השם, למשל "ניסן". נוסיף "בן" או "בת" לפי הקרבה.</span></label>' +
+      '<span class="hint">רק השם, למשל "ניסן"</span></label>' +
       '<input type="text" class="n-parent" value="' + esc(v.parent) + '"></div>' +
       "</div>" +
       '<div class="row-2">' +
@@ -434,11 +434,17 @@
       '<select class="n-relation"><option value="">בחרו</option>' +
       optionsHtml(v.relation) + "</select></div>" +
       "</div>" +
-      '<div class="field"><label>הנפטר</label>' +
+      '<div class="row-2">' +
+      '<div class="field"><label>הנפטר ז/נ' +
+      '<span class="hint">זכר או נקבה</span></label>' +
       '<select class="n-gender"><option value="">בחרו</option>' +
       '<option value="m"' + (v.gender === "m" ? " selected" : "") + ">זכר</option>" +
       '<option value="f"' + (v.gender === "f" ? " selected" : "") + ">נקבה</option>" +
-      "</select></div>";
+      "</select></div>" +
+      '<div class="field"><label>שנת הפטירה' +
+      '<span class="hint">לא חובה. חשוב אם הפטירה הייתה בשנה האחרונה.</span></label>' +
+      '<input type="text" class="n-year" value="' + esc(v.year) + '"></div>' +
+      "</div>";
     d.querySelector(".niftar-remove").addEventListener("click", function () {
       var parent = d.parentNode;
       if (parent.id === "edit-niftarim" &&
@@ -491,7 +497,8 @@
         parent: b.querySelector(".n-parent").value.trim(),
         date: b.querySelector(".n-date").value.trim(),
         relation: b.querySelector(".n-relation").value.trim(),
-        gender: b.querySelector(".n-gender").value.trim()
+        gender: b.querySelector(".n-gender").value.trim(),
+        year: b.querySelector(".n-year").value.trim()
       };
       if (!n.name && !n.parent && !n.date && !n.relation && !n.gender) continue;
       if (!n.name || !n.parent || !n.date || !n.relation || !n.gender)
@@ -586,7 +593,8 @@
   function itemsHtml(list) {
     return list.map(function (n) {
       return "<li><strong>" + esc(fullName(n)) + "</strong>" +
-        '<span class="meta">' + esc(n.date) + " · " + esc(n.relation) + "</span></li>";
+        '<span class="meta">' + esc(n.date) + (n.year ? " " + esc(n.year) : "") +
+        " · " + esc(n.relation) + "</span></li>";
     }).join("");
   }
   function listHtml(list) {

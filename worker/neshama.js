@@ -170,6 +170,7 @@ function niftarBlock(n, i) {
     row("שם הנפטר", n.name) +
     row("שם ההורה", n.parent) +
     row("תאריך הפטירה", n.date) +
+    row("שנת הפטירה", n.year) +
     row("קרבה למבקש", n.relation) +
     row("מין", n.gender === "f" ? "נקבה" : n.gender === "m" ? "זכר" : "לא צוין") +
     `</table>`
@@ -218,7 +219,8 @@ const MAX_PUBLIC = 400; // תקרה להצגה; מעבר לזה הדף נהיה 
 // מגדר ותאריך. שם המבקש, הטלפון והמייל שלו לעולם לא נכנסים לכאן, כי הקובץ
 // הזה מוגש לכל אדם באינטרנט.
 function publicEntry(n) {
-  return { name: n.name, parent: n.parent, gender: n.gender, date: n.date };
+  return { name: n.name, parent: n.parent, gender: n.gender,
+           date: n.date, year: n.year };
 }
 
 async function readPublic(env) {
@@ -305,6 +307,10 @@ export default {
         date: String((n && n.date) || "").trim(),
         relation: String((n && n.relation) || "").trim(),
         gender: (n && n.gender) === "f" ? "f" : (n && n.gender) === "m" ? "m" : "",
+        // שנת הפטירה, לא חובה. היא מה שיאפשר בגל 1 להציג שם **כל השנה
+        // הראשונה** ולא רק בשבוע היארצייט. נאספת כבר עכשיו כדי שלא נאבד
+        // אותה ממי שמוסר בימים האלה.
+        year: String((n && n.year) || "").trim().slice(0, 30),
       }))
       .filter((n) => n.name)
       .slice(0, MAX_NIFTARIM);

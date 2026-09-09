@@ -110,10 +110,27 @@ async function sendMail(env, raw) {
   return ok;
 }
 
+// "ראובן" + "ניסן" הוא לא "ראובן ניסן" אלא "ראובן בן ניסן". המגדר נגזר
+// מהקרבה שהמבקש בחר, שהיא ממילא שדה חובה - בלי לשאול שאלה נוספת.
+// אם המבקש כבר כתב "בן"/"בת" בעצמו, לא מוסיפים פעמיים.
+const MALE = ["אב", "בעל", "בן", "אח", "סב", "דוד", "קרוב משפחה", "חבר", "רב"];
+const FEMALE = ["אם", "אישה", "בת", "אחות", "סבתא", "דודה", "קרובת משפחה", "חברה"];
+
+function fullName(n) {
+  const parent = String(n.parent || "").trim();
+  const name = String(n.name || "").trim();
+  if (!parent) return name;
+  if (/^(בן|בת|ב"ר|בר)\s/.test(parent)) return name + " " + parent;
+  if (MALE.indexOf(n.relation) !== -1) return name + " בן " + parent;
+  if (FEMALE.indexOf(n.relation) !== -1) return name + " בת " + parent;
+  return name + " " + parent; // קרבה לא מגדרית, לא ממציאים
+}
+
 function niftarBlock(n, i) {
   return (
     `<table style="border-collapse:collapse;margin:0 0 16px">` +
     `<tr><td colspan="2" style="padding:0 0 6px;color:#b08434;font-weight:bold">נפטר ${i + 1}</td></tr>` +
+    row("השם המלא", fullName(n)) +
     row("שם הנפטר", n.name) +
     row("שם ההורה", n.parent) +
     row("תאריך הפטירה", n.date) +
@@ -124,7 +141,7 @@ function niftarBlock(n, i) {
 
 function thanksHtml(name, niftarim, isFix) {
   const list = niftarim
-    .map((n) => `<li style="margin:4px 0">${esc(n.name)} ${esc(n.parent)}</li>`)
+    .map((n) => `<li style="margin:4px 0">${esc(fullName(n))}</li>`)
     .join("");
   return (
     `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:16px;line-height:1.8;color:#1c1a17">` +

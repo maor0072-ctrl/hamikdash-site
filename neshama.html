@@ -92,6 +92,28 @@
 <!-- ============ מסך 1: הסבר וכניסה ============ -->
 <section class="view on" id="view-intro">
   <div class="wrap prose">
+
+    <!-- מבקר חדש -->
+    <div class="actions" id="intro-new" style="margin-top:0">
+      <button type="button" class="btn btn-lg" data-go="details">למסירת שם</button>
+    </div>
+
+    <!-- מי שכבר מסר מהמכשיר הזה -->
+    <div id="intro-return" style="display:none">
+      <div class="note-box" style="margin-top:0"><p id="return-line"></p></div>
+      <div class="actions" style="margin-top:0">
+        <button type="button" class="btn btn-lg" data-go="names">הוספת שמות</button>
+        <button type="button" class="btn btn-ghost btn-lg" data-go="edit">שינוי שמות שמסרת</button>
+      </div>
+    </div>
+
+    <h2>השמות שנלמדים השבוע</h2>
+    <div id="week-box">
+      <p style="color:var(--ink-soft)">טוען...</p>
+    </div>
+
+    <hr class="form-sep">
+
     <h2>מה נעשה בפועל</h2>
     <p>בכולל שלנו יושבים אברכים ולומדים כל יום, שנה אחרי שנה. כשמגיע אלינו שם, הלימוד של אותו שבוע מוקדש גם לעילוי נשמתו, ונאמרים עליו קדישים ואשכבות בתפילות. נר נשמה גדול דולק כל השנה, בלי נדר, לעילוי נשמת כל מי שנמסר לנו. מדי פעם אנחנו עורכים גם סיומי מסכת, סיומי זוהר או שס משניות.</p>
     <p>אנחנו לא גובים על זה שקל, ואין כאן שום התחייבות. מי שרוצה לקחת חלק בהחזקת הכולל מוזמן, ומי שלא, השם שלו יילמד בדיוק אותו הדבר.</p>
@@ -104,25 +126,6 @@
       <p><strong>לקראת ראש השנה.</strong> זה הזמן שבו רבים מבקשים שיזכירו את יקיריהם. השמות מגיעים אלינו ישירות ומועברים לכולל. אנחנו עובדים בימים אלה על מערכת מסודרת שתשמור את תאריכי היארצייט ותשלח תזכורת מדי שנה, והיא עדיין נבנית.</p>
     </div>
 
-    <h2>השמות שנלמדים השבוע</h2>
-    <div id="week-box">
-      <p style="color:var(--ink-soft)">טוען...</p>
-    </div>
-
-    <!-- מבקר חדש -->
-    <div class="actions" id="intro-new">
-      <button type="button" class="btn btn-lg" data-go="details">למסירת שם</button>
-    </div>
-
-    <!-- מי שכבר מסר מהמכשיר הזה -->
-    <div id="intro-return" style="display:none">
-      <div class="note-box"><p id="return-line"></p></div>
-      <div class="actions">
-        <button type="button" class="btn btn-lg" data-go="list">צפייה בשמות שמסרת</button>
-        <button type="button" class="btn btn-ghost btn-lg" data-go="names">הוספת שמות נוספים</button>
-        <button type="button" class="btn btn-ghost btn-lg" data-go="edit">תיקון לשמות שנמסרו</button>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -173,6 +176,8 @@
         עד חמישה שמות בפנייה אחת. אנחנו מבקשים <strong>שם פרטי בלבד, בלי שם משפחה</strong> -
         זה מה שנהוג בתפילה, וזה גם שומר על פרטיות המשפחה כשהשם מופיע ברשימה.</p>
 
+      <div id="prev-on-names"></div>
+
       <div id="niftarim"></div>
 
       <p style="margin-bottom:22px">
@@ -200,9 +205,10 @@
       <h2 style="font-size:26px;margin-bottom:10px" id="done-title">השמות התקבלו</h2>
       <p id="done-sub">שלחנו לכם אישור לדואר האלקטרוני, והשמות מועברים לאברכי הכולל. תזכו למצוות.</p>
       <ul class="done-list" id="done-list"></ul>
+      <div id="done-prev"></div>
       <div class="actions">
         <button type="button" class="btn" data-go="names">הוספת שמות נוספים</button>
-        <button type="button" class="btn btn-ghost" data-go="edit">תיקון לשמות שנמסרו</button>
+        <button type="button" class="btn btn-ghost" data-go="edit">שינוי שמות שמסרת</button>
         <a href="/donate.html" class="btn btn-ghost">להחזקת הכולל</a>
       </div>
     </div>
@@ -284,7 +290,23 @@
   var ENDPOINT = "https://hamikdash-neshama.maor0072.workers.dev";
   var MAX = 5;
   var RELATIONS = ["אב", "אם", "בעל", "אישה", "בן", "בת", "אח", "אחות",
-                   "סב", "סבתא", "דוד", "דודה", "קרוב משפחה", "חבר", "רב", "אחר"];
+                   "סב", "סבתא", "דוד", "דודה", "קרוב משפחה", "קרובת משפחה",
+                   "חבר", "חברה", "רב", "אחר"];
+
+  // "ראובן" + "ניסן" הוא לא "ראובן ניסן" אלא "ראובן בן ניסן". המגדר נגזר
+  // מהקרבה, שהיא ממילא שדה חובה - בלי לשאול שאלה נוספת. אם המבקש כבר כתב
+  // "בן"/"בת" בעצמו, לא מוסיפים פעמיים.
+  var MALE = ["אב","בעל","בן","אח","סב","דוד","קרוב משפחה","חבר","רב"];
+  var FEMALE = ["אם","אישה","בת","אחות","סבתא","דודה","קרובת משפחה","חברה"];
+
+  function fullName(n) {
+    var name = String(n.name || "").trim(), parent = String(n.parent || "").trim();
+    if (!parent) return name;
+    if (/^(בן|בת|ב"ר|בר)\s/.test(parent)) return name + " " + parent;
+    if (MALE.indexOf(n.relation) !== -1) return name + " בן " + parent;
+    if (FEMALE.indexOf(n.relation) !== -1) return name + " בת " + parent;
+    return name + " " + parent; // קרבה לא מגדרית, לא ממציאים
+  }
 
   // הזיכרון יושב במכשיר של המבקש. בגל האפס אין מאגר בצד השרת, ובלי זה אין
   // מה להראות לו אחרי השליחה ואין מה לתקן - וזה בדיוק מה שנשבר בבדיקה
@@ -336,8 +358,8 @@
     if (has) {
       $("return-line").innerHTML =
         "<strong>מסרת לנו " + saved.length +
-        (saved.length === 1 ? " שם" : " שמות") + ".</strong> " +
-        "השמות מועברים לאברכי הכולל. אפשר לצפות בהם, להוסיף עוד, או לתקן.";
+        (saved.length === 1 ? " שם" : " שמות") + ":</strong> " +
+        saved.map(function (n) { return esc(fullName(n)); }).join(" · ");
     }
   }
 
@@ -397,7 +419,7 @@
       '<span class="hint">שם פרטי בלבד, בלי שם משפחה</span></label>' +
       '<input type="text" class="n-name" value="' + esc(v.name) + '"></div>' +
       '<div class="field"><label>שם ההורה' +
-      '<span class="hint">שם האם או שם האב, כפי שנהוג אצלכם</span></label>' +
+      '<span class="hint">רק השם, למשל "ניסן". נוסיף "בן" או "בת" לפי הקרבה.</span></label>' +
       '<input type="text" class="n-parent" value="' + esc(v.parent) + '"></div>' +
       "</div>" +
       '<div class="row-2">' +
@@ -458,6 +480,16 @@
   var namesWrap = $("niftarim");
 
   function prepNames() {
+    // מי שכבר מסר רואה קודם את מה שיש לו, ורק אחר כך את השדות הריקים.
+    // בלי זה הוא לא יודע אם השמות הישנים עדיין אצלנו.
+    $("prev-on-names").innerHTML = saved.length
+      ? '<h3 style="font-size:17px;color:var(--gold-deep);margin-bottom:0">' +
+        "השמות שכבר מסרת</h3>" + listHtml(saved) +
+        '<p style="margin:0 0 22px"><button type="button" class="btn btn-ghost" ' +
+        'data-go="edit">שינוי השמות האלה</button></p>' +
+        '<hr class="form-sep"><h3 style="font-size:17px;color:var(--gold-deep);' +
+        'margin-bottom:14px">שמות חדשים להוספה</h3>'
+      : "";
     namesWrap.innerHTML = "";
     namesWrap.appendChild(block());
     renumber(namesWrap);
@@ -514,17 +546,26 @@
       $("done-sub").textContent =
         "שלחנו לכם אישור לדואר האלקטרוני, והשמות מועברים לאברכי הכולל. תזכו למצוות.";
       renderInto($("done-list"), got.list);
+      var prev = saved.slice(0, saved.length - got.list.length);
+      $("done-prev").innerHTML = prev.length
+        ? '<h3 style="font-size:17px;color:var(--gold-deep);margin:26px 0 0">' +
+          "שמות שמסרת קודם</h3>" + listHtml(prev)
+        : "";
       show("done");
     });
   });
 
   /* ---------- הצגת רשימות ---------- */
-  function renderInto(ul, list) {
-    ul.innerHTML = list.map(function (n) {
-      return "<li><strong>" + esc(n.name) + " " + esc(n.parent) + "</strong>" +
+  function itemsHtml(list) {
+    return list.map(function (n) {
+      return "<li><strong>" + esc(fullName(n)) + "</strong>" +
         '<span class="meta">' + esc(n.date) + " · " + esc(n.relation) + "</span></li>";
     }).join("");
   }
+  function listHtml(list) {
+    return '<ul class="done-list">' + itemsHtml(list) + "</ul>";
+  }
+  function renderInto(ul, list) { ul.innerHTML = itemsHtml(list); }
 
   function renderList() {
     $("list-sub").textContent =
@@ -559,6 +600,7 @@
       $("done-sub").textContent =
         "הרשימה המתוקנת אצלנו והיא מחליפה את הקודמת. שלחנו לכם אישור לדואר האלקטרוני.";
       renderInto($("done-list"), saved);
+      $("done-prev").innerHTML = "";
       show("done");
     });
   });
@@ -587,9 +629,7 @@
           : "";
         box.innerHTML = head +
           '<ul class="done-list">' + d.names.map(function (n) {
-            var line = typeof n === "string"
-              ? esc(n)
-              : esc(n.name) + " " + esc(n.parent);
+            var line = typeof n === "string" ? esc(n) : esc(fullName(n));
             var meta = (typeof n === "object" && n.date)
               ? '<span class="meta">' + esc(n.date) + "</span>" : "";
             return "<li><strong>" + line + "</strong>" + meta + "</li>";

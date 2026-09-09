@@ -237,9 +237,16 @@
     <div class="form-card">
       <h2 style="font-size:24px;margin-bottom:8px">תיקון השמות שנמסרו</h2>
       <p style="color:var(--ink-soft);font-size:15px;margin-bottom:22px">
-        תקנו מה שצריך ושלחו. הרשימה המתוקנת תחליף אצלנו את הקודמת.</p>
+        תקנו מה שצריך ושלחו, או מחקו שם שאינכם רוצים שיופיע. הרשימה
+        המתוקנת תחליף אצלנו את הקודמת.</p>
 
       <div id="edit-niftarim"></div>
+      <div id="edit-empty" style="display:none">
+        <div class="note-box" style="border-right-color:#c0392b">
+          <p>מחקת את כל השמות. לחיצה על הכפתור תסיר אותם מרשימת הכולל.
+          אפשר למסור שמות מחדש בכל עת.</p>
+        </div>
+      </div>
 
       <div class="actions">
         <button type="button" class="btn btn-lg" id="edit-submit">שליחת התיקון</button>
@@ -434,6 +441,12 @@
       "</select></div>";
     d.querySelector(".niftar-remove").addEventListener("click", function () {
       var parent = d.parentNode;
+      if (parent.id === "edit-niftarim" &&
+          !window.confirm("למחוק את " + (fullName({
+            name: d.querySelector(".n-name").value,
+            parent: d.querySelector(".n-parent").value,
+            gender: d.querySelector(".n-gender").value
+          }) || "השם") + " מהרשימה?")) return;
       d.remove();
       renumber(parent);
     });
@@ -449,14 +462,24 @@
   // מספור מחדש והסתרת כפתור ההסרה כשנשאר בלוק אחד, אחרת אפשר למחוק
   // את כל השמות ולשלוח טופס ריק.
   function renumber(wrap) {
+    var editing = wrap.id === "edit-niftarim";
     var blocks = wrap.querySelectorAll(".niftar");
     for (var i = 0; i < blocks.length; i++) {
       blocks[i].querySelector(".num").textContent = i + 1;
-      blocks[i].querySelector(".niftar-remove").style.display =
-        blocks.length > 1 ? "" : "none";
+      var rm = blocks[i].querySelector(".niftar-remove");
+      // במסך העריכה המחיקה זמינה תמיד, גם לשם האחרון. אדם שמבקש להסיר
+      // שם חייב לקבל את זה, ולא להיתקע כי זה השם היחיד שנשאר לו.
+      rm.style.display = editing || blocks.length > 1 ? "" : "none";
+      rm.textContent = editing ? "מחיקת השם" : "הסרה";
+      rm.style.color = editing ? "#c0392b" : "";
     }
     if (wrap.id === "niftarim")
       $("add-niftar").style.display = blocks.length >= MAX ? "none" : "";
+    if (editing) {
+      $("edit-empty").style.display = blocks.length ? "none" : "";
+      $("edit-submit").textContent = blocks.length
+        ? "שליחת התיקון" : "אישור מחיקת כל השמות";
+    }
   }
 
   function collect(wrap) {
@@ -590,7 +613,8 @@
   }
 
   $("edit-submit").addEventListener("click", function () {
-    var got = collect(editWrap);
+    var empty = !editWrap.querySelectorAll(".niftar").length;
+    var got = empty ? { list: [] } : collect(editWrap);
     if (got.error) return msg("edit-msg", "err", got.error);
     send({
       kind: "correction",
@@ -600,9 +624,10 @@
     }, "edit-msg", $("edit-submit"), function () {
       saved = got.list;
       save(KEY_NAMES, saved);
-      $("done-title").textContent = "התיקון נשלח";
-      $("done-sub").textContent =
-        "הרשימה המתוקנת אצלנו והיא מחליפה את הקודמת. שלחנו לכם אישור לדואר האלקטרוני.";
+      $("done-title").textContent = empty ? "השמות הוסרו" : "התיקון נשלח";
+      $("done-sub").textContent = empty
+        ? "השמות הוסרו מהרשימה. שלחנו לכם אישור לדואר האלקטרוני, ואפשר למסור שמות מחדש בכל עת."
+        : "הרשימה המתוקנת אצלנו והיא מחליפה את הקודמת. שלחנו לכם אישור לדואר האלקטרוני.";
       renderInto($("done-list"), saved);
       $("done-prev").innerHTML = "";
       show("done");

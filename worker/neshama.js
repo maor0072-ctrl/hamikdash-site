@@ -139,18 +139,22 @@ function niftarBlock(n, i) {
   );
 }
 
-function thanksHtml(name, niftarim, isFix) {
+function thanksHtml(name, niftarim, isFix, isEmpty) {
   const list = niftarim
     .map((n) => `<li style="margin:4px 0">${esc(fullName(n))}</li>`)
     .join("");
   return (
     `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:16px;line-height:1.8;color:#1c1a17">` +
     `<p>שלום ${esc(name)},</p>` +
-    (isFix
+    (isEmpty
+      ? `<p>השמות הוסרו לפי בקשתך, ואין לך כרגע שמות ברשימה. ` +
+        `אפשר למסור שוב בכל עת.</p>`
+      : isFix
       ? `<p>התיקון התקבל. זו הרשימה המעודכנת, והיא מחליפה את הקודמת:</p>`
       : `<p>קיבלנו את בקשתך, והשמות נמסרו לאברכי הכולל.</p>`) +
-    `<ul style="background:#f3ece0;border-right:4px solid #b08434;padding:14px 24px 14px 18px;` +
-    `border-radius:8px;list-style:none;margin:20px 0">${list}</ul>` +
+    (isEmpty ? "" :
+      `<ul style="background:#f3ece0;border-right:4px solid #b08434;padding:14px 24px 14px 18px;` +
+      `border-radius:8px;list-style:none;margin:20px 0">${list}</ul>`) +
     `<p>בכולל שלנו אברכים יושבים ולומדים כל יום. הלימוד של השבוע הקרוב יוקדש גם ` +
     `לעילוי נשמת יקירך, וייאמרו קדישים ואשכבות בתפילות. נר נשמה דולק כל השנה, ` +
     `בלי נדר.</p>` +
@@ -268,7 +272,10 @@ export default {
       .filter((n) => n.name)
       .slice(0, MAX_NIFTARIM);
 
-    if (!niftarim.length)
+    // רשימה ריקה **בתיקון** היא בקשת הסרה מפורשת, לא טופס פגום. אדם
+    // שמבקש להסיר שם חייב לקבל את זה בלחיצה אחת, בלי מכשולים.
+    const isFix = d.kind === "correction";
+    if (!niftarim.length && !isFix)
       return new Response("no niftarim", { status: 400, headers });
     for (const n of niftarim) {
       if (!n.parent || !n.date || !n.relation || !n.gender)
@@ -280,10 +287,16 @@ export default {
     // שלו מחזיר 502 והמבקש רואה שגיאה במקום אישור שקרי.
     // תיקון הוא לא בקשה חדשה. הוא חייב להיראות אחרת בתיבה, אחרת יעקב יוסיף
     // את השמות פעם שנייה במקום להחליף את הקודמים.
-    const isFix = d.kind === "correction";
+    const isEmpty = isFix && !niftarim.length;
     const notice =
       `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7">` +
-      (isFix
+      (isEmpty
+        ? `<h2 style="margin:0 0 4px;color:#c0392b">בקשת הסרה</h2>` +
+          `<p style="margin:0 0 18px;padding:10px 14px;background:#fdecea;` +
+          `border-right:4px solid #c0392b;border-radius:6px">` +
+          `<strong>האדם הזה ביקש להסיר את כל השמות שמסר.</strong> ` +
+          `להוריד אותם מרשימת הכולל.</p>`
+        : isFix
         ? `<h2 style="margin:0 0 4px;color:#b08434">תיקון לשמות שכבר נמסרו</h2>` +
           `<p style="margin:0 0 18px;padding:10px 14px;background:#fdf6e6;` +
           `border-right:4px solid #b08434;border-radius:6px">` +
@@ -310,8 +323,8 @@ export default {
       mime({
         to: TO,
         replyTo: email,
-        subject: (isFix ? "תיקון עילוי נשמה: " : "עילוי נשמה: ") +
-                 `${d.name} (${niftarim.length})`,
+        subject: (isEmpty ? "הסרת שמות: " : isFix ? "תיקון עילוי נשמה: " :
+                  "עילוי נשמה: ") + `${d.name} (${niftarim.length})`,
         html: notice,
       })
     );
@@ -332,8 +345,9 @@ export default {
       env,
       mime({
         to: email,
-        subject: isFix ? "התיקון התקבל" : "קיבלנו את השמות לעילוי נשמה",
-        html: thanksHtml(d.name, niftarim, isFix),
+        subject: isEmpty ? "השמות הוסרו"
+               : isFix ? "התיקון התקבל" : "קיבלנו את השמות לעילוי נשמה",
+        html: thanksHtml(d.name, niftarim, isFix, isEmpty),
       })
     );
 

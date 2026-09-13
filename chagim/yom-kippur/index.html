@@ -132,6 +132,12 @@
     <div class="view on" id="view-form">
       <div class="form-card">
 
+        <div class="note-box" id="manage-note" style="display:none;background:var(--cream-warm);
+             border-right:4px solid var(--gold);border-radius:8px;padding:16px 20px;margin:0 0 22px">
+          <p style="margin:0"><strong>אלה השמות שמסרת.</strong> אפשר לתקן, להוסיף שורות או להסיר -
+          ואז ללחוץ על „עדכון הרשימה". הרשימה המעודכנת מחליפה את הקודמת.</p>
+        </div>
+
         <div id="souls"></div>
 
         <p style="margin-bottom:20px">
@@ -168,6 +174,7 @@
 
         <div class="actions">
           <button type="button" class="btn btn-lg" id="submit-btn">שליחת השמות</button>
+          <button type="button" class="btn btn-ghost" id="delete-btn" style="display:none">מחיקת כל השמות</button>
         </div>
         <div id="form-msg" class="form-msg"></div>
       </div>
@@ -230,6 +237,13 @@
   var msg = document.getElementById("form-msg");
   var sending = false;
 
+  // מצב ניהול: הגעה מהקישור החתום שבמייל האישור. ?t= הוא הטוקן, ?m= אומר
+  // על איזה משלושת הכפתורים לחצו - הוספה, שינוי, או מחיקה.
+  var qs = new URLSearchParams(location.search);
+  var TOKEN = qs.get("t") || "";
+  var MODE = qs.get("m") || "";
+  var contactBox = null;
+
   function rowHtml(i) {
     return '<div class="soul" data-i="' + i + '">' +
       '<div class="soul-head"><h3>שם ' + (i + 1) + '</h3>' +
@@ -269,13 +283,89 @@
   });
 
   document.getElementById("add-soul").addEventListener("click", addRow);
-  addRow();
-  addRow();
 
   function show(kind, text) {
     msg.className = "form-msg " + kind;
     msg.textContent = text;
   }
+
+  function fill(i, s) {
+    var row = wrap.querySelectorAll(".soul")[i];
+    row.querySelector(".s-name").value = s.name || "";
+    row.querySelector(".s-parent").value = s.parent || "";
+    row.querySelector(".s-gender").value = s.gender || "";
+  }
+
+  // ---------- אתחול ----------
+  if (!TOKEN) {
+    addRow();
+    addRow();
+  } else {
+    // בזמן הטעינה הטופס נעול, כדי שלא יישלחו שורות ריקות לפני שהרשימה חזרה.
+    document.getElementById("submit-btn").disabled = true;
+    show("ok", "טוען את השמות שמסרת...");
+    fetch(ENDPOINT + "?t=" + encodeURIComponent(TOKEN)).then(function (r) {
+      if (!r.ok) throw new Error("http " + r.status);
+      return r.json();
+    }).then(function (out) {
+      if (!out || !out.ok) throw new Error("bad");
+      var list = out.souls || [];
+      for (var i = 0; i < list.length; i++) addRow();
+      for (var j = 0; j < list.length; j++) fill(j, list[j]);
+      if (MODE === "add" || !list.length) addRow();
+
+      // פרטי הקשר כבר ידועים מהמסירה הקודמת, ואין טעם לבקש אותם שוב.
+      contactBox = { sender: out.sender, phone: out.phone, email: out.email };
+      var boxes = document.querySelectorAll(".form-card .row-2, .form-card .field");
+      document.getElementById("sender").value = out.sender || "";
+      document.getElementById("phone").value = out.phone || "";
+      document.getElementById("email").value = out.email || "";
+      document.getElementById("sender").readOnly = true;
+      document.getElementById("phone").readOnly = true;
+      document.getElementById("email").readOnly = true;
+
+      document.getElementById("manage-note").style.display = "block";
+      document.getElementById("submit-btn").textContent = "עדכון הרשימה";
+      document.getElementById("submit-btn").disabled = false;
+      document.getElementById("delete-btn").style.display = "inline-block";
+      msg.className = "form-msg";
+      document.getElementById("shemot").scrollIntoView();
+      if (MODE === "del") {
+        show("err", "למחיקת כל השמות שמסרת, לחצו על „מחיקת כל השמות".");
+      }
+    }).catch(function () {
+      document.getElementById("submit-btn").disabled = false;
+      TOKEN = "";
+      addRow();
+      addRow();
+      show("err", "הקישור אינו תקין או שהשמות כבר נמחקו. אפשר למלא מחדש כאן.");
+    });
+  }
+
+  // ---------- מחיקה ----------
+  document.getElementById("delete-btn").addEventListener("click", function () {
+    if (!TOKEN || sending) return;
+    if (!window.confirm("למחוק את כל השמות שמסרת לפדיון הכפרות?")) return;
+    sending = true;
+    show("ok", "מוחק...");
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: TOKEN, kind: "delete" })
+    }).then(function (r) {
+      if (!r.ok) throw new Error("http " + r.status);
+      return r.json();
+    }).then(function () {
+      document.getElementById("done-sub").textContent =
+        "השמות הוסרו לפי בקשתך. אפשר למסור שמות מחדש בכל עת.";
+      document.getElementById("view-form").className = "view";
+      document.getElementById("view-done").className = "view on";
+      document.getElementById("shemot").scrollIntoView({ behavior: "smooth" });
+    }).catch(function () {
+      sending = false;
+      show("err", "המחיקה נכשלה. אפשר לנסות שוב, או להשיב למייל ונטפל בזה.");
+    });
+  });
 
   document.getElementById("submit-btn").addEventListener("click", function () {
     if (sending) return;
@@ -300,13 +390,17 @@
     var sender = document.getElementById("sender").value.trim();
     var phone = document.getElementById("phone").value.trim();
     var email = document.getElementById("email").value.trim();
-    if (!sender) { show("err", "צריך למלא שם ומשפחה."); return; }
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-      show("err", "צריך למלא כתובת מייל תקינה - לשם נשלח האישור וההסבר."); return;
-    }
-    var digits = phone.replace(/[\s\-().]/g, "");
-    if (!/^(\+?972|0)5\d{8}$/.test(digits) && !/^\+\d{9,15}$/.test(digits)) {
-      show("err", "צריך למלא מספר טלפון נייד תקין."); return;
+
+    // במצב ניהול פרטי הקשר מגיעים מהשרת ואינם נבדקים שוב בדפדפן.
+    if (!TOKEN) {
+      if (!sender) { show("err", "צריך למלא שם ומשפחה."); return; }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        show("err", "צריך למלא כתובת מייל תקינה - לשם נשלח האישור וההסבר."); return;
+      }
+      var digits = phone.replace(/[\s\-().]/g, "");
+      if (!/^(\+?972|0)5\d{8}$/.test(digits) && !/^\+\d{9,15}$/.test(digits)) {
+        show("err", "צריך למלא מספר טלפון נייד תקין."); return;
+      }
     }
 
     sending = true;
@@ -317,24 +411,28 @@
     fetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        souls: souls,
-        sender: sender,
-        phone: phone,
-        email: email,
-        note: document.getElementById("note").value.trim(),
-        website: document.getElementById("website").value
-      })
+      body: JSON.stringify(TOKEN
+        ? { token: TOKEN, kind: "replace", souls: souls }
+        : {
+            souls: souls,
+            sender: sender,
+            phone: phone,
+            email: email,
+            note: document.getElementById("note").value.trim(),
+            website: document.getElementById("website").value
+          })
     }).then(function (r) {
       if (!r.ok) throw new Error("http " + r.status);
       return r.json();
     }).then(function (out) {
-      document.getElementById("done-sub").textContent =
-        (out && out.count ? out.count : souls.length) +
-        " שמות התקבלו ויעלו בפדיון הכפרות לפני יום כיפור." +
-        (out && out.replySent
-          ? " אישור וההסבר איך עושים את הפדיון בבית נשלחו אליכם במייל."
-          : " ההסבר איך עושים את הפדיון בבית נמצא למעלה בעמוד הזה.");
+      var n = (out && out.count ? out.count : souls.length);
+      document.getElementById("done-sub").textContent = TOKEN
+        ? ("הרשימה עודכנה ל-" + n + " שמות, והיא מחליפה את הקודמת." +
+           (out && out.replySent ? " אישור נשלח אליכם במייל." : ""))
+        : (n + " שמות התקבלו ויעלו בפדיון הכפרות לפני יום כיפור." +
+           (out && out.replySent
+             ? " אישור וההסבר איך עושים את הפדיון בבית נשלחו אליכם במייל."
+             : " ההסבר איך עושים את הפדיון בבית נמצא למעלה בעמוד הזה."));
       document.getElementById("view-form").className = "view";
       document.getElementById("view-done").className = "view on";
       document.getElementById("shemot").scrollIntoView({ behavior: "smooth" });

@@ -96,6 +96,10 @@ async function sendMail(env, msg) {
         htmlContent: msg.html,
       };
       if (msg.replyTo) body.replyTo = { email: msg.replyTo };
+      // הערה למי שיבדוק את הקישורים במייל: ברבו כותבת כל href מחדש לדומיין
+      // מעקב (sendibt3.com), והוא מפנה 302 ליעד האמיתי. **בדיקה של הקישור
+      // המעוקב חייבת להשתמש בכתובת המלאה** - כתובת קטועה מחזירה 404, וזה
+      // נראה בטעות כמו כפתור שבור (נתפס ב-2026-09-13).
       const r = await fetch("https://api.brevo.com/v3/smtp/email", {
         method: "POST",
         headers: {

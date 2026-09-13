@@ -142,17 +142,17 @@
 
         <div class="row-2">
           <div class="field">
-            <label for="sender">השם שלך <span class="hint">כדי שנדע ממי הרשימה. לא חובה.</span></label>
+            <label for="sender">שם ומשפחה</label>
             <input type="text" id="sender" autocomplete="name">
           </div>
           <div class="field">
-            <label for="phone">טלפון <span class="hint">למקרה שצריך לוודא שם. לא חובה.</span></label>
+            <label for="phone">טלפון נייד</label>
             <input type="tel" id="phone" inputmode="tel" autocomplete="tel">
           </div>
         </div>
 
         <div class="field">
-          <label for="email">מייל <span class="hint">נשלח אליו בחזרה ההסבר המלא איך עושים את פדיון הכפרות בבית. לא חובה.</span></label>
+          <label for="email">דואר אלקטרוני <span class="hint">לשם יישלח אישור קבלת השמות וההסבר איך עושים את הפדיון בבית.</span></label>
           <input type="email" id="email" inputmode="email" autocomplete="email">
         </div>
 
@@ -236,9 +236,9 @@
       (i > 0 ? '<button type="button" class="soul-remove">הסרה</button>' : '') +
       '</div>' +
       '<div class="row-3">' +
-        '<div class="field"><label>השם <span class="hint">כפי שקוראים לו</span></label>' +
+        '<div class="field"><label>השם</label>' +
         '<input type="text" class="s-name"></div>' +
-        '<div class="field"><label>שם ההורה <span class="hint">לא חובה</span></label>' +
+        '<div class="field"><label>שם ההורה</label>' +
         '<input type="text" class="s-parent"></div>' +
         '<div class="field"><label>בן / בת</label>' +
         '<select class="s-gender"><option value="">-</option>' +
@@ -279,18 +279,35 @@
 
   document.getElementById("submit-btn").addEventListener("click", function () {
     if (sending) return;
+
+    // שורה ריקה לגמרי היא לא שגיאה - הטופס נפתח עם שתי שורות ומי שצריך אחת
+    // פשוט משאיר את השנייה ריקה. שורה שהתחילו למלא חייבת להיות מלאה.
     var souls = [];
     var rows = wrap.querySelectorAll(".soul");
     for (var i = 0; i < rows.length; i++) {
       var name = rows[i].querySelector(".s-name").value.trim();
-      if (!name) continue;
-      souls.push({
-        name: name,
-        parent: rows[i].querySelector(".s-parent").value.trim(),
-        gender: rows[i].querySelector(".s-gender").value
-      });
+      var parent = rows[i].querySelector(".s-parent").value.trim();
+      var gender = rows[i].querySelector(".s-gender").value;
+      if (!name && !parent && !gender) continue;
+      if (!name || !parent || !gender) {
+        show("err", "בשם " + (i + 1) + " צריך למלא את שלושת השדות: השם, שם ההורה, ובן או בת.");
+        return;
+      }
+      souls.push({ name: name, parent: parent, gender: gender });
     }
     if (!souls.length) { show("err", "צריך למלא לפחות שם אחד."); return; }
+
+    var sender = document.getElementById("sender").value.trim();
+    var phone = document.getElementById("phone").value.trim();
+    var email = document.getElementById("email").value.trim();
+    if (!sender) { show("err", "צריך למלא שם ומשפחה."); return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      show("err", "צריך למלא כתובת מייל תקינה - לשם נשלח האישור וההסבר."); return;
+    }
+    var digits = phone.replace(/[\s\-().]/g, "");
+    if (!/^(\+?972|0)5\d{8}$/.test(digits) && !/^\+\d{9,15}$/.test(digits)) {
+      show("err", "צריך למלא מספר טלפון נייד תקין."); return;
+    }
 
     sending = true;
     var btn = document.getElementById("submit-btn");
@@ -302,9 +319,9 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         souls: souls,
-        sender: document.getElementById("sender").value.trim(),
-        phone: document.getElementById("phone").value.trim(),
-        email: document.getElementById("email").value.trim(),
+        sender: sender,
+        phone: phone,
+        email: email,
         note: document.getElementById("note").value.trim(),
         website: document.getElementById("website").value
       })
@@ -316,7 +333,7 @@
         (out && out.count ? out.count : souls.length) +
         " שמות התקבלו ויעלו בפדיון הכפרות לפני יום כיפור." +
         (out && out.replySent
-          ? " ההסבר איך עושים את הפדיון בבית נשלח אליכם במייל."
+          ? " אישור וההסבר איך עושים את הפדיון בבית נשלחו אליכם במייל."
           : " ההסבר איך עושים את הפדיון בבית נמצא למעלה בעמוד הזה.");
       document.getElementById("view-form").className = "view";
       document.getElementById("view-done").className = "view on";

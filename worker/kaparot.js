@@ -210,9 +210,9 @@ export default {
     const email = String(d.email || "").trim().slice(0, 160);
     const note = String(d.note || "").trim().slice(0, 800);
 
-    // **שם ההורה איננו חובה, וזו החלטה ולא רשלנות.** יעקב הנחה שמילוי השמות
-    // באתר "לא חובה אבל כדאי", ומי שאינו יודע את שם אמו של סבו לא אמור
-    // להיחסם. חסר - יעקב רואה זאת מסומן במייל ומשלים בעצמו.
+    // **שלושת השדות חובה** (הוראת יעקב 2026-09-13): השם, שם ההורה, ובן/בת.
+    // בלי שם ההורה אי אפשר לומר "פלוני בן פלוני" בפדיון, ובלי המגדר אי אפשר
+    // לדעת אם "בן" או "בת" - ובשם של אדם לא מנחשים.
     const souls = (Array.isArray(d.souls) ? d.souls : [])
       .map((n) => ({
         name: String((n && n.name) || "").trim().slice(0, 120),
@@ -223,43 +223,39 @@ export default {
       .slice(0, MAX_SOULS);
 
     if (!souls.length) return new Response("no souls", { status: 400, headers });
-    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
-      return new Response("bad email", { status: 400, headers });
+    for (const n of souls) {
+      if (!n.parent || !n.gender)
+        return new Response("incomplete soul", { status: 400, headers });
+    }
 
-    const missing = souls.filter((n) => !n.parent).length;
+    // אימות בצד השרת - הבדיקה בדפדפן לבדה ניתנת לעקיפה.
+    if (!sender) return new Response("missing sender", { status: 400, headers });
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
+      return new Response("bad email", { status: 400, headers });
+    const digits = phone.replace(/[\s\-().]/g, "");
+    if (!/^(\+?972|0)5\d{8}$/.test(digits) && !/^\+\d{9,15}$/.test(digits))
+      return new Response("bad phone", { status: 400, headers });
 
     const rows = souls
       .map(
         (n, i) =>
           `<tr><td style="padding:5px 12px 5px 0;color:#8a8378;width:28px">${i + 1}</td>` +
           `<td style="padding:5px 0;color:#1c1a17;font-size:16px"><strong>${esc(fullName(n))}</strong>` +
-          (n.parent ? "" : ` <span style="color:#c0392b;font-size:13px">(חסר שם הורה)</span>`) +
           `</td></tr>`
       )
       .join("");
 
     // הבלוק להעתקה הוא העיקר במייל הזה: הוא נבנה בפורמט שהגנרטור של
     // הפדיון קורא - שורת כותרת עם שם התורם, ומתחתיה שורה לכל שם.
-    const plain =
-      (sender || "ללא שם") + "\n" + souls.map((n) => fullName(n)).join("\n");
+    const plain = sender + "\n" + souls.map((n) => fullName(n)).join("\n");
 
     const html =
       `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7">` +
       `<h2 style="margin:0 0 4px">פדיון כפרות - ${souls.length} שמות</h2>` +
       `<p style="margin:0 0 18px;color:#4a453e">נשלח מהטופס ב-<a href="${PAGE}">עמוד יום כיפור</a>.</p>` +
-      (sender || phone || email
-        ? `<p style="margin:0 0 14px">` +
-          (sender ? `<strong>${esc(sender)}</strong>` : "") +
-          (phone ? ` · ${esc(phone)}` : "") +
-          (email ? ` · ${esc(email)}` : "") +
-          `</p>`
-        : "") +
+      `<p style="margin:0 0 14px"><strong>${esc(sender)}</strong> · ` +
+      `${esc(phone)} · ${esc(email)}</p>` +
       `<table style="border-collapse:collapse;margin:0 0 18px">${rows}</table>` +
-      (missing
-        ? `<p style="margin:0 0 14px;padding:10px 14px;background:#fdecea;` +
-          `border-right:4px solid #c0392b;border-radius:6px">` +
-          `<strong>${missing} שמות ללא שם הורה.</strong> להשלים לפני הפדיון.</p>`
-        : "") +
       (note
         ? `<p style="margin:0 0 14px;padding:10px 14px;background:#faf7f0;` +
           `border-right:4px solid #c9ab77;border-radius:6px">${esc(note)}</p>`

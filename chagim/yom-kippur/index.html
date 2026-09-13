@@ -240,9 +240,9 @@
         '<input type="text" class="s-name"></div>' +
         '<div class="field"><label>שם ההורה</label>' +
         '<input type="text" class="s-parent"></div>' +
-        '<div class="field"><label>בן / בת</label>' +
-        '<select class="s-gender"><option value="">-</option>' +
-        '<option value="m">בן</option><option value="f">בת</option></select></div>' +
+        '<div class="field"><label>ז / נ<span class="hint">זכר או נקבה</span></label>' +
+        '<select class="s-gender"><option value="">בחרו</option>' +
+        '<option value="m">זכר</option><option value="f">נקבה</option></select></div>' +
       '</div></div>';
   }
 
@@ -290,7 +290,7 @@
       var gender = rows[i].querySelector(".s-gender").value;
       if (!name && !parent && !gender) continue;
       if (!name || !parent || !gender) {
-        show("err", "בשם " + (i + 1) + " צריך למלא את שלושת השדות: השם, שם ההורה, ובן או בת.");
+        show("err", "בשם " + (i + 1) + " צריך למלא את שלושת השדות: השם, שם ההורה, וזכר או נקבה.");
         return;
       }
       souls.push({ name: name, parent: parent, gender: gender });

@@ -139,6 +139,39 @@ async function sendViaGmail(env, raw) {
   return ok;
 }
 
+// ההוראות שחוזרות לממלא. **זו הסיבה שהטופס מבקש מייל בכלל** - יעקב הנחה
+// (2026-09-13) שמי שמסר שמות יקבל בחזרה את סדר העשייה, כי מסירת השמות אינה
+// הפדיון עצמו: הפדיון נעשה בבית, עם הכסף, על כל אחד מבני המשפחה.
+function instructionsHtml() {
+  return (
+    `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:16px;line-height:1.8;color:#1c1a17">` +
+    `<h2 style="margin:0 0 6px">השמות התקבלו</h2>` +
+    `<p style="margin:0 0 20px;color:#4a453e">הם יעלו בפדיון הכפרות לפני יום כיפור.</p>` +
+    `<h3 style="margin:0 0 8px;color:#8a6d3b">איך עושים את פדיון הכפרות בפועל</h3>` +
+    `<p style="margin:0 0 14px">לכל אחד ואחד מבני המשפחה, לקחת שטר כסף, נניח 50 שקלים או יותר. ` +
+    `ולכוון <strong>שלא השטר הזה פיזית ישמש לפדיון הכפרות, אלא הסכום שאותו תרמתי</strong> - ` +
+    `בין אם נתתי סכום פיזי ובין אם עשיתי העברה בנקאית או תשלום בביט או בכל דרך אחרת.</p>` +
+    `<p style="margin:0 0 10px">לסובב את הכסף סביב הראש ולומר:</p>` +
+    `<p style="margin:0 0 14px;padding:14px 18px;background:#faf7f0;border-right:4px solid #c9ab77;` +
+    `border-radius:6px;font-weight:700">זה חליפתי תמורתי כפרתי, כשווה ערך של זה הכסף ילך לצדקה, ` +
+    `ופלוני בן/בת פלוני ילך לחיים ארוכים ולשלום.</p>` +
+    `<p style="margin:0 0 14px">ולכוון לראשי תיבות <strong>חת"ך</strong>.</p>` +
+    `<p style="margin:0 0 20px">ושוב: זה חליפתי, תמורתי, כפרתי... <strong>שלוש פעמים</strong>. ` +
+    `ולעשות כך לכל אחד ואחד מבני המשפחה.</p>` +
+    `<h3 style="margin:0 0 8px;color:#8a6d3b">הסכום</h3>` +
+    `<p style="margin:0 0 14px">מחיר תרנגול או תרנגולת, לכל אחד ואחד מבני המשפחה. ` +
+    `כל אחד ישער לעצמו את המחיר. הכסף כולו הולך למשפחות נזקקות.</p>` +
+    `<p style="margin:0 0 22px"><a href="${DONATE}" ` +
+    `style="display:inline-block;padding:12px 26px;background:#8a6d3b;color:#fff;` +
+    `text-decoration:none;border-radius:8px;font-weight:700">להעברת פדיון הכפרות</a></p>` +
+    `<p style="margin:0 0 4px">גמר חתימה טובה,</p>` +
+    `<p style="margin:0 0 18px"><strong>יעקב מאור</strong></p>` +
+    `<p style="margin:0;color:#8a8378;font-size:13px">` +
+    `כל ההסבר גם כאן: <a href="${PAGE}">${PAGE}</a></p>` +
+    `</div>`
+  );
+}
+
 // "ראובן" + "שרה" הוא לא "ראובן שרה" אלא "ראובן בן שרה".
 // המגדר הוא שדה מפורש ולא נגזר משום דבר אחר - בשם של אדם אסור לנחש.
 // אם הממלא כבר כתב "בן"/"בת" בשדה ההורה, לא מוסיפים פעמיים.
@@ -246,7 +279,25 @@ export default {
     });
 
     if (!ok) return new Response("mail failed", { status: 502, headers });
-    return new Response(JSON.stringify({ ok: true, count: souls.length }), {
+
+    // ההוראות חוזרות לממלא. **כישלון כאן לא מפיל את הבקשה** - הרשומה כבר
+    // יצאה ליעקב, והשמות לא ילכו לאיבוד רק מפני שמייל האישור לא נשלח.
+    let replySent = false;
+    if (email) {
+      try {
+        replySent = await sendMail(env, {
+          to: email,
+          replyTo: REPLY_TO_OWNER,
+          subject: "פדיון כפרות - השמות התקבלו, וכך עושים את הפדיון",
+          html: instructionsHtml(),
+        });
+        if (!replySent) console.log("instructions mail failed for", email);
+      } catch (e) {
+        console.log("instructions mail threw", String(e).slice(0, 200));
+      }
+    }
+
+    return new Response(JSON.stringify({ ok: true, count: souls.length, replySent }), {
       status: 200,
       headers: Object.assign({}, headers, {
         "Content-Type": "application/json; charset=utf-8",

@@ -152,6 +152,11 @@
         </div>
 
         <div class="field">
+          <label for="email">מייל <span class="hint">נשלח אליו בחזרה ההסבר המלא איך עושים את פדיון הכפרות בבית. לא חובה.</span></label>
+          <input type="email" id="email" inputmode="email" autocomplete="email">
+        </div>
+
+        <div class="field">
           <label for="note">הערה <span class="hint">לא חובה.</span></label>
           <textarea id="note"></textarea>
         </div>
@@ -299,6 +304,7 @@
         souls: souls,
         sender: document.getElementById("sender").value.trim(),
         phone: document.getElementById("phone").value.trim(),
+        email: document.getElementById("email").value.trim(),
         note: document.getElementById("note").value.trim(),
         website: document.getElementById("website").value
       })
@@ -308,7 +314,10 @@
     }).then(function (out) {
       document.getElementById("done-sub").textContent =
         (out && out.count ? out.count : souls.length) +
-        " שמות התקבלו ויעלו בפדיון הכפרות לפני יום כיפור.";
+        " שמות התקבלו ויעלו בפדיון הכפרות לפני יום כיפור." +
+        (out && out.replySent
+          ? " ההסבר איך עושים את הפדיון בבית נשלח אליכם במייל."
+          : " ההסבר איך עושים את הפדיון בבית נמצא למעלה בעמוד הזה.");
       document.getElementById("view-form").className = "view";
       document.getElementById("view-done").className = "view on";
       document.getElementById("shemot").scrollIntoView({ behavior: "smooth" });

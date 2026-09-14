@@ -39,12 +39,12 @@ const REPLY_TO_OWNER = "maor0072@gmail.com";
 const COMPOSIO_USER = "maor0072@gmail.com";
 const GMAIL_ACCOUNT = "ca_NGVDA1Vrsmz0";
 
-const DONATE = "https://nedar.im/7009579";
+const DONATE = "https://www.matara.pro/nedarimplus/online/?mosad=7009579&Groupe=%D7%A4%D7%93%D7%99%D7%95%D7%9F%20%D7%9B%D7%A4%D7%A8%D7%95%D7%AA&GroupeLock=1";
 const PAGE = "https://hamikdash.co.il/chagim/yom-kippur/";
 
 // דף התרומה של נדרים פלוס שמקבל את הטלפון מראש. הקישור הקצר nedar.im אינו
 // מעביר פרמטרים, ולכן לשלב התשלום נשלחת הכתובת המלאה.
-const DONATE_PREFILL = "https://www.matara.pro/nedarimplus/online/?mosad=7009579";
+const DONATE_PREFILL = "https://www.matara.pro/nedarimplus/online/?mosad=7009579&Groupe=%D7%A4%D7%93%D7%99%D7%95%D7%9F%20%D7%9B%D7%A4%D7%A8%D7%95%D7%AA&GroupeLock=1";
 
 // **דף השמות נפרד מעמוד ההסבר מ-2026-09-14** (הוראת יעקב): בעמוד יום כיפור
 // נשאר ההסבר בלבד וכפתור אחד, והשדות עברו לכאן - אחרי הפרטים ואחרי התשלום.

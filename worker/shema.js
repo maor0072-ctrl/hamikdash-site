@@ -266,6 +266,7 @@ async function appendPublic(env, entries, ownerKey) {
     id: crypto.randomUUID(),
     name: e.name,
     parent: e.parent,
+    gender: e.gender,
     owner: ownerKey,
   }));
   await writePublic(env, kept.concat(add));
@@ -286,6 +287,16 @@ const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 function validPhone(raw) {
   const digits = String(raw || "").trim().replace(/[\s\-().]/g, "");
   return PHONE_RE.test(digits) || PHONE_INTL_RE.test(digits);
+}
+
+// "אברהם" + "שרה" הוא לא "אברהם שרה" אלא "אברהם בן שרה" - זהה למוסכמה
+// ב-neshama.js ובפדיון הכפרות.
+function fullName(w) {
+  const name = String(w.name || "").trim(), parent = String(w.parent || "").trim();
+  if (!parent) return name;
+  if (w.gender === "f") return name + " בת " + parent;
+  if (w.gender === "m") return name + " בן " + parent;
+  return name + " " + parent;
 }
 
 // ===== מיילים =====
@@ -315,8 +326,9 @@ function ownerNoticeHtml(d, wishes, flags) {
       ? `<p style="margin:0 0 6px;color:#c0392b;font-weight:bold">⚠️ לבדוק</p>` : "";
     return `<table style="border-collapse:collapse;margin:0 0 16px">` +
       `<tr><td colspan="2">${mark}</td></tr>` +
-      row("שם", w.name) + row("שם ההורה", w.parent) + row("הקרבה", w.relation) +
-      row("המשאלה", w.wish) +
+      row("שם", w.name) + row("שם ההורה", w.parent) +
+      row("מין", w.gender === "f" ? "נקבה" : w.gender === "m" ? "זכר" : "") +
+      row("הקרבה", w.relation) + row("המשאלה", w.wish) +
       row("פרסום", w.publicOk && !w.privateOnly ? "ברשימה הכללית" : "פרטי בלבד") +
       `</table>`;
   }).join("");
@@ -333,7 +345,7 @@ function ownerNoticeHtml(d, wishes, flags) {
 function wishesThanksHtml(name, wishes) {
   const pub = wishes.filter((w) => w.publicOk && !w.privateOnly);
   const priv = wishes.filter((w) => !(w.publicOk && !w.privateOnly));
-  const li = (w) => `<li style="margin:4px 0">${esc(w.name)} - ${esc(w.parent)}</li>`;
+  const li = (w) => `<li style="margin:4px 0">${esc(fullName(w))}</li>`;
   return (
     `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:16px;line-height:1.8;color:#1c1a17">` +
     `<p>שלום ${esc(name)},</p>` +
@@ -345,7 +357,7 @@ function wishesThanksHtml(name, wishes) {
       : "") +
     (priv.length
       ? `<p>ואלה נשמרו אצלנו בלבד, ולא מוצגות באתר: ` +
-        `${priv.map((w) => esc(w.name) + " - " + esc(w.parent)).join(", ")}.</p>`
+        `${priv.map((w) => esc(fullName(w))).join(", ")}.</p>`
       : "") +
     `<p>אם משהו לא מדויק, פשוט השב/י למייל הזה.</p>` +
     `<hr style="border:0;border-top:1px solid #e5ddd0;margin:28px 0">` +
@@ -395,7 +407,9 @@ export default {
         });
       }
       if (url.searchParams.get("list") === "public") {
-        const all = (await readPublic(env)).map((e) => ({ id: e.id, name: e.name, parent: e.parent }));
+        const all = (await readPublic(env)).map((e) => ({
+          id: e.id, name: e.name, parent: e.parent, gender: e.gender,
+        }));
         return new Response(JSON.stringify({ names: all }), {
           status: 200,
           headers: Object.assign({}, headers, {
@@ -465,6 +479,10 @@ async function handleWishes(d, env, headers) {
     .map((w) => ({
       name: String((w && w.name) || "").trim().slice(0, 80),
       parent: String((w && w.parent) || "").trim().slice(0, 80),
+      // מגדר מי שמתפללים עליו/ה - שדה חובה מפורש, לא נגזר מהקרבה. "אברהם"
+      // + "שרה" הוא לא "אברהם שרה" אלא "אברהם בן שרה", וללא מגדר אי אפשר
+      // לדעת "בן" או "בת" - זהה למוסכמה ב-neshama.js ובפדיון הכפרות.
+      gender: (w && w.gender) === "f" ? "f" : (w && w.gender) === "m" ? "m" : "",
       wish: String((w && w.wish) || "").trim().slice(0, 500),
       relation: String((w && w.relation) || "").trim().slice(0, 80),
       publicOk: !!(w && w.publicOk),
@@ -475,7 +493,7 @@ async function handleWishes(d, env, headers) {
 
   if (!wishes.length) return new Response("no wishes", { status: 400, headers });
   for (const w of wishes) {
-    if (!w.parent || !w.wish || !w.relation)
+    if (!w.parent || !w.gender || !w.wish || !w.relation)
       return new Response("incomplete wish", { status: 400, headers });
     if (!w.publicOk && !w.privateOnly)
       return new Response("missing permission", { status: 400, headers });
@@ -532,7 +550,7 @@ async function handleReport(d, env, headers) {
     `<p style="margin:0 0 18px;padding:10px 14px;background:#fdecea;` +
     `border-right:4px solid #c0392b;border-radius:6px">מבקר באתר דיווח על השורה הבאה.</p>` +
     `<table style="border-collapse:collapse;margin-bottom:20px">` +
-    row("שם", entry.name) + row("שם ההורה", entry.parent) + `</table>` +
+    row("שם", fullName(entry)) + `</table>` +
     `<p><a href="${removeUrl}" style="background:#c0392b;color:#fff;text-decoration:none;` +
     `padding:12px 24px;border-radius:8px;display:inline-block;font-weight:bold">` +
     `להסיר את השורה הזאת</a></p>` +

@@ -260,6 +260,16 @@
       .replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
+  // "אברהם" + "שרה" הוא לא "אברהם שרה" אלא "אברהם בן שרה" - זהה למוסכמה
+  // בכל שאר האתר (neshama.html, פדיון הכפרות).
+  function fullName(n) {
+    var name = String(n.name || "").trim(), parent = String(n.parent || "").trim();
+    if (!parent) return name;
+    if (n.gender === "f") return name + " בת " + parent;
+    if (n.gender === "m") return name + " בן " + parent;
+    return name + " " + parent;
+  }
+
   function show(view) {
     var all = document.querySelectorAll(".view");
     for (var i = 0; i < all.length; i++) all[i].classList.remove("on");
@@ -349,7 +359,7 @@
           return;
         }
         box.innerHTML = '<ul class="wish-list">' + names.map(function (n) {
-          return "<li><span>" + esc(n.name) + " - " + esc(n.parent) + "</span>" +
+          return "<li><span>" + esc(fullName(n)) + "</span>" +
             '<button type="button" class="wish-report" data-id="' + esc(n.id) +
             '">דיווח</button></li>';
         }).join("") + "</ul>";

@@ -32,6 +32,8 @@
 .wish-head h3{font-size:17px;color:var(--gold-deep);margin:0}
 .wish-remove{background:none;border:0;color:var(--ink-soft);font-size:15px;cursor:pointer;
   text-decoration:underline;font-family:inherit;padding:0}
+.row-3{display:grid;grid-template-columns:1fr 1fr 140px;gap:0 14px}
+@media(max-width:680px){.row-3{grid-template-columns:1fr}}
 .form-sep{border:0;border-top:1px solid var(--line);margin:26px 0 22px}
 .hp{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
   clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
@@ -91,7 +93,8 @@
   <div class="wrap">
     <div class="form-card">
       <p style="color:var(--ink-soft);font-size:15px;margin-bottom:22px">בכל שורה: שם, שם ההורה,
-      המשאלה, והקרבה שלך אליו. סמנו אם מותר לפרסם את השם ברשימה הכללית - אחרת הוא יישמר אצלנו בלבד.</p>
+      זכר או נקבה, המשאלה, והקרבה שלך אליו. סמנו אם מותר לפרסם את השם ברשימה הכללית - אחרת הוא
+      יישמר אצלנו בלבד.</p>
 
       <div id="wishes"></div>
 
@@ -145,6 +148,16 @@
       .replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
+  // "אברהם" + "שרה" הוא לא "אברהם שרה" אלא "אברהם בן שרה" - זהה למוסכמה
+  // בכל שאר האתר (neshama.html, פדיון הכפרות).
+  function fullName(w) {
+    var name = String(w.name || "").trim(), parent = String(w.parent || "").trim();
+    if (!parent) return name;
+    if (w.gender === "f") return name + " בת " + parent;
+    if (w.gender === "m") return name + " בן " + parent;
+    return name + " " + parent;
+  }
+
   function show(view) {
     var all = document.querySelectorAll(".view");
     for (var i = 0; i < all.length; i++) all[i].classList.remove("on");
@@ -176,13 +189,17 @@
     d.innerHTML =
       '<div class="wish-head"><h3>בקשה <span class="num"></span></h3>' +
       '<button type="button" class="wish-remove">הסרה</button></div>' +
-      '<div class="row-2">' +
+      '<div class="row-3">' +
       '<div class="field"><label>שם' +
       '<span class="hint">שם פרטי בלבד</span></label>' +
       '<input type="text" class="w-name"></div>' +
       '<div class="field"><label>שם ההורה' +
       '<span class="hint">רק השם, למשל "רבקה"</span></label>' +
       '<input type="text" class="w-parent"></div>' +
+      '<div class="field"><label>ז / נ' +
+      '<span class="hint">זכר או נקבה</span></label>' +
+      '<select class="w-gender"><option value="">בחרו</option>' +
+      '<option value="m">זכר</option><option value="f">נקבה</option></select></div>' +
       "</div>" +
       '<div class="field"><label>המשאלה' +
       '<span class="hint">למשל: רפואה שלמה, זיווג הגון, פרנסה טובה</span></label>' +
@@ -225,14 +242,15 @@
       var w = {
         name: b.querySelector(".w-name").value.trim(),
         parent: b.querySelector(".w-parent").value.trim(),
+        gender: b.querySelector(".w-gender").value,
         wish: b.querySelector(".w-wish").value.trim(),
         relation: b.querySelector(".w-relation").value.trim(),
         publicOk: b.querySelector(".w-public").checked
       };
       w.privateOnly = !w.publicOk;
-      if (!w.name && !w.parent && !w.wish && !w.relation) continue;
-      if (!w.name || !w.parent || !w.wish || !w.relation)
-        return { error: "בבקשה " + (i + 1) + " חסרים פרטים. שם, שם ההורה, המשאלה והקרבה נדרשים." };
+      if (!w.name && !w.parent && !w.gender && !w.wish && !w.relation) continue;
+      if (!w.name || !w.parent || !w.gender || !w.wish || !w.relation)
+        return { error: "בבקשה " + (i + 1) + " חסרים פרטים. שם, שם ההורה, זכר או נקבה, המשאלה והקרבה נדרשים." };
       out.push(w);
     }
     if (!out.length) return { error: "נא למלא לפחות בקשה אחת." };
@@ -259,7 +277,7 @@
         $("done-sub").textContent =
           "שלחנו לך אישור לדואר האלקטרוני. הלילה, בחצות, שותפי הפרויקט מתפללים גם עליהן.";
         $("done-list").innerHTML = got.list.map(function (w) {
-          return "<li><strong>" + esc(w.name) + " - " + esc(w.parent) + "</strong>" +
+          return "<li><strong>" + esc(fullName(w)) + "</strong>" +
             '<span class="meta">' + esc(w.wish) + " · " +
             (w.publicOk ? "ברשימה הכללית" : "פרטי בלבד") + "</span></li>";
         }).join("");

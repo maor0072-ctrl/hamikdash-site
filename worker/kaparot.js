@@ -415,9 +415,18 @@ const NED_REFRESH_MS = 120 * 1000; // מרווח מינימלי בין שתי ש
 const NED_MAX_CALLS_HOUR = 15; // מתוך 20 בערך, השאר לקולקטור של DataOS
 const NED_PAGE_SIZE = 500;
 
-// חלון ההכרה בתרומה. רחב בכוונה: הפוסט הראשון יצא ב-13.9 ואנשים כבר תרמו
-// לכפרות לפני שהטופס הזה נולד - מי שכבר נתן לא יתבקש לתת שוב כדי למסור שמות.
-const PAY_WINDOW_DAYS = 21;
+// **הוראת יעקב 2026-09-14: תרומה קודמת אינה נחשבת.** פדיון כפרות הוא נתינה
+// חדשה לצורך הכפרות; מי שתרם לפדיון נפש, או תרם סתם, עדיין צריך לתת סכום
+// חדש עכשיו. לכן הבדיקה אינה "האם יש תרומה בימים האחרונים" אלא **האם נכנסה
+// תרומה מאז שהאדם הזה פתח את הבקשה**.
+//
+// החסד היחיד הוא חלון קצר לאחור, למי שתרם דרך הקישור השקט שבעמוד ורק אחר כך
+// לחץ על הוספת שמות - הוא לא יתבקש לשלם פעמיים על אותה נתינה.
+const PAY_GRACE_MS = 20 * 60 * 1000;
+
+// כמה זמן רשומה נשמרת במפת הטלפונים. אין לה תפקיד מעבר לבקשות הפתוחות,
+// והמפה קטנה יותר כשגוזמים אותה.
+const PAY_WINDOW_DAYS = 3;
 
 // כמה זמן חיה בקשה שטרם שולמה. מספיק ליום עיון ולחזרה, ולא יותר.
 const INTENT_HOURS = 48;
@@ -523,15 +532,14 @@ async function refreshNedarim(env) {
   return true;
 }
 
-// האם יש תרומה מהטלפון הזה בתוך החלון. מרענן קודם אם הגיע הזמן.
-async function phoneHasPaid(env, phone) {
+// האם נכנסה תרומה מהטלפון הזה **מאז** הרגע שנמסר. מרענן קודם אם הגיע הזמן.
+async function phoneHasPaid(env, phone, since) {
   const p = normPhone(phone);
   if (!p) return false;
-  const cutoff = Date.now() - PAY_WINDOW_DAYS * 86400000;
   let phones = await kvJson(env, "ned:phones", {});
-  if (phones[p] && phones[p] >= cutoff) return true;
+  if (phones[p] && phones[p] >= since) return true;
   if (await refreshNedarim(env)) phones = await kvJson(env, "ned:phones", {});
-  return !!(phones[p] && phones[p] >= cutoff);
+  return !!(phones[p] && phones[p] >= since);
 }
 
 // ---------- בקשות ממתינות לתשלום ----------
@@ -669,7 +677,7 @@ export default {
         if (!intent) return json({ ok: false, reason: "gone" }, 404);
         if (intent.status === "paid" && intent.token)
           return json({ ok: true, paid: true, url: shemotUrl(intent.token) });
-        if (await phoneHasPaid(env, intent.phone)) {
+        if (await phoneHasPaid(env, intent.phone, intent.since || intent.createdAt)) {
           const token = await grantPaid(env, intentId, intent, "auto");
           return json({ ok: true, paid: true, url: shemotUrl(token) });
         }
@@ -735,15 +743,16 @@ export default {
         return json({ ok: false, reason: "bad phone" }, 400);
 
       const id = crypto.randomUUID().replace(/-/g, "");
+      const now = Date.now();
       const intent = {
         sender: sender, phone: p, email: email.toLowerCase(),
-        status: "open", createdAt: Date.now(),
+        status: "open", createdAt: now, since: now - PAY_GRACE_MS,
       };
       if (!(await writeIntent(env, id, intent)))
         return json({ ok: false, reason: "storage" }, 503);
 
-      // מי שכבר תרם בימים האחרונים לא יישלח לשלם שוב - הוא עובר ישר לשמות.
-      if (await phoneHasPaid(env, p)) {
+      // רק מי שתרם ממש עכשיו, בתוך חלון החסד, נכנס בלי לעבור שוב בתשלום.
+      if (await phoneHasPaid(env, p, intent.since)) {
         const token = await grantPaid(env, id, intent, "existing");
         return json({ ok: true, id: id, paid: true, url: shemotUrl(token) });
       }

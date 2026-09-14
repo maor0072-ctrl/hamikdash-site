@@ -272,6 +272,7 @@ function confirmHtml(sender, souls, token, kind) {
   const list = souls
     .map((n) =>
       `<li style="margin:6px 0">${esc(fullName(n))}` +
+      (n.relation ? ` <span style="color:#8a8378;font-size:14px">(${esc(n.relation)})</span>` : "") +
       (n.wish ? `<br><span style="color:#6b6355;font-size:15px">${esc(n.wish)}</span>` : "") +
       `</li>`)
     .join("");
@@ -331,6 +332,7 @@ function ownerHtml(sender, phone, email, souls, note, kind) {
       (n, i) =>
         `<tr><td style="padding:5px 12px 5px 0;color:#8a8378;width:28px">${i + 1}</td>` +
         `<td style="padding:5px 0;color:#1c1a17;font-size:16px"><strong>${esc(fullName(n))}</strong>` +
+        (n.relation ? ` <span style="color:#8a8378;font-size:13px">(${esc(n.relation)})</span>` : "") +
         (n.wish ? `<br><span style="color:#6b6355;font-size:14px">${esc(n.wish)}</span>` : "") +
         `</td></tr>`
     )
@@ -373,6 +375,7 @@ function cleanSouls(raw) {
       parent: String((n && n.parent) || "").trim().slice(0, 120),
       gender: (n && n.gender) === "f" ? "f" : (n && n.gender) === "m" ? "m" : "",
       wish: String((n && n.wish) || "").trim().slice(0, 300),
+      relation: String((n && n.relation) || "").trim().slice(0, 80),
     }))
     .filter((n) => n.name)
     .slice(0, MAX_SOULS);
@@ -521,9 +524,16 @@ async function refreshNedarim(env) {
 }
 
 // האם נכנסה תרומה מהטלפון הזה **מאז** הרגע שנמסר. מרענן קודם אם הגיע הזמן.
+//
+// לפני הכול נבדק פטור ידני: `exempt:<טלפון>` ב-KV פותח לאדם מסוים בלי תלות
+// בזמן. זה נועד למי שיעקב יודע עליו שכבר נתן לצורך הזה - למשל תרומה שנכנסה
+// עם הערה מפורשת לפני שהטופס בכלל נולד. מפתח, ולא רשימה בקוד, כדי שאפשר
+// יהיה להוסיף אדם בלי לפרוס מחדש.
 async function phoneHasPaid(env, phone, since) {
   const p = normPhone(phone);
   if (!p) return false;
+  const exempt = await kvJson(env, "exempt:" + p, null);
+  if (exempt) return true;
   let phones = await kvJson(env, "ned:phones", {});
   if (phones[p] && phones[p] >= since) return true;
   if (await refreshNedarim(env)) phones = await kvJson(env, "ned:phones", {});

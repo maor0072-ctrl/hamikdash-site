@@ -533,9 +533,16 @@ async function refreshNedarim(env) {
 }
 
 // האם נכנסה תרומה מהטלפון הזה **מאז** הרגע שנמסר. מרענן קודם אם הגיע הזמן.
+//
+// לפני הכול נבדק פטור ידני: `exempt:<טלפון>` ב-KV פותח לאדם מסוים בלי תלות
+// בזמן. זה נועד למי שיעקב יודע עליו שכבר נתן לצורך הזה - למשל תרומה שנכנסה
+// עם הערה מפורשת לפני שהטופס בכלל נולד. מפתח, ולא רשימה בקוד, כדי שאפשר
+// יהיה להוסיף אדם בלי לפרוס מחדש.
 async function phoneHasPaid(env, phone, since) {
   const p = normPhone(phone);
   if (!p) return false;
+  const exempt = await kvJson(env, "exempt:" + p, null);
+  if (exempt) return true;
   let phones = await kvJson(env, "ned:phones", {});
   if (phones[p] && phones[p] >= since) return true;
   if (await refreshNedarim(env)) phones = await kvJson(env, "ned:phones", {});

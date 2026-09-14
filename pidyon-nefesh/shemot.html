@@ -73,7 +73,7 @@
   <div class="wrap">
     <p class="crumbs"><a href="/pidyon-nefesh/">פדיון נפש</a> · מסירת שמות</p>
     <h1>מסירת השמות לפדיון נפש</h1>
-    <p>שם ושם ההורה של כל אחד שעליו נעשה הפדיון, ובן או בת. אפשר להוסיף לכל שם את הבקשה.</p>
+    <p>שם ושם ההורה של כל אחד שעליו נעשה הפדיון, ובן או בת. אפשר להוסיף לכל שם גם את הבקשה ואת הקרבה.</p>
   </div>
 </div>
 
@@ -208,8 +208,12 @@
         '<select class="s-gender"><option value="">בחרו</option>' +
         '<option value="m">זכר</option><option value="f">נקבה</option></select></div>' +
       '</div>' +
-      '<div class="field"><label>הבקשה <span class="hint">לא חובה. הישועה שעבורה נעשה הפדיון.</span></label>' +
-      '<input type="text" class="s-wish"></div>' +
+      '<div class="row-2">' +
+        '<div class="field"><label>הבקשה <span class="hint">לא חובה. הישועה שעבורה נעשה הפדיון.</span></label>' +
+        '<input type="text" class="s-wish"></div>' +
+        '<div class="field"><label>הקרבה <span class="hint">לא חובה. מה הוא שלכם - בן, אמא, חבר.</span></label>' +
+        '<input type="text" class="s-relation"></div>' +
+      '</div>' +
       '</div>';
   }
 
@@ -254,6 +258,7 @@
     row.querySelector(".s-parent").value = s.parent || "";
     row.querySelector(".s-gender").value = s.gender || "";
     row.querySelector(".s-wish").value = s.wish || "";
+    row.querySelector(".s-relation").value = s.relation || "";
   }
 
   // ---------- אתחול ----------
@@ -342,12 +347,13 @@
       var parent = rows[i].querySelector(".s-parent").value.trim();
       var gender = rows[i].querySelector(".s-gender").value;
       var wish = rows[i].querySelector(".s-wish").value.trim();
-      if (!name && !parent && !gender && !wish) continue;
+      var relation = rows[i].querySelector(".s-relation").value.trim();
+      if (!name && !parent && !gender && !wish && !relation) continue;
       if (!name || !parent || !gender) {
         show("err", "בשם " + (i + 1) + " צריך למלא את שלושת השדות: השם, שם ההורה, וזכר או נקבה.");
         return;
       }
-      souls.push({ name: name, parent: parent, gender: gender, wish: wish });
+      souls.push({ name: name, parent: parent, gender: gender, wish: wish, relation: relation });
     }
     if (!souls.length) { show("err", "צריך למלא לפחות שם אחד."); return; }
 

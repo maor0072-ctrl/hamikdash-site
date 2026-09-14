@@ -305,6 +305,12 @@
     btn.disabled = true;
     show(msg, "ok", "רגע...");
 
+    // **הלשונית נפתחת כאן ולא אחרי התשובה מהשרת.** window.open בתוך callback
+    // של fetch הוא פתיחה אסינכרונית, ודפדפנים חוסמים אותה כחלון קופץ - אישור
+    // המשתמש כבר פג. לכן נפתחת עכשיו לשונית ריקה, ורק היעד מוזרק אליה אחר כך.
+    var payTab = null;
+    try { payTab = window.open("", "_blank"); } catch (e) {}
+
     fetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -323,15 +329,22 @@
       intentId = out.id;
 
       // מי שכבר תרם בימים האחרונים לא נשלח לשלם שוב.
-      if (out.paid && out.url) { goShemot(out.url); return; }
+      if (out.paid && out.url) {
+        if (payTab) { try { payTab.close(); } catch (e) {} }
+        goShemot(out.url);
+        return;
+      }
 
       remember(out.id, out.donate);
-      // חלון התרומה נפתח בלשונית נפרדת כדי שהדף הזה יישאר חי וימשיך לבדוק.
-      window.open(out.donate, "_blank", "noopener");
+      // הדף הזה נשאר חי וממשיך לבדוק, ולכן התשלום נפתח בלשונית שלידו.
+      if (payTab) payTab.location.href = out.donate;
       startWaiting(out.donate);
+      if (!payTab)
+        show(waitMsg, "ok", "הדפדפן חסם את פתיחת דף התרומה. לחצו על פתיחת דף התרומה שוב.");
     }).catch(function () {
       sending = false;
       btn.disabled = false;
+      if (payTab) { try { payTab.close(); } catch (e) {} }
       show(msg, "err", "משהו נתקע. אפשר לנסות שוב, או לתרום ישירות ולכתוב לנו את השמות.");
     });
   });

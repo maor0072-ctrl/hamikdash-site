@@ -36,6 +36,14 @@ const GMAIL_ACCOUNT = "ca_NGVDA1Vrsmz0";
 const DONATE = "https://nedar.im/7009579";
 const PAGE = "https://hamikdash.co.il/chagim/yom-kippur/";
 
+// דף התרומה של נדרים פלוס שמקבל את הטלפון מראש. הקישור הקצר nedar.im אינו
+// מעביר פרמטרים, ולכן לשלב התשלום נשלחת הכתובת המלאה.
+const DONATE_PREFILL = "https://www.matara.pro/nedarimplus/online/?mosad=7009579";
+
+// **דף השמות נפרד מעמוד ההסבר מ-2026-09-14** (הוראת יעקב): בעמוד יום כיפור
+// נשאר ההסבר בלבד וכפתור אחד, והשדות עברו לכאן - אחרי הפרטים ואחרי התשלום.
+const SHEMOT_PAGE = "https://hamikdash.co.il/chagim/yom-kippur/shemot.html";
+
 // משפחה גדולה היא לגמרי סבירה כאן - כפרות עושים לכל נפש, כולל ילדים וסבים.
 // התקרה נועדה רק לעצור הזנה אוטומטית.
 const MAX_SOULS = 30;
@@ -265,7 +273,7 @@ const btn = (href, text, primary) =>
 // **זו הסיבה שהטופס מבקש מייל בכלל** - מסירת השמות אינה הפדיון עצמו:
 // הפדיון נעשה בבית, עם הכסף, על כל אחד מבני המשפחה.
 function confirmHtml(sender, souls, token, kind) {
-  const link = (m) => `${PAGE}?t=${encodeURIComponent(token)}&m=${m}`;
+  const link = (m) => `${SHEMOT_PAGE}?t=${encodeURIComponent(token)}&m=${m}`;
   const list = souls
     .map((n) => `<li style="margin:4px 0">${esc(fullName(n))}</li>`)
     .join("");
@@ -376,6 +384,260 @@ function cleanSouls(raw) {
     .slice(0, MAX_SOULS);
 }
 
+// ==========================================================================
+// אימות תשלום מול נדרים פלוס
+//
+// **הוראת יעקב 2026-09-14: השמות נפתחים רק אחרי שהתשלום נראה בנדרים פלוס.**
+// פדיון כפרות הוא הכסף עצמו - רשימת שמות בלי נתינה אינה פדיון. לכן הדף
+// מתחיל בפרטים, ממשיך לתרומה, ורק אחר כך נפתחים שדות השמות.
+//
+// האימות הוא **לפי מספר טלפון**, בדיוק כמו בשירות ה-RTL: דף התרומה של נדרים
+// מקבל את הטלפון מראש בכתובת (Phone=05XXXXXXXX, אומת מול הדף החי), ולכן
+// המספר שנחפש הוא המספר שנוחת על העסקה. אין קוד, אין קריאת מיילים.
+//
+// **המכסה היא האילוץ שמעצב את המבנה:** ל-API כ-20 קריאות בשעה, והמכסה
+// משותפת עם הקולקטור היומי של DataOS. לכן ה-Worker לא שואל את נדרים לכל
+// גולש: הוא מחזיק ב-KV מפת טלפון אל זמן התרומה האחרונה, מרענן אותה לכל
+// היותר אחת לדקה וחצי, ומודד כל קריאה במונה מתגלגל. גולש נוסף באותה דקה
+// נענה מהמפה בלי לעלות קריאה.
+const NEDARIM_API = "https://matara.pro/nedarimplus/Reports/Manage3.aspx";
+// **המספרים האלה קשורים זה בזה:** מרווח של שתי דקות מאפשר 30 שליפות בשעה,
+// והמונה חוסם אחרי 15 - כלומר במצב עומס רצוף מרענן אחת לארבע דקות, ובמצב
+// רגיל אחת לשתיים. שליפה אחת פותרת את **כל** הממתינים בבת אחת, כי המפה
+// משותפת, ולכן מספר הממתינים אינו מכפיל את העלות.
+const NED_REFRESH_MS = 120 * 1000; // מרווח מינימלי בין שתי שליפות
+const NED_MAX_CALLS_HOUR = 15; // מתוך 20 בערך, השאר לקולקטור של DataOS
+const NED_PAGE_SIZE = 500;
+
+// חלון ההכרה בתרומה. רחב בכוונה: הפוסט הראשון יצא ב-13.9 ואנשים כבר תרמו
+// לכפרות לפני שהטופס הזה נולד - מי שכבר נתן לא יתבקש לתת שוב כדי למסור שמות.
+const PAY_WINDOW_DAYS = 21;
+
+// כמה זמן חיה בקשה שטרם שולמה. מספיק ליום עיון ולחזרה, ולא יותר.
+const INTENT_HOURS = 48;
+
+function normPhone(value) {
+  let d = String(value || "").replace(/\D/g, "");
+  if (!d) return "";
+  if (d.startsWith("00972")) d = d.slice(5);
+  else if (d.startsWith("972")) d = d.slice(3);
+  if (!d.startsWith("0")) d = "0" + d;
+  return d;
+}
+
+// תאריך נדרים בתבנית יום/חודש/שנה שעה -> מילישניות. פער שעון ישראל מול UTC
+// אינו קריטי כאן, כי החלון נמדד בימים ולא בדקות.
+function nedTime(value) {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?/.exec(
+    String(value || "").trim()
+  );
+  if (!m) return 0;
+  return Date.UTC(+m[3], +m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
+}
+
+async function kvJson(env, key, fallback) {
+  try {
+    const raw = await env.KAPAROT.get(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) {
+    console.log("kv read failed", key, String(e).slice(0, 120));
+    return fallback;
+  }
+}
+
+// מונה מתגלגל על שעה. נשמר ב-KV ולכן אינו מדויק לחלוטין בין מופעים מקבילים -
+// זו הגנה על המכסה, לא נעילה. הסטייה האפשרית היא קריאה בודדת.
+async function spendNedarimCall(env) {
+  const now = Date.now();
+  const calls = (await kvJson(env, "ned:calls", [])).filter((t) => now - t < 3600000);
+  if (calls.length >= NED_MAX_CALLS_HOUR) return false;
+  calls.push(now);
+  try {
+    await env.KAPAROT.put("ned:calls", JSON.stringify(calls), { expirationTtl: 3600 });
+  } catch (e) {
+    console.log("kv calls write failed", String(e).slice(0, 120));
+  }
+  return true;
+}
+
+// שליפת העסקאות שנוספו מאז הסמן, ועדכון מפת הטלפונים.
+// מחזירה true אם רוענן בפועל. **כשל אינו שגיאה של הגולש** - הוא נענה מהמפה
+// הקיימת, ובפעם הבאה ינסה שוב.
+async function refreshNedarim(env) {
+  if (!env.NEDARIM_MOSAD_ID || !env.NEDARIM_API_PASSWORD) return false;
+  const state = await kvJson(env, "ned:state", { cursor: 0, fetched: 0 });
+  if (Date.now() - (state.fetched || 0) < NED_REFRESH_MS) return false;
+  if (!(await spendNedarimCall(env))) return false;
+
+  const body = new URLSearchParams({
+    Action: "GetHistoryJson",
+    MosadId: env.NEDARIM_MOSAD_ID,
+    ApiPassword: env.NEDARIM_API_PASSWORD,
+    MaxId: String(NED_PAGE_SIZE),
+  });
+  if (state.cursor) body.set("LastId", String(state.cursor));
+
+  let rows;
+  try {
+    const r = await fetch(NEDARIM_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+    });
+    if (!r.ok) throw new Error("http " + r.status);
+    const out = await r.json();
+    rows = Array.isArray(out) ? out : out && (out.data || out.Data);
+  } catch (e) {
+    console.log("nedarim fetch failed", String(e).slice(0, 150));
+    return false;
+  }
+  if (!Array.isArray(rows)) return false;
+
+  const phones = await kvJson(env, "ned:phones", {});
+  let cursor = state.cursor || 0;
+  for (const row of rows) {
+    const id = parseInt(row.TransactionId, 10);
+    if (id > cursor) cursor = id;
+    const p = normPhone(row.Phone);
+    const t = nedTime(row.TransactionTime);
+    const amount = parseFloat(row.Amount || "0") || 0;
+    if (!p || !t || amount <= 0) continue;
+    if (!phones[p] || phones[p] < t) phones[p] = t;
+  }
+  // גיזום: מה שמעבר לחלון כבר לא פותח דבר, ואין סיבה לגרור אותו.
+  const cutoff = Date.now() - PAY_WINDOW_DAYS * 86400000;
+  for (const p of Object.keys(phones)) if (phones[p] < cutoff) delete phones[p];
+
+  try {
+    await env.KAPAROT.put("ned:phones", JSON.stringify(phones));
+    await env.KAPAROT.put("ned:state", JSON.stringify({ cursor: cursor, fetched: Date.now() }));
+  } catch (e) {
+    console.log("kv state write failed", String(e).slice(0, 120));
+  }
+  return true;
+}
+
+// האם יש תרומה מהטלפון הזה בתוך החלון. מרענן קודם אם הגיע הזמן.
+async function phoneHasPaid(env, phone) {
+  const p = normPhone(phone);
+  if (!p) return false;
+  const cutoff = Date.now() - PAY_WINDOW_DAYS * 86400000;
+  let phones = await kvJson(env, "ned:phones", {});
+  if (phones[p] && phones[p] >= cutoff) return true;
+  if (await refreshNedarim(env)) phones = await kvJson(env, "ned:phones", {});
+  return !!(phones[p] && phones[p] >= cutoff);
+}
+
+// ---------- בקשות ממתינות לתשלום ----------
+
+async function readIntent(env, id) {
+  if (!/^[A-Za-z0-9_-]{6,64}$/.test(String(id || ""))) return null;
+  return await kvJson(env, "intent:" + id, null);
+}
+
+async function writeIntent(env, id, data) {
+  try {
+    await env.KAPAROT.put("intent:" + id, JSON.stringify(data), {
+      expirationTtl: INTENT_HOURS * 3600,
+    });
+    return true;
+  } catch (e) {
+    console.log("intent write failed", String(e).slice(0, 120));
+    return false;
+  }
+}
+
+// הקישור שנפתח לגולש ברגע שהתשלום אומת, וגם נשלח אליו במייל.
+const shemotUrl = (token) => SHEMOT_PAGE + "?t=" + encodeURIComponent(token);
+
+function paidMailHtml(sender, token) {
+  return (
+    `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:16px;line-height:1.8;color:#2c2416">` +
+    `<p style="margin:0 0 14px">שלום ${esc(sender)},</p>` +
+    `<p style="margin:0 0 14px">התרומה התקבלה, תבורכו. הדף למסירת השמות פתוח עבורכם:</p>` +
+    `<p style="margin:0 0 18px">${btn(shemotUrl(token), "מסירת השמות", true)}</p>` +
+    `<p style="margin:0 0 14px">אפשר למסור את השמות עכשיו או מאוחר יותר - הקישור נשמר ופתוח.</p>` +
+    `<p style="margin:0">בברכה,<br>אורות האמונה - בני משה</p></div>`
+  );
+}
+
+// מעבר בקשה למצב שולם: נפתחת רשומת רשימה ריקה ונוצר הטוקן החתום שמוביל
+// אליה. מכאן ואילך ממשיך בדיוק המנגנון שכבר קיים - אותו מסך, אותו מייל
+// אישור עם שלושת הכפתורים.
+async function grantPaid(env, id, intent, how) {
+  const key = await listKey(intent.email);
+  const prev = await readList(env, key);
+  const record = prev || {
+    sender: intent.sender,
+    phone: intent.phone,
+    email: intent.email,
+    souls: [],
+    ts: Date.now(),
+  };
+  record.paid = true;
+  record.paidHow = how;
+  await writeList(env, key, record);
+
+  const token = await signToken(
+    { k: key, exp: Date.now() + TOKEN_DAYS * 86400000 },
+    env.KAPAROT_TOKEN_SECRET
+  );
+  intent.status = "paid";
+  intent.token = token;
+  intent.paidAt = Date.now();
+  intent.how = how;
+  await writeIntent(env, id, intent);
+
+  if (!intent.mailed) {
+    try {
+      const sent = await sendMail(env, {
+        to: intent.email,
+        replyTo: REPLY_TO_OWNER,
+        subject: "פדיון כפרות - הדף למסירת השמות פתוח",
+        html: paidMailHtml(intent.sender, token),
+      });
+      if (sent) {
+        intent.mailed = true;
+        await writeIntent(env, id, intent);
+      }
+    } catch (e) {
+      console.log("paid mail threw", String(e).slice(0, 150));
+    }
+  }
+  return token;
+}
+
+function pageHtml(title, body) {
+  return new Response(
+    `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width,initial-scale=1">` +
+      `<title>${esc(title)}</title></head>` +
+      `<body style="font-family:Arial,sans-serif;background:#faf7f2;color:#2c2416;` +
+      `display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0">` +
+      `<div style="max-width:520px;padding:28px;text-align:center;line-height:1.8">${body}</div>` +
+      `</body></html>`,
+    { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } }
+  );
+}
+
+// מייל ליעקב כשגולש לוחץ "שילמתי והדף לא נפתח". כ-10% מהעסקאות מגיעות
+// לנדרים בלי טלפון, ואז אין מה להתאים - הכפתור בקישור פותח לו ידנית.
+function helpMailHtml(intent, grantUrl) {
+  return (
+    `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7">` +
+    `<h2 style="margin:0 0 8px;color:#b8860b">בקשה לפתיחה ידנית</h2>` +
+    `<p style="margin:0 0 12px">מישהו מדווח ששילם ודף השמות לא נפתח לו. ` +
+    `זה קורה כשהעסקה נרשמה בנדרים בלי מספר טלפון, או כששילם ממספר אחר.</p>` +
+    `<p style="margin:0 0 6px"><strong>${esc(intent.sender)}</strong></p>` +
+    `<p style="margin:0 0 6px">טלפון: ${esc(intent.phone)}</p>` +
+    `<p style="margin:0 0 16px">מייל: ${esc(intent.email)}</p>` +
+    `<p style="margin:0 0 16px">אחרי שווידאת בנדרים פלוס שהתרומה נכנסה:</p>` +
+    `<p style="margin:0 0 18px">${btn(grantUrl, "לפתוח לו את דף השמות", true)}</p>` +
+    `<p style="margin:0;color:#7a6a52;font-size:13px">הקישור פותח את הדף ושולח לו מייל עם הקישור.</p>` +
+    `</div>`
+  );
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -390,9 +652,44 @@ export default {
 
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
 
-    // GET ?t=<token> - שליפת הרשימה הקיימת, למסך הניהול בעמוד.
     if (request.method === "GET") {
       const url = new URL(request.url);
+
+      // GET ?intent=<id> - הדף שואל אם התשלום כבר נראה בנדרים פלוס.
+      // נענה מהמפה שב-KV; שליפה אמיתית מנדרים קורית לכל היותר אחת לדקה וחצי.
+      const intentId = url.searchParams.get("intent");
+      if (intentId) {
+        const intent = await readIntent(env, intentId);
+        if (!intent) return json({ ok: false, reason: "gone" }, 404);
+        if (intent.status === "paid" && intent.token)
+          return json({ ok: true, paid: true, url: shemotUrl(intent.token) });
+        if (await phoneHasPaid(env, intent.phone)) {
+          const token = await grantPaid(env, intentId, intent, "auto");
+          return json({ ok: true, paid: true, url: shemotUrl(token) });
+        }
+        return json({ ok: true, paid: false });
+      }
+
+      // GET ?grant=<טוקן חתום> - יעקב לוחץ על הכפתור שבמייל ופותח ידנית
+      // למי ששילם ולא זוהה. נפתח בדפדפן שלו, ולכן מחזיר עמוד ולא JSON.
+      const grant = url.searchParams.get("grant");
+      if (grant) {
+        const payload = await verifyToken(grant, env.KAPAROT_TOKEN_SECRET);
+        if (!payload || !payload.i)
+          return pageHtml("קישור לא תקף", `<h2>הקישור אינו תקף או שפג תוקפו</h2>`);
+        const intent = await readIntent(env, payload.i);
+        if (!intent)
+          return pageHtml("הבקשה פגה", `<h2>הבקשה כבר אינה קיימת</h2>` +
+            `<p>בקשה שלא שולמה נמחקת אחרי יומיים. אפשר לבקש מהתורם למלא שוב.</p>`);
+        await grantPaid(env, payload.i, intent, "manual");
+        return pageHtml(
+          "נפתח",
+          `<h2 style="color:#8a6d3b">הדף נפתח ל${esc(intent.sender)}</h2>` +
+            `<p>נשלח אליו מייל עם הקישור לדף השמות, והדף שהוא השאיר פתוח ייפתח מעצמו.</p>`
+        );
+      }
+
+      // GET ?t=<token> - שליפת הרשימה הקיימת, למסך הניהול בעמוד.
       const payload = await verifyToken(url.searchParams.get("t"), env.KAPAROT_TOKEN_SECRET);
       if (!payload) return json({ ok: false, reason: "bad token" }, 401);
       const data = await readList(env, payload.k);
@@ -416,6 +713,62 @@ export default {
     // מלכודת ספאם: שדה שאדם אמיתי לעולם לא רואה ולכן לא ממלא.
     // מחזירים 200 בכוונה - בוט שמקבל שגיאה מנסה שוב, בוט שמקבל אישור הולך.
     if (d.website) return new Response("ok", { status: 200, headers });
+
+    // ---------- שלב א: פרטי הממלא, לפני התשלום ----------
+    // ארבעת השדות חובה, כמו בטופס עילוי הנשמה. הטלפון אינו רק דרך ליצור קשר -
+    // הוא **המפתח לאימות התשלום**, ולכן הוא נבדק כאן ונשלח לדף התרומה מראש.
+    if (d.action === "start") {
+      const sender = String(d.sender || "").trim().slice(0, 120);
+      const phone = String(d.phone || "").trim().slice(0, 40);
+      const email = String(d.email || "").trim().slice(0, 160);
+      if (!sender) return json({ ok: false, reason: "missing sender" }, 400);
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
+        return json({ ok: false, reason: "bad email" }, 400);
+      const p = normPhone(phone);
+      if (!/^05\d{8}$/.test(p))
+        return json({ ok: false, reason: "bad phone" }, 400);
+
+      const id = crypto.randomUUID().replace(/-/g, "");
+      const intent = {
+        sender: sender, phone: p, email: email.toLowerCase(),
+        status: "open", createdAt: Date.now(),
+      };
+      if (!(await writeIntent(env, id, intent)))
+        return json({ ok: false, reason: "storage" }, 503);
+
+      // מי שכבר תרם בימים האחרונים לא יישלח לשלם שוב - הוא עובר ישר לשמות.
+      if (await phoneHasPaid(env, p)) {
+        const token = await grantPaid(env, id, intent, "existing");
+        return json({ ok: true, id: id, paid: true, url: shemotUrl(token) });
+      }
+      return json({
+        ok: true, id: id, paid: false,
+        donate: DONATE_PREFILL + "&Phone=" + encodeURIComponent(p),
+      });
+    }
+
+    // ---------- שילמתי והדף לא נפתח ----------
+    // כ-10% מהעסקאות נרשמות בנדרים בלי טלפון, ויש מי שמשלם מכרטיס של בן
+    // משפחה. במקום להשאיר אותו תקוע, יעקב מקבל מייל עם כפתור שפותח לו.
+    if (d.action === "help") {
+      const intent = await readIntent(env, d.id);
+      if (!intent) return json({ ok: false, reason: "gone" }, 404);
+      const grant = await signToken(
+        { i: String(d.id), exp: Date.now() + 7 * 86400000 },
+        env.KAPAROT_TOKEN_SECRET
+      );
+      const grantUrl = new URL(request.url).origin + "/?grant=" + encodeURIComponent(grant);
+      const ok = await sendMail(env, {
+        to: TO,
+        replyTo: intent.email,
+        subject: "פדיון כפרות - " + intent.sender + " מדווח ששילם והדף לא נפתח",
+        html: helpMailHtml(intent, grantUrl),
+      });
+      if (!ok) return json({ ok: false, reason: "mail failed" }, 502);
+      intent.helpAskedAt = Date.now();
+      await writeIntent(env, d.id, intent);
+      return json({ ok: true });
+    }
 
     // ---------- מסלול הניהול: תיקון או מחיקה, מול טוקן חתום ----------
     if (d.token) {
@@ -455,13 +808,19 @@ export default {
       for (const n of souls) {
         if (!n.parent || !n.gender) return json({ ok: false, reason: "incomplete" }, 400);
       }
-      const next = Object.assign({}, prev, { souls: souls, ts: Date.now() });
+      // מסירה ראשונה מתוך רשומה ריקה היא מסירה, לא תיקון. הרשומה נפתחת ריקה
+      // ברגע שהתשלום אומת, ולכן ההבחנה היא בין souls ריק לבין רשימה קיימת.
+      const first = !(prev.souls && prev.souls.length);
+      const note = String(d.note || prev.note || "").trim().slice(0, 800);
+      const next = Object.assign({}, prev, { souls: souls, note: note, ts: Date.now() });
       await writeList(env, payload.k, next);
 
       const ok = await sendMail(env, {
         to: TO, replyTo: prev.email,
-        subject: "תיקון פדיון כפרות - " + souls.length + " שמות מ" + prev.sender,
-        html: ownerHtml(prev.sender, prev.phone, prev.email, souls, "", "replace"),
+        subject: (first ? "פדיון כפרות - " : "תיקון פדיון כפרות - ") +
+          souls.length + " שמות מ" + prev.sender,
+        html: ownerHtml(prev.sender, prev.phone, prev.email, souls, note,
+          first ? "new" : "replace"),
       });
       if (!ok) return new Response("mail failed", { status: 502, headers });
 
@@ -469,8 +828,10 @@ export default {
       try {
         replySent = await sendMail(env, {
           to: prev.email, replyTo: REPLY_TO_OWNER,
-          subject: "פדיון כפרות - הרשימה עודכנה",
-          html: confirmHtml(prev.sender, souls, d.token, "replace"),
+          subject: first
+            ? "פדיון כפרות - השמות התקבלו, וכך עושים את הפדיון"
+            : "פדיון כפרות - הרשימה עודכנה",
+          html: confirmHtml(prev.sender, souls, d.token, first ? "new" : "replace"),
         });
       } catch (e) {
         console.log("confirm mail threw", String(e).slice(0, 150));
@@ -478,69 +839,10 @@ export default {
       return json({ ok: true, count: souls.length, replySent: replySent });
     }
 
-    // ---------- מסלול המסירה הראשונה ----------
-    const sender = String(d.sender || "").trim().slice(0, 120);
-    const phone = String(d.phone || "").trim().slice(0, 40);
-    const email = String(d.email || "").trim().slice(0, 160);
-    const note = String(d.note || "").trim().slice(0, 800);
-
-    // **שלושת השדות חובה** (הוראת יעקב 2026-09-13): השם, שם ההורה, וזכר/נקבה.
-    // בלי שם ההורה אי אפשר לומר "פלוני בן פלוני" בפדיון, ובלי המגדר אי אפשר
-    // לדעת אם "בן" או "בת" - ובשם של אדם לא מנחשים.
-    const souls = cleanSouls(d.souls);
-    if (!souls.length) return new Response("no souls", { status: 400, headers });
-    for (const n of souls) {
-      if (!n.parent || !n.gender)
-        return new Response("incomplete soul", { status: 400, headers });
-    }
-
-    // אימות בצד השרת - הבדיקה בדפדפן לבדה ניתנת לעקיפה.
-    if (!sender) return new Response("missing sender", { status: 400, headers });
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
-      return new Response("bad email", { status: 400, headers });
-    const digits = phone.replace(/[\s\-().]/g, "");
-    if (!/^(\+?972|0)5\d{8}$/.test(digits) && !/^\+\d{9,15}$/.test(digits))
-      return new Response("bad phone", { status: 400, headers });
-
-    // מסירה שנייה מאותו מייל **מוסיפה** ולא דורסת - מי שנזכר בעוד סבתא
-    // ממלא שוב את הטופס, ולא מצפה שהראשונים ייעלמו.
-    const key = await listKey(email);
-    const prev = await readList(env, key);
-    const merged = prev && Array.isArray(prev.souls)
-      ? prev.souls.concat(souls).slice(0, MAX_SOULS)
-      : souls;
-
-    const ok = await sendMail(env, {
-      to: TO,
-      replyTo: email,
-      subject: "פדיון כפרות - " + souls.length + " שמות מ" + sender,
-      html: ownerHtml(sender, phone, email, souls, note, "new"),
-    });
-    if (!ok) return new Response("mail failed", { status: 502, headers });
-
-    await writeList(env, key, {
-      sender: sender, phone: phone, email: email, souls: merged, ts: Date.now(),
-    });
-
-    // ההוראות והכפתורים חוזרים לממלא. **כישלון כאן לא מפיל את הבקשה** -
-    // הרשומה כבר יצאה ליעקב, והשמות לא ילכו לאיבוד בגלל מייל אישור.
-    let replySent = false;
-    try {
-      const token = await signToken(
-        { k: key, exp: Date.now() + TOKEN_DAYS * 86400000 },
-        env.KAPAROT_TOKEN_SECRET
-      );
-      replySent = await sendMail(env, {
-        to: email,
-        replyTo: REPLY_TO_OWNER,
-        subject: "פדיון כפרות - השמות התקבלו, וכך עושים את הפדיון",
-        html: confirmHtml(sender, merged, token, "new"),
-      });
-      if (!replySent) console.log("confirm mail failed for", email);
-    } catch (e) {
-      console.log("confirm mail threw", String(e).slice(0, 200));
-    }
-
-    return json({ ok: true, count: souls.length, replySent: replySent });
+    // ---------- מסירה בלי טוקן: סגור ----------
+    // עד 2026-09-13 אפשר היה למסור שמות ישירות מהעמוד, בלי תשלום. מאז שהשמות
+    // נפתחים רק אחרי תרומה מאומתת, הדלת הזאת חייבת להיסגר - אחרת די בשליחת
+    // בקשה ישירה כדי לעקוף את כל השער.
+    return json({ ok: false, reason: "payment required" }, 402);
   },
 };

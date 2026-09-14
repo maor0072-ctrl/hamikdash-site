@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>הוספת שמות לפדיון כפרות | אורות האמונה - בני משה</title>
+<meta name="description" content="הוספת שמות לפדיון כפרות לפני יום כיפור: פרטי המוסר, העברת הפדיון, ואז מסירת השמות.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+.crumbs{ font-size:.92rem; margin-bottom:6px; opacity:.85; }
+.form-card{ background:var(--white); border:1px solid var(--line);
+  border-radius:var(--radius); box-shadow:var(--shadow); padding:26px 24px;
+  margin:0 auto; max-width:780px; }
+.field{ margin-bottom:16px; }
+.field label{ display:block; font-weight:700; margin-bottom:6px; font-size:16px; }
+.field .hint{ display:block; font-weight:400; color:var(--ink-soft); font-size:14px;
+  margin-top:2px; }
+.field input{ width:100%; font-family:inherit; font-size:17px; color:var(--ink);
+  background:var(--cream); border:1px solid var(--line); border-radius:8px;
+  padding:11px 13px; transition:border-color .15s,background .15s; }
+.field input:focus{ outline:0; border-color:var(--gold); background:var(--white); }
+.row-2{ display:grid; grid-template-columns:1fr 1fr; gap:0 16px; }
+@media(max-width:680px){ .row-2{ grid-template-columns:1fr; } }
+.hp{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+  clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0; }
+.form-msg{ margin-top:16px; padding:14px 16px; border-radius:8px; font-size:16px;
+  display:none; }
+.form-msg.err{ display:block; background:#fdecea; border-right:4px solid #c0392b;
+  color:#7b241c; }
+.form-msg.ok{ display:block; background:var(--cream-warm); border-right:4px solid var(--gold);
+  color:var(--ink); }
+.actions{ display:flex; flex-wrap:wrap; gap:12px; margin-top:22px; }
+.view{ display:none; } .view.on{ display:block; }
+.steps{ display:flex; gap:10px; justify-content:center; margin:0 0 24px;
+  flex-wrap:wrap; font-size:.95rem; color:var(--ink-soft); }
+.steps span{ padding:6px 14px; border-radius:999px; background:var(--cream-warm);
+  border:1px solid var(--line); }
+.steps span.now{ background:var(--gold); color:#fff; border-color:var(--gold);
+  font-weight:700; }
+.note-box{ background:var(--cream-warm); border-right:4px solid var(--gold);
+  border-radius:8px; padding:16px 20px; margin:0 0 22px; }
+.note-box p{ margin:0; }
+.spin{ display:inline-block; width:18px; height:18px; border:3px solid var(--line);
+  border-top-color:var(--gold); border-radius:50%; animation:sp 1s linear infinite;
+  vertical-align:-4px; margin-left:8px; }
+@keyframes sp{ to{ transform:rotate(360deg); } }
+.quiet{ color:var(--ink-soft); font-size:.95rem; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <a href="/"><span class="brand-name">אורות האמונה - בני משה</span></a>
+      <span class="brand-sub">בראשות הרב יעקב מאור</span>
+    </div>
+    <nav class="nav">
+      <a href="/">בית</a>
+      <a href="/about.html">אודות</a>
+      <a href="/torah.html">תוכן תורני</a>
+      <a href="/chagim/" class="active">חגים</a>
+      <a href="/contact.html">יצירת קשר</a>
+      <a href="/donate.html">לתרומה</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumbs"><a href="/chagim/">חגים</a> · <a href="/chagim/yom-kippur/">יום כיפור</a> · הוספת שמות</p>
+    <h1>הוספת שמות לפדיון כפרות</h1>
+    <p>שלושה שלבים קצרים: הפרטים שלכם, העברת הפדיון, ואז מסירת השמות.</p>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+
+    <div class="steps" id="steps">
+      <span class="now" id="st1">1 · הפרטים שלכם</span>
+      <span id="st2">2 · העברת הפדיון</span>
+      <span id="st3">3 · מסירת השמות</span>
+    </div>
+
+    <!-- ========== שלב א: הפרטים ========== -->
+    <div class="view on" id="view-details">
+      <div class="form-card">
+
+        <div class="note-box">
+          <p><strong>מחיר תרנגול או תרנגולת, לכל אחד ואחד מבני המשפחה.</strong>
+          כל אחד ישער לעצמו את המחיר. הכסף כולו הולך למשפחות נזקקות.</p>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="first">שם פרטי</label>
+            <input type="text" id="first" autocomplete="given-name">
+          </div>
+          <div class="field">
+            <label for="last">שם משפחה</label>
+            <input type="text" id="last" autocomplete="family-name">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="phone">טלפון נייד
+            <span class="hint">אותו מספר שתמלאו בדף התרומה - לפיו נדע שהפדיון התקבל.</span>
+          </label>
+          <input type="tel" id="phone" inputmode="tel" autocomplete="tel">
+        </div>
+
+        <div class="field">
+          <label for="email">דואר אלקטרוני
+            <span class="hint">לשם יישלח הקישור למסירת השמות, וההסבר איך עושים את הפדיון בבית.</span>
+          </label>
+          <input type="email" id="email" inputmode="email" autocomplete="email">
+        </div>
+
+        <div class="hp" aria-hidden="true">
+          <label for="website">אל תמלאו שדה זה</label>
+          <input type="text" id="website" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-lg" id="go-pay">להעברת פדיון הכפרות</button>
+          <a href="/chagim/yom-kippur/" class="btn btn-ghost">חזרה להסבר</a>
+        </div>
+        <div id="form-msg" class="form-msg"></div>
+      </div>
+    </div>
+
+    <!-- ========== שלב ב: ההמתנה לתשלום ========== -->
+    <div class="view" id="view-wait">
+      <div class="form-card">
+        <h2 style="font-size:26px;margin-bottom:10px">ממתינים לאישור הפדיון <span class="spin"></span></h2>
+        <p>חלון התרומה נפתח בלשונית נפרדת. אחרי שתשלימו את התשלום שם, הדף הזה ייפתח מעצמו
+        למסירת השמות.</p>
+        <p><strong>ובמקביל נשלח אליכם מייל עם הקישור</strong> - כך שאפשר לסגור את הדף ולמסור
+        את השמות בכל זמן שנוח לכם.</p>
+        <p class="quiet">רישום התשלום אצל נדרים פלוס לוקח בדרך כלל דקות ספורות.</p>
+
+        <div class="actions">
+          <a href="#" class="btn btn-lg" id="pay-again" target="_blank" rel="noopener">פתיחת דף התרומה שוב</a>
+          <button type="button" class="btn btn-ghost" id="help-btn" style="display:none">שילמתי והדף לא נפתח</button>
+        </div>
+        <div id="wait-msg" class="form-msg"></div>
+      </div>
+    </div>
+
+    <!-- ========== בקשת פתיחה ידנית ========== -->
+    <div class="view" id="view-help">
+      <div class="form-card">
+        <h2 style="font-size:26px;margin-bottom:10px">הבקשה נשלחה</h2>
+        <p>הודענו לרב יעקב מאור. אחרי שיוודא שהפדיון התקבל, יישלח אליכם מייל עם הקישור
+        למסירת השמות.</p>
+        <p class="quiet">אם הדף הזה יישאר פתוח, הוא ייפתח מעצמו ברגע שהקישור יאושר.</p>
+        <div class="actions">
+          <a href="/chagim/yom-kippur/" class="btn btn-ghost">חזרה לעמוד יום כיפור</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>אורות האמונה - בני משה</h4>
+        <p>עמותה רשומה הפועלת לחיזוק לימוד התורה, לליווי משפחות ולסיוע ישיר למי שנזקק.</p>
+      </div>
+      <div>
+        <h4>ניווט</h4>
+        <a href="/about.html">אודות</a>
+        <a href="/torah.html">תוכן תורני</a>
+        <a href="/chagim/">חגים</a>
+        <a href="/donate.html">תרומה</a>
+        <a href="/contact.html">יצירת קשר</a>
+      </div>
+      <div>
+        <h4>עקבו אחרינו</h4>
+        <a href="https://www.youtube.com/@ravmaor" target="_blank" rel="noopener">יוטיוב</a>
+        <a href="/contact.html">וואטסאפ</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      כל הזכויות שמורות לעמותת אורות האמונה - בני משה
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var ENDPOINT = "https://hamikdash-kaparot.maor0072.workers.dev";
+  var STORE = "kaparot-intent";
+  var POLL_MS = 10000;
+  var HELP_AFTER_MS = 90000;
+
+  var msg = document.getElementById("form-msg");
+  var waitMsg = document.getElementById("wait-msg");
+  var sending = false;
+  var intentId = "";
+  var timer = null;
+  var waitStarted = 0;
+
+  function show(box, kind, text) {
+    box.className = "form-msg " + kind;
+    box.textContent = text;
+  }
+
+  function view(id, step) {
+    var all = document.querySelectorAll(".view");
+    for (var i = 0; i < all.length; i++) all[i].className = "view";
+    document.getElementById(id).className = "view on";
+    document.getElementById("st1").className = step === 1 ? "now" : "";
+    document.getElementById("st2").className = step === 2 ? "now" : "";
+    document.getElementById("st3").className = step === 3 ? "now" : "";
+  }
+
+  function remember(id, donate) {
+    try {
+      localStorage.setItem(STORE, JSON.stringify({ id: id, donate: donate || "", ts: Date.now() }));
+    } catch (e) { /* גלישה פרטית - ההמתנה עדיין עובדת בלשונית הזאת */ }
+  }
+
+  function forget() {
+    try { localStorage.removeItem(STORE); } catch (e) {}
+  }
+
+  function goShemot(url) {
+    forget();
+    if (timer) clearInterval(timer);
+    location.href = url;
+  }
+
+  // ---------- ההמתנה ----------
+  // **שתי דרכים לגלות שהתשלום עבר**, כי אף אחת מהן אינה מובטחת: סקירה כל
+  // עשר שניות, וגם בדיקה מיידית ברגע שהגולש חוזר ללשונית הזאת מהתשלום.
+  function poll() {
+    if (!intentId) return;
+    fetch(ENDPOINT + "?intent=" + encodeURIComponent(intentId)).then(function (r) {
+      if (r.status === 404) { forget(); return null; }
+      if (!r.ok) throw new Error("http " + r.status);
+      return r.json();
+    }).then(function (out) {
+      if (out && out.ok && out.paid && out.url) goShemot(out.url);
+    }).catch(function () { /* רשת מהבהבת - הסקירה הבאה תנסה שוב */ });
+  }
+
+  function startWaiting(donateUrl) {
+    view("view-wait", 2);
+    waitStarted = Date.now();
+    if (donateUrl) document.getElementById("pay-again").href = donateUrl;
+    if (timer) clearInterval(timer);
+    timer = setInterval(function () {
+      poll();
+      if (Date.now() - waitStarted > HELP_AFTER_MS)
+        document.getElementById("help-btn").style.display = "inline-block";
+    }, POLL_MS);
+    poll();
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) poll();
+  });
+  window.addEventListener("focus", poll);
+
+  // ---------- חזרה לדף באמצע התהליך ----------
+  try {
+    var saved = JSON.parse(localStorage.getItem(STORE) || "null");
+    if (saved && saved.id && Date.now() - saved.ts < 48 * 3600 * 1000) {
+      intentId = saved.id;
+      startWaiting(saved.donate);
+    }
+  } catch (e) {}
+
+  // ---------- שלב א ----------
+  document.getElementById("go-pay").addEventListener("click", function () {
+    if (sending) return;
+    var first = document.getElementById("first").value.trim();
+    var last = document.getElementById("last").value.trim();
+    var phone = document.getElementById("phone").value.trim();
+    var email = document.getElementById("email").value.trim();
+
+    if (!first) { show(msg, "err", "צריך למלא שם פרטי."); return; }
+    if (!last) { show(msg, "err", "צריך למלא שם משפחה."); return; }
+    var digits = phone.replace(/[\s\-().+]/g, "").replace(/^972/, "0");
+    if (!/^05\d{8}$/.test(digits)) {
+      show(msg, "err", "צריך למלא מספר טלפון נייד ישראלי תקין - לפיו נזהה את הפדיון.");
+      return;
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      show(msg, "err", "צריך למלא כתובת מייל תקינה - לשם יישלח הקישור למסירת השמות.");
+      return;
+    }
+
+    sending = true;
+    var btn = document.getElementById("go-pay");
+    btn.disabled = true;
+    show(msg, "ok", "רגע...");
+
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "start",
+        sender: first + " " + last,
+        phone: digits,
+        email: email,
+        website: document.getElementById("website").value
+      })
+    }).then(function (r) {
+      if (!r.ok) throw new Error("http " + r.status);
+      return r.json();
+    }).then(function (out) {
+      if (!out || !out.ok) throw new Error("bad");
+      intentId = out.id;
+
+      // מי שכבר תרם בימים האחרונים לא נשלח לשלם שוב.
+      if (out.paid && out.url) { goShemot(out.url); return; }
+
+      remember(out.id, out.donate);
+      // חלון התרומה נפתח בלשונית נפרדת כדי שהדף הזה יישאר חי וימשיך לבדוק.
+      window.open(out.donate, "_blank", "noopener");
+      startWaiting(out.donate);
+    }).catch(function () {
+      sending = false;
+      btn.disabled = false;
+      show(msg, "err", "משהו נתקע. אפשר לנסות שוב, או לתרום ישירות ולכתוב לנו את השמות.");
+    });
+  });
+
+  // ---------- שילמתי והדף לא נפתח ----------
+  document.getElementById("help-btn").addEventListener("click", function () {
+    if (!intentId) return;
+    var b = document.getElementById("help-btn");
+    b.disabled = true;
+    show(waitMsg, "ok", "שולח...");
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "help", id: intentId })
+    }).then(function (r) {
+      if (!r.ok) throw new Error("http " + r.status);
+      return r.json();
+    }).then(function () {
+      view("view-help", 2);
+    }).catch(function () {
+      b.disabled = false;
+      show(waitMsg, "err", "השליחה נכשלה. אפשר לנסות שוב בעוד רגע.");
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

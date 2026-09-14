@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מסירת שמות לפדיון כפרות | אורות האמונה - בני משה</title>
+<meta name="description" content="מסירת השמות לפדיון כפרות לפני יום כיפור, אחרי העברת הפדיון.">
+<meta name="robots" content="noindex,follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+.crumbs{ font-size:.92rem; margin-bottom:6px; opacity:.85; }
+.form-card{ background:var(--white); border:1px solid var(--line);
+  border-radius:var(--radius); box-shadow:var(--shadow); padding:26px 24px;
+  margin:0 auto; max-width:780px; }
+.field{ margin-bottom:16px; }
+.field label{ display:block; font-weight:700; margin-bottom:6px; font-size:16px; }
+.field .hint{ display:block; font-weight:400; color:var(--ink-soft); font-size:14px;
+  margin-top:2px; }
+.field input,.field select,.field textarea{ width:100%; font-family:inherit;
+  font-size:17px; color:var(--ink); background:var(--cream); border:1px solid var(--line);
+  border-radius:8px; padding:11px 13px; transition:border-color .15s,background .15s; }
+.field input:focus,.field select:focus,.field textarea:focus{ outline:0;
+  border-color:var(--gold); background:var(--white); }
+.field input[readonly]{ background:var(--cream-warm); color:var(--ink-soft); }
+.field textarea{ min-height:70px; resize:vertical; }
+.row-3{ display:grid; grid-template-columns:1fr 1fr 140px; gap:0 14px; }
+.row-2{ display:grid; grid-template-columns:1fr 1fr; gap:0 16px; }
+@media(max-width:680px){ .row-3,.row-2{ grid-template-columns:1fr; } }
+.soul{ border:1px solid var(--line); border-radius:var(--radius);
+  padding:18px 16px 2px; margin-bottom:14px; background:var(--cream-warm); }
+.soul-head{ display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:12px; }
+.soul-head h3{ font-size:16px; color:var(--gold-deep); margin:0; }
+.soul-remove{ background:none; border:0; color:var(--ink-soft); font-size:15px;
+  cursor:pointer; text-decoration:underline; font-family:inherit; padding:0; }
+.form-sep{ border:0; border-top:1px solid var(--line); margin:24px 0 20px; }
+.form-msg{ margin-top:16px; padding:14px 16px; border-radius:8px; font-size:16px;
+  display:none; }
+.form-msg.err{ display:block; background:#fdecea; border-right:4px solid #c0392b;
+  color:#7b241c; }
+.form-msg.ok{ display:block; background:var(--cream-warm); border-right:4px solid var(--gold);
+  color:var(--ink); }
+.actions{ display:flex; flex-wrap:wrap; gap:12px; margin-top:22px; }
+.view{ display:none; } .view.on{ display:block; }
+.note-box{ background:var(--cream-warm); border-right:4px solid var(--gold);
+  border-radius:8px; padding:16px 20px; margin:0 0 22px; }
+.note-box p{ margin:0; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <a href="/"><span class="brand-name">אורות האמונה - בני משה</span></a>
+      <span class="brand-sub">בראשות הרב יעקב מאור</span>
+    </div>
+    <nav class="nav">
+      <a href="/">בית</a>
+      <a href="/about.html">אודות</a>
+      <a href="/torah.html">תוכן תורני</a>
+      <a href="/chagim/" class="active">חגים</a>
+      <a href="/contact.html">יצירת קשר</a>
+      <a href="/donate.html">לתרומה</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumbs"><a href="/chagim/">חגים</a> · <a href="/chagim/yom-kippur/">יום כיפור</a> · מסירת שמות</p>
+    <h1>מסירת השמות לפדיון כפרות</h1>
+    <p>שם ושם ההורה של כל אחד שעליו נעשה הפדיון, ובן או בת.</p>
+  </div>
+</div>
+
+<section id="shemot">
+  <div class="wrap">
+
+    <div class="view on" id="view-form">
+      <div class="form-card">
+
+        <div class="note-box" id="manage-note" style="display:none">
+          <p><strong>אלה השמות שמסרתם.</strong> אפשר לתקן, להוסיף שורות או להסיר,
+          ואז ללחוץ על עדכון הרשימה. הרשימה המעודכנת מחליפה את הקודמת.</p>
+        </div>
+
+        <div id="souls"></div>
+
+        <p style="margin-bottom:20px">
+          <button type="button" id="add-soul" class="btn btn-ghost">הוספת שם נוסף</button>
+        </p>
+
+        <hr class="form-sep">
+
+        <div class="row-2">
+          <div class="field">
+            <label for="sender">שם ומשפחה</label>
+            <input type="text" id="sender" readonly>
+          </div>
+          <div class="field">
+            <label for="phone">טלפון נייד</label>
+            <input type="tel" id="phone" readonly>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">דואר אלקטרוני</label>
+          <input type="email" id="email" readonly>
+        </div>
+
+        <div class="field">
+          <label for="note">הערה <span class="hint">לא חובה.</span></label>
+          <textarea id="note"></textarea>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-lg" id="submit-btn">שליחת השמות</button>
+          <button type="button" class="btn btn-ghost" id="delete-btn" style="display:none">מחיקת כל השמות</button>
+        </div>
+        <div id="form-msg" class="form-msg"></div>
+      </div>
+    </div>
+
+    <div class="view" id="view-done">
+      <div class="form-card">
+        <h2 style="font-size:26px;margin-bottom:10px">השמות התקבלו</h2>
+        <p id="done-sub"></p>
+        <div class="actions">
+          <a href="/chagim/yom-kippur/" class="btn btn-lg">איך עושים את הפדיון בבית</a>
+          <a href="/chagim/" class="btn btn-ghost">חזרה לעמוד החגים</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="view" id="view-nolink">
+      <div class="form-card">
+        <h2 style="font-size:26px;margin-bottom:10px">הדף הזה נפתח מקישור אישי</h2>
+        <p>מסירת השמות נפתחת אחרי העברת פדיון הכפרות. הקישור נשלח במייל, ואפשר גם להתחיל כאן:</p>
+        <div class="actions">
+          <a href="/chagim/yom-kippur/pidyon.html" class="btn btn-lg">להוספת שמות</a>
+          <a href="/chagim/yom-kippur/" class="btn btn-ghost">חזרה לעמוד יום כיפור</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>אורות האמונה - בני משה</h4>
+        <p>עמותה רשומה הפועלת לחיזוק לימוד התורה, לליווי משפחות ולסיוע ישיר למי שנזקק.</p>
+      </div>
+      <div>
+        <h4>ניווט</h4>
+        <a href="/about.html">אודות</a>
+        <a href="/torah.html">תוכן תורני</a>
+        <a href="/chagim/">חגים</a>
+        <a href="/donate.html">תרומה</a>
+        <a href="/contact.html">יצירת קשר</a>
+      </div>
+      <div>
+        <h4>עקבו אחרינו</h4>
+        <a href="https://www.youtube.com/@ravmaor" target="_blank" rel="noopener">יוטיוב</a>
+        <a href="/contact.html">וואטסאפ</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      כל הזכויות שמורות לעמותת אורות האמונה - בני משה
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var ENDPOINT = "https://hamikdash-kaparot.maor0072.workers.dev";
+  var MAX = 30;
+
+  var wrap = document.getElementById("souls");
+  var msg = document.getElementById("form-msg");
+  var sending = false;
+
+  // הדף כולו עומד על הטוקן החתום. ?m= אומר על איזה משלושת הכפתורים שבמייל
+  // לחצו - הוספה, שינוי, או מחיקה.
+  var qs = new URLSearchParams(location.search);
+  var TOKEN = qs.get("t") || "";
+  var MODE = qs.get("m") || "";
+
+  function rowHtml(i) {
+    return '<div class="soul" data-i="' + i + '">' +
+      '<div class="soul-head"><h3>שם ' + (i + 1) + '</h3>' +
+      (i > 0 ? '<button type="button" class="soul-remove">הסרה</button>' : '') +
+      '</div>' +
+      '<div class="row-3">' +
+        '<div class="field"><label>השם</label>' +
+        '<input type="text" class="s-name"></div>' +
+        '<div class="field"><label>שם ההורה</label>' +
+        '<input type="text" class="s-parent"></div>' +
+        '<div class="field"><label>ז / נ<span class="hint">זכר או נקבה</span></label>' +
+        '<select class="s-gender"><option value="">בחרו</option>' +
+        '<option value="m">זכר</option><option value="f">נקבה</option></select></div>' +
+      '</div></div>';
+  }
+
+  function renumber() {
+    var all = wrap.querySelectorAll(".soul");
+    for (var i = 0; i < all.length; i++) {
+      all[i].setAttribute("data-i", i);
+      all[i].querySelector("h3").textContent = "שם " + (i + 1);
+    }
+  }
+
+  function addRow() {
+    if (wrap.querySelectorAll(".soul").length >= MAX) return;
+    var d = document.createElement("div");
+    d.innerHTML = rowHtml(wrap.querySelectorAll(".soul").length);
+    wrap.appendChild(d.firstChild);
+    renumber();
+  }
+
+  wrap.addEventListener("click", function (e) {
+    if (!e.target.classList.contains("soul-remove")) return;
+    var row = e.target.closest(".soul");
+    if (row && wrap.querySelectorAll(".soul").length > 1) { row.remove(); renumber(); }
+  });
+
+  document.getElementById("add-soul").addEventListener("click", addRow);
+
+  function show(kind, text) {
+    msg.className = "form-msg " + kind;
+    msg.textContent = text;
+  }
+
+  function view(id) {
+    var all = document.querySelectorAll(".view");
+    for (var i = 0; i < all.length; i++) all[i].className = "view";
+    document.getElementById(id).className = "view on";
+  }
+
+  function fill(i, s) {
+    var row = wrap.querySelectorAll(".soul")[i];
+    row.querySelector(".s-name").value = s.name || "";
+    row.querySelector(".s-parent").value = s.parent || "";
+    row.querySelector(".s-gender").value = s.gender || "";
+  }
+
+  // ---------- אתחול ----------
+  // בלי טוקן אין מה להציג כאן. **הדף הזה אינו שער** - הוא נפתח רק אחרי
+  // שהתשלום אומת, והשער עצמו יושב ב-Worker.
+  if (!TOKEN) {
+    view("view-nolink");
+    return;
+  }
+
+  document.getElementById("submit-btn").disabled = true;
+  show("ok", "טוען...");
+  fetch(ENDPOINT + "?t=" + encodeURIComponent(TOKEN)).then(function (r) {
+    if (!r.ok) throw new Error("http " + r.status);
+    return r.json();
+  }).then(function (out) {
+    if (!out || !out.ok) throw new Error("bad");
+    var list = out.souls || [];
+    for (var i = 0; i < list.length; i++) addRow();
+    for (var j = 0; j < list.length; j++) fill(j, list[j]);
+
+    // מי שהגיע למסור בפעם הראשונה מקבל שתי שורות פתוחות, כמו שהיה בטופס
+    // הקודם - משפחה ממלאת יותר משם אחד.
+    if (!list.length) { addRow(); addRow(); }
+    else if (MODE === "add") addRow();
+
+    document.getElementById("sender").value = out.sender || "";
+    document.getElementById("phone").value = out.phone || "";
+    document.getElementById("email").value = out.email || "";
+
+    if (list.length) {
+      document.getElementById("manage-note").style.display = "block";
+      document.getElementById("submit-btn").textContent = "עדכון הרשימה";
+      document.getElementById("delete-btn").style.display = "inline-block";
+    }
+    document.getElementById("submit-btn").disabled = false;
+    msg.className = "form-msg";
+    if (MODE === "del") {
+      show("err", "למחיקת כל השמות שמסרתם, לחצו על הכפתור מחיקת כל השמות.");
+      document.getElementById("delete-btn").style.display = "inline-block";
+    }
+  }).catch(function () {
+    view("view-nolink");
+  });
+
+  // ---------- מחיקה ----------
+  document.getElementById("delete-btn").addEventListener("click", function () {
+    if (!TOKEN || sending) return;
+    if (!window.confirm("למחוק את כל השמות שמסרתם לפדיון הכפרות?")) return;
+    sending = true;
+    show("ok", "מוחק...");
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: TOKEN, kind: "delete" })
+    }).then(function (r) {
+      if (!r.ok) throw new Error("http " + r.status);
+      return r.json();
+    }).then(function () {
+      document.getElementById("done-sub").textContent =
+        "השמות הוסרו לפי בקשתכם. התרומה כמובן נשארת לזכותכם.";
+      view("view-done");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }).catch(function () {
+      sending = false;
+      show("err", "המחיקה נכשלה. אפשר לנסות שוב, או להשיב למייל ונטפל בזה.");
+    });
+  });
+
+  // ---------- שליחה ----------
+  document.getElementById("submit-btn").addEventListener("click", function () {
+    if (sending) return;
+
+    // שורה ריקה לגמרי היא לא שגיאה - הטופס נפתח עם שתי שורות ומי שצריך אחת
+    // פשוט משאיר את השנייה ריקה. שורה שהתחילו למלא חייבת להיות מלאה.
+    var souls = [];
+    var rows = wrap.querySelectorAll(".soul");
+    for (var i = 0; i < rows.length; i++) {
+      var name = rows[i].querySelector(".s-name").value.trim();
+      var parent = rows[i].querySelector(".s-parent").value.trim();
+      var gender = rows[i].querySelector(".s-gender").value;
+      if (!name && !parent && !gender) continue;
+      if (!name || !parent || !gender) {
+        show("err", "בשם " + (i + 1) + " צריך למלא את שלושת השדות: השם, שם ההורה, וזכר או נקבה.");
+        return;
+      }
+      souls.push({ name: name, parent: parent, gender: gender });
+    }
+    if (!souls.length) { show("err", "צריך למלא לפחות שם אחד."); return; }
+
+    sending = true;
+    var btn = document.getElementById("submit-btn");
+    btn.disabled = true;
+    show("ok", "שולח...");
+
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token: TOKEN, kind: "replace", souls: souls,
+        note: document.getElementById("note").value.trim()
+      })
+    }).then(function (r) {
+      if (!r.ok) throw new Error("http " + r.status);
+      return r.json();
+    }).then(function (out) {
+      var n = (out && out.count ? out.count : souls.length);
+      document.getElementById("done-sub").textContent =
+        n + " שמות התקבלו ויעלו בפדיון הכפרות לפני יום כיפור." +
+        (out && out.replySent ? " אישור נשלח אליכם במייל." : "");
+      view("view-done");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }).catch(function () {
+      sending = false;
+      btn.disabled = false;
+      show("err", "השליחה נכשלה. אפשר לנסות שוב, או לשלוח את השמות בוואטסאפ.");
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

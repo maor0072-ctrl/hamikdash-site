@@ -192,6 +192,7 @@
   var qs = new URLSearchParams(location.search);
   var TOKEN = qs.get("t") || "";
   var MODE = qs.get("m") || "";
+  var badLink = false;
 
   function rowHtml(i) {
     return '<div class="soul" data-i="' + i + '">' +
@@ -262,6 +263,10 @@
   document.getElementById("submit-btn").disabled = true;
   show("ok", "טוען...");
   fetch(ENDPOINT + "?t=" + encodeURIComponent(TOKEN)).then(function (r) {
+    // **הבחנה בין קישור פסול לבין רשת מהבהבת.** 401 או 404 הם תשובה על
+    // הקישור עצמו; כל השאר הוא תקלה רגעית, ואסור להציג למי שכבר תרם מסך
+    // שאומר לו שהוא לא במקום הנכון.
+    if (r.status === 401 || r.status === 404) { badLink = true; throw new Error("bad link"); }
     if (!r.ok) throw new Error("http " + r.status);
     return r.json();
   }).then(function (out) {
@@ -291,7 +296,9 @@
       document.getElementById("delete-btn").style.display = "inline-block";
     }
   }).catch(function () {
-    view("view-nolink");
+    if (badLink) { view("view-nolink"); return; }
+    show("err", "לא הצלחנו לטעון את הרשימה. אפשר לרענן את הדף ולנסות שוב.");
+    document.getElementById("submit-btn").disabled = true;
   });
 
   // ---------- מחיקה ----------

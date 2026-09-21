@@ -664,6 +664,8 @@
     var s = String(date || "").replace(/["'׳״]/g, "").replace(/\s+/g, " ").trim();
     var mv = 99, i, m, re;
     for (i = 0; i < HEB_MONTHS.length; i++) {
+      // הרצף \s בתוך **מחרוזת** JS הוא האות s, לא "רווח". חייבים \s,
+      // אחרת החודש מזוהה רק כשהוא בסוף השורה ותאריך עם שנה נופל.
       re = new RegExp("ב?" + HEB_MONTHS[i][0] + "(?=\s|$)");
       m = s.match(re);
       if (m) { mv = HEB_MONTHS[i][1]; s = (s.slice(0, m.index) + " " + s.slice(m.index + m[0].length)).trim(); break; }

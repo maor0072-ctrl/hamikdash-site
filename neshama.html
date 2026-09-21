@@ -650,6 +650,37 @@
   // שני מקורות: מה שאנשים מסרו דרך הטופס (יושב אצל ה-Worker), ורשימה ידנית
   // ב-/data/neshama-week.json ליארצייטים שיעקב מזין בעצמו. עד שיהיה מנוע
   // תאריך עברי, כל שם שנמסר מוצג ברשימה של השבוע הנוכחי.
+  // סדר חודשי השנה מתשרי, וגימטריה ליום. "מנחם אב" ו"אדר א/ב" נבדקים לפני
+  // "אב" ו"אדר", אחרת הקצר בולע את הארוך. השנה מוסרת **אחרי** החודש, אחרת
+  // "תשרי" עצמו נבלע כאילו הוא שנה.
+  var HEB_MONTHS = [["מנחם אב",12],["מרחשון",2],["אדר א",6],["אדר ב",7],
+    ["חשוון",2],["סיוון",10],["כסליו",3],["תשרי",1],["חשון",2],["כסלו",3],
+    ["טבת",4],["שבט",5],["אדר",6],["ניסן",8],["אייר",9],["סיון",10],
+    ["תמוז",11],["אלול",13],["אב",12]];
+  var HEB_VAL = {"א":1,"ב":2,"ג":3,"ד":4,"ה":5,"ו":6,"ז":7,"ח":8,"ט":9,
+    "י":10,"כ":20,"ך":20,"ל":30};
+
+  function hebKey(date) {
+    var s = String(date || "").replace(/["'׳״]/g, "").replace(/\s+/g, " ").trim();
+    var mv = 99, i, m, re;
+    for (i = 0; i < HEB_MONTHS.length; i++) {
+      re = new RegExp("ב?" + HEB_MONTHS[i][0] + "(?=\s|$)");
+      m = s.match(re);
+      if (m) { mv = HEB_MONTHS[i][1]; s = (s.slice(0, m.index) + " " + s.slice(m.index + m[0].length)).trim(); break; }
+    }
+    s = s.replace(/(^|\s)ה?תש[א-ת]{1,2}(?=\s|$)/, " ").trim();
+    var day = 99, toks = s.split(" "), j, k, n, ok;
+    for (j = 0; j < toks.length; j++) {
+      n = 0; ok = toks[j].length > 0;
+      for (k = 0; k < toks[j].length; k++) {
+        if (HEB_VAL[toks[j][k]] === undefined) { ok = false; break; }
+        n += HEB_VAL[toks[j][k]];
+      }
+      if (ok && n >= 1 && n <= 30) { day = n; break; }
+    }
+    return [mv, day];
+  }
+
   function loadPublic() {
     var box = $("week-box");
     function empty(text) {
@@ -674,6 +705,14 @@
         return empty("עדיין לא נמסרו שמות לשבוע הזה. הרשימה מתעדכנת ברגע " +
                      "שנמסר שם, ומתחלפת בכל מוצאי שבת.");
       }
+      // המיון הוא לפי **התאריך העברי מא' בתשרי והלאה**, לא לפי סדר המסירה.
+      // בלעדיו שם שנמסר היום נוחת בסוף הרשימה ולא ליד היארצייטים שלידו.
+      all.sort(function (a, b) {
+        var ka = hebKey(typeof a === "object" ? a.date : ""),
+            kb = hebKey(typeof b === "object" ? b.date : "");
+        return ka[0] - kb[0] || ka[1] - kb[1];
+      });
+
       // מסירה כפולה של אותו שם לא צריכה להופיע פעמיים ברשימה פומבית
       var seen = {}, uniq = [];
       all.forEach(function (n) {

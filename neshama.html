@@ -108,8 +108,13 @@
       </div>
     </div>
 
-    <h2>השמות לתפילה בשבוע הבא:</h2>
+    <h2 id="week-title">השמות לתפילה בשבוע הזה:</h2>
     <div id="week-box">
+      <p style="color:var(--ink-soft)">טוען...</p>
+    </div>
+
+    <h2 id="week-title-next">השמות לתפילה בשבוע הבא:</h2>
+    <div id="week-box-next">
       <p style="color:var(--ink-soft)">טוען...</p>
     </div>
 
@@ -686,14 +691,63 @@
   }
 
   function loadPublic() {
-    var box = $("week-box");
-    function empty(text) {
-      box.innerHTML = '<div class="note-box"><p>' + text + "</p></div>";
-    }
     function get(url) {
       return fetch(url).then(function (r) { return r.ok ? r.json() : null; })
                        .catch(function () { return null; });
     }
+
+    // מציירים בלוק אחד: כותרת, טווח השבוע, והשמות שנופלים בתוך החלון שלו.
+    // ימי החלון מחושבים בפייתון ונכתבים ל-neshama-week.json, כי אין מנוע
+    // תאריך עברי בדפדפן. אין קובץ חלון? מציגים הכול, כי רשימה ריקה בגלל
+    // תקלת רשת גרועה מרשימה ארוכה מדי.
+    function render(boxId, titleId, block, all, emptyText) {
+      var box = document.getElementById(boxId),
+          title = document.getElementById(titleId);
+      if (!box) return;
+      if (block && block.title && title) title.textContent = block.title;
+
+      var list = all.slice();
+      if (block && block.allow && block.allow.length) {
+        var ok = {};
+        block.allow.forEach(function (p) { ok[p[0] + "|" + p[1]] = 1; });
+        list = list.filter(function (n) {
+          var k = hebKey(typeof n === "object" ? n.date : "");
+          return ok[k[0] + "|" + k[1]] === 1;
+        });
+      }
+      if (!list.length) {
+        // מצב ריק אומר את האמת. רשימה ריקה עם כותרת נראית כמו תקלה.
+        box.innerHTML = '<div class="note-box"><p>' + emptyText + "</p></div>";
+        return;
+      }
+      // המיון הוא לפי **התאריך העברי מא' בתשרי והלאה**, לא לפי סדר המסירה.
+      // בלעדיו שם שנמסר היום נוחת בסוף הרשימה ולא ליד היארצייטים שלידו.
+      list.sort(function (a, b) {
+        var ka = hebKey(typeof a === "object" ? a.date : ""),
+            kb = hebKey(typeof b === "object" ? b.date : "");
+        return ka[0] - kb[0] || ka[1] - kb[1];
+      });
+      // מסירה כפולה של אותו שם לא צריכה להופיע פעמיים ברשימה פומבית
+      var seen = {}, uniq = [];
+      list.forEach(function (n) {
+        var key = typeof n === "string" ? n : fullName(n);
+        if (seen[key]) return;
+        seen[key] = 1;
+        uniq.push({ line: key, date: (typeof n === "object" && n.date) || "" });
+      });
+      box.innerHTML =
+        (block && block.week
+          ? '<p style="color:var(--ink-soft);margin-bottom:14px">' + esc(block.week) + "</p>"
+          : "") +
+        '<ul class="done-list">' + uniq.map(function (u) {
+          return "<li><strong>" + esc(u.line) + "</strong>" +
+            (u.date ? '<span class="meta">' + esc(u.date) + "</span>" : "") + "</li>";
+        }).join("") + "</ul>" +
+        '<p style="color:var(--ink-soft);font-size:15px">' +
+        uniq.length + (uniq.length === 1 ? " שם" : " שמות") +
+        " ברשימה. תהא נשמתם צרורה בצרור החיים.</p>";
+    }
+
     Promise.all([
       // עוקף מטמון **לפי דקה בשני המקורות**. קובץ החלון היה על עוקף שעתי,
       // וכשהחלון השתנה הדפדפן המשיך להגיש את הישן שעה שלמה - כלומר הרשימה
@@ -702,53 +756,19 @@
       get("/data/neshama-week.json?v=" + Math.floor(Date.now() / 6e4))
     ]).then(function (res) {
       var fromForm = (res[0] && res[0].names) || [];
-      var manual = (res[1] && res[1].names) || [];
-      var week = (res[1] && res[1].week) || "";
-      var allow = (res[1] && res[1].allow) || null;
-      var all = manual.concat(fromForm);
+      var cfg = res[1] || {};
+      var all = ((cfg.names) || []).concat(fromForm);
+      var weeks = cfg.weeks || [];
 
-      // מציגים **רק** את השבוע הזה ואת השבוע הבא (יעקב, 22.9.2026), ולא את
-      // כל המאגר. ימי החלון מחושבים בפייתון ונכתבים ל-neshama-week.json,
-      // כי אין מנוע תאריך עברי בדפדפן. אין קובץ חלון? מציגים הכול, כי
-      // רשימה ריקה בגלל תקלת רשת גרועה מרשימה ארוכה מדי.
-      if (allow && allow.length) {
-        var ok = {};
-        allow.forEach(function (p) { ok[p[0] + "|" + p[1]] = 1; });
-        all = all.filter(function (n) {
-          var k = hebKey(typeof n === "object" ? n.date : "");
-          return ok[k[0] + "|" + k[1]] === 1;
-        });
-      }
-      if (!all.length) {
-        // מצב ריק אומר את האמת. רשימה ריקה עם כותרת נראית כמו תקלה.
-        return empty("אין יארצייט בשבוע הזה ובשבוע הבא. הרשימה מתעדכנת ברגע " +
-                     "שנמסר שם, ומתחלפת בכל מוצאי שבת.");
-      }
-      // המיון הוא לפי **התאריך העברי מא' בתשרי והלאה**, לא לפי סדר המסירה.
-      // בלעדיו שם שנמסר היום נוחת בסוף הרשימה ולא ליד היארצייטים שלידו.
-      all.sort(function (a, b) {
-        var ka = hebKey(typeof a === "object" ? a.date : ""),
-            kb = hebKey(typeof b === "object" ? b.date : "");
-        return ka[0] - kb[0] || ka[1] - kb[1];
-      });
-
-      // מסירה כפולה של אותו שם לא צריכה להופיע פעמיים ברשימה פומבית
-      var seen = {}, uniq = [];
-      all.forEach(function (n) {
-        var key = typeof n === "string" ? n : fullName(n);
-        if (seen[key]) return;
-        seen[key] = 1;
-        uniq.push({ line: key, date: (typeof n === "object" && n.date) || "" });
-      });
-      box.innerHTML =
-        (week ? '<p style="color:var(--ink-soft);margin-bottom:14px">' + esc(week) + "</p>" : "") +
-        '<ul class="done-list">' + uniq.map(function (u) {
-          return "<li><strong>" + esc(u.line) + "</strong>" +
-            (u.date ? '<span class="meta">' + esc(u.date) + "</span>" : "") + "</li>";
-        }).join("") + "</ul>" +
-        '<p style="color:var(--ink-soft);font-size:15px">' +
-        uniq.length + (uniq.length === 1 ? " שם" : " שמות") +
-        " ברשימה. תהא נשמתם צרורה בצרור החיים.</p>";
+      // מי שהיארצייט שלו נופל בשבת שפותחת את השבוע הבא מופיע **בשני
+      // הבלוקים**: חלונו נפתח כבר בשבת של השבוע הזה ונסגר בסוף שבת
+      // היארצייט. זה הכלל של יעקב (22.9.2026), לא כפילות.
+      render("week-box", "week-title", weeks[0], all,
+             "אין יארצייט בשבוע הזה. הרשימה מתעדכנת ברגע שנמסר שם, " +
+             "ומתחלפת בכל מוצאי שבת.");
+      render("week-box-next", "week-title-next", weeks[1], all,
+             "אין יארצייט בשבוע הבא. הרשימה מתעדכנת ברגע שנמסר שם, " +
+             "ומתחלפת בכל מוצאי שבת.");
     });
   }
   loadPublic();

@@ -108,7 +108,7 @@
       </div>
     </div>
 
-    <h2>השמות שנלמדים השבוע</h2>
+    <h2>השמות לתפילה בשבוע הבא:</h2>
     <div id="week-box">
       <p style="color:var(--ink-soft)">טוען...</p>
     </div>
@@ -703,10 +703,24 @@
       var fromForm = (res[0] && res[0].names) || [];
       var manual = (res[1] && res[1].names) || [];
       var week = (res[1] && res[1].week) || "";
+      var allow = (res[1] && res[1].allow) || null;
       var all = manual.concat(fromForm);
+
+      // מציגים **רק** את השבוע הזה ואת השבוע הבא (יעקב, 22.9.2026), ולא את
+      // כל המאגר. ימי החלון מחושבים בפייתון ונכתבים ל-neshama-week.json,
+      // כי אין מנוע תאריך עברי בדפדפן. אין קובץ חלון? מציגים הכול, כי
+      // רשימה ריקה בגלל תקלת רשת גרועה מרשימה ארוכה מדי.
+      if (allow && allow.length) {
+        var ok = {};
+        allow.forEach(function (p) { ok[p[0] + "|" + p[1]] = 1; });
+        all = all.filter(function (n) {
+          var k = hebKey(typeof n === "object" ? n.date : "");
+          return ok[k[0] + "|" + k[1]] === 1;
+        });
+      }
       if (!all.length) {
         // מצב ריק אומר את האמת. רשימה ריקה עם כותרת נראית כמו תקלה.
-        return empty("עדיין לא נמסרו שמות לשבוע הזה. הרשימה מתעדכנת ברגע " +
+        return empty("אין יארצייט בשבוע הזה ובשבוע הבא. הרשימה מתעדכנת ברגע " +
                      "שנמסר שם, ומתחלפת בכל מוצאי שבת.");
       }
       // המיון הוא לפי **התאריך העברי מא' בתשרי והלאה**, לא לפי סדר המסירה.

@@ -241,6 +241,15 @@ async function appendPublic(env, list, ownerKey) {
   await env.NAMES.put(KV_KEY, JSON.stringify(next));
 }
 
+// רשומת המוסר, פרטית לחלוטין. היא **לא** מוגשת באף מסלול GET - השם, הטלפון
+// והמייל חיים כאן רק כדי שהדוח השבועי ליעקב יראה מי מסר כל שם, וכדי שנוכל
+// לשלוח למוסר עצמו תזכורת ביום חמישי שלפני היארצייט. הוחלט 2026-09-22.
+// עד לתאריך הזה הזהות לא נשמרה בכלל, ולכן שמות ישנים יופיעו בדוח בלי מוסר.
+async function saveSubmitter(env, ownerKey, data) {
+  if (!env.NAMES) return;
+  await env.NAMES.put("sub:" + ownerKey, JSON.stringify(data));
+}
+
 // מפתח בעלות אנונימי: גיבוב של המייל, כדי שתיקון יחליף את השמות של אותו
 // אדם ולא יכפיל אותם - בלי לשמור את המייל עצמו בקובץ הפומבי.
 async function ownerHash(email) {
@@ -378,7 +387,16 @@ export default {
     // הערה למי שיבדוק את זה בעתיד: כתיבה ל-KV מתפשטת עד כדקה. בדיקה
     // שקוראת מיד אחרי POST תראה את הערך הישן, וזה לא באג.
     try {
-      await appendPublic(env, niftarim, await ownerHash(email));
+      const ownerKey = await ownerHash(email);
+      await appendPublic(env, niftarim, ownerKey);
+      await saveSubmitter(env, ownerKey, {
+        sender: String(d.name).trim().slice(0, 120),
+        phone: digits,
+        email: email.toLowerCase(),
+        souls: niftarim,
+        removed: isEmpty,
+        updated: new Date().toISOString(),
+      });
     } catch (e) {
       console.log('kv append failed', String(e).slice(0, 200));
     }

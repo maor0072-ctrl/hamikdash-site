@@ -165,17 +165,17 @@
           <div class="field">
             <label for="motherName">שם האם *</label>
             <input type="text" id="motherName" autocomplete="off" required>
-            <span class="hint">לעילוי נשמה - שם האב</span>
           </div>
         </div>
 
         <div class="field">
-          <label for="gender">בן או בת *</label>
+          <label for="gender">האם מי שמתפללים עליו זכר או נקבה *</label>
           <select id="gender" required>
             <option value="">בחרו</option>
-            <option value="m">בן</option>
-            <option value="f">בת</option>
+            <option value="m">זכר</option>
+            <option value="f">נקבה</option>
           </select>
+          <span class="hint">כדי לכתוב בתפילה „פלוני בן פלונית" או „פלונית בת פלונית"</span>
           <span class="hint" id="name-preview"></span>
         </div>
 
@@ -433,7 +433,7 @@
 
     if (!HEB.test(body.patientName)) return msg("השם הפרטי צריך להיכתב בעברית.", "err");
     if (!HEB.test(body.motherName)) return msg("שם האם צריך להיכתב בעברית.", "err");
-    if (!body.gender) return msg("בחרו בן או בת.", "err");
+    if (!body.gender) return msg("בחרו זכר או נקבה.", "err");
     if (!body.openerName) return msg("חסר השם שלכם.", "err");
     if (!/^0\d{1,2}-?\d{7}$/.test(body.openerPhone.replace(/[\s()]/g, ""))) {
       return msg("מספר הטלפון אינו תקין.", "err");

@@ -661,11 +661,6 @@ body{padding-bottom:env(safe-area-inset-bottom)}
         return;
       }
       btn.disabled = false;
-      if (d && d.error === "too_fast") {
-        $("r-msg").className = "form-msg err";
-        $("r-msg").textContent = "רגע אחד - אפשר לסמן פרק אחת לדקה. נסו שוב בעוד כמה שניות.";
-        return;
-      }
       // לא נקלט: כנראה מישהו אחר כבר לקח את הפרק אחרי שהשעה עברה
       $("r-msg").className = "form-msg err";
       $("r-msg").textContent = "הפרק הזה כבר נלקח על ידי מישהו אחר. ממשיכים הלאה.";

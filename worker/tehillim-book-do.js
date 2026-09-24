@@ -6,9 +6,6 @@
 
 import { expiryFor } from "./tehillim-quiet.js";
 
-const MARK_BURST = 3;
-const MARK_REFILL_MS = 60000;
-
 export class BookDO {
   constructor(ctx, env) {
     this.ctx = ctx;
@@ -29,15 +26,8 @@ export class BookDO {
     this.sql.exec(
       "CREATE TABLE IF NOT EXISTS readers (" +
         "rkey TEXT PRIMARY KEY, name TEXT, phone TEXT, email TEXT, " +
-        "lastMarkAt INTEGER DEFAULT 0, marked INTEGER DEFAULT 0, " +
-        "tokens REAL DEFAULT 3)"
+        "lastMarkAt INTEGER DEFAULT 0, marked INTEGER DEFAULT 0)"
     );
-    // טבלאות שנוצרו לפני שהעמודה נוספה - תוספת חד-פעמית, שקטה אם כבר קיימת.
-    try {
-      this.sql.exec("ALTER TABLE readers ADD COLUMN tokens REAL DEFAULT 3");
-    } catch (e) {
-      /* כבר קיימת */
-    }
   }
 
   getMeta(k) {
@@ -180,27 +170,9 @@ export class BookDO {
     const now = Date.now();
     if (!readerKey || !idxs || !idxs.length) return { ok: false, error: "bad_request" };
 
-    // הגבלת קצב כדלי אסימונים, ולא "סימון אחד לדקה" קשיח.
-    // המטרה היא שלא ינפחו את המונה בלחיצות רצופות, לא לחסום אדם שקרא באמת
-    // שני פרקים קצרים ברצף - פרק קי"ז הוא שני פסוקים, וחסימה שם היא עוול.
-    // מותר פרץ של שלושה, ומתמלא אסימון אחד לדקה.
-    const rr = this.sql
-      .exec("SELECT lastMarkAt, tokens FROM readers WHERE rkey = ?", readerKey)
-      .toArray();
-    let tokens = MARK_BURST;
-    let last = 0;
-    if (rr.length) {
-      last = Number(rr[0].lastMarkAt || 0);
-      tokens = rr[0].tokens == null ? MARK_BURST : Number(rr[0].tokens);
-      if (last) tokens = Math.min(MARK_BURST, tokens + (now - last) / MARK_REFILL_MS);
-    }
-    if (tokens < 1) {
-      return {
-        ok: false,
-        error: "too_fast",
-        retryInMs: Math.ceil((1 - tokens) * MARK_REFILL_MS),
-      };
-    }
+    // אין הגבלת קצב על הסימון. הכרעת יעקב 24.9: יש פרקים של כמה שניות
+    // (קי"ז הוא שני פסוקים), וכל מגבלה חוסמת קודם כל את מי שקורא באמת.
+    // הוא אינו חושש מרמאים, והתגמול כאן הוא תפילה ולא כסף.
 
     const done = [];
     for (const i of idxs) {
@@ -216,13 +188,12 @@ export class BookDO {
     }
     if (done.length) {
       this.sql.exec(
-        "INSERT INTO readers (rkey, lastMarkAt, marked, tokens) VALUES (?, ?, ?, ?) " +
+        "INSERT INTO readers (rkey, lastMarkAt, marked) VALUES (?, ?, ?) " +
           "ON CONFLICT(rkey) DO UPDATE SET lastMarkAt = excluded.lastMarkAt, " +
-          "marked = marked + excluded.marked, tokens = excluded.tokens",
+          "marked = marked + excluded.marked",
         readerKey,
         now,
-        done.length,
-        Math.max(0, tokens - done.length)
+        done.length
       );
     }
 

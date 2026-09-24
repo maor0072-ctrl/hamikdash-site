@@ -88,3 +88,17 @@ Plesk פירש את המחרוזת הריקה כ**מכסה של 0 בייט**, ו
 סיסמת פאנל Plesk וסיסמאות שלוש התיבות עברו בטלגרם, נכנסו ל-`data/command/bot.log`,
 והיו גם בשישה סקריפטים זמניים בשורש שנדחפו לגיטהאב (רפו פרטי) ונמחקו ב-28.8.
 הן חיות עכשיו רק ב-`.env` המוחרג. **חייבות להתחלף אחרי המעבר** - מחיקת קבצים לא מבטלת חשיפה.
+
+## תהילים ישראל - מודול חדש, עלה לאוויר 24.9.2026
+
+מודול חלוקת ספר תהילים. אדם פותח ספר לרפואת מישהו, מקבל קישור אחד, שולח אותו לקבוצת וואטסאפ, וכל נכנס רואה מצב חי של מה שנותר, בוחר פרקים, קורא על המסך ומסמן.
+
+**דפים:** `tehillim.html` (מונה חי, פתיחת ספר, הקריאה הכללית) · `tehillim/book.html` (הרשת, התפיסה, הקריאה) · `tehillim/manage.html` (מסך הפותח). שני האחרונים מוגשים דרך ה-Worker תחת הכתובת הקצרה, ולכן **כל נכס סטטי בהם בכתובת מלאה** ל-`https://hamikdash.co.il`, ולא בנתיב יחסי.
+
+**Worker:** `hamikdash-tehillim`, חמישה מודולים תחת `worker/tehillim*.js`. פריסה: `py scripts/deploy_hamikdash_tehillim_worker.py` מה-AIOS. **זה ה-Worker היחיד באתר שמחזיק Durable Objects** - `BookDO` אחד לכל ספר ו-`CounterDO` יחיד למונה, שניהם על אחסון SQLite. המיגרציה נשלחת רק בפריסה הראשונה; הסקריפט מזהה זאת לבד.
+
+**דומיין:** `t.hamikdash.co.il` - תת-דומיין מתווך המוצמד ל-Worker כ-Custom Domain. **לא נוגע באפקס ולא ב-`www`.** גיבוי רשומות לפני הנגיעה: `data/backups/hamikdash-dns-2026-09-24.json` ב-AIOS.
+
+**קבצים שנוצרים אוטומטית ואין לערוך ביד:** `worker/tehillim-units.js` ו-`tehillim/units.json` ו-`tehillim/text/*.json` (מ-`scripts/fetch_tehillim_text.py`), וכן `worker/tehillim-quiet.js` ו-`tehillim/quiet.json` (מ-`scripts/gen_tehillim_quiet_windows.py`). **טבלת חלונות השקט תקפה עד 2032 וצריך לייצר אותה מחדש לפני כן.**
+
+**בדיקת רגרסיה של השעון:** `node worker/_test_quiet.mjs`.

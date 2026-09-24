@@ -661,14 +661,23 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   var LAST_LABEL = "סיימתי את הפרק האחרון";
   var STOP_LABEL = "סיימתי פרק זה ולא ממשיך";
 
-  // כמה פרקים מוחזקים על שמי מלבד זה שפתוח עכשיו. אלה מה שישוחרר.
+  // אילו פרקים מוחזקים על שמי מלבד זה שפתוח עכשיו. אלה מה שישוחרר.
+  //
+  // שני מקורות, ושניהם נחוצים: התור עצמו (מה שנתפס עכשיו), ומצב השרת
+  // (פרקים שנתפסו בביקור קודם). אי אפשר להסתמך על STATE לבדו - openRead
+  // נקרא מיד אחרי התפיסה, לפני שה-refresh חזר, ואז השרת עוד מראה אותם
+  // פנויים והכפתור היה נעלם בדיוק כשהוא הכי נחוץ.
   function otherHeld() {
-    if (!STATE) return [];
     var cur = QUEUE[QPOS];
     var out = [];
-    STATE.units.forEach(function (u) {
-      if (u.mine && u.s === "taken" && u.i !== cur) out.push(u.i);
-    });
+    for (var k = QPOS + 1; k < QUEUE.length; k++) {
+      if (QUEUE[k] !== cur && out.indexOf(QUEUE[k]) === -1) out.push(QUEUE[k]);
+    }
+    if (STATE) {
+      STATE.units.forEach(function (u) {
+        if (u.mine && u.s === "taken" && u.i !== cur && out.indexOf(u.i) === -1) out.push(u.i);
+      });
+    }
     return out;
   }
 
@@ -878,6 +887,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
         paint();
         $("quiet-note").style.display = "";
         $("invite-grid").style.display = "";
+        if ($("view-read").classList.contains("on")) resetReadButtons();
         if (d.status === "closed" && d.kind !== "klali") {
           $("bk-meta").textContent = "הספר הושלם. ישר כוח לכל מי שקרא.";
         }

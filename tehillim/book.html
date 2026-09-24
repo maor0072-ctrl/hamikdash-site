@@ -819,7 +819,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     var who = STATE && STATE.kind === "klali"
       ? "לקריאה הכללית"
       : forWhomText(STATE);
-    var txt = "קראתם " + DONE_NOW.length + (DONE_NOW.length === 1 ? " פרק" : " פרקים") +
+    var txt = (DONE_NOW.length === 1 ? "קראתם פרק אחד" : "קראתם " + DONE_NOW.length + " פרקים") +
       " - " + escapeHtml(names) + "<br>" + escapeHtml(who);
     if (RELEASED_NOW) {
       txt += "<br><span class='tiny'>" + (RELEASED_NOW === 1

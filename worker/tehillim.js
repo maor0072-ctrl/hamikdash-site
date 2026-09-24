@@ -442,8 +442,11 @@ async function handleApi(request, url, env, origin) {
 // לפרוס Worker, ובלי לכתוב HTML בתוך מחרוזת JavaScript - שם בדיוק גרשיים
 // עבריות שוברות סקריפט שלם בלי הודעת שגיאה.
 
+// דקה ולא חמש: הדף הוא קובץ סטטי בריפו, ותיקון שנדחף לגיט חייב להופיע
+// בזמן סביר. חמש דקות של מטמון שאי אפשר לנקות הן חמש דקות של ניפוי באג
+// שכבר תוקן.
 async function servePage(path) {
-  const r = await fetch(SITE + path, { cf: { cacheTtl: 300, cacheEverything: true } });
+  const r = await fetch(SITE + path, { cf: { cacheTtl: 60, cacheEverything: true } });
   if (!r.ok) return new Response("not found", { status: 404 });
   const html = await r.text();
   return new Response(html, {

@@ -127,6 +127,16 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   border-radius:8px;border:1px solid var(--line);background:var(--white);cursor:pointer;
   color:var(--ink-soft);line-height:1}
 
+/* שלושת הכפתורים בתחתית הקריאה. מלאי רוחב ומוערמים - בטלפון, ובמסך גדול
+   גם כן: כל אחד מהם הוא החלטה נפרדת ולא צמד "אישור/ביטול". */
+.read-actions{max-width:760px;margin:34px auto 0;display:flex;flex-direction:column;gap:10px}
+.read-actions .btn{width:100%;text-align:center}
+.read-actions .btn-soft{background:var(--cream-warm);color:var(--ink);
+  border:1px solid var(--line);font-weight:700;line-height:1.4}
+.read-actions .btn-soft:hover{background:#ece2d2}
+.read-actions .btn-soft span{display:block;font-weight:400;font-size:14px;
+  color:var(--ink-soft);margin-top:3px}
+
 /* ---------- מסך הסיום ---------- */
 .yasher{text-align:center;padding:50px 20px 30px}
 .yasher .halo{position:relative;display:inline-block}
@@ -282,8 +292,10 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     <h2 class="ch-title" id="r-title"></h2>
     <div class="verses" id="r-verses"></div>
 
-    <div class="actions" style="max-width:760px;margin:34px auto 0;justify-content:center">
-      <button type="button" class="btn btn-lg" id="r-done">קראתי</button>
+    <div class="read-actions">
+      <button type="button" class="btn btn-lg" id="r-done">סיימתי פרק זה. רוצה את הפרק הבא</button>
+      <button type="button" class="btn btn-lg btn-soft" id="r-stop">סיימתי פרק זה ולא ממשיך
+        <span>הפרקים שנשארו אצלי ישוחררו לאחרים</span></button>
       <button type="button" class="btn btn-ghost" id="r-later">לחזור לספר</button>
     </div>
     <div class="form-msg" id="r-msg" style="max-width:760px;margin:14px auto 0" role="status"></div>
@@ -336,6 +348,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   var QUEUE = [];        // תור הקריאה הרציפה
   var QPOS = 0;
   var DONE_NOW = [];     // מה שסומן במסלול הזה
+  var RELEASED_NOW = 0;  // כמה פרקים שוחררו בסיום מוקדם
   var FILTER = "all";
   var pollTimer = null, clockTimer = null;
 
@@ -509,7 +522,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     }
     if (!u) return;
 
-    if (u.s === "taken" && u.mine) { QUEUE = [i]; QPOS = 0; DONE_NOW = []; openRead(); return; }
+    if (u.s === "taken" && u.mine) { QUEUE = [i]; QPOS = 0; DONE_NOW = []; RELEASED_NOW = 0; openRead(); return; }
     if (u.s !== "free") return;
 
     var p = SEL.indexOf(i);
@@ -572,6 +585,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
           QUEUE = d.taken.slice().sort(function (a, b) { return a - b; });
           QPOS = 0;
           DONE_NOW = [];
+          RELEASED_NOW = 0;
           SEL = [];
           refresh();
           openRead();
@@ -622,8 +636,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     $("r-msg").className = "form-msg";
     $("r-title").textContent = "תהילים " + UNITS[i].name;
     $("r-verses").innerHTML = "<p class='tiny'>טוען...</p>";
-    $("r-done").disabled = false;
-    $("r-done").textContent = "קראתי";
+    resetReadButtons();
     show("read");
     startClock();
 
@@ -644,35 +657,89 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
+  var DONE_LABEL = "סיימתי פרק זה. רוצה את הפרק הבא";
+  var LAST_LABEL = "סיימתי את הפרק האחרון";
+  var STOP_LABEL = "סיימתי פרק זה ולא ממשיך";
+
+  // כמה פרקים מוחזקים על שמי מלבד זה שפתוח עכשיו. אלה מה שישוחרר.
+  function otherHeld() {
+    if (!STATE) return [];
+    var cur = QUEUE[QPOS];
+    var out = [];
+    STATE.units.forEach(function (u) {
+      if (u.mine && u.s === "taken" && u.i !== cur) out.push(u.i);
+    });
+    return out;
+  }
+
+  function resetReadButtons() {
+    var last = QPOS >= QUEUE.length - 1;
+    var rest = otherHeld().length;
+
+    $("r-done").disabled = false;
+    $("r-done").textContent = last ? LAST_LABEL : DONE_LABEL;
+
+    // "לא ממשיך" מוצג רק כשיש באמת מה לשחרר. אחרת הוא כפתור שלא עושה כלום.
+    var stop = $("r-stop");
+    stop.disabled = false;
+    stop.style.display = rest ? "" : "none";
+    stop.innerHTML = STOP_LABEL + "<span>" +
+      (rest === 1 ? "הפרק שנשאר אצלי ישוחרר לאחרים"
+                  : rest + " הפרקים שנשארו אצלי ישוחררו לאחרים") + "</span>";
+  }
+
   $("r-later").addEventListener("click", function () { stopClock(); refresh(); show("grid"); });
 
-  $("r-done").addEventListener("click", function () {
+  // מסמן את הפרק הפתוח. stop=true פירושו: לשחרר אחר כך את השאר ולסיים.
+  function markCurrent(stop) {
     var i = QUEUE[QPOS];
-    var btn = $("r-done");
-    btn.disabled = true;
+    var rest = stop ? otherHeld() : [];
+    var btn = stop ? $("r-stop") : $("r-done");
+    $("r-done").disabled = true;
+    $("r-stop").disabled = true;
+    var label = btn.innerHTML;
     btn.textContent = "מסמן...";
+
     post("/read", { readerKey: RK, idxs: [i] }).then(function (d) {
-      btn.textContent = "קראתי";
-      if (d && d.ok && d.read && d.read.length) {
-        DONE_NOW.push(i);
+      var accepted = d && d.ok && d.read && d.read.length;
+      if (accepted) DONE_NOW.push(i);
+
+      if (!accepted) {
+        // לא נקלט: כנראה מישהו אחר כבר לקח את הפרק אחרי שהשעה עברה
+        $("r-msg").className = "form-msg err";
+        $("r-msg").textContent = "הפרק הזה כבר נלקח על ידי מישהו אחר.";
+      }
+
+      if (!stop) {
+        btn.innerHTML = label;
         QPOS++;
         refresh();
-        openRead();
+        if (accepted) openRead();
+        else setTimeout(function () { refresh(); openRead(); }, 1600);
         return;
       }
-      btn.disabled = false;
-      // לא נקלט: כנראה מישהו אחר כבר לקח את הפרק אחרי שהשעה עברה
-      $("r-msg").className = "form-msg err";
-      $("r-msg").textContent = "הפרק הזה כבר נלקח על ידי מישהו אחר. ממשיכים הלאה.";
-      QPOS++;
-      setTimeout(function () { refresh(); openRead(); }, 1600);
+
+      // עוצרים: משחררים את מה שנשאר על שמי, כדי שלא ייתקע אצלי
+      var done = function () {
+        RELEASED_NOW = rest.length;
+        QPOS = QUEUE.length;
+        stopClock();
+        refresh();
+        finish();
+      };
+      if (!rest.length) return done();
+      post("/release", { readerKey: RK, idxs: rest }).then(done).catch(done);
     }).catch(function () {
-      btn.disabled = false;
-      btn.textContent = "קראתי";
+      $("r-done").disabled = false;
+      $("r-stop").disabled = false;
+      btn.innerHTML = label;
       $("r-msg").className = "form-msg err";
       $("r-msg").textContent = "אין חיבור לשרת. הפרק שמור על שמכם - נסו שוב בעוד רגע.";
     });
-  });
+  }
+
+  $("r-done").addEventListener("click", function () { markCurrent(false); });
+  $("r-stop").addEventListener("click", function () { markCurrent(true); });
 
   // ---------- השעון ----------
   function myExpiry() {
@@ -743,9 +810,15 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     var who = STATE && STATE.kind === "klali"
       ? "לקריאה הכללית"
       : forWhomText(STATE);
-    $("end-what").innerHTML =
-      "קראתם " + DONE_NOW.length + (DONE_NOW.length === 1 ? " פרק" : " פרקים") +
+    var txt = "קראתם " + DONE_NOW.length + (DONE_NOW.length === 1 ? " פרק" : " פרקים") +
       " - " + escapeHtml(names) + "<br>" + escapeHtml(who);
+    if (RELEASED_NOW) {
+      txt += "<br><span class='tiny'>" + (RELEASED_NOW === 1
+        ? "הפרק שנשאר אצלכם שוחרר וחזר לרשימה עבור אחרים."
+        : RELEASED_NOW + " הפרקים שנשארו אצלכם שוחררו וחזרו לרשימה עבור אחרים.") +
+        "</span>";
+    }
+    $("end-what").innerHTML = txt;
     refresh();
     show("end");
   }

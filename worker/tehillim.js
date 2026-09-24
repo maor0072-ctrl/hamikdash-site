@@ -96,30 +96,38 @@ function hmacKey(secret) {
   );
 }
 
-async function signToken(payload, secret) {
-  const p = b64url(new TextEncoder().encode(JSON.stringify(payload)));
+// הקישור חייב להיות קצר: זה מה שנשלח לקבוצת וואטסאפ, וטוקן בן מאה תווים
+// נראה כמו ספאם ונשבר בשורה. לכן:
+//
+//   ציבורי  t.hamikdash.co.il/<bookId>          - המזהה עצמו הוא ההרשאה.
+//           bookId הוא תשעה בתים אקראיים (72 ביט) ואינו ניתן לניחוש, ולכן
+//           חתימה עליו אינה מוסיפה שום הגנה - רק אורך.
+//   ניהול   t.hamikdash.co.il/m/<bookId>.<sig>  - חתום, כי הרשאת הניהול
+//           חייבת לא להיות נגזרת מהקישור הציבורי שמופץ לכולם.
+
+const SIG_LEN = 22; // 132 ביט מתוך ה-HMAC. מספיק בהרבה, וקצר.
+const ID_RE = /^[A-Za-z0-9_-]{4,24}$/;
+
+async function manageSig(bookId, secret) {
   const key = await hmacKey(secret);
-  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(p));
-  return p + "." + b64url(new Uint8Array(sig));
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(bookId + ":m"));
+  return b64url(new Uint8Array(sig)).slice(0, SIG_LEN);
 }
 
-async function verifyToken(token, secret) {
-  if (!token || typeof token !== "string" || token.indexOf(".") === -1) return null;
-  const parts = token.split(".");
-  if (parts.length !== 2) return null;
-  const key = await hmacKey(secret);
-  const ok = await crypto.subtle.verify(
-    "HMAC",
-    key,
-    b64urlDecode(parts[1]),
-    new TextEncoder().encode(parts[0])
-  );
-  if (!ok) return null;
-  try {
-    return JSON.parse(new TextDecoder().decode(b64urlDecode(parts[0])));
-  } catch (e) {
-    return null;
-  }
+async function publicToken(bookId) {
+  return bookId;
+}
+
+async function manageToken(bookId, secret) {
+  return bookId + "." + (await manageSig(bookId, secret));
+}
+
+// השוואה בזמן קבוע. השוואת מחרוזות רגילה מדליפה כמה תווים התאימו.
+function sameSig(a, b) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
 }
 
 // ===== קלט =====
@@ -252,8 +260,8 @@ async function createBook(request, env, origin) {
   const res = await doCall(book(env, id), "create", { meta: meta, unitCount: UNIT_COUNT });
   if (!res || !res.ok) return fail("create_failed", origin);
 
-  const pub = await signToken({ b: id, r: "p" }, secret);
-  const man = await signToken({ b: id, r: "m" }, secret);
+  const pub = await publicToken(id);
+  const man = await manageToken(id, secret);
 
   try {
     await doCall(counter(env), "book", {});
@@ -284,11 +292,22 @@ async function createBook(request, env, origin) {
 
 async function resolve(token, env, role) {
   const secret = env.TEHILLIM_TOKEN_SECRET;
-  if (!secret) return null;
-  const p = await verifyToken(token, secret);
-  if (!p || !p.b) return null;
-  if (role && p.r !== role) return null;
-  return p;
+  if (!secret || !token) return null;
+
+  if (role === "m") {
+    const dot = token.indexOf(".");
+    if (dot < 1) return null;
+    const id = token.slice(0, dot);
+    const sig = token.slice(dot + 1);
+    if (!ID_RE.test(id)) return null;
+    if (!sameSig(sig, await manageSig(id, secret))) return null;
+    return { b: id, r: "m" };
+  }
+
+  // בנתיב הציבורי לא מתקבל טוקן ניהול, גם לא בטעות
+  if (token.indexOf(".") !== -1) return null;
+  if (!ID_RE.test(token)) return null;
+  return { b: token, r: "p" };
 }
 
 async function handleApi(request, url, env, origin) {
@@ -309,7 +328,7 @@ async function handleApi(request, url, env, origin) {
     if (!secret) return fail("no_secret", origin);
     const r = await doCall(book(env, KLALI_ID), "reopen", { meta: KLALI_META });
     if (!r || !r.ok) return fail("klali_failed", origin);
-    const tok = await signToken({ b: KLALI_ID, r: "p" }, secret);
+    const tok = await publicToken(KLALI_ID);
     return json({ ok: true, url: SHORT + "/" + tok, token: tok, cycle: r.cycle }, 200, origin);
   }
 
@@ -399,7 +418,7 @@ async function handleApi(request, url, env, origin) {
       const r = await doCall(stub, "roster", {});
       s.roster = r && r.ok ? r.readers : [];
       s.quiet = inQuietWindow(Date.now());
-      s.publicUrl = SHORT + "/" + (await signToken({ b: p.b, r: "p" }, env.TEHILLIM_TOKEN_SECRET));
+      s.publicUrl = SHORT + "/" + (await publicToken(p.b));
       return json(s, 200, origin);
     }
 

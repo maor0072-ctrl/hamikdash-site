@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ספר תהילים | אורות האמונה - בני משה</title>
+<meta name="robots" content="noindex">
+<meta property="og:title" content="ספר תהילים פתוח - הצטרפו וקחו פרקים">
+<meta property="og:description" content="נכנסים, בוחרים פרקים, קוראים ומסמנים. כל אחד רואה מה נשאר, בזמן אמת.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="he_IL">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Frank+Ruhl+Libre:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://hamikdash.co.il/assets/style.css">
+<style>
+/* ===== הדף הזה מוגש דרך הכתובת הקצרה, ולכן כל נכס סטטי בכתובת מלאה ===== */
+
+body{padding-bottom:env(safe-area-inset-bottom)}
+.view{display:none}
+.view.on{display:block}
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:22px 20px;margin:0 auto 20px;max-width:900px}
+.note-box{background:var(--cream-warm);border-right:4px solid var(--gold);border-radius:8px;
+  padding:16px 20px;margin:18px 0}
+.note-box p{margin:0 0 10px}
+.note-box p:last-child{margin-bottom:0}
+.tiny{font-size:14px;color:var(--ink-soft)}
+
+/* ---------- כותרת הספר ---------- */
+.book-head{text-align:center;padding:26px 16px 6px}
+.book-head .for{font-size:26px;font-weight:800;line-height:1.35;color:var(--ink)}
+.book-head .lead{font-size:16px;color:var(--ink-soft);margin-bottom:2px}
+.book-head .meta{font-size:15px;color:var(--ink-soft);margin-top:8px}
+@media(max-width:520px){.book-head .for{font-size:21px}}
+
+/* ---------- פס ההתקדמות ---------- */
+.prog{max-width:900px;margin:0 auto 18px;padding:0 20px}
+.prog-bar{height:12px;border-radius:999px;background:var(--cream-warm);
+  border:1px solid var(--line);overflow:hidden;display:flex}
+.prog-bar i{display:block;height:100%;transition:width .5s ease}
+.prog-bar i.read{background:var(--gold-deep)}
+.prog-bar i.taken{background:#d9c48c}
+.prog-line{display:flex;justify-content:space-between;font-size:15px;margin-top:8px;
+  color:var(--ink-soft);flex-wrap:wrap;gap:4px 14px}
+.prog-line strong{color:var(--ink)}
+
+/* ---------- מסננים ---------- */
+.filters{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:20px 0 6px}
+.filters button{font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
+  background:var(--white);color:var(--ink-soft);border:1px solid var(--line);
+  border-radius:999px;padding:8px 18px}
+.filters button.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+
+/* ---------- הרשת ---------- */
+.sefer{max-width:900px;margin:0 auto 26px}
+.sefer h3{font-size:16px;font-weight:700;color:var(--gold-deep);margin:22px 0 10px;
+  padding-bottom:6px;border-bottom:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:7px}
+.cellu{position:relative;font-family:inherit;cursor:pointer;background:var(--white);
+  border:1px solid var(--line);border-radius:8px;padding:8px 3px 6px;text-align:center;
+  line-height:1.25;transition:transform .1s,border-color .12s,background .12s;
+  min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.cellu .n{font-size:16px;font-weight:700;color:var(--ink)}
+.cellu .m{font-size:11px;color:var(--ink-soft);margin-top:2px}
+.cellu:hover:not(:disabled){border-color:var(--gold);transform:translateY(-1px)}
+.cellu.sel{background:#fff6e0;border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
+.cellu.mine{background:#e8f0fb;border-color:#7ba0d4}
+.cellu.mine .n{color:#2c4f80}
+.cellu.busy{background:#eeeae3;border-color:#ddd5c8;cursor:default;opacity:.85}
+.cellu.busy .n{color:#8d8579;font-weight:500}
+.cellu.done{background:#eeeae3;border-color:#ddd5c8;cursor:default}
+.cellu.done .n{color:#8d8579;font-weight:500;text-decoration:none}
+.cellu .v{position:absolute;top:3px;left:5px;font-size:11px;color:#6f8f6f}
+.cellu:disabled{cursor:default}
+@media(max-width:400px){.grid{grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:6px}}
+
+/* ---------- סרגל הבחירה התחתון ---------- */
+.tray{position:fixed;bottom:0;right:0;left:0;background:var(--white);
+  border-top:1px solid var(--line);box-shadow:0 -3px 18px rgba(28,26,23,.1);
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom));z-index:40;
+  transform:translateY(110%);transition:transform .22s ease}
+.tray.on{transform:translateY(0)}
+.tray-in{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;
+  justify-content:space-between;flex-wrap:wrap}
+.tray .sum{font-size:16px;font-weight:700}
+.tray .sum span{font-weight:400;color:var(--ink-soft);font-size:15px}
+.tray .btns{display:flex;gap:8px}
+.tray button{font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;
+  border-radius:8px;padding:11px 22px;border:0}
+.tray .go{background:var(--gold);color:#fff}
+.tray .go:hover{background:var(--gold-deep)}
+.tray .clr{background:none;color:var(--ink-soft);text-decoration:underline;padding:11px 8px}
+
+/* ---------- טופס הקורא ---------- */
+.field{margin-bottom:16px}
+.field label{display:block;font-weight:700;margin-bottom:6px;font-size:16px}
+.field .hint{display:block;font-weight:400;color:var(--ink-soft);font-size:14px;margin-top:4px}
+.field input{width:100%;font-family:inherit;font-size:17px;color:var(--ink);
+  background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:11px 13px}
+.field input:focus{outline:0;border-color:var(--gold);background:var(--white)}
+.form-msg{margin-top:14px;padding:13px 16px;border-radius:8px;font-size:16px;display:none}
+.form-msg.err{display:block;background:#fdecea;border-right:4px solid #c0392b;color:#7b241c}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+
+/* ---------- מסך הקריאה ---------- */
+.read-top{position:sticky;top:0;background:var(--cream);z-index:20;padding:14px 0 10px;
+  border-bottom:1px solid var(--line);margin-bottom:18px}
+.read-top-in{max-width:900px;margin:0 auto;padding:0 20px;display:flex;
+  align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.read-step{font-size:15px;color:var(--ink-soft);font-weight:700}
+.clock{font-size:15px;font-weight:700;color:var(--gold-deep);
+  background:var(--cream-warm);border:1px solid var(--line);border-radius:999px;
+  padding:5px 14px;font-variant-numeric:tabular-nums}
+.clock.paused{color:#2c4f80;background:#e8f0fb;border-color:#c4d6ee}
+.clock.low{color:#a4442f;background:#fdecea;border-color:#f0cfc8}
+.ch-title{text-align:center;font-size:30px;font-weight:800;margin:6px 0 20px;color:var(--gold-deep);
+  font-family:"Frank Ruhl Libre","Heebo",serif}
+.verses{max-width:760px;margin:0 auto;font-family:"Frank Ruhl Libre","Heebo",serif;
+  font-size:23px;line-height:2.1;text-align:right}
+.verses p{margin:0 0 14px;position:relative}
+.verses .vn{font-size:14px;color:var(--gold);font-weight:700;margin-left:8px;
+  font-family:"Heebo",sans-serif;vertical-align:.15em}
+@media(max-width:520px){.verses{font-size:21px;line-height:2.05}.ch-title{font-size:25px}}
+.size-ctl{display:flex;gap:6px;align-items:center}
+.size-ctl button{font-family:inherit;font-size:16px;font-weight:700;width:34px;height:34px;
+  border-radius:8px;border:1px solid var(--line);background:var(--white);cursor:pointer;
+  color:var(--ink-soft);line-height:1}
+
+/* ---------- מסך הסיום ---------- */
+.yasher{text-align:center;padding:50px 20px 30px}
+.yasher .halo{position:relative;display:inline-block}
+.yasher .halo::before{content:"";position:absolute;top:50%;right:50%;width:230px;height:230px;
+  margin:-115px -115px 0 0;border-radius:50%;
+  background:radial-gradient(circle,rgba(176,132,52,.34) 0%,rgba(176,132,52,0) 70%);
+  animation:halo 2.4s ease-out forwards;pointer-events:none}
+.yasher h2{font-size:46px;font-weight:800;color:var(--gold-deep);margin:0;position:relative;
+  animation:grow 1.05s cubic-bezier(.2,.8,.25,1) forwards}
+@keyframes grow{0%{transform:scale(.72);opacity:0}60%{opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes halo{0%{transform:scale(.35);opacity:0}35%{opacity:1}100%{transform:scale(1.5);opacity:0}}
+@media(prefers-reduced-motion:reduce){
+  .yasher h2{animation:none}
+  .yasher .halo::before{animation:none;opacity:0}
+}
+.yasher .what{font-size:19px;margin-top:20px;line-height:1.8}
+
+/* ---------- הזמנה לקהילה ---------- */
+.invite{background:var(--cream-warm);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px 22px;margin:26px auto 0;max-width:760px}
+.invite h3{margin:0 0 8px;font-size:19px;color:var(--gold-deep)}
+.invite p{margin:0 0 12px;font-size:16px;line-height:1.75}
+
+.spinner{text-align:center;padding:60px 20px;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <a href="https://hamikdash.co.il/"><span class="brand-name">אורות האמונה - בני משה</span></a>
+      <span class="brand-sub">בראשות הרב יעקב מאור</span>
+    </div>
+    <nav class="nav">
+      <a href="https://hamikdash.co.il/">בית</a>
+      <a href="https://hamikdash.co.il/tehillim.html">תהילים ישראל</a>
+      <a href="https://hamikdash.co.il/shema.html">שמע בחצות</a>
+      <a href="https://hamikdash.co.il/donate.html">לתרומה</a>
+    </nav>
+  </div>
+</header>
+
+<div class="spinner" id="boot">טוען את הספר...</div>
+
+<!-- ============ מסך 1: הרשת ============ -->
+<div class="view" id="view-grid">
+
+  <div class="book-head">
+    <div class="lead" id="bk-lead"></div>
+    <div class="for" id="bk-for"></div>
+    <div class="meta" id="bk-meta"></div>
+  </div>
+
+  <div class="prog">
+    <div class="prog-bar"><i class="read" id="pb-read"></i><i class="taken" id="pb-taken"></i></div>
+    <div class="prog-line">
+      <span><strong id="p-read">0</strong> פרקים נקראו</span>
+      <span><strong id="p-taken">0</strong> נלקחו וממתינים</span>
+      <span><strong id="p-free">150</strong> פנויים</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="note-box" style="margin:0">
+      <p style="font-size:18px;font-weight:800">איך זה עובד כאן</p>
+      <p>בוחרים פרק, קוראים אותו, ומסמנים „קראתי". מרגע הבחירה יש שעה אחת לקרוא ולסמן.</p>
+      <p>למה שעה? כי מה שעוצר ספר תהילים שנפתח לרפואת אדם זה לא מי שלא קרא, אלא פרקים שנתפסו
+      ונשכחו. פרק שתפוס ולא נקרא חוסם את כולם, והספר נתקע באמצע. לכן אם עברה שעה בלי סימון,
+      הפרק חוזר לרשימה ומישהו אחר יכול לקחת אותו ולקרוא.</p>
+      <p>ואם אחרי השעה תסמנו שקראתם את הפרק, ואיש לא לקח אותו בינתיים, הסימון שלכם נקלט כרגיל
+      והפרק יוצא מהרשימה. שום דבר לא הולך לאיבוד.</p>
+    </div>
+    <p class="tiny" id="quiet-note" style="margin-top:14px;display:none">
+      השעון עוצר בשבת ובחג. פרק שנלקח לפני כניסת השבת לא יפקע בתוכה.
+    </p>
+  </div>
+
+  <div class="filters">
+    <button type="button" class="on" data-f="all">הכל</button>
+    <button type="button" data-f="free">פנויים</button>
+    <button type="button" data-f="mine">שלי</button>
+  </div>
+  <p class="tiny" style="text-align:center;margin-bottom:6px" id="filter-note"></p>
+
+  <div class="sefer" id="grid-wrap" style="padding:0 20px"></div>
+
+  <div style="max-width:900px;margin:0 auto 90px;padding:0 20px">
+    <div class="invite" id="invite-grid" style="display:none">
+      <h3>אתם לא קבוצה קטנה שקוראת לבד</h3>
+      <p>התהילים שנקרא כאן נזקף גם לכל בקשות הקהילה של „שמע רפא ומשאלות" - וכל פרק תהילים
+      שקוראים שאר חברי הקהילה, בכל יום ובכל שעה, נזקף גם לכאן.</p>
+      <a class="btn" href="https://hamikdash.co.il/shema.html">להצטרפות לקהילת שמע רפא ומשאלות</a>
+    </div>
+  </div>
+</div>
+
+<!-- סרגל הבחירה -->
+<div class="tray" id="tray">
+  <div class="tray-in">
+    <div class="sum"><span id="tray-count"></span></div>
+    <div class="btns">
+      <button type="button" class="clr" id="tray-clear">ביטול</button>
+      <button type="button" class="go" id="tray-go">לקריאה לחצו כאן</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ מסך 2: מי קורא ============ -->
+<div class="view" id="view-who">
+  <div class="card" style="margin-top:34px;max-width:640px">
+    <h2 style="margin-top:0">עוד רגע מתחילים</h2>
+    <p id="who-what" style="font-size:17px"></p>
+
+    <form id="who-form" novalidate>
+      <div class="field">
+        <label for="rname">שם פרטי *</label>
+        <input type="text" id="rname" autocomplete="given-name" required>
+      </div>
+      <div class="field">
+        <label for="rphone">טלפון</label>
+        <input type="tel" id="rphone" autocomplete="tel" inputmode="tel">
+        <span class="hint">אם תציינו טלפון, תדעו כמה פרקים קראתם במצטבר היום ובמצטבר החודשי.</span>
+      </div>
+      <div class="field">
+        <label for="rmail">מייל</label>
+        <input type="email" id="rmail" autocomplete="email" inputmode="email">
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn btn-lg" id="who-go">לקריאה לחצו כאן</button>
+        <button type="button" class="btn btn-ghost" id="who-back">חזרה</button>
+      </div>
+      <div class="form-msg" id="who-msg" role="status"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ מסך 3: קריאה ============ -->
+<div class="view" id="view-read">
+  <div class="read-top">
+    <div class="read-top-in">
+      <div class="read-step" id="r-step"></div>
+      <div class="size-ctl">
+        <button type="button" id="sz-down" aria-label="להקטין">א-</button>
+        <button type="button" id="sz-up" aria-label="להגדיל">א+</button>
+      </div>
+      <div class="clock" id="r-clock"></div>
+    </div>
+  </div>
+
+  <div style="padding:0 20px 40px">
+    <h2 class="ch-title" id="r-title"></h2>
+    <div class="verses" id="r-verses"></div>
+
+    <div class="actions" style="max-width:760px;margin:34px auto 0;justify-content:center">
+      <button type="button" class="btn btn-lg" id="r-done">קראתי</button>
+      <button type="button" class="btn btn-ghost" id="r-later">לחזור לספר</button>
+    </div>
+    <div class="form-msg" id="r-msg" style="max-width:760px;margin:14px auto 0" role="status"></div>
+  </div>
+</div>
+
+<!-- ============ מסך 4: ישר כוח ============ -->
+<div class="view" id="view-end">
+  <div class="yasher">
+    <div class="halo"><h2>ישר כוח!</h2></div>
+    <p class="what" id="end-what"></p>
+
+    <div class="actions" style="justify-content:center;margin-top:30px">
+      <button type="button" class="btn btn-lg" id="end-more">לקחת עוד פרקים</button>
+      <button type="button" class="btn btn-ghost" id="end-back">לחזור לספר</button>
+    </div>
+
+    <div class="invite">
+      <h3>יש כאן משהו גדול הרבה יותר</h3>
+      <p>קהילה שלמה שכל חבריה מתפללים זה על זה כל הזמן - על רפואה, על משאלות הלב, ועל עילוי
+      נשמות יקריהם. כל פרק תהילים שנקרא בקהילה נזקף גם למילוי משאלות ליבכם לטובה.</p>
+      <a class="btn" href="https://hamikdash.co.il/shema.html">להצטרפות לקהילת שמע רפא ומשאלות</a>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>עמותת אורות האמונה - בני משה | בראשות הרב יעקב מאור</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var SITE = "https://hamikdash.co.il";
+  var API = (location.hostname === "t.hamikdash.co.il" ||
+             location.hostname.indexOf(".workers.dev") !== -1) ? "" : "https://t.hamikdash.co.il";
+
+  var TOKEN = location.pathname.replace(/^\/+/, "").split("/")[0];
+  var POLL_MS = 10000;
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  var UNITS = null;      // טבלת 171 היחידות
+  var QUIET = null;      // חלונות השקט
+  var STATE = null;      // מצב הספר האחרון מהשרת
+  var SEL = [];          // הבחירה הנוכחית
+  var QUEUE = [];        // תור הקריאה הרציפה
+  var QPOS = 0;
+  var DONE_NOW = [];     // מה שסומן במסלול הזה
+  var FILTER = "all";
+  var pollTimer = null, clockTimer = null;
+
+  // ---------- זהות מקומית בלבד ----------
+  function readerKey() {
+    var k = null;
+    try { k = localStorage.getItem("tehillim_rk"); } catch (e) { /* פרטיות חסומה */ }
+    if (!k) {
+      k = "r" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      try { localStorage.setItem("tehillim_rk", k); } catch (e) { /* בסדר */ }
+    }
+    return k;
+  }
+  function readerName(v) {
+    try {
+      if (v != null) localStorage.setItem("tehillim_rn", v);
+      return localStorage.getItem("tehillim_rn") || "";
+    } catch (e) { return v || ""; }
+  }
+  var RK = readerKey();
+
+  function show(name) {
+    var vs = document.querySelectorAll(".view");
+    for (var i = 0; i < vs.length; i++) vs[i].classList.remove("on");
+    $("view-" + name).classList.add("on");
+    $("tray").classList.toggle("on", name === "grid" && SEL.length > 0);
+    window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+  }
+
+  // ---------- חלון השקט ----------
+  // אותה טבלה בדיוק שה-Worker משתמש בה. שני חישובים עצמאיים היו נותנים
+  // תשובות שונות בהפרש דקה, וזה הרגע שבו אדם מאבד פרק שהוא כן קרא.
+  function windowContaining(ts) {
+    if (!QUIET) return null;
+    for (var i = 0; i < QUIET.length; i++) {
+      if (QUIET[i][0] > ts) break;
+      if (ts >= QUIET[i][0] && ts < QUIET[i][1]) return QUIET[i];
+    }
+    return null;
+  }
+  function inQuiet(ts) { return windowContaining(ts) !== null; }
+
+  // ---------- הרשת ----------
+  var SFARIM = [
+    { t: "ספר ראשון", from: 1, to: 41 },
+    { t: "ספר שני", from: 42, to: 72 },
+    { t: "ספר שלישי", from: 73, to: 89 },
+    { t: "ספר רביעי", from: 90, to: 106 },
+    { t: "ספר חמישי", from: 107, to: 150 }
+  ];
+
+  function buildGrid() {
+    var wrap = $("grid-wrap");
+    wrap.innerHTML = "";
+    SFARIM.forEach(function (s, si) {
+      var h = document.createElement("h3");
+      h.textContent = s.t + " · פרקים " + s.from + "-" + s.to;
+      var g = document.createElement("div");
+      g.className = "grid";
+      g.id = "grid-" + si;
+      wrap.appendChild(h);
+      wrap.appendChild(g);
+
+      UNITS.forEach(function (u) {
+        if (u.ch < s.from || u.ch > s.to) return;
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "cellu";
+        b.dataset.i = u.i;
+        b.innerHTML = '<span class="n"></span><span class="m"></span><span class="v"></span>';
+        b.querySelector(".n").textContent = u.name;
+        b.querySelector(".m").textContent = u.min + " דק׳";
+        b.addEventListener("click", function () { toggle(u.i); });
+        g.appendChild(b);
+      });
+    });
+  }
+
+  function paint() {
+    if (!STATE) return;
+    var byI = {};
+    STATE.units.forEach(function (u) { byI[u.i] = u; });
+
+    document.querySelectorAll(".cellu").forEach(function (b) {
+      var i = Number(b.dataset.i);
+      var u = byI[i];
+      if (!u) return;
+      b.className = "cellu";
+      b.disabled = false;
+      var check = b.querySelector(".v");
+      check.textContent = "";
+
+      if (u.s === "read") {
+        b.classList.add("done");
+        b.disabled = true;
+        check.textContent = "✓";
+      } else if (u.s === "taken" && u.mine) {
+        b.classList.add("mine");
+      } else if (u.s === "taken") {
+        b.classList.add("busy");
+        b.disabled = true;
+      } else if (SEL.indexOf(i) !== -1) {
+        b.classList.add("sel");
+      }
+
+      var hideAll = (FILTER === "free" && u.s !== "free") ||
+                    (FILTER === "mine" && !u.mine);
+      b.style.display = hideAll ? "none" : "";
+    });
+
+    // כותרת ספר שכל תאיה מוסתרים - מסתירים גם אותה
+    SFARIM.forEach(function (s, si) {
+      var g = $("grid-" + si);
+      if (!g) return;
+      var any = false;
+      for (var k = 0; k < g.children.length; k++) {
+        if (g.children[k].style.display !== "none") { any = true; break; }
+      }
+      g.style.display = any ? "" : "none";
+      if (g.previousElementSibling) g.previousElementSibling.style.display = any ? "" : "none";
+    });
+
+    var ch = chapterStats();
+    $("p-read").textContent = ch.read;
+    $("p-taken").textContent = ch.taken;
+    $("p-free").textContent = ch.free;
+    $("pb-read").style.width = (ch.read / 150 * 100) + "%";
+    $("pb-taken").style.width = (ch.taken / 150 * 100) + "%";
+
+    $("filter-note").textContent =
+      FILTER === "free" ? "מוצגים רק הפרקים הפנויים" :
+      FILTER === "mine" ? (ch.mineUnits ? "מוצגים רק הפרקים שלכם" : "עדיין לא לקחתם פרקים") : "";
+
+    trayPaint();
+  }
+
+  // המספרים מוצגים בפרקים מתוך 150, ולא ביחידות מתוך 171: פרק קי"ט מחולק
+  // ל-22 חלקים לצורך הקריאה, אבל הוא עדיין פרק אחד בעיני מי שקורא.
+  function chapterStats() {
+    var byCh = {};
+    var mineUnits = 0;
+    STATE.units.forEach(function (u) {
+      var meta = UNITS[u.i];
+      var c = meta.ch;
+      if (!byCh[c]) byCh[c] = { free: 0, taken: 0, read: 0, n: 0 };
+      byCh[c][u.s]++;
+      byCh[c].n++;
+      if (u.mine) mineUnits++;
+    });
+    var read = 0, taken = 0, free = 0;
+    for (var c in byCh) {
+      var o = byCh[c];
+      if (o.read === o.n) read++;
+      else if (o.free === o.n) free++;
+      else taken++;
+    }
+    return { read: read, taken: taken, free: free, mineUnits: mineUnits };
+  }
+
+  // ---------- בחירה ----------
+  function toggle(i) {
+    var u = null;
+    for (var k = 0; k < STATE.units.length; k++) {
+      if (STATE.units[k].i === i) { u = STATE.units[k]; break; }
+    }
+    if (!u) return;
+
+    if (u.s === "taken" && u.mine) { QUEUE = [i]; QPOS = 0; DONE_NOW = []; openRead(); return; }
+    if (u.s !== "free") return;
+
+    var p = SEL.indexOf(i);
+    if (p === -1) { if (SEL.length >= 30) return; SEL.push(i); }
+    else SEL.splice(p, 1);
+    paint();
+  }
+
+  function trayPaint() {
+    var t = $("tray");
+    t.classList.toggle("on", SEL.length > 0 && $("view-grid").classList.contains("on"));
+    if (!SEL.length) return;
+    var mins = 0;
+    SEL.forEach(function (i) { mins += UNITS[i].min; });
+    $("tray-count").innerHTML = "נבחרו " + SEL.length + " פרקים <span>· כ-" + mins + " דקות קריאה</span>";
+  }
+
+  $("tray-clear").addEventListener("click", function () { SEL = []; paint(); });
+  $("tray-go").addEventListener("click", function () {
+    if (!SEL.length) return;
+    var names = SEL.map(function (i) { return UNITS[i].name; }).join(", ");
+    $("who-what").textContent = "בחרתם " + SEL.length + " פרקים: " + names;
+    var n = readerName();
+    if (n) $("rname").value = n;
+    show("who");
+  });
+
+  document.querySelectorAll(".filters button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll(".filters button").forEach(function (x) { x.classList.remove("on"); });
+      b.classList.add("on");
+      FILTER = b.dataset.f;
+      paint();
+    });
+  });
+
+  // ---------- תפיסה ----------
+  $("who-back").addEventListener("click", function () { show("grid"); });
+
+  $("who-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = $("rname").value.trim();
+    if (name.length < 2) {
+      $("who-msg").className = "form-msg err";
+      $("who-msg").textContent = "צריך שם פרטי כדי להמשיך.";
+      return;
+    }
+    readerName(name);
+    var btn = $("who-go");
+    btn.disabled = true;
+    btn.textContent = "תופס את הפרקים...";
+    $("who-msg").className = "form-msg";
+
+    post("/take", { readerKey: RK, readerName: name, idxs: SEL.slice() })
+      .then(function (d) {
+        btn.disabled = false;
+        btn.textContent = "לקריאה לחצו כאן";
+        if (d && d.ok) {
+          QUEUE = d.taken.slice().sort(function (a, b) { return a - b; });
+          QPOS = 0;
+          DONE_NOW = [];
+          SEL = [];
+          refresh();
+          openRead();
+          return;
+        }
+        if (d && d.error === "lost") {
+          var names = (d.lost || []).map(function (i) { return UNITS[i].name; }).join(", ");
+          $("who-msg").className = "form-msg err";
+          $("who-msg").textContent =
+            "מישהו הקדים אתכם על " + names + ". חזרו ובחרו שוב - הרשת כבר מעודכנת.";
+          SEL = SEL.filter(function (i) { return (d.lost || []).indexOf(i) === -1; });
+          refresh();
+          return;
+        }
+        if (d && d.error === "closed") {
+          $("who-msg").className = "form-msg err";
+          $("who-msg").textContent = "הספר הזה כבר הושלם. ישר כוח לכולם.";
+          refresh();
+          return;
+        }
+        $("who-msg").className = "form-msg err";
+        $("who-msg").textContent = "משהו השתבש. נסו שוב בעוד רגע.";
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = "לקריאה לחצו כאן";
+        $("who-msg").className = "form-msg err";
+        $("who-msg").textContent = "אין חיבור לשרת כרגע. נסו שוב בעוד רגע.";
+      });
+  });
+
+  // ---------- קריאה רציפה ----------
+  var textCache = {};
+
+  function loadText(i) {
+    if (textCache[i]) return Promise.resolve(textCache[i]);
+    return fetch(SITE + "/tehillim/text/" + i + ".json")
+      .then(function (r) { return r.json(); })
+      .then(function (d) { textCache[i] = d; return d; });
+  }
+
+  function openRead() {
+    if (QPOS >= QUEUE.length) { finish(); return; }
+    var i = QUEUE[QPOS];
+    $("r-step").textContent = QUEUE.length > 1
+      ? "פרק " + (QPOS + 1) + " מתוך " + QUEUE.length
+      : "פרק אחד";
+    $("r-msg").className = "form-msg";
+    $("r-title").textContent = "תהילים " + UNITS[i].name;
+    $("r-verses").innerHTML = "<p class='tiny'>טוען...</p>";
+    $("r-done").disabled = false;
+    $("r-done").textContent = "קראתי";
+    show("read");
+    startClock();
+
+    loadText(i).then(function (d) {
+      var html = "";
+      d.verses.forEach(function (v, n) {
+        html += "<p><span class='vn'>" + (n + 1) + "</span>" + escapeHtml(v) + "</p>";
+      });
+      $("r-verses").innerHTML = html;
+      applySize();
+    }).catch(function () {
+      $("r-verses").innerHTML = "<p class='tiny'>לא הצלחנו לטעון את הטקסט. " +
+        "נסו לרענן את הדף - הפרק עדיין שמור על שמכם.</p>";
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  $("r-later").addEventListener("click", function () { stopClock(); refresh(); show("grid"); });
+
+  $("r-done").addEventListener("click", function () {
+    var i = QUEUE[QPOS];
+    var btn = $("r-done");
+    btn.disabled = true;
+    btn.textContent = "מסמן...";
+    post("/read", { readerKey: RK, idxs: [i] }).then(function (d) {
+      btn.textContent = "קראתי";
+      if (d && d.ok && d.read && d.read.length) {
+        DONE_NOW.push(i);
+        QPOS++;
+        refresh();
+        openRead();
+        return;
+      }
+      btn.disabled = false;
+      if (d && d.error === "too_fast") {
+        $("r-msg").className = "form-msg err";
+        $("r-msg").textContent = "רגע אחד - אפשר לסמן פרק אחת לדקה. נסו שוב בעוד כמה שניות.";
+        return;
+      }
+      // לא נקלט: כנראה מישהו אחר כבר לקח את הפרק אחרי שהשעה עברה
+      $("r-msg").className = "form-msg err";
+      $("r-msg").textContent = "הפרק הזה כבר נלקח על ידי מישהו אחר. ממשיכים הלאה.";
+      QPOS++;
+      setTimeout(function () { refresh(); openRead(); }, 1600);
+    }).catch(function () {
+      btn.disabled = false;
+      btn.textContent = "קראתי";
+      $("r-msg").className = "form-msg err";
+      $("r-msg").textContent = "אין חיבור לשרת. הפרק שמור על שמכם - נסו שוב בעוד רגע.";
+    });
+  });
+
+  // ---------- השעון ----------
+  function myExpiry() {
+    if (!STATE) return 0;
+    var i = QUEUE[QPOS];
+    for (var k = 0; k < STATE.units.length; k++) {
+      if (STATE.units[k].i === i) return STATE.units[k].exp || 0;
+    }
+    return 0;
+  }
+
+  function startClock() {
+    stopClock();
+    tickClock();
+    clockTimer = setInterval(tickClock, 1000);
+  }
+  function stopClock() { if (clockTimer) clearInterval(clockTimer); clockTimer = null; }
+
+  function tickClock() {
+    var el = $("r-clock");
+    var exp = myExpiry();
+    if (!exp) { el.textContent = ""; return; }
+    var now = Date.now();
+
+    if (inQuiet(now)) {
+      el.className = "clock paused";
+      el.textContent = "השעון עוצר בשבת ובחג";
+      return;
+    }
+
+    var left = exp - now;
+    if (left <= 0) {
+      el.className = "clock low";
+      el.textContent = "השעה עברה - הסימון עדיין נקלט";
+      return;
+    }
+    // "נשארו 60 דקות" ולא 59: מעגלים כלפי מעלה
+    var mins = Math.ceil(left / 60000);
+    el.className = "clock" + (mins <= 10 ? " low" : "");
+    el.textContent = mins >= 60
+      ? "נשארו " + mins + " דקות"
+      : "נשארו " + mins + (mins === 1 ? " דקה" : " דקות");
+  }
+
+  // ---------- גודל הטקסט ----------
+  function sizeVal(v) {
+    try {
+      if (v != null) localStorage.setItem("tehillim_sz", v);
+      return Number(localStorage.getItem("tehillim_sz") || 0);
+    } catch (e) { return 0; }
+  }
+  function applySize() {
+    var base = window.innerWidth <= 520 ? 21 : 23;
+    $("r-verses").style.fontSize = (base + sizeVal() * 2) + "px";
+  }
+  $("sz-up").addEventListener("click", function () {
+    sizeVal(Math.min(6, sizeVal() + 1)); applySize();
+  });
+  $("sz-down").addEventListener("click", function () {
+    sizeVal(Math.max(-2, sizeVal() - 1)); applySize();
+  });
+
+  // ---------- מסך הסיום ----------
+  function finish() {
+    stopClock();
+    if (!DONE_NOW.length) { refresh(); show("grid"); return; }
+    var names = DONE_NOW.map(function (i) { return UNITS[i].name; }).join(", ");
+    var who = STATE && STATE.kind === "klali"
+      ? "לקריאה הכללית"
+      : forWhomText(STATE);
+    $("end-what").innerHTML =
+      "קראתם " + DONE_NOW.length + (DONE_NOW.length === 1 ? " פרק" : " פרקים") +
+      " - " + escapeHtml(names) + "<br>" + escapeHtml(who);
+    refresh();
+    show("end");
+  }
+
+  $("end-more").addEventListener("click", function () { SEL = []; refresh(); show("grid"); });
+  $("end-back").addEventListener("click", function () { SEL = []; refresh(); show("grid"); });
+
+  // ---------- כותרת הספר ----------
+  var INTENT_HE = {
+    refua: "לרפואת", neshama: "לעילוי נשמת", hatzlacha: "להצלחת",
+    zivug: "לזיווגו של", other: "עבור", klali: ""
+  };
+
+  function forWhomText(s) {
+    if (!s || s.kind === "klali") return s && s.title ? s.title : "";
+    var lead = INTENT_HE[s.intent] || "עבור";
+    if (s.intent === "zivug" && s.gender === "f") lead = "לזיווגה של";
+    return lead + " " + s.patientName + (s.gender === "f" ? " בת " : " בן ") + s.motherName;
+  }
+
+  function head() {
+    if (STATE.kind === "klali") {
+      $("bk-lead").textContent = "הקריאה הכללית";
+      $("bk-for").textContent = STATE.title;
+      $("bk-meta").textContent = "ספר פתוח תמיד. כשהוא נסגר הוא נפתח מחדש.";
+      return;
+    }
+    $("bk-lead").textContent = "ספר תהילים";
+    $("bk-for").textContent = forWhomText(STATE);
+    var m = [];
+    if (STATE.openerName) m.push("נפתח על ידי " + STATE.openerName);
+    if (STATE.targetDate) m.push("תאריך יעד: " + fmtDate(STATE.targetDate));
+    $("bk-meta").textContent = m.join(" · ");
+  }
+
+  function fmtDate(iso) {
+    var p = String(iso).split("-");
+    return p.length === 3 ? p[2] + "." + p[1] + "." + p[0] : iso;
+  }
+
+  // ---------- שרת ----------
+  function post(op, body) {
+    return fetch(API + "/api/book/" + TOKEN + op, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    }).then(function (r) { return r.json(); });
+  }
+
+  function refresh() {
+    return fetch(API + "/api/book/" + TOKEN + "/state?rk=" + encodeURIComponent(RK))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) return;
+        STATE = d;
+        head();
+        paint();
+        $("quiet-note").style.display = "";
+        $("invite-grid").style.display = "";
+        if (d.status === "closed" && d.kind !== "klali") {
+          $("bk-meta").textContent = "הספר הושלם. ישר כוח לכל מי שקרא.";
+        }
+      })
+      .catch(function () { /* הסקר הבא ינסה שוב */ });
+  }
+
+  // ---------- אתחול ----------
+  Promise.all([
+    fetch(SITE + "/tehillim/units.json").then(function (r) { return r.json(); }),
+    fetch(SITE + "/tehillim/quiet.json").then(function (r) { return r.json(); }),
+    fetch(API + "/api/book/" + TOKEN + "/state?rk=" + encodeURIComponent(RK))
+      .then(function (r) { return r.json(); })
+  ]).then(function (res) {
+    UNITS = res[0];
+    QUIET = (res[1] && res[1].windows) || [];
+    STATE = res[2];
+    if (!STATE || !STATE.ok) {
+      $("boot").innerHTML = "הקישור הזה אינו תקין או שפג תוקפו.<br>" +
+        "<a href='" + SITE + "/tehillim.html'>לפתוח ספר חדש</a>";
+      return;
+    }
+    $("boot").style.display = "none";
+    buildGrid();
+    head();
+    paint();
+    $("quiet-note").style.display = "";
+    $("invite-grid").style.display = "";
+    show("grid");
+    pollTimer = setInterval(function () {
+      if ($("view-grid").classList.contains("on")) refresh();
+    }, POLL_MS);
+  }).catch(function () {
+    $("boot").innerHTML = "לא הצלחנו לטעון את הספר. נסו לרענן את הדף.";
+  });
+
+  window.addEventListener("resize", applySize);
+})();
+</script>
+</body>
+</html>

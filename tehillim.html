@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>תהילים ישראל | אורות האמונה - בני משה</title>
+<meta name="description" content="פותחים ספר תהילים לרפואת אדם, שולחים קישור אחד לקבוצה, וכל אחד לוקח פרקים וקורא. בלי רשימות ובלי לנהל ביד.">
+<meta property="og:title" content="תהילים ישראל | אורות האמונה - בני משה">
+<meta property="og:description" content="ספר תהילים שנפתח לרפואת אדם ונסגר מעצמו. קישור אחד לקבוצה, וכל אחד לוקח פרקים וקורא.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="he_IL">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+/* סגנונות מקומיים לעמוד הזה בלבד, בדפוס של shema.html ו-neshama.html */
+.form-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:28px 26px;margin:0 auto;max-width:760px}
+.field{margin-bottom:18px}
+.field label{display:block;font-weight:700;margin-bottom:6px;font-size:16px}
+.field .hint{display:block;font-weight:400;color:var(--ink-soft);font-size:14px;margin-top:2px}
+.field input,.field select,.field textarea{width:100%;font-family:inherit;font-size:17px;
+  color:var(--ink);background:var(--cream);border:1px solid var(--line);border-radius:8px;
+  padding:11px 13px;transition:border-color .15s,background .15s}
+.field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:var(--gold);
+  background:var(--white)}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+@media(max-width:640px){.row-2{grid-template-columns:1fr}}
+.form-sep{border:0;border-top:1px solid var(--line);margin:26px 0 22px}
+
+/* שדה מלכודת הספאם, מוסתר בלי ליצור גלישה אופקית.
+   לעולם לא left:-9999px: בדף RTL זה מותח את רוחב הגלילה ומרוקן את המסך. */
+.hp{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+.form-msg{margin-top:16px;padding:14px 16px;border-radius:8px;font-size:16px;display:none}
+.form-msg.err{display:block;background:#fdecea;border-right:4px solid #c0392b;color:#7b241c}
+.form-msg.ok{display:block;background:var(--cream-warm);border-right:4px solid var(--gold);
+  color:var(--ink)}
+.note-box{background:var(--cream-warm);border-right:4px solid var(--gold);border-radius:8px;
+  padding:16px 20px;margin:22px 0}
+.note-box p{margin:0}
+.view{display:none}
+.view.on{display:block}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+
+/* ---------- המונה הגלובלי ---------- */
+.counter-strip{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:22px 20px;margin:0 auto 32px;max-width:760px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.counter-strip .cell{padding:4px 6px}
+.counter-strip .cell + .cell{border-right:1px solid var(--line)}
+.counter-strip .num{font-size:30px;font-weight:800;color:var(--gold-deep);line-height:1.25;
+  font-variant-numeric:tabular-nums}
+.counter-strip .lbl{font-size:14px;color:var(--ink-soft);margin-top:2px}
+@media(max-width:520px){.counter-strip .num{font-size:24px}.counter-strip .lbl{font-size:13px}}
+
+/* ---------- שלוש הדלתות ---------- */
+.doors{display:grid;gap:14px;max-width:760px;margin:0 auto}
+.door{display:block;width:100%;text-align:right;font-family:inherit;cursor:pointer;
+  background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:20px 22px;transition:border-color .15s,transform .12s}
+.door:hover{border-color:var(--gold);transform:translateY(-1px)}
+.door .t{font-size:20px;font-weight:800;color:var(--ink);display:block}
+.door .s{font-size:15px;color:var(--ink-soft);margin-top:4px;display:block;line-height:1.6}
+.door.soft{background:var(--cream-warm);box-shadow:none}
+.door.soft .t{font-size:17px;color:var(--gold-deep)}
+
+/* ---------- מסך ההצלחה ---------- */
+.link-box{display:flex;gap:8px;align-items:stretch;margin:10px 0 4px}
+.link-box input{flex:1;min-width:0;font-family:inherit;font-size:15px;direction:ltr;
+  text-align:left;background:var(--cream);border:1px solid var(--line);border-radius:8px;
+  padding:11px 13px;color:var(--ink)}
+.copy-btn{white-space:nowrap;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
+  background:var(--gold);color:#fff;border:0;border-radius:8px;padding:11px 18px}
+.copy-btn:hover{background:var(--gold-deep)}
+.copy-btn.done{background:#2e7d4f}
+.wa-preview{background:var(--cream);border:1px solid var(--line);border-radius:8px;
+  padding:14px 16px;white-space:pre-wrap;font-size:16px;line-height:1.8;margin:10px 0}
+#qr-wrap{text-align:center;margin:18px 0 6px}
+#qr-wrap img,#qr-wrap canvas{border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px}
+.tiny{font-size:14px;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <a href="/"><span class="brand-name">אורות האמונה - בני משה</span></a>
+      <span class="brand-sub">בראשות הרב יעקב מאור</span>
+    </div>
+    <nav class="nav">
+      <a href="/">בית</a>
+      <a href="/about.html">אודות</a>
+      <a href="/neshama.html">עילוי נשמה</a>
+      <a href="/shema.html">שמע בחצות</a>
+      <a href="/tehillim.html" class="active">תהילים ישראל</a>
+      <a href="/torah.html">תוכן תורני</a>
+      <a href="/chagim/">חגים</a>
+      <a href="/contact.html">יצירת קשר</a>
+      <a href="/donate.html">לתרומה</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-head">
+  <div class="wrap">
+    <h1>תהילים ישראל</h1>
+    <p>פותחים ספר תהילים לרפואת אדם, שולחים קישור אחד לקבוצה, וכל אחד לוקח פרקים וקורא.
+    אף אחד לא מנהל רשימה ביד, ואף פרק לא נשכח באמצע.</p>
+  </div>
+</div>
+
+<section class="wrap" style="padding-top:34px;padding-bottom:10px">
+
+  <div class="counter-strip" id="counter" aria-live="polite">
+    <div class="cell"><div class="num" id="c-today">-</div><div class="lbl">פרקים נקראו היום</div></div>
+    <div class="cell"><div class="num" id="c-month">-</div><div class="lbl">החודש</div></div>
+    <div class="cell"><div class="num" id="c-total">-</div><div class="lbl">מאז ההתחלה</div></div>
+  </div>
+
+  <!-- ============ מסך 1: בשביל מי אתה כאן ============ -->
+  <div class="view on" id="view-home">
+    <div class="doors">
+      <button type="button" class="door" data-go="form">
+        <span class="t">לפתוח ספר תהילים</span>
+        <span class="s">לרפואת אדם, לעילוי נשמה, להצלחה או לזיווג. מקבלים קישור אחד ושולחים אותו
+        לכל מי שרוצים.</span>
+      </button>
+
+      <button type="button" class="door" id="door-klali">
+        <span class="t">להצטרף לקריאה הכללית</span>
+        <span class="s">ספר תהילים שפתוח תמיד, להצלחת תורמי העמותה, חברי פרויקט שמע ישראל,
+        והפועלים למען עם ישראל בכל מקום. לוקחים פרק וקוראים, מתי שרוצים.</span>
+      </button>
+
+      <a class="door soft" href="/shema.html">
+        <span class="t">להצטרפות לקהילת שמע רפא ומשאלות</span>
+        <span class="s">קהילה שכל חבריה מתפללים זה על זה כל הזמן - על רפואה, על משאלות הלב,
+        ועל עילוי נשמות יקריהם.</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ============ מסך 2: טופס פתיחת ספר ============ -->
+  <div class="view" id="view-form">
+    <div class="form-card">
+      <h2 style="margin-top:0">פתיחת ספר תהילים</h2>
+
+      <form id="book-form" novalidate>
+        <div class="field hp" aria-hidden="true">
+          <label for="website">אל תמלאו שדה זה</label>
+          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+
+        <h3 style="font-size:17px;margin:18px 0 12px">עבור מי</h3>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="patientName">שם פרטי *</label>
+            <input type="text" id="patientName" autocomplete="off" required>
+          </div>
+          <div class="field">
+            <label for="motherName">שם האם *</label>
+            <input type="text" id="motherName" autocomplete="off" required>
+            <span class="hint">לעילוי נשמה - שם האב</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="gender">בן או בת *</label>
+          <select id="gender" required>
+            <option value="">בחרו</option>
+            <option value="m">בן</option>
+            <option value="f">בת</option>
+          </select>
+          <span class="hint" id="name-preview"></span>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="intent">הכוונה *</label>
+            <select id="intent" required>
+              <option value="refua">רפואה שלמה</option>
+              <option value="neshama">עילוי נשמה</option>
+              <option value="hatzlacha">הצלחה</option>
+              <option value="zivug">זיווג</option>
+              <option value="other">אחר</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="targetDate">תאריך יעד</label>
+            <input type="date" id="targetDate">
+            <span class="hint">מתי הייתם רוצים שהספר יושלם</span>
+          </div>
+        </div>
+
+        <div class="field" id="intent-other-wrap" style="display:none">
+          <label for="intentOther">פרטו את הכוונה</label>
+          <input type="text" id="intentOther" maxlength="60" autocomplete="off">
+        </div>
+
+        <hr class="form-sep">
+        <h3 style="font-size:17px;margin:0 0 12px">הפרטים שלכם</h3>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="openerName">שם *</label>
+            <input type="text" id="openerName" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="openerPhone">טלפון *</label>
+            <input type="tel" id="openerPhone" autocomplete="tel" inputmode="tel" required>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="openerEmail">מייל *</label>
+            <input type="email" id="openerEmail" autocomplete="email" inputmode="email" required>
+            <span class="hint">לשם נשלח קישור הניהול של הספר - שמרו עליו</span>
+          </div>
+          <div class="field">
+            <label for="openerRelation">הקרבה</label>
+            <input type="text" id="openerRelation" maxlength="40" autocomplete="off">
+            <span class="hint">בן, בת, חבר, שכן</span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-lg" id="submit-btn">לפתוח את הספר</button>
+          <button type="button" class="btn btn-ghost" data-go="home">חזרה</button>
+        </div>
+
+        <div class="form-msg" id="form-msg" role="status"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ מסך 3: הספר נפתח ============ -->
+  <div class="view" id="view-done">
+    <div class="form-card">
+      <h2 style="margin-top:0">הספר נפתח</h2>
+      <p id="done-for" style="font-size:19px;font-weight:700"></p>
+
+      <div class="note-box" style="margin-top:18px">
+        <p><strong>הקישור להפצה</strong> - זה מה ששולחים לקבוצות. כל מי שייכנס יראה מה נשאר
+        ויוכל לבחור פרקים.</p>
+      </div>
+
+      <div class="link-box">
+        <input type="text" id="pub-link" readonly>
+        <button type="button" class="copy-btn" data-copy="pub-link">העתקה</button>
+      </div>
+
+      <h3 style="font-size:17px;margin:26px 0 8px">הודעה מוכנה לוואטסאפ</h3>
+      <div class="wa-preview" id="wa-text"></div>
+      <button type="button" class="copy-btn" id="copy-wa">העתקת ההודעה</button>
+
+      <div id="qr-wrap"></div>
+      <p class="tiny" style="text-align:center">קוד QR לשימוש מחוץ למסך - מודעה בבית כנסת,
+      דף שמחלקים ביד או שלט באירוע. <a href="#" id="qr-dl">להורדה</a></p>
+
+      <hr class="form-sep">
+
+      <div class="note-box" style="background:#fdf6e8">
+        <p><strong>הקישור לניהול - שמרו אותו לעצמכם.</strong> דרכו אפשר לראות מי לקח מה,
+        להאריך את תאריך היעד, ולחלק את הפרקים שנשארו בין מי שכבר בספר.
+        שלחנו אותו גם למייל שהשארתם.</p>
+      </div>
+
+      <div class="link-box">
+        <input type="text" id="man-link" readonly>
+        <button type="button" class="copy-btn" data-copy="man-link">העתקה</button>
+      </div>
+
+      <div class="actions">
+        <a class="btn btn-lg" id="go-book" href="#">לפתוח את הספר</a>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<section class="wrap prose" style="padding-bottom:50px">
+  <h2>איך זה עובד</h2>
+  <p>פותחים ספר בשביל מישהו, ומקבלים קישור אחד. שולחים אותו לקבוצת וואטסאפ, למשפחה, לכל מי
+  שרוצים. כל מי שנכנס רואה מצב חי של הספר: אילו פרקים כבר נלקחו ואילו עדיין פנויים. הוא בוחר
+  פרקים, קורא אותם על המסך, ומסמן „קראתי". הפרק הופך לאפור אצל כולם באותו רגע.</p>
+
+  <p><strong>מה שעוצר ספר תהילים זה לא מי שלא קרא, אלא פרקים שנתפסו ונשכחו.</strong> לכן מרגע
+  הבחירה יש שעה אחת לקרוא ולסמן, ואם עברה השעה בלי סימון, הפרק חוזר לרשימה ומישהו אחר יכול
+  לקחת אותו. ואם אחרי השעה תסמנו שקראתם, ואיש לא לקח אותו בינתיים - הסימון נקלט כרגיל.
+  שום דבר לא הולך לאיבוד.</p>
+
+  <p><strong>השעון עוצר בשבת ובחג.</strong> מי שתפס פרק בערב שבת וקרא אותו בשבת אינו יכול
+  לסמן, ולכן פרקים אינם פוקעים בתוך השבת. השעון ממשיך לרוץ רק בצאת השבת.</p>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>עמותת אורות האמונה - בני משה | בראשות הרב יעקב מאור</p>
+  </div>
+</footer>
+
+<script src="/assets/qrcode.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ה-API יושב על אותו מקור כשהדף מוגש דרך הכתובת הקצרה, ואחרת על תת-הדומיין.
+  var API = (location.hostname === "t.hamikdash.co.il" ||
+             location.hostname.indexOf(".workers.dev") !== -1) ? "" : "https://t.hamikdash.co.il";
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function show(name) {
+    var vs = document.querySelectorAll(".view");
+    for (var i = 0; i < vs.length; i++) vs[i].classList.remove("on");
+    $("view-" + name).classList.add("on");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest ? e.target.closest("[data-go]") : null;
+    if (t) { e.preventDefault(); show(t.getAttribute("data-go")); }
+    var c = e.target.closest ? e.target.closest("[data-copy]") : null;
+    if (c) { e.preventDefault(); copyFrom($(c.getAttribute("data-copy")), c); }
+  });
+
+  function copyText(txt, btn) {
+    var done = function () {
+      if (!btn) return;
+      var old = btn.textContent;
+      btn.textContent = "הועתק";
+      btn.classList.add("done");
+      setTimeout(function () { btn.textContent = old; btn.classList.remove("done"); }, 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(done, function () { fallback(txt); done(); });
+    } else { fallback(txt); done(); }
+  }
+
+  function fallback(txt) {
+    var ta = document.createElement("textarea");
+    ta.value = txt;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "absolute";
+    ta.style.top = "0";
+    ta.style.right = "0";      // אף פעם לא left שלילי - בדף RTL זה מותח את המסך
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch (err) { /* אין מה לעשות */ }
+    document.body.removeChild(ta);
+  }
+
+  function copyFrom(input, btn) { if (input) copyText(input.value, btn); }
+
+  // ---------- המונה ----------
+  function num(n) { return Number(n || 0).toLocaleString("he-IL"); }
+
+  function loadCounter() {
+    fetch(API + "/api/stats").then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.ok) return;
+      $("c-today").textContent = num(d.today);
+      $("c-month").textContent = num(d.month);
+      $("c-total").textContent = num(d.total);
+    }).catch(function () { /* המונה אינו חוסם כלום */ });
+  }
+  loadCounter();
+  setInterval(loadCounter, 45000);
+
+  // ---------- תצוגה מקדימה של "X בן/בת Y" ----------
+  function preview() {
+    var n = $("patientName").value.trim();
+    var m = $("motherName").value.trim();
+    var g = $("gender").value;
+    $("name-preview").textContent = (n && m && g)
+      ? "יקרא בספר: " + n + (g === "f" ? " בת " : " בן ") + m
+      : "";
+  }
+  ["patientName", "motherName", "gender"].forEach(function (id) {
+    $(id).addEventListener("input", preview);
+    $(id).addEventListener("change", preview);
+  });
+
+  $("intent").addEventListener("change", function () {
+    $("intent-other-wrap").style.display = this.value === "other" ? "" : "none";
+  });
+
+  // ---------- הקריאה הכללית ----------
+  $("door-klali").addEventListener("click", function () {
+    var btn = this;
+    btn.style.opacity = ".6";
+    fetch(API + "/api/klali").then(function (r) { return r.json(); }).then(function (d) {
+      btn.style.opacity = "";
+      if (d && d.ok && d.url) location.href = d.url;
+      else alert("לא הצלחנו לפתוח את הקריאה הכללית כרגע. נסו שוב בעוד רגע.");
+    }).catch(function () {
+      btn.style.opacity = "";
+      alert("לא הצלחנו לפתוח את הקריאה הכללית כרגע. נסו שוב בעוד רגע.");
+    });
+  });
+
+  // ---------- שליחת הטופס ----------
+  var HEB = /^[֐-׿\s'"`\-]{2,40}$/;
+
+  function msg(text, kind) {
+    var el = $("form-msg");
+    el.textContent = text;
+    el.className = "form-msg " + kind;
+  }
+
+  $("book-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    var body = {
+      website: $("website").value,
+      patientName: $("patientName").value.trim(),
+      motherName: $("motherName").value.trim(),
+      gender: $("gender").value,
+      intent: $("intent").value,
+      intentOther: $("intentOther").value.trim(),
+      targetDate: $("targetDate").value,
+      openerName: $("openerName").value.trim(),
+      openerPhone: $("openerPhone").value.trim(),
+      openerEmail: $("openerEmail").value.trim(),
+      openerRelation: $("openerRelation").value.trim()
+    };
+
+    if (!HEB.test(body.patientName)) return msg("השם הפרטי צריך להיכתב בעברית.", "err");
+    if (!HEB.test(body.motherName)) return msg("שם האם צריך להיכתב בעברית.", "err");
+    if (!body.gender) return msg("בחרו בן או בת.", "err");
+    if (!body.openerName) return msg("חסר השם שלכם.", "err");
+    if (!/^0\d{1,2}-?\d{7}$/.test(body.openerPhone.replace(/[\s()]/g, ""))) {
+      return msg("מספר הטלפון אינו תקין.", "err");
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.openerEmail)) {
+      return msg("כתובת המייל אינה תקינה. לשם נשלח קישור הניהול.", "err");
+    }
+
+    var btn = $("submit-btn");
+    btn.disabled = true;
+    btn.textContent = "פותח...";
+    msg("", "");
+
+    fetch(API + "/api/book", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      btn.disabled = false;
+      btn.textContent = "לפתוח את הספר";
+      if (!d || !d.ok) return msg("משהו השתבש בפתיחת הספר. נסו שוב.", "err");
+      done(d, body);
+    }).catch(function () {
+      btn.disabled = false;
+      btn.textContent = "לפתוח את הספר";
+      msg("אין חיבור לשרת כרגע. נסו שוב בעוד רגע.", "err");
+    });
+  });
+
+  // ---------- מסך ההצלחה ----------
+  var INTENT_HE = {
+    refua: "לרפואת", neshama: "לעילוי נשמת",
+    hatzlacha: "להצלחת", zivug: "לזיווגו/ה של", other: "עבור"
+  };
+
+  function done(d, body) {
+    var forWhom = body.patientName + (body.gender === "f" ? " בת " : " בן ") + body.motherName;
+    var lead = INTENT_HE[body.intent] || "עבור";
+
+    $("done-for").textContent = lead + " " + forWhom;
+    $("pub-link").value = d.publicUrl;
+    $("man-link").value = d.manageUrl;
+    $("go-book").href = d.publicUrl;
+
+    // הודעת וואטסאפ - טקסט קצר בלבד. בלי תמונת רשת ובלי רשימת פרקים.
+    var wa = "פתחנו ספר תהילים " + lead + " " + forWhom + ".\n\n" +
+             "נלקחו 0 פרקים מתוך 150. נשארו 150 פרקים פנויים.\n\n" +
+             "להצטרפות ולבחירת פרקים:\n" + d.publicUrl;
+    $("wa-text").textContent = wa;
+    $("copy-wa").onclick = function () { copyText(wa, this); };
+
+    drawQr(d.publicUrl);
+    show("done");
+  }
+
+  function drawQr(url) {
+    var wrap = $("qr-wrap");
+    wrap.innerHTML = "";
+    try {
+      var qr = qrcode(0, "M");
+      qr.addData(url);
+      qr.make();
+      wrap.innerHTML = qr.createImgTag(6, 12);
+      var img = wrap.querySelector("img");
+      $("qr-dl").onclick = function (e) {
+        e.preventDefault();
+        var a = document.createElement("a");
+        a.href = img.src;
+        a.download = "tehillim-qr.gif";
+        a.click();
+      };
+    } catch (err) {
+      wrap.innerHTML = "<p class='tiny'>קוד ה-QR לא נוצר. הקישור עצמו למעלה ותקין.</p>";
+    }
+  }
+})();
+</script>
+</body>
+</html>

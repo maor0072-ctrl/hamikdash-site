@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ניהול ספר תהילים | אורות האמונה - בני משה</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://hamikdash.co.il/assets/style.css">
+<style>
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:24px 22px;margin:0 auto 20px;max-width:820px}
+.note-box{background:var(--cream-warm);border-right:4px solid var(--gold);border-radius:8px;
+  padding:16px 20px;margin:18px 0}
+.note-box p{margin:0}
+.tiny{font-size:14px;color:var(--ink-soft)}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;margin:6px 0 18px}
+.stat-row .cell{padding:12px 6px;background:var(--cream);border:1px solid var(--line);border-radius:8px}
+.stat-row .num{font-size:28px;font-weight:800;color:var(--gold-deep);font-variant-numeric:tabular-nums}
+.stat-row .lbl{font-size:14px;color:var(--ink-soft)}
+.prog-bar{height:12px;border-radius:999px;background:var(--cream-warm);border:1px solid var(--line);
+  overflow:hidden;display:flex;margin-bottom:6px}
+.prog-bar i{display:block;height:100%;transition:width .5s ease}
+.prog-bar i.read{background:var(--gold-deep)}
+.prog-bar i.taken{background:#d9c48c}
+table.roster{width:100%;border-collapse:collapse;margin-top:10px;font-size:16px}
+table.roster th,table.roster td{text-align:right;padding:9px 10px;border-bottom:1px solid var(--line)}
+table.roster th{font-size:14px;color:var(--ink-soft);font-weight:700}
+table.roster td.n{font-variant-numeric:tabular-nums}
+.link-box{display:flex;gap:8px;align-items:stretch;margin:10px 0 4px}
+.link-box input{flex:1;min-width:0;font-family:inherit;font-size:15px;direction:ltr;text-align:left;
+  background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:11px 13px;color:var(--ink)}
+.copy-btn{white-space:nowrap;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
+  background:var(--gold);color:#fff;border:0;border-radius:8px;padding:11px 18px}
+.copy-btn:hover{background:var(--gold-deep)}
+.copy-btn.done{background:#2e7d4f}
+.wa-preview{background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+  white-space:pre-wrap;font-size:16px;line-height:1.8;margin:10px 0}
+.field{margin-bottom:16px}
+.field label{display:block;font-weight:700;margin-bottom:6px;font-size:16px}
+.field input{width:100%;font-family:inherit;font-size:17px;color:var(--ink);background:var(--cream);
+  border:1px solid var(--line);border-radius:8px;padding:11px 13px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+.form-msg{margin-top:14px;padding:13px 16px;border-radius:8px;font-size:16px;display:none}
+.form-msg.err{display:block;background:#fdecea;border-right:4px solid #c0392b;color:#7b241c}
+.form-msg.ok{display:block;background:var(--cream-warm);border-right:4px solid var(--gold);color:var(--ink)}
+#qr-wrap{text-align:center;margin:16px 0 6px}
+#qr-wrap img{border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px}
+.spinner{text-align:center;padding:60px 20px;color:var(--ink-soft)}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <a href="https://hamikdash.co.il/"><span class="brand-name">אורות האמונה - בני משה</span></a>
+      <span class="brand-sub">בראשות הרב יעקב מאור</span>
+    </div>
+    <nav class="nav">
+      <a href="https://hamikdash.co.il/">בית</a>
+      <a href="https://hamikdash.co.il/tehillim.html">תהילים ישראל</a>
+      <a href="https://hamikdash.co.il/donate.html">לתרומה</a>
+    </nav>
+  </div>
+</header>
+
+<div class="spinner" id="boot">טוען את מסך הניהול...</div>
+
+<div id="app" class="hidden" style="padding:30px 20px 60px">
+
+  <div class="card">
+    <p class="tiny" style="margin:0">מסך ניהול</p>
+    <h1 style="font-size:26px;margin:2px 0 4px" id="bk-for"></h1>
+    <p class="tiny" id="bk-meta" style="margin:0 0 18px"></p>
+
+    <div class="prog-bar"><i class="read" id="pb-read"></i><i class="taken" id="pb-taken"></i></div>
+    <div class="stat-row">
+      <div class="cell"><div class="num" id="s-read">0</div><div class="lbl">נקראו</div></div>
+      <div class="cell"><div class="num" id="s-taken">0</div><div class="lbl">נלקחו</div></div>
+      <div class="cell"><div class="num" id="s-free">0</div><div class="lbl">פנויים</div></div>
+    </div>
+    <p class="tiny" style="text-align:center;margin:0">המספרים בפרקים, מתוך 150.
+    פרק קי״ט מחולק ל-22 חלקים לפי האותיות, והוא נספר כפרק אחד.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;font-size:20px">הקישור להפצה</h2>
+    <div class="link-box">
+      <input type="text" id="pub-link" readonly>
+      <button type="button" class="copy-btn" id="copy-link">העתקה</button>
+    </div>
+
+    <h3 style="font-size:17px;margin:24px 0 8px">העתקת עדכון לקבוצה</h3>
+    <p class="tiny" style="margin:0 0 6px">הודעה טרייה עם המספרים של הרגע הזה. טקסט בלבד -
+    בלי תמונה ובלי רשימת פרקים.</p>
+    <div class="wa-preview" id="wa-text"></div>
+    <button type="button" class="copy-btn" id="copy-wa">העתקת ההודעה</button>
+
+    <div id="qr-wrap"></div>
+    <p class="tiny" style="text-align:center">קוד QR לשימוש מחוץ למסך.
+    <a href="#" id="qr-dl">להורדה</a></p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;font-size:20px">מי בספר</h2>
+    <div id="roster-wrap"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;font-size:20px">הארכת תאריך היעד</h2>
+    <div class="field">
+      <label for="target">תאריך יעד חדש</label>
+      <input type="date" id="target">
+    </div>
+    <button type="button" class="btn" id="save-target">לשמור</button>
+    <div class="form-msg" id="target-msg" role="status"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;font-size:20px">לחלק את הנותרים</h2>
+    <p>זה הכפתור שסוגר ספר שנתקע. כל הפרקים שנשארו פנויים יתחלקו במנות שוות בין מי שכבר
+    נמצא בספר, ולכל אחד יינתן יממה שלמה לקרוא אותם.</p>
+    <p class="tiny">אחרי החלוקה אין פרקים פנויים, ומי שייכנס לקישור יראה ספר מלא.
+    אפשר להעתיק הודעה לקבוצה ולבקש מכולם להשלים.</p>
+    <div class="actions">
+      <button type="button" class="btn btn-lg" id="dist-btn">לחלק את הנותרים</button>
+    </div>
+    <div class="form-msg" id="dist-msg" role="status"></div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>עמותת אורות האמונה - בני משה | בראשות הרב יעקב מאור</p>
+  </div>
+</footer>
+
+<script src="https://hamikdash.co.il/assets/qrcode.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var SITE = "https://hamikdash.co.il";
+  var API = (location.hostname === "t.hamikdash.co.il" ||
+             location.hostname.indexOf(".workers.dev") !== -1) ? "" : "https://t.hamikdash.co.il";
+
+  // הנתיב הוא /m/<token>
+  var TOKEN = location.pathname.replace(/^\/+/, "").split("/")[1] || "";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var UNITS = null, STATE = null;
+
+  var INTENT_HE = {
+    refua: "לרפואת", neshama: "לעילוי נשמת", hatzlacha: "להצלחת",
+    zivug: "לזיווגו של", other: "עבור", klali: ""
+  };
+
+  function forWhom(s) {
+    if (!s || s.kind === "klali") return s && s.title ? s.title : "הקריאה הכללית";
+    var lead = INTENT_HE[s.intent] || "עבור";
+    if (s.intent === "zivug" && s.gender === "f") lead = "לזיווגה של";
+    return lead + " " + s.patientName + (s.gender === "f" ? " בת " : " בן ") + s.motherName;
+  }
+
+  function fmtDate(iso) {
+    var p = String(iso).split("-");
+    return p.length === 3 ? p[2] + "." + p[1] + "." + p[0] : iso;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // המספרים בפרקים מתוך 150, כמו בדף הספר.
+  function chapterStats() {
+    var byCh = {};
+    STATE.units.forEach(function (u) {
+      var c = UNITS[u.i].ch;
+      if (!byCh[c]) byCh[c] = { free: 0, taken: 0, read: 0, n: 0 };
+      byCh[c][u.s]++;
+      byCh[c].n++;
+    });
+    var read = 0, taken = 0, free = 0;
+    for (var c in byCh) {
+      var o = byCh[c];
+      if (o.read === o.n) read++;
+      else if (o.free === o.n) free++;
+      else taken++;
+    }
+    return { read: read, taken: taken, free: free };
+  }
+
+  function copyText(txt, btn) {
+    var done = function () {
+      var old = btn.textContent;
+      btn.textContent = "הועתק";
+      btn.classList.add("done");
+      setTimeout(function () { btn.textContent = old; btn.classList.remove("done"); }, 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(done, function () { fallback(txt); done(); });
+    } else { fallback(txt); done(); }
+  }
+
+  function fallback(txt) {
+    var ta = document.createElement("textarea");
+    ta.value = txt;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "absolute";
+    ta.style.top = "0";
+    ta.style.right = "0";   // לעולם לא left שלילי בדף RTL
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch (e) { /* אין מה לעשות */ }
+    document.body.removeChild(ta);
+  }
+
+  function waText() {
+    var ch = chapterStats();
+    var taken = ch.taken + ch.read;
+    return "פתחנו ספר תהילים " + forWhom(STATE) + ".\n\n" +
+      "נלקחו " + taken + " פרקים מתוך 150. נשארו " + ch.free + " פרקים פנויים.\n\n" +
+      "להצטרפות ולבחירת פרקים:\n" + STATE.publicUrl;
+  }
+
+  function paint() {
+    $("bk-for").textContent = forWhom(STATE);
+    var m = [];
+    if (STATE.openerName) m.push("נפתח על ידי " + STATE.openerName);
+    if (STATE.targetDate) m.push("תאריך יעד: " + fmtDate(STATE.targetDate));
+    if (STATE.status === "closed") m.push("הספר הושלם");
+    $("bk-meta").textContent = m.join(" · ");
+
+    var ch = chapterStats();
+    $("s-read").textContent = ch.read;
+    $("s-taken").textContent = ch.taken;
+    $("s-free").textContent = ch.free;
+    $("pb-read").style.width = (ch.read / 150 * 100) + "%";
+    $("pb-taken").style.width = (ch.taken / 150 * 100) + "%";
+
+    $("pub-link").value = STATE.publicUrl || "";
+    $("wa-text").textContent = waText();
+    if (STATE.targetDate) $("target").value = STATE.targetDate;
+
+    var r = STATE.roster || [];
+    if (!r.length) {
+      $("roster-wrap").innerHTML = "<p class='tiny'>עדיין לא נכנס אף אחד. שלחו את הקישור.</p>";
+    } else {
+      var h = "<table class='roster'><tr><th>שם</th><th>קרא</th><th>מחזיק עכשיו</th></tr>";
+      r.forEach(function (x) {
+        h += "<tr><td>" + escapeHtml(x.name || "ללא שם") + "</td>" +
+             "<td class='n'>" + x.marked + "</td>" +
+             "<td class='n'>" + x.holding + "</td></tr>";
+      });
+      $("roster-wrap").innerHTML = h + "</table>";
+    }
+  }
+
+  function drawQr(url) {
+    var wrap = $("qr-wrap");
+    wrap.innerHTML = "";
+    try {
+      var qr = qrcode(0, "M");
+      qr.addData(url);
+      qr.make();
+      wrap.innerHTML = qr.createImgTag(6, 12);
+      var img = wrap.querySelector("img");
+      $("qr-dl").onclick = function (e) {
+        e.preventDefault();
+        var a = document.createElement("a");
+        a.href = img.src;
+        a.download = "tehillim-qr.gif";
+        a.click();
+      };
+    } catch (e) {
+      wrap.innerHTML = "<p class='tiny'>קוד ה-QR לא נוצר. הקישור עצמו למעלה ותקין.</p>";
+    }
+  }
+
+  $("copy-link").addEventListener("click", function () { copyText($("pub-link").value, this); });
+  $("copy-wa").addEventListener("click", function () { copyText(waText(), this); });
+
+  $("save-target").addEventListener("click", function () {
+    var v = $("target").value;
+    var el = $("target-msg");
+    fetch(API + "/api/manage/" + TOKEN + "/extend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetDate: v })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.ok) {
+        el.className = "form-msg ok";
+        el.textContent = v ? "תאריך היעד עודכן ל-" + fmtDate(v) + "." : "תאריך היעד הוסר.";
+        load();
+      } else {
+        el.className = "form-msg err";
+        el.textContent = "לא הצלחנו לעדכן. נסו שוב.";
+      }
+    }).catch(function () {
+      el.className = "form-msg err";
+      el.textContent = "אין חיבור לשרת כרגע.";
+    });
+  });
+
+  $("dist-btn").addEventListener("click", function () {
+    var ch = chapterStats();
+    if (!confirm("לחלק את " + ch.free + " הפרקים שנשארו בין " +
+                 ((STATE.roster || []).length) + " הקוראים שכבר בספר?")) return;
+    var btn = this;
+    var el = $("dist-msg");
+    btn.disabled = true;
+    btn.textContent = "מחלק...";
+    fetch(API + "/api/manage/" + TOKEN + "/distribute", { method: "POST" })
+      .then(function (r) { return r.json(); }).then(function (d) {
+        btn.disabled = false;
+        btn.textContent = "לחלק את הנותרים";
+        if (d && d.ok && d.assigned) {
+          el.className = "form-msg ok";
+          el.textContent = "חולקו " + d.assigned + " חלקים בין " + d.readers +
+            " קוראים. כדאי להעתיק עדכון לקבוצה ולבקש מכולם להשלים.";
+          load();
+        } else if (d && d.error === "no_readers") {
+          el.className = "form-msg err";
+          el.textContent = "עדיין לא נכנס אף אחד לספר, ולכן אין בין מי לחלק.";
+        } else if (d && d.error === "nothing_free") {
+          el.className = "form-msg ok";
+          el.textContent = "אין פרקים פנויים לחלוקה - הכל כבר נלקח.";
+        } else {
+          el.className = "form-msg err";
+          el.textContent = "החלוקה לא בוצעה. נסו שוב.";
+        }
+      }).catch(function () {
+        btn.disabled = false;
+        btn.textContent = "לחלק את הנותרים";
+        el.className = "form-msg err";
+        el.textContent = "אין חיבור לשרת כרגע.";
+      });
+  });
+
+  function load() {
+    return fetch(API + "/api/manage/" + TOKEN + "/state")
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) throw new Error("bad");
+        STATE = d;
+        paint();
+      });
+  }
+
+  Promise.all([
+    fetch(SITE + "/tehillim/units.json").then(function (r) { return r.json(); }),
+    fetch(API + "/api/manage/" + TOKEN + "/state").then(function (r) { return r.json(); })
+  ]).then(function (res) {
+    UNITS = res[0];
+    STATE = res[1];
+    if (!STATE || !STATE.ok) {
+      $("boot").innerHTML = "קישור הניהול אינו תקין.<br>" +
+        "<a href='" + SITE + "/tehillim.html'>לדף תהילים ישראל</a>";
+      return;
+    }
+    $("boot").style.display = "none";
+    $("app").classList.remove("hidden");
+    paint();
+    drawQr(STATE.publicUrl);
+    setInterval(load, 30000);
+  }).catch(function () {
+    $("boot").innerHTML = "לא הצלחנו לטעון את מסך הניהול. נסו לרענן את הדף.";
+  });
+})();
+</script>
+</body>
+</html>

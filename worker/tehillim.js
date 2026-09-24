@@ -273,6 +273,16 @@ async function createBook(request, env, origin) {
   const manageUrl = SHORT + "/m/" + man;
   const forWhom = patientName + (gender === "f" ? " בת " : " בן ") + motherName;
 
+  // הקישורים נשלחים כטקסט ולא כ-<a>, בכוונה.
+  // ברבו עוטפת כל <a href> במעקב קליקים ומחליפה את הכתובת במפלצת באורך
+  // מאתיים תווים על הדומיין sendibt2.com. מי שמעתיק קישור כזה מהמייל
+  // ושולח אותו לקבוצת וואטסאפ - שולח משהו שנראה כמו הונאה, בלי שום קשר
+  // נראה לאתר המקדש. טקסט רגיל אינו נעטף.
+  const box =
+    "display:block;direction:ltr;text-align:left;font-family:monospace;font-size:15px;" +
+    "background:#faf7f1;border:1px solid #e3d9c8;border-radius:8px;padding:12px 14px;" +
+    "margin:6px 0 4px;word-break:break-all";
+
   await sendMail(
     env,
     openerEmail,
@@ -280,10 +290,18 @@ async function createBook(request, env, origin) {
     "<div dir='rtl' style='font-family:Arial,sans-serif;font-size:16px;line-height:1.8'>" +
       "<p>שלום " + openerName + ",</p>" +
       "<p>ספר התהילים ל<strong>" + forWhom + "</strong> נפתח.</p>" +
-      "<p><strong>הקישור להפצה</strong> (זה מה ששולחים לקבוצות):<br>" +
-      "<a href='" + publicUrl + "'>" + publicUrl + "</a></p>" +
-      "<p><strong>הקישור לניהול</strong> (שמרו אותו לעצמכם - דרכו אפשר להאריך ולחלק את הנותרים):<br>" +
-      "<a href='" + manageUrl + "'>" + manageUrl + "</a></p>" +
+
+      "<p><strong>הקישור להפצה</strong> - זה מה ששולחים לקבוצות. " +
+      "<u>סמנו את השורה והעתיקו אותה</u>:</p>" +
+      "<span style='" + box + "'>" + publicUrl + "</span>" +
+
+      "<p style='margin-top:22px'><strong>הקישור לניהול</strong> - שמרו אותו לעצמכם. " +
+      "דרכו רואים מי לקח מה, מאריכים את תאריך היעד, ומחלקים את הפרקים שנשארו:</p>" +
+      "<span style='" + box + "'>" + manageUrl + "</span>" +
+
+      "<p style='margin-top:22px;font-size:14px;color:#4a453e'>שתי הכתובות כתובות כאן כטקסט " +
+      "ולא ככפתור, כדי שמה שתעתיקו יהיה בדיוק הכתובת של אתר המקדש ולא כתובת מעקב ארוכה.</p>" +
+
       "<p>שיהיה בשעה טובה,<br>אתר המקדש</p></div>"
   );
 

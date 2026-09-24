@@ -184,9 +184,9 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   <div class="prog">
     <div class="prog-bar"><i class="read" id="pb-read"></i><i class="taken" id="pb-taken"></i></div>
     <div class="prog-line">
-      <span><strong id="p-read">0</strong> פרקים נקראו</span>
-      <span><strong id="p-taken">0</strong> נלקחו וממתינים</span>
-      <span><strong id="p-free">150</strong> פנויים</span>
+      <span id="p-read"></span>
+      <span id="p-taken"></span>
+      <span id="p-free"></span>
     </div>
   </div>
 
@@ -414,6 +414,12 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     });
   }
 
+  function count(n, one, many, zero) {
+    if (!n) return zero;
+    if (n === 1) return "<strong>פרק אחד</strong> " + one;
+    return "<strong>" + n + "</strong> " + many;
+  }
+
   function paint() {
     if (!STATE) return;
     var byI = {};
@@ -459,9 +465,9 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     });
 
     var ch = chapterStats();
-    $("p-read").textContent = ch.read;
-    $("p-taken").textContent = ch.taken;
-    $("p-free").textContent = ch.free;
+    $("p-read").innerHTML = count(ch.read, "נקרא", "פרקים נקראו", "עדיין לא נקרא פרק");
+    $("p-taken").innerHTML = count(ch.taken, "נלקח וממתין", "נלקחו וממתינים", "אין פרקים שממתינים");
+    $("p-free").innerHTML = count(ch.free, "פנוי", "פנויים", "אין פרקים פנויים");
     $("pb-read").style.width = (ch.read / 150 * 100) + "%";
     $("pb-taken").style.width = (ch.taken / 150 * 100) + "%";
 
@@ -518,14 +524,15 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     if (!SEL.length) return;
     var mins = 0;
     SEL.forEach(function (i) { mins += UNITS[i].min; });
-    $("tray-count").innerHTML = "נבחרו " + SEL.length + " פרקים <span>· כ-" + mins + " דקות קריאה</span>";
+    $("tray-count").innerHTML = (SEL.length === 1 ? "נבחר פרק אחד" : "נבחרו " + SEL.length + " פרקים") +
+      " <span>· כ-" + mins + (mins === 1 ? " דקת" : " דקות") + " קריאה</span>";
   }
 
   $("tray-clear").addEventListener("click", function () { SEL = []; paint(); });
   $("tray-go").addEventListener("click", function () {
     if (!SEL.length) return;
     var names = SEL.map(function (i) { return UNITS[i].name; }).join(", ");
-    $("who-what").textContent = "בחרתם " + SEL.length + " פרקים: " + names;
+    $("who-what").textContent = (SEL.length === 1 ? "בחרתם פרק אחד: " : "בחרתם " + SEL.length + " פרקים: ") + names;
     var n = readerName();
     if (n) $("rname").value = n;
     show("who");

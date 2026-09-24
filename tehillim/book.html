@@ -45,6 +45,11 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   color:var(--ink-soft);flex-wrap:wrap;gap:4px 14px}
 .prog-line strong{color:var(--ink)}
 
+/* ---------- השורה שמזמינה לבחור, בנוסח של יעקב ---------- */
+.invite-line{max-width:900px;margin:22px auto 0;padding:0 20px;text-align:center;
+  font-size:18px;line-height:1.75;color:var(--ink);font-weight:500}
+@media(max-width:520px){.invite-line{font-size:17px}}
+
 /* ---------- מסננים ---------- */
 .filters{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:20px 0 6px}
 .filters button{font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
@@ -214,6 +219,9 @@ body{padding-bottom:env(safe-area-inset-bottom)}
       השעון עוצר בשבת ובחג. פרק שנלקח לפני כניסת השבת לא יפקע בתוכה.
     </p>
   </div>
+
+  <p class="invite-line">אפשר לבחור את הפרקים הקבועים שלך, או כל פרק ופרק אחר.
+  גם אם לא נסיים היום, כל מי שקורא משהו, זה נשמר.</p>
 
   <div class="filters">
     <button type="button" class="on" data-f="all">הכל</button>

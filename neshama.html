@@ -702,9 +702,32 @@
   // שנת פטירה. ההשוואה כאן היא מספרית בלבד - שתי מחרוזות השנה ותאריך
   // היום מחושבים בפייתון ונכתבים ל-neshama-week.json, כי אין מנוע תאריך
   // עברי בדפדפן.
+  // השנה נמסרת בשדה נפרד, אבל בפועל אנשים כותבים אותה בתוך התאריך עצמו
+  // („יב אלול תשפו"). קריאה מהשדה בלבד הייתה מפספסת אותם. **חייבים להסיר
+  // קודם את שם החודש**, אחרת „תשרי" עצמו נראה כמו שנה - אותה מלכודת שכבר
+  // נתפסה פעמיים בקוד הזה.
+  function yearInDate(date) {
+    var s = String(date || "").replace(/["'\u05f3\u05f4]/g, "").replace(/\s+/g, " ").trim();
+    var toks = s.split(" "), i, j, t;
+    for (i = 0; i < toks.length; i++) {
+      t = toks[i];
+      for (j = 0; j < HEB_MONTHS.length; j++)
+        if (t === HEB_MONTHS[j][0] || t === "\u05d1" + HEB_MONTHS[j][0]) { t = ""; break; }
+      if (t && /^\u05d4?\u05ea\u05e9[\u05d0-\u05ea]{1,2}$/.test(t)) return t;
+    }
+    return "";
+  }
+
+  // שני מקורות, והדף לוקח את האיחוד. `fy.names` הוא הפסק של פייתון -
+  // מלא ומדויק, כולל מי שמסר שנה לועזית, אבל מתרענן רק בריצה היומית.
+  // כלל השנה שמתחתיו נותן הופעה **מיידית** לשם שנמסר בדקה הזאת.
   function isFirstYear(n, fy) {
     if (!fy || !n || typeof n !== "object") return false;
+    if (fy.names && fy.names.length &&
+        fy.names.indexOf(fullName(n) + "|" + String(n.date || "").trim()) >= 0)
+      return true;
     var y = String(n.year || "").replace(/["'\u05f3\u05f4\s]/g, "");
+    if (!y || y.indexOf("\u05ea\u05e9") !== 0) y = yearInDate(n.date);
     if (y.indexOf("\u05d4\u05ea\u05e9") === 0) y = y.slice(1);
     if (!y) return false;
     if (y === fy.cur) return true;

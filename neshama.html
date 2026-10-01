@@ -50,6 +50,7 @@
 .note-box{background:var(--cream-warm);border-right:4px solid var(--gold);border-radius:8px;
   padding:16px 20px;margin:22px 0}
 .note-box p{margin:0}
+.star{color:var(--gold-deep);font-weight:700}
 .view{display:none}
 .view.on{display:block}
 .step-mark{color:var(--gold-deep);font-size:15px;font-weight:700;margin-bottom:6px}
@@ -189,6 +190,12 @@
       <p style="margin-bottom:22px">
         <button type="button" id="add-niftar" class="btn btn-ghost">הוספת נפטר נוסף</button>
       </p>
+
+      <div class="note-box">
+        <p><span class="star">*</span> אם הנפטר בתוך השנה הראשונה לפטירתו,
+        מומלץ לרשום גם את שנת הפטירה, כדי ששמו יישאר כל השנה ברשימת עילוי
+        הנשמות. לגבי שאר הנפטרים, שנת הפטירה תעזור לכם לזכור כמה שנים נפטר.</p>
+      </div>
 
       <div class="field">
         <label for="note">הערה <span class="hint">לא חובה. אם יש משהו שחשוב שנדע.</span></label>
@@ -448,8 +455,8 @@
       '<option value="m"' + (v.gender === "m" ? " selected" : "") + ">זכר</option>" +
       '<option value="f"' + (v.gender === "f" ? " selected" : "") + ">נקבה</option>" +
       "</select></div>" +
-      '<div class="field"><label>שנת הפטירה' +
-      '<span class="hint">לא חובה. חשוב אם הפטירה הייתה בשנה האחרונה.</span></label>' +
+      '<div class="field"><label>שנת הפטירה <span class="star">*</span>' +
+      '<span class="hint">לא חובה</span></label>' +
       '<input type="text" class="n-year" value="' + esc(v.year) + '"></div>' +
       "</div>";
     d.querySelector(".niftar-remove").addEventListener("click", function () {
@@ -690,6 +697,25 @@
     return [mv, day];
   }
 
+  // מי שנפטר בתוך השנה האחרונה מופיע ברשימה **כל שבוע** עד היארצייט
+  // הראשון, ולא רק בשבוע שלו (הוראת יעקב 1.10.2026). התנאי הוא שנמסרה
+  // שנת פטירה. ההשוואה כאן היא מספרית בלבד - שתי מחרוזות השנה ותאריך
+  // היום מחושבים בפייתון ונכתבים ל-neshama-week.json, כי אין מנוע תאריך
+  // עברי בדפדפן.
+  function isFirstYear(n, fy) {
+    if (!fy || !n || typeof n !== "object") return false;
+    var y = String(n.year || "").replace(/["'\u05f3\u05f4\s]/g, "");
+    if (y.indexOf("\u05d4\u05ea\u05e9") === 0) y = y.slice(1);
+    if (!y) return false;
+    if (y === fy.cur) return true;
+    if (y !== fy.prev || !fy.today) return false;
+    // שנה קודמת נחשבת „בתוך השנה" רק כל זמן שהיארצייט טרם הגיע. תאריך
+    // שלא הצלחנו לקרוא מחזיר 99 ואסור לו להיחשב כ„עוד לפנינו".
+    var k = hebKey(n.date);
+    if (k[0] === 99 || k[1] === 99) return false;
+    return k[0] > fy.today[0] || (k[0] === fy.today[0] && k[1] > fy.today[1]);
+  }
+
   function loadPublic() {
     function get(url) {
       return fetch(url).then(function (r) { return r.ok ? r.json() : null; })
@@ -700,7 +726,7 @@
     // ימי החלון מחושבים בפייתון ונכתבים ל-neshama-week.json, כי אין מנוע
     // תאריך עברי בדפדפן. אין קובץ חלון? מציגים הכול, כי רשימה ריקה בגלל
     // תקלת רשת גרועה מרשימה ארוכה מדי.
-    function render(boxId, titleId, block, all, emptyText) {
+    function render(boxId, titleId, block, all, emptyText, fy) {
       var box = document.getElementById(boxId),
           title = document.getElementById(titleId);
       if (!box) return;
@@ -711,6 +737,7 @@
         var ok = {};
         block.allow.forEach(function (p) { ok[p[0] + "|" + p[1]] = 1; });
         list = list.filter(function (n) {
+          if (isFirstYear(n, fy)) return true;
           var k = hebKey(typeof n === "object" ? n.date : "");
           return ok[k[0] + "|" + k[1]] === 1;
         });
@@ -733,7 +760,8 @@
         var key = typeof n === "string" ? n : fullName(n);
         if (seen[key]) return;
         seen[key] = 1;
-        uniq.push({ line: key, date: (typeof n === "object" && n.date) || "" });
+        uniq.push({ line: key, date: (typeof n === "object" && n.date) || "",
+                    firstYear: isFirstYear(n, fy) });
       });
       box.innerHTML =
         (block && block.week
@@ -741,7 +769,9 @@
           : "") +
         '<ul class="done-list">' + uniq.map(function (u) {
           return "<li><strong>" + esc(u.line) + "</strong>" +
-            (u.date ? '<span class="meta">' + esc(u.date) + "</span>" : "") + "</li>";
+            (u.date ? '<span class="meta">' + esc(u.date) +
+              (u.firstYear ? " \u00b7 \u05d1\u05e9\u05e0\u05d4 \u05d4\u05e8\u05d0\u05e9\u05d5\u05e0\u05d4" : "") +
+              "</span>" : "") + "</li>";
         }).join("") + "</ul>" +
         '<p style="color:var(--ink-soft);font-size:15px">' +
         uniq.length + (uniq.length === 1 ? " שם" : " שמות") +
@@ -765,7 +795,7 @@
       // היארצייט. זה הכלל של יעקב (22.9.2026), לא כפילות.
       render("week-box", "week-title", weeks[0], all,
              "אין יארצייט בשבוע הזה. הרשימה מתעדכנת ברגע שנמסר שם, " +
-             "ומתחלפת בכל מוצאי שבת.");
+             "ומתחלפת בכל מוצאי שבת.", cfg.firstYear);
       render("week-box-next", "week-title-next", weeks[1], all,
              "אין יארצייט בשבוע הבא. הרשימה מתעדכנת ברגע שנמסר שם, " +
              "ומתחלפת בכל מוצאי שבת.");

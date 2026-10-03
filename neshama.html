@@ -749,7 +749,7 @@
     // ימי החלון מחושבים בפייתון ונכתבים ל-neshama-week.json, כי אין מנוע
     // תאריך עברי בדפדפן. אין קובץ חלון? מציגים הכול, כי רשימה ריקה בגלל
     // תקלת רשת גרועה מרשימה ארוכה מדי.
-    function render(boxId, titleId, block, all, emptyText, fy) {
+    function render(boxId, titleId, block, all, emptyText, fy, twice) {
       var box = document.getElementById(boxId),
           title = document.getElementById(titleId);
       if (!box) return;
@@ -783,8 +783,13 @@
         var key = typeof n === "string" ? n : fullName(n);
         if (seen[key]) return;
         seen[key] = 1;
-        uniq.push({ line: key, date: (typeof n === "object" && n.date) || "",
-                    firstYear: isFirstYear(n, fy) });
+        var date = (typeof n === "object" && n.date) || "";
+        var row = { line: key, date: date, firstYear: isFirstYear(n, fy) };
+        uniq.push(row);
+        // שני מוסרים שונים שמסרו את אותו נפטר - שניהם ביקשו, ושניהם
+        // רואים את הרשימה. השם מופיע פעמיים עד שיעקב מכריע למזג.
+        if (twice && twice.indexOf(key + "|" + String(date).trim()) >= 0)
+          uniq.push({ line: row.line, date: row.date, firstYear: row.firstYear });
       });
       box.innerHTML =
         (block && block.week
@@ -818,10 +823,10 @@
       // היארצייט. זה הכלל של יעקב (22.9.2026), לא כפילות.
       render("week-box", "week-title", weeks[0], all,
              "אין יארצייט בשבוע הזה. הרשימה מתעדכנת ברגע שנמסר שם, " +
-             "ומתחלפת בכל מוצאי שבת.", cfg.firstYear);
+             "ומתחלפת בכל מוצאי שבת.", cfg.firstYear, cfg.showTwice);
       render("week-box-next", "week-title-next", weeks[1], all,
              "אין יארצייט בשבוע הבא. הרשימה מתעדכנת ברגע שנמסר שם, " +
-             "ומתחלפת בכל מוצאי שבת.", cfg.firstYear);
+             "ומתחלפת בכל מוצאי שבת.", cfg.firstYear, cfg.showTwice);
     });
   }
   loadPublic();

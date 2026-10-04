@@ -727,8 +727,10 @@
         fy.names.indexOf(fullName(n) + "|" + String(n.date || "").trim()) >= 0)
       return true;
     var y = String(n.year || "").replace(/["'\u05f3\u05f4\s]/g, "");
-    if (!y || y.indexOf("\u05ea\u05e9") !== 0) y = yearInDate(n.date);
+    // קודם מקלפים את ה' הידיעה, ורק אז בודקים אם זו בכלל שנה עברית.
+    // בסדר ההפוך „התשפ"ז" נדחה כאילו אינו שנה, והנופל נשלח לשדה התאריך.
     if (y.indexOf("\u05d4\u05ea\u05e9") === 0) y = y.slice(1);
+    if (!y || y.indexOf("\u05ea\u05e9") !== 0) y = yearInDate(n.date);
     if (!y) return false;
     if (y === fy.cur) return true;
     if (y !== fy.prev || !fy.today) return false;

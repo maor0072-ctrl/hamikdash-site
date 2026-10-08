@@ -256,20 +256,26 @@ async function writePublic(env, list) {
   await env.SHEMA_WISHES.put(KV_KEY, JSON.stringify(list.slice(-MAX_PUBLIC)));
 }
 
-// הגשה חוזרת מאותו בעלים (אותו טוקן/מייל) מחליפה את השורות הקודמות שלו
-// ולא מכפילה אותן - זהה לעיקרון ב-appendPublic של neshama.js. בגל הזה אין
-// אזור אישי שבו אפשר "להוסיף עוד", אז זו ברירת המחדל הבטוחה.
+// **הגשה חוזרת מצטברת ואינה מחליפה.** כאן היה כתוב ההפך, מתוך הסתמכות על
+// „העיקרון שב-appendPublic של neshama.js" - והעיקרון ההוא היה עצמו הבאג:
+// הוא מחק שם 17 שמות ויארצייט אחד בשקט. אין במסלול הזה בכלל מושג של תיקון
+// (הסרה נעשית שורה-שורה ב-/remove לפי `id`), ולכן אין שום מצב שבו הגשה
+// אמורה למחוק הגשה קודמת.
 async function appendPublic(env, entries, ownerKey) {
   const cur = await readPublic(env);
-  const kept = cur.filter((e) => e.owner !== ownerKey);
-  const add = entries.map((e) => ({
-    id: crypto.randomUUID(),
-    name: e.name,
-    parent: e.parent,
-    gender: e.gender,
-    owner: ownerKey,
-  }));
-  await writePublic(env, kept.concat(add));
+  // אותה משאלה שנמסרה פעמיים אינה מופיעה פעמיים ברשימה הפומבית.
+  const key = (e) => [e.name, e.parent, e.gender].join("|");
+  const seen = new Set(cur.filter((e) => e.owner === ownerKey).map(key));
+  const add = entries
+    .filter((e) => !seen.has(key(e)))
+    .map((e) => ({
+      id: crypto.randomUUID(),
+      name: e.name,
+      parent: e.parent,
+      gender: e.gender,
+      owner: ownerKey,
+    }));
+  await writePublic(env, cur.concat(add));
   return add;
 }
 

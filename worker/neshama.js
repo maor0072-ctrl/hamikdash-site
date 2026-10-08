@@ -274,21 +274,50 @@ async function readPublic(env) {
 // KV הוא eventually consistent ואין בו טרנזקציות. שתי הגשות באותה שנייה
 // יכולות לדרוס זו את זו. בהיקף של עשרות שמות בשבוע זה לא מעשי לדאוג לזה,
 // והמייל ליעקב הוא ממילא הרשומה הקובעת - הרשימה הפומבית היא תצוגה.
-async function appendPublic(env, list, ownerKey) {
+// **הגשה רגילה מצטברת; רק תיקון מחליף.** ההנחה ההפוכה הייתה כאן מההתחלה,
+// והיא מחקה בשקט 17 שמות ויארצייט אחד (אברהם בן יהושע, כ״ד תשרי, 5.10.2026):
+// אדם שמסר מנה שנייה - וזה בדיוק מה שאנשים עושים - איבד את הראשונה, קיבל
+// מייל אישור, ולא הייתה לו שום סיבה לחשוד. הלוגיקה כאן זהה ל-`merged_by_person`
+// ב-scripts/neshama_restore_from_mail.py, שכבר שוחזר ואומת מולה.
+async function appendPublic(env, list, ownerKey, isFix) {
   if (!env.NAMES) return;
   const cur = await readPublic(env);
-  const kept = cur.filter((e) => e.owner !== ownerKey);
   const add = list.map((n) => Object.assign(publicEntry(n), { owner: ownerKey }));
-  const next = kept.concat(add).slice(-MAX_PUBLIC);
-  await env.NAMES.put(KV_KEY, JSON.stringify(next));
+  if (isFix) {
+    const others = cur.filter((e) => e.owner !== ownerKey);
+    await env.NAMES.put(KV_KEY, JSON.stringify(others.concat(add).slice(-MAX_PUBLIC)));
+    return;
+  }
+  // מסירה חוזרת של שם שכבר ברשימה אינה מוסיפה אותו פעמיים.
+  const key = (e) => [e.name, e.parent, e.date].join("|");
+  const seen = new Set(cur.filter((e) => e.owner === ownerKey).map(key));
+  const fresh = add.filter((e) => !seen.has(key(e)));
+  await env.NAMES.put(KV_KEY, JSON.stringify(cur.concat(fresh).slice(-MAX_PUBLIC)));
 }
 
 // רשומת המוסר, פרטית לחלוטין. היא **לא** מוגשת באף מסלול GET - השם, הטלפון
 // והמייל חיים כאן רק כדי שהדוח השבועי ליעקב יראה מי מסר כל שם, וכדי שנוכל
 // לשלוח למוסר עצמו תזכורת ביום חמישי שלפני היארצייט. הוחלט 2026-09-22.
 // עד לתאריך הזה הזהות לא נשמרה בכלל, ולכן שמות ישנים יופיעו בדוח בלי מוסר.
-async function saveSubmitter(env, ownerKey, data) {
+// אותו כלל כמו ברשימה הפומבית, ומאותה סיבה: `souls` כאן הוא מה שתזכורת
+// יום חמישי שולחת למוסר. אם הוא מוחלף במנה האחרונה, התזכורת מציגה לאדם
+// פחות שמות ממה שמסר - כלומר הבאג היה נשאר חי גם אחרי תיקון הדף.
+async function saveSubmitter(env, ownerKey, data, isFix) {
   if (!env.NAMES) return;
+  if (!isFix) {
+    const prev = await env.NAMES.get("sub:" + ownerKey);
+    if (prev) {
+      try {
+        const old = JSON.parse(prev) || {};
+        const key = (s) => [s.name, s.parent, s.date].join("|");
+        const seen = new Set((data.souls || []).map(key));
+        const keep = (old.souls || []).filter((s) => !seen.has(key(s)));
+        data = Object.assign({}, data, { souls: keep.concat(data.souls || []) });
+      } catch (e) {
+        console.log("sub merge failed", String(e).slice(0, 200));
+      }
+    }
+  }
   await env.NAMES.put("sub:" + ownerKey, JSON.stringify(data));
 }
 
@@ -430,7 +459,7 @@ export default {
     // שקוראת מיד אחרי POST תראה את הערך הישן, וזה לא באג.
     try {
       const ownerKey = await ownerHash(email);
-      await appendPublic(env, niftarim, ownerKey);
+      await appendPublic(env, niftarim, ownerKey, isFix);
       await saveSubmitter(env, ownerKey, {
         sender: String(d.name).trim().slice(0, 120),
         phone: digits,
@@ -438,7 +467,7 @@ export default {
         souls: niftarim,
         removed: isEmpty,
         updated: new Date().toISOString(),
-      });
+      }, isFix);
     } catch (e) {
       console.log('kv append failed', String(e).slice(0, 200));
     }

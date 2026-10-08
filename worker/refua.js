@@ -281,19 +281,51 @@ async function readPublic(env) {
 // KV הוא eventually consistent ואין בו טרנזקציות. שתי הגשות באותה שנייה
 // יכולות לדרוס זו את זו. בהיקף של עשרות שמות בשבוע זה לא מעשי לדאוג לזה,
 // והמייל ליעקב הוא ממילא הרשומה הקובעת - הרשימה הפומבית היא תצוגה.
-async function writePublic(env, ownerKey, list) {
+// **הגשה רגילה מצטברת; רק תיקון מחליף.** ההנחה ההפוכה היא באג שכבר עלה
+// ביוקר בדף עילוי הנשמות - 17 שמות ויארצייט אחד נמחקו בשקט כשאדם מסר מנה
+// שנייה, וקיבל מייל אישור בלי שום סיבה לחשוד. התיקון כאן נעשה לפני שנמסר
+// כאן ולו שם אחד.
+async function writePublic(env, ownerKey, list, isFix) {
   if (!env.REFUA) return;
   const cur = await readPublic(env);
-  const kept = cur.filter((e) => e.owner !== ownerKey);
   const add = list.map((n) => Object.assign(publicEntry(n), { owner: ownerKey }));
-  await env.REFUA.put(KV_KEY, JSON.stringify(kept.concat(add).slice(-MAX_PUBLIC)));
+  if (isFix) {
+    const others = cur.filter((e) => e.owner !== ownerKey);
+    await env.REFUA.put(KV_KEY, JSON.stringify(others.concat(add).slice(-MAX_PUBLIC)));
+    return;
+  }
+  // מסירה חוזרת של אותו שם אינה מוסיפה אותו פעמיים. אין כאן תאריך, ולכן
+  // המפתח הוא השם ושם האם בלבד.
+  const key = (e) => [e.name, e.parent].join("|");
+  const seen = new Set(cur.filter((e) => e.owner === ownerKey).map(key));
+  const fresh = add.filter((e) => !seen.has(key(e)));
+  await env.REFUA.put(KV_KEY, JSON.stringify(cur.concat(fresh).slice(-MAX_PUBLIC)));
 }
 
 // רשומת המוסר, פרטית לחלוטין. היא **לא** מוגשת באף מסלול GET. `ts` נשמר
 // כדי שבהמשך נוכל לשאול את המוסר אם השם עוד נחוץ; אין על זה שום הבטחה
 // באתר ולא במייל עד שהמנגנון באמת ירוץ.
-async function saveSubmitter(env, ownerKey, data) {
+//
+// `cholim` כאן מצטבר בדיוק כמו הרשימה הפומבית, ומאותה סיבה: זו הרשימה
+// שמייל החידוש החודשי ישלח למוסר, ומנה שמוחקת את קודמותיה הייתה מציגה
+// לאדם פחות שמות ממה שמסר.
+async function saveSubmitter(env, ownerKey, data, isFix) {
   if (!env.REFUA) return;
+  if (!isFix) {
+    const prev = await env.REFUA.get("sub:" + ownerKey);
+    if (prev) {
+      try {
+        const old = JSON.parse(prev) || {};
+        const key = (s) => [s.name, s.parent].join("|");
+        const seen = new Set((data.cholim || []).map(key));
+        const keep = (old.cholim || []).filter((s) => !seen.has(key(s)));
+        data = Object.assign({}, data, { cholim: keep.concat(data.cholim || []) });
+      } catch (e) {
+        console.log("sub merge failed", String(e).slice(0, 200));
+      }
+    }
+  }
+  data.count = (data.cholim || []).length;
   await env.REFUA.put("sub:" + ownerKey, JSON.stringify(data));
 }
 
@@ -451,11 +483,11 @@ export default {
 
     const ownerKey = await ownerHash(req.email);
     try {
-      await writePublic(env, ownerKey, cholim);
+      await writePublic(env, ownerKey, cholim, isFix);
       await saveSubmitter(env, ownerKey, Object.assign({}, req, {
+        cholim: cholim,
         ts: new Date().toISOString(),
-        count: cholim.length,
-      }));
+      }), isFix);
     } catch (e) {
       console.log("kv write failed", String(e).slice(0, 200));
     }

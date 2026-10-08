@@ -94,6 +94,7 @@ export class BookDO {
       intent: this.getMeta("intent") || "",
       targetDate: this.getMeta("targetDate") || "",
       openerName: this.getMeta("openerName") || "",
+      groupUrl: this.getMeta("groupUrl") || "",
       kind: this.getMeta("kind") || "private",
       title: this.getMeta("title") || "",
       cycle: Number(this.getMeta("cycle") || 0),

@@ -151,3 +151,31 @@ export function renderCatalog(items, opts) {
     "</body></html>"
   );
 }
+
+// ===== קישורי קבוצות וואטסאפ =====
+//
+// אנחנו לא מצרפים אף אחד לקבוצה (הכרעה 23.9): מציגים קישור הצטרפות והאדם
+// לוחץ בעצמו. הקובץ tehillim/groups.json נערך ביד ומכיל את הקבוצות
+// הממוספרות, וכשאחת מתמלאת מסמנים אותה full והקישור היציב /kvutza עובר
+// לבאה אחריה בלי שמישהו יצטרך לשנות את מה שכבר נשלח לקבוצות.
+
+// רק כתובת הצטרפות אמיתית של וואטסאפ. כל דבר אחר - http, javascript:,
+// דומיין אחר, קישור מקוצר - נדחה, כי הערך הזה הופך ל-Location של הפניה.
+export const GROUP_RE = /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{10,40}(\?[A-Za-z0-9=&_.\-]{0,80})?$/;
+
+export function cleanGroupUrl(v) {
+  const s = String(v == null ? "" : v).trim();
+  return GROUP_RE.test(s) ? s : "";
+}
+
+// הקבוצה הראשונה, לפי המספר, שאינה מלאה ושיש לה כתובת תקינה.
+export function pickGroup(data) {
+  const list = data && Array.isArray(data.groups) ? data.groups.slice() : [];
+  list.sort(function (a, b) { return Number(a && a.n) - Number(b && b.n); });
+  for (const g of list) {
+    if (!g || g.full) continue;
+    const url = cleanGroupUrl(g.url);
+    if (url) return { n: Number(g.n) || 0, url: url };
+  }
+  return null;
+}

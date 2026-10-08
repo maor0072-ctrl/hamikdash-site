@@ -14,7 +14,7 @@ export { CounterDO } from "./tehillim-counter-do.js";
 
 import { UNITS } from "./tehillim-units.js";
 import { inQuietWindow } from "./tehillim-quiet.js";
-import { selectItems, renderCatalog } from "./tehillim-catalog.js";
+import { selectItems, renderCatalog, cleanGroupUrl, pickGroup } from "./tehillim-catalog.js";
 
 const ALLOWED = [
   "https://hamikdash.co.il",
@@ -194,6 +194,20 @@ function wantsListing(v) {
   return v === true || v === 1 || v === "1" || v === "true";
 }
 
+// ===== קבוצת הוואטסאפ הכללית =====
+
+// הקובץ יושב ב-GitHub Pages ונערך ביד. כשל בשליפה או קובץ שבור = אין קבוצה,
+// ולא שגיאה: הכפתורים פשוט אינם מוצגים.
+async function currentGroup() {
+  try {
+    const r = await fetch(SITE + "/tehillim/groups.json", { cf: { cacheTtl: 60, cacheEverything: true } });
+    if (!r.ok) return null;
+    return pickGroup(await r.json());
+  } catch (e) {
+    return null;
+  }
+}
+
 // ===== הקטלוג הציבורי =====
 
 // שולף חי מכל ספר רשום (במקביל) ובונה את הרשימה. הקריאה הכללית נכנסת תמיד,
@@ -279,6 +293,12 @@ async function createBook(request, env, origin) {
     return json({ ok: false, error: "bad_email" }, 400, origin);
   }
 
+  // קבוצת וואטסאפ של הספר, אם המארגן פתח אחת. ריק זה תקין; משהו שאינו
+  // כתובת הצטרפות של וואטסאפ נדחה במקום להישמר ולהפוך לקישור בדף.
+  const groupRaw = cleanFree(b.groupUrl, 200);
+  const groupUrl = cleanGroupUrl(groupRaw);
+  if (groupRaw && !groupUrl) return json({ ok: false, error: "bad_group" }, 400, origin);
+
   const secret = env.TEHILLIM_TOKEN_SECRET;
   if (!secret) return fail("no_secret", origin);
 
@@ -294,6 +314,7 @@ async function createBook(request, env, origin) {
     openerPhone: openerPhone,
     openerEmail: openerEmail,
     openerRelation: cleanFree(b.openerRelation, 40),
+    groupUrl: groupUrl,
     budgetMs: DEFAULT_BUDGET_MS,
   };
 
@@ -384,6 +405,14 @@ async function handleApi(request, url, env, origin) {
   if (parts[1] === "stats") {
     const s = await doCall(counter(env), "stats", {});
     return json(s, 200, origin, { "Cache-Control": "public, max-age=30" });
+  }
+
+  if (parts[1] === "group" && request.method === "GET") {
+    const g = await currentGroup();
+    // הכתובת שמוצגת היא הקבועה, לא של וואטסאפ: מה שנשלח לקבוצות לא משתנה
+    // כשקבוצה מתמלאת.
+    return json(g ? { ok: true, n: g.n, url: SHORT + "/kvutza" } : { ok: false }, 200, origin,
+      { "Cache-Control": "public, max-age=60" });
   }
 
   if (parts[1] === "catalog" && request.method === "GET") {
@@ -553,9 +582,20 @@ export default {
       if (url.pathname.startsWith("/m/")) {
         return servePage("/tehillim/manage.html");
       }
+      if (url.pathname === "/kvutza" || url.pathname === "/kvutza/") {
+        const g = await currentGroup();
+        if (g) return new Response(null, { status: 302, headers: { Location: g.url, "Cache-Control": "no-store" } });
+        return new Response(
+          "<!DOCTYPE html><html lang='he' dir='rtl'><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>" +
+            "<title>תהילים ישראל</title><body style='font-family:Arial,sans-serif;font-size:18px;padding:30px;line-height:1.8'>" +
+            "<p>קבוצת הוואטסאפ של תהילים ישראל עדיין לא נפתחה.</p><p><a href='" + SITE + "/tehillim.html'>חזרה לתהילים ישראל</a></p></body></html>",
+          { status: 404, headers: { "content-type": "text/html; charset=utf-8", "Cache-Control": "no-store" } }
+        );
+      }
       if (url.pathname === "/sfarim" || url.pathname === "/sfarim/") {
         const items = await catalogItems(env);
-        return new Response(renderCatalog(items, {}), {
+        const g = await currentGroup();
+        return new Response(renderCatalog(items, g ? { groupUrl: SHORT + "/kvutza" } : {}), {
           headers: { "content-type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=60" },
         });
       }

@@ -402,6 +402,7 @@ table.roster td.n{font-variant-numeric:tabular-nums}
     $("boot").style.display = "none";
     $("app").classList.remove("hidden");
     paint();
+    paintListing();
     drawQr(STATE.publicUrl);
     setInterval(load, 30000);
   }).catch(function () {

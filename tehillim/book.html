@@ -194,6 +194,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     <div class="lead" id="bk-lead"></div>
     <div class="for" id="bk-for"></div>
     <div class="meta" id="bk-meta"></div>
+    <div class="meta" id="bk-grp" style="display:none"><a id="bk-grp-a" href="#">לקבוצת הוואטסאפ של הספר</a></div>
   </div>
 
   <div class="prog">
@@ -320,6 +321,8 @@ body{padding-bottom:env(safe-area-inset-bottom)}
       <button type="button" class="btn btn-lg" id="end-more">לקחת עוד פרקים</button>
       <button type="button" class="btn btn-ghost" id="end-back">לחזור לספר</button>
     </div>
+
+    <p style="text-align:center;margin-top:22px"><a class="btn btn-ghost" id="grp-end" href="#" style="display:none">להצטרפות לקבוצת הוואטסאפ של תהילים ישראל</a></p>
 
     <div class="invite">
       <h3>יש כאן משהו גדול הרבה יותר</h3>
@@ -856,7 +859,22 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     return lead + " " + s.patientName + (s.gender === "f" ? " בת " : " בן ") + s.motherName;
   }
 
+  // קבוצת הוואטסאפ של הספר, אם המארגן פתח אחת. השרת כבר אימת שזו כתובת
+  // הצטרפות של וואטסאפ, וכאן נבדק שוב לפני שהיא נכנסת ל-href.
+  function groupLink() {
+    var u = STATE && STATE.groupUrl;
+    var ok = u && /^https:\/\/chat\.whatsapp\.com\//.test(u);
+    $("bk-grp").style.display = ok ? "" : "none";
+    if (ok) $("bk-grp-a").href = u;
+  }
+
+  // קבוצת הוואטסאפ הכללית: הכפתור במסך הסיום מוצג רק כשיש קבוצה פתוחה.
+  fetch(API + "/api/group").then(function (r) { return r.json(); }).then(function (d) {
+    if (d && d.ok && d.url) { $("grp-end").href = d.url; $("grp-end").style.display = ""; }
+  }).catch(function () { /* אין קבוצה */ });
+
   function head() {
+    groupLink();
     if (STATE.kind === "klali") {
       $("bk-lead").textContent = "הקריאה הכללית";
       $("bk-for").textContent = STATE.title;

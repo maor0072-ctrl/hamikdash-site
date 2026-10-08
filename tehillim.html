@@ -137,6 +137,12 @@
         והפועלים למען עם ישראל בכל מקום. לוקחים פרק וקוראים, מתי שרוצים.</span>
       </button>
 
+      <a class="door soft" href="https://t.hamikdash.co.il/sfarim">
+        <span class="t">ספרים פתוחים שאפשר להצטרף אליהם</span>
+        <span class="s">ספרי תהילים שנפתחו לרפואה ולעילוי נשמה ועדיין מחכים לקוראים. בוחרים
+        ספר, לוקחים פרק וקוראים.</span>
+      </a>
+
       <a class="door soft" href="/shema.html">
         <span class="t">להצטרפות לקהילת שמע רפא ומשאלות</span>
         <span class="s">קהילה שכל חבריה מתפללים זה על זה כל הזמן - על רפואה, על משאלות הלב,
@@ -228,6 +234,14 @@
             <input type="text" id="openerRelation" maxlength="40" autocomplete="off">
             <span class="hint">בן, בת, חבר, שכן</span>
           </div>
+        </div>
+
+        <div class="field">
+          <label style="font-weight:400;display:flex;gap:10px;align-items:flex-start">
+            <input type="checkbox" id="listed" style="width:auto;margin-top:6px">
+            <span>להציג את הספר בקטלוג הציבורי של ספרים פתוחים, כדי שעוד אנשים יצטרפו לקרוא.
+            יוצגו שם הפרטי ושם האם כפי שנכתבו למעלה. אפשר להסיר בכל רגע ממסך הניהול.</span>
+          </label>
         </div>
 
         <div class="actions">
@@ -429,7 +443,8 @@
       openerName: $("openerName").value.trim(),
       openerPhone: $("openerPhone").value.trim(),
       openerEmail: $("openerEmail").value.trim(),
-      openerRelation: $("openerRelation").value.trim()
+      openerRelation: $("openerRelation").value.trim(),
+      listed: $("listed").checked
     };
 
     if (!HEB.test(body.patientName)) return msg("השם הפרטי צריך להיכתב בעברית.", "err");

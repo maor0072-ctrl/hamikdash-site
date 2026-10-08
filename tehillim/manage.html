@@ -121,6 +121,18 @@ table.roster td.n{font-variant-numeric:tabular-nums}
   </div>
 
   <div class="card">
+    <h2 style="margin-top:0;font-size:20px">הקטלוג הציבורי</h2>
+    <p>אפשר להציג את הספר בקטלוג הציבורי של ספרים פתוחים, כדי שעוד אנשים יצטרפו לקרוא.
+    יוצגו שם הפרטי ושם האם כפי שהם כתובים בספר, וכמה פרקים נשארו. הספר יוצא מהקטלוג מעצמו
+    כשהוא מושלם.</p>
+    <p id="listing-state" style="font-weight:700"></p>
+    <div class="actions">
+      <button type="button" class="btn" id="listing-btn">להציג בקטלוג</button>
+    </div>
+    <div class="form-msg" id="listing-msg" role="status"></div>
+  </div>
+
+  <div class="card">
     <h2 style="margin-top:0;font-size:20px">לחלק את הנותרים</h2>
     <p>זה הכפתור שסוגר ספר שנתקע. כל הפרקים שנשארו פנויים יתחלקו במנות שוות בין מי שכבר
     נמצא בספר, ולכל אחד יינתן יממה שלמה לקרוא אותם.</p>
@@ -286,6 +298,28 @@ table.roster td.n{font-variant-numeric:tabular-nums}
   $("copy-link").addEventListener("click", function () { copyText($("pub-link").value, this); });
   $("copy-wa").addEventListener("click", function () { copyText(waText(), this); });
 
+  function paintListing() {
+    var on = STATE && STATE.listed;
+    $("listing-state").textContent = on ? "הספר מוצג כרגע בקטלוג הציבורי." : "הספר אינו מוצג בקטלוג.";
+    $("listing-btn").textContent = on ? "להסיר מהקטלוג" : "להציג בקטלוג";
+  }
+
+  $("listing-btn").addEventListener("click", function () {
+    var want = STATE && STATE.listed ? false : true;
+    var el = $("listing-msg");
+    fetch(API + "/api/manage/" + TOKEN + "/listing", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ listed: want })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.ok) { el.className = "form-msg"; el.textContent = ""; STATE.listed = want ? 1 : 0; paintListing(); }
+      else { el.className = "form-msg err"; el.textContent = "לא הצלחנו לעדכן. נסו שוב."; }
+    }).catch(function () {
+      el.className = "form-msg err";
+      el.textContent = "אין חיבור לשרת כרגע.";
+    });
+  });
+
   $("save-target").addEventListener("click", function () {
     var v = $("target").value;
     var el = $("target-msg");
@@ -350,6 +384,7 @@ table.roster td.n{font-variant-numeric:tabular-nums}
         if (!d || !d.ok) throw new Error("bad");
         STATE = d;
         paint();
+        paintListing();
       });
   }
 

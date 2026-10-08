@@ -11,6 +11,14 @@ export class CounterDO {
     this.env = env;
     this.sql = ctx.storage.sql;
     this.sql.exec("CREATE TABLE IF NOT EXISTS c (k TEXT PRIMARY KEY, v INTEGER NOT NULL DEFAULT 0)");
+    // אינדקס הספרים שהפותח הסכים לפרסם בקטלוג הציבורי. אין אינדקס אחר:
+    // כל BookDO נמצא לפי שמו בלבד ואי אפשר למנות אותם. הטבלה כאן ולא ב-DO
+    // חדש כדי שלא תידרש מחלקה חדשה ו-migration בפריסה. מונים ומצב אינם
+    // נשמרים כאן - הם נשלפים חי מכל ספר, כדי שלא תהיה סטייה.
+    this.sql.exec(
+      "CREATE TABLE IF NOT EXISTS catalog (" +
+        "bookId TEXT PRIMARY KEY, listed INTEGER NOT NULL DEFAULT 1, addedAt INTEGER NOT NULL)"
+    );
   }
 
   get(k) {
@@ -55,6 +63,33 @@ export class CounterDO {
     return this.stats();
   }
 
+  // ---- הקטלוג הציבורי ----
+  catalogSet(bookId, listed) {
+    if (!bookId) return { ok: false, error: "bad_request" };
+    this.sql.exec(
+      "INSERT INTO catalog (bookId, listed, addedAt) VALUES (?, ?, ?) " +
+        "ON CONFLICT(bookId) DO UPDATE SET listed = excluded.listed",
+      bookId,
+      listed ? 1 : 0,
+      Date.now()
+    );
+    return { ok: true, listed: listed ? 1 : 0 };
+  }
+
+  catalogGet(bookId) {
+    const rows = this.sql.exec("SELECT listed FROM catalog WHERE bookId = ?", bookId).toArray();
+    return { ok: true, listed: rows.length ? Number(rows[0].listed) : 0 };
+  }
+
+  // הרשומים, החדשים קודם. התקרה מגנה על העמוד: כל ספר הוא קריאה ל-DO.
+  catalogList(limit) {
+    const n = Math.max(1, Math.min(100, Number(limit) || 60));
+    const rows = this.sql
+      .exec("SELECT bookId, addedAt FROM catalog WHERE listed = 1 ORDER BY addedAt DESC LIMIT ?", n)
+      .toArray();
+    return { ok: true, books: rows.map((r) => ({ id: r.bookId, addedAt: Number(r.addedAt) })) };
+  }
+
   stats() {
     const k = this.keys(Date.now());
     return {
@@ -80,6 +115,9 @@ export class CounterDO {
     let out;
     if (op === "bump") out = this.bump(body.n);
     else if (op === "book") out = this.bumpBooks();
+    else if (op === "catalog-set") out = this.catalogSet(body.bookId, body.listed);
+    else if (op === "catalog-get") out = this.catalogGet(body.bookId);
+    else if (op === "catalog-list") out = this.catalogList(body.limit);
     else out = this.stats();
 
     return new Response(JSON.stringify(out), {

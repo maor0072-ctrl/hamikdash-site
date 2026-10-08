@@ -105,6 +105,35 @@ export class BookDO {
     };
   }
 
+  // תמונת מצב קלה לקטלוג הציבורי: קריאה בלבד, בלי שחרור ובלי כתיבה.
+  // מחרוזת אחת באורך מספר היחידות, תו לכל יחידה (f/t/r), כדי שבניית
+  // הקטלוג מ-60 ספרים לא תעביר 60 פעמים 171 אובייקטים.
+  counts() {
+    const now = Date.now();
+    const rows = this.sql.exec("SELECT idx, state, takenAt, budgetMs FROM units ORDER BY idx").toArray();
+    let states = "";
+    for (const r of rows) {
+      if (r.state === "taken" && expiryFor(r.takenAt, r.budgetMs) <= now) states += "f";
+      else states += r.state === "read" ? "r" : r.state === "taken" ? "t" : "f";
+    }
+    const last = this.sql.exec("SELECT MAX(lastMarkAt) AS m FROM readers").toArray()[0];
+    return {
+      ok: true,
+      exists: !!this.getMeta("createdAt"),
+      status: this.getMeta("status") || "open",
+      kind: this.getMeta("kind") || "private",
+      patientName: this.getMeta("patientName") || "",
+      motherName: this.getMeta("motherName") || "",
+      gender: this.getMeta("gender") || "",
+      intent: this.getMeta("intent") || "",
+      title: this.getMeta("title") || "",
+      targetDate: this.getMeta("targetDate") || "",
+      createdAt: Number(this.getMeta("createdAt") || 0),
+      lastMarkAt: Number((last && last.m) || 0),
+      states: states,
+    };
+  }
+
   // משחרר כל יחידה תפוסה שעבר זמנה. זו הפעולה שמחזירה פרקים למחזור
   // בלי שאף אדם יצטרך לעשות משהו.
   sweep(now) {
@@ -339,6 +368,7 @@ export class BookDO {
     else if (op === "distribute") out = this.distribute();
     else if (op === "extend") out = this.extend(body.targetDate);
     else if (op === "roster") out = this.roster();
+    else if (op === "counts") out = this.counts();
     else out = { ok: false, error: "unknown_op", op: op };
 
     return new Response(JSON.stringify(out), {

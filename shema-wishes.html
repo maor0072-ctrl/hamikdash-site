@@ -137,7 +137,35 @@
   "use strict";
   // 09.10.2026: עבר מ-workers.dev לדומיין משנה שלנו, כי workers.dev
   // חסום ברשתות רבות ומוסר אמיתי נחסם מהטופס. הישן נשאר כגיבוי.
+  // 09.10.2026: מוסר אמיתי לא הצליח למסור שמות, והבקשה שלו **מעולם לא הגיעה
+  // לקלאודפלייר** - אין מייל, אין רשומה, ויומן הוורקר מראה אפס שגיאות. הסיבה
+  // הסבירה היחידה היא ש-`workers.dev` חסום ברשתות רבות (מסנני פרסומות, DNS
+  // מסונן, חלק מהספקים הסלולריים), כי הוא משמש להרבה דיוג. העמוד נטען מגיטהאב
+  // ועובד, וה-API מדומיין אחר נופל בשקט. לכן הכתובת עברה לדומיין משנה שלנו,
+  // בדיוק כמו `t.hamikdash.co.il` של התהילים.
   var ENDPOINT = "https://shema.hamikdash.co.il";
+  var ENDPOINT_FALLBACK = "https://hamikdash-shema.maor0072.workers.dev";
+
+  // הכתובת הישנה נשארת כגיבוי ל**כשל רשת בלבד**: דחייה של fetch פירושה שלא
+  // הגענו לשרת כלל, ואז שווה לנסות את הכתובת האחרת. תשובה עם קוד שגיאה פירושה
+  // שהגענו והשרת אמר לא, ואותה אין להפנות לשום מקום. apiFetch עוטף את הקריאות
+  // ומשאיר כל שרשרת then/catch קיימת כפי שהיא.
+  function apiFetch(url, init) {
+    return fetch(url, init).catch(function (err) {
+      if (String(url).indexOf(ENDPOINT) !== 0) throw err;
+      return fetch(ENDPOINT_FALLBACK + String(url).slice(ENDPOINT.length), init);
+    });
+  }
+
+  // הודעה גנרית אחת לכל סוג כשל היא מה שהשאיר אותנו עיוורים: אותו „משהו
+  // השתבש" הוצג ל-400 ולידציה, ל-502 ולחסימת רשת. מעכשיו הנפגע יכול למסור לנו
+  // את הקוד. מה שאינו קוד ואינו כשל רשת אינו מוצג, כדי שלא יזלוג טקסט פנימי.
+  function why(err) {
+    var m = String((err && err.message) || "").match(/(\d{3})/);
+    if (m) return " (קוד " + m[1] + ")";
+    if (err && err.name === "TypeError") return " (אין חיבור לשרת)";
+    return "";
+  }
   var MAX = 3;
   var RELATIONS = ["עצמי", "אמא", "אבא", "בעל", "אישה", "בן", "בת", "אח", "אחות",
                    "סבא", "סבתא", "דוד", "דודה", "חבר", "חברה", "אחר"];
@@ -269,7 +297,7 @@
     btn.textContent = "שולח...";
     msg("form-msg", "ok", "רגע אחד...");
 
-    fetch(ENDPOINT, {
+    apiFetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "wishes", token: token, wishes: got.list })
@@ -285,11 +313,11 @@
         }).join("");
         show("done");
       })
-      .catch(function () {
+      .catch(function (e) {
         btn.disabled = false;
         btn.textContent = original;
         msg("form-msg", "err",
-          "משהו השתבש בשליחה. אפשר לנסות שוב, או לפנות בוואטסאפ למספר 052-8395189.");
+          "משהו השתבש בשליחה" + why(e) + ". אפשר לנסות שוב, או לפנות בוואטסאפ למספר 052-8395189.");
       });
   });
 })();

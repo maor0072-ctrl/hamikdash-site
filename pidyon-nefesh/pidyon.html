@@ -198,7 +198,35 @@
 <script>
 (function () {
   "use strict";
-  var ENDPOINT = "https://hamikdash-nefesh.maor0072.workers.dev";
+  // 09.10.2026: מוסר אמיתי לא הצליח למסור שמות, והבקשה שלו **מעולם לא הגיעה
+  // לקלאודפלייר** - אין מייל, אין רשומה, ויומן הוורקר מראה אפס שגיאות. הסיבה
+  // הסבירה היחידה היא ש-`workers.dev` חסום ברשתות רבות (מסנני פרסומות, DNS
+  // מסונן, חלק מהספקים הסלולריים), כי הוא משמש להרבה דיוג. העמוד נטען מגיטהאב
+  // ועובד, וה-API מדומיין אחר נופל בשקט. לכן הכתובת עברה לדומיין משנה שלנו,
+  // בדיוק כמו `t.hamikdash.co.il` של התהילים.
+  var ENDPOINT = "https://nefesh.hamikdash.co.il";
+  var ENDPOINT_FALLBACK = "https://hamikdash-nefesh.maor0072.workers.dev";
+
+  // הכתובת הישנה נשארת כגיבוי ל**כשל רשת בלבד**: דחייה של fetch פירושה שלא
+  // הגענו לשרת כלל, ואז שווה לנסות את הכתובת האחרת. תשובה עם קוד שגיאה פירושה
+  // שהגענו והשרת אמר לא, ואותה אין להפנות לשום מקום. apiFetch עוטף את הקריאות
+  // ומשאיר כל שרשרת then/catch קיימת כפי שהיא.
+  function apiFetch(url, init) {
+    return fetch(url, init).catch(function (err) {
+      if (String(url).indexOf(ENDPOINT) !== 0) throw err;
+      return fetch(ENDPOINT_FALLBACK + String(url).slice(ENDPOINT.length), init);
+    });
+  }
+
+  // הודעה גנרית אחת לכל סוג כשל היא מה שהשאיר אותנו עיוורים: אותו „משהו
+  // השתבש" הוצג ל-400 ולידציה, ל-502 ולחסימת רשת. מעכשיו הנפגע יכול למסור לנו
+  // את הקוד. מה שאינו קוד ואינו כשל רשת אינו מוצג, כדי שלא יזלוג טקסט פנימי.
+  function why(err) {
+    var m = String((err && err.message) || "").match(/(\d{3})/);
+    if (m) return " (קוד " + m[1] + ")";
+    if (err && err.name === "TypeError") return " (אין חיבור לשרת)";
+    return "";
+  }
   var STORE = "nefesh-intent";
   var POLL_MS = 10000;
   var HELP_AFTER_MS = 90000;
@@ -245,13 +273,13 @@
   // עשר שניות, וגם בדיקה מיידית ברגע שהגולש חוזר ללשונית הזאת מהתשלום.
   function poll() {
     if (!intentId) return;
-    fetch(ENDPOINT + "?intent=" + encodeURIComponent(intentId)).then(function (r) {
+    apiFetch(ENDPOINT + "?intent=" + encodeURIComponent(intentId)).then(function (r) {
       if (r.status === 404) { forget(); return null; }
       if (!r.ok) throw new Error("http " + r.status);
       return r.json();
     }).then(function (out) {
       if (out && out.ok && out.paid && out.url) goShemot(out.url);
-    }).catch(function () { /* רשת מהבהבת - הסקירה הבאה תנסה שוב */ });
+    }).catch(function (e) { /* רשת מהבהבת - הסקירה הבאה תנסה שוב */ });
   }
 
   function startWaiting(donateUrl) {
@@ -312,7 +340,7 @@
     var payTab = null;
     try { payTab = window.open("", "_blank"); } catch (e) {}
 
-    fetch(ENDPOINT, {
+    apiFetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -342,11 +370,11 @@
       startWaiting(out.donate);
       if (!payTab)
         show(waitMsg, "ok", "הדפדפן חסם את פתיחת דף התרומה. לחצו על פתיחת דף התרומה שוב.");
-    }).catch(function () {
+    }).catch(function (e) {
       sending = false;
       btn.disabled = false;
       if (payTab) { try { payTab.close(); } catch (e) {} }
-      show(msg, "err", "משהו נתקע. אפשר לנסות שוב, או לתרום ישירות ולכתוב לנו את השמות.");
+      show(msg, "err", "משהו נתקע" + why(e) + ". אפשר לנסות שוב, או לתרום ישירות ולכתוב לנו את השמות.");
     });
   });
 
@@ -356,7 +384,7 @@
     var b = document.getElementById("help-btn");
     b.disabled = true;
     show(waitMsg, "ok", "שולח...");
-    fetch(ENDPOINT, {
+    apiFetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "help", id: intentId })
@@ -365,9 +393,9 @@
       return r.json();
     }).then(function () {
       view("view-help", 2);
-    }).catch(function () {
+    }).catch(function (e) {
       b.disabled = false;
-      show(waitMsg, "err", "השליחה נכשלה. אפשר לנסות שוב בעוד רגע.");
+      show(waitMsg, "err", "השליחה נכשלה" + why(e) + ". אפשר לנסות שוב בעוד רגע.");
     });
   });
 })();

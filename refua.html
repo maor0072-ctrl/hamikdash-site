@@ -307,7 +307,35 @@
   "use strict";
   // 09.10.2026: עבר מ-workers.dev לדומיין משנה שלנו, כי workers.dev
   // חסום ברשתות רבות ומוסר אמיתי נחסם מהטופס. הישן נשאר כגיבוי.
+  // 09.10.2026: מוסר אמיתי לא הצליח למסור שמות, והבקשה שלו **מעולם לא הגיעה
+  // לקלאודפלייר** - אין מייל, אין רשומה, ויומן הוורקר מראה אפס שגיאות. הסיבה
+  // הסבירה היחידה היא ש-`workers.dev` חסום ברשתות רבות (מסנני פרסומות, DNS
+  // מסונן, חלק מהספקים הסלולריים), כי הוא משמש להרבה דיוג. העמוד נטען מגיטהאב
+  // ועובד, וה-API מדומיין אחר נופל בשקט. לכן הכתובת עברה לדומיין משנה שלנו,
+  // בדיוק כמו `t.hamikdash.co.il` של התהילים.
   var ENDPOINT = "https://refua.hamikdash.co.il";
+  var ENDPOINT_FALLBACK = "https://hamikdash-refua.maor0072.workers.dev";
+
+  // הכתובת הישנה נשארת כגיבוי ל**כשל רשת בלבד**: דחייה של fetch פירושה שלא
+  // הגענו לשרת כלל, ואז שווה לנסות את הכתובת האחרת. תשובה עם קוד שגיאה פירושה
+  // שהגענו והשרת אמר לא, ואותה אין להפנות לשום מקום. apiFetch עוטף את הקריאות
+  // ומשאיר כל שרשרת then/catch קיימת כפי שהיא.
+  function apiFetch(url, init) {
+    return fetch(url, init).catch(function (err) {
+      if (String(url).indexOf(ENDPOINT) !== 0) throw err;
+      return fetch(ENDPOINT_FALLBACK + String(url).slice(ENDPOINT.length), init);
+    });
+  }
+
+  // הודעה גנרית אחת לכל סוג כשל היא מה שהשאיר אותנו עיוורים: אותו „משהו
+  // השתבש" הוצג ל-400 ולידציה, ל-502 ולחסימת רשת. מעכשיו הנפגע יכול למסור לנו
+  // את הקוד. מה שאינו קוד ואינו כשל רשת אינו מוצג, כדי שלא יזלוג טקסט פנימי.
+  function why(err) {
+    var m = String((err && err.message) || "").match(/(\d{3})/);
+    if (m) return " (קוד " + m[1] + ")";
+    if (err && err.name === "TypeError") return " (אין חיבור לשרת)";
+    return "";
+  }
   var MAX = 5;
   var RELATIONS = ["אב", "אם", "בעל", "אישה", "בן", "בת", "אח", "אחות",
                    "סב", "סבתא", "דוד", "דודה", "קרוב משפחה", "קרובת משפחה",
@@ -549,18 +577,18 @@
     var original = btn.textContent;
     btn.textContent = "שולח...";
     msg(msgId, "ok", "רגע אחד...");
-    fetch(ENDPOINT, {
+    apiFetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     })
       .then(function (r) { if (!r.ok) throw new Error(String(r.status)); return true; })
       .then(onOk)
-      .catch(function () {
+      .catch(function (e) {
         btn.disabled = false;
         btn.textContent = original;
         msg(msgId, "err",
-          "משהו השתבש בשליחה. אפשר לנסות שוב, או לשלוח לנו את השמות בוואטסאפ " +
+          "משהו השתבש בשליחה" + why(e) + ". אפשר לנסות שוב, או לשלוח לנו את השמות בוואטסאפ " +
           "למספר 052-8395189 ונטפל בזה ידנית.");
       });
   }
@@ -656,9 +684,9 @@
     if (!box) return;
     // עוקף מטמון לפי דקה. בלעדיו שם שנמסר בדקה הזאת לא מופיע ברשימה,
     // והמוסר חושב שהמסירה לא נקלטה - זה בדיוק מה שנשבר בדף עילוי הנשמה.
-    fetch(ENDPOINT + "?list=public&v=" + Math.floor(Date.now() / 6e4))
+    apiFetch(ENDPOINT + "?list=public&v=" + Math.floor(Date.now() / 6e4))
       .then(function (r) { return r.ok ? r.json() : null; })
-      .catch(function () { return null; })
+      .catch(function (e) { return null; })
       .then(function (res) {
         var all = (res && res.names) || [];
         // מסירה כפולה של אותו שם לא צריכה להופיע פעמיים ברשימה פומבית.

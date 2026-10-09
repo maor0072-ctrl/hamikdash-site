@@ -495,8 +495,16 @@
         return msg("choice-msg", "err", "לא מצאנו שמות שנמסרו מהכתובת " +
           me.email + ". אם מסרתם מכתובת אחרת, אפשר לחזור ולהקליד אותה; " +
           "אחרת אפשר להמשיך כמי שמוסר בפעם הראשונה.");
-      // מה שיושב בשרת הוא האמת, גם כשהמכשיר הזה מכיר פחות שמות ממנו.
-      saved = souls;
+      // איחוד ולא החלפה. השרת מכיר כל מה שנמסר מכל מכשיר מאז 22.9, אבל
+      // שמות שנמסרו **לפני** התאריך הזה קיימים רק באחסון המקומי, ולכן
+      // החלפה גורפת הייתה מוחקת אותם מהמסך של מי שמסר גם לפני וגם אחרי.
+      var key = function (n) {
+        return [n.name, n.parent, n.date].join("|");
+      };
+      var have = {};
+      for (var i = 0; i < souls.length; i++) have[key(souls[i])] = 1;
+      var extra = saved.filter(function (n) { return !have[key(n)]; });
+      saved = souls.concat(extra);
       save(KEY_NAMES, saved);
       show("names");
     });

@@ -251,7 +251,9 @@
 <script>
 (function () {
   "use strict";
-  var ENDPOINT = "https://hamikdash-shema.maor0072.workers.dev";
+  // 09.10.2026: עבר מ-workers.dev לדומיין משנה שלנו, כי workers.dev
+  // חסום ברשתות רבות ומוסר אמיתי נחסם מהטופס. הישן נשאר כגיבוי.
+  var ENDPOINT = "https://shema.hamikdash.co.il";
   var KEY_JOINED = "hamikdash_shema_joined";
 
   var $ = function (id) { return document.getElementById(id); };

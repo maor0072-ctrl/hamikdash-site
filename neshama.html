@@ -175,6 +175,28 @@
   </div>
 </section>
 
+<!-- ============ מסך 2ב: ראשון או חוזר ============ -->
+<!-- המסך הזה קיים כי הזיהוי עד כאן נשען על localStorage בלבד, ולכן מי שחזר
+     ממכשיר אחר, מדפדפן אחר או אחרי ניקוי אחסון לא ראה דבר ממה שמסר, ומסר
+     הכול מחדש. הכפתור „מסרנו שמות בעבר" שואל את השרת לפי כתובת הדואר. -->
+<section class="view" id="view-choice">
+  <div class="wrap">
+    <div class="form-card">
+      <h2 style="font-size:24px;margin-bottom:8px">מסרתם שמות בעבר?</h2>
+      <p style="color:var(--ink-soft);font-size:15px;margin-bottom:22px">אם כבר מסרתם, נציג את השמות שמסרתם כדי שתוכלו לתקן כל אחד מהם ולהוסיף אליהם שמות חדשים, במקום למסור את הכול מחדש.</p>
+
+      <div class="actions" style="margin-top:0">
+        <button type="button" class="btn btn-lg" id="choice-returning">מסרנו שמות בעבר</button>
+      </div>
+      <p style="margin:14px 0 0">
+        <button type="button" class="btn btn-ghost" id="choice-first">זו הפעם הראשונה</button>
+      </p>
+      <div id="choice-msg" class="form-msg"></div>
+      <button type="button" class="back-link" data-go="details">חזרה</button>
+    </div>
+  </div>
+</section>
+
 <!-- ============ מסך 3: השמות ============ -->
 <section class="view" id="view-names">
   <div class="wrap">
@@ -367,6 +389,7 @@
     if (view === "list") renderList();
     if (view === "edit") renderEdit();
     if (view === "names") prepNames();
+    if (view === "choice") $("choice-msg").className = "form-msg";
   }
 
   document.addEventListener("click", function (e) {
@@ -425,7 +448,58 @@
     save(KEY_ME, me);
     msg("details-msg", "ok", "");
     $("details-msg").className = "form-msg";
-    show("names");
+    show("choice");
+  });
+
+  /* ---------- מסך ראשון או חוזר ---------- */
+  // שאילתת זיהוי מול השרת. מוחזרים השמות בלבד, בלי שם, טלפון ומייל, ולכן
+  // הקלדת כתובת של אדם אחר אינה חושפת את פרטיו. POST ולא GET בכוונה, כדי
+  // שהכתובת לא תישמר בהיסטוריית הדפדפן ולא תעבור ב-Referer.
+  function lookupNames(email, onDone) {
+    var payload = { kind: "lookup", email: email };
+    function post(url) {
+      return fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    }
+    function parse(r) {
+      if (!r.ok) return onDone(null, "קוד " + r.status);
+      r.json().then(function (j) { onDone((j && j.souls) || [], null); },
+                    function () { onDone(null, "תשובה לא תקינה"); });
+    }
+    // אותה הפרדה כמו בשליחה: דחיית fetch היא כשל רשת ועוברת לכתובת החלופית,
+    // אבל תשובה עם קוד שגיאה היא תשובה אמיתית ולא מנסים אחרת.
+    post(ENDPOINT).then(parse, function () {
+      post(ENDPOINT_FALLBACK).then(parse, function () {
+        onDone(null, "אין חיבור לשרת");
+      });
+    });
+  }
+
+  $("choice-first").addEventListener("click", function () { show("names"); });
+
+  $("choice-returning").addEventListener("click", function () {
+    var btn = this, original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "בודקים...";
+    msg("choice-msg", "ok", "רגע אחד...");
+    lookupNames(me.email, function (souls, err) {
+      btn.disabled = false;
+      btn.textContent = original;
+      if (err)
+        return msg("choice-msg", "err", "לא הצלחנו לבדוק מול השרת (" + err +
+          "). אפשר להמשיך למסירת שמות - שמות שמסרתם בעבר לא ייפגעו מזה.");
+      if (!souls.length)
+        return msg("choice-msg", "err", "לא מצאנו שמות שנמסרו מהכתובת " +
+          me.email + ". אם מסרתם מכתובת אחרת, אפשר לחזור ולהקליד אותה; " +
+          "אחרת אפשר להמשיך כמי שמוסר בפעם הראשונה.");
+      // מה שיושב בשרת הוא האמת, גם כשהמכשיר הזה מכיר פחות שמות ממנו.
+      saved = souls;
+      save(KEY_NAMES, saved);
+      show("names");
+    });
   });
 
   /* ---------- בלוק נפטר ---------- */

@@ -304,8 +304,22 @@ async function appendPublic(env, list, ownerKey, isFix) {
 // פחות שמות ממה שמסר - כלומר הבאג היה נשאר חי גם אחרי תיקון הדף.
 async function saveSubmitter(env, ownerKey, data, isFix) {
   if (!env.NAMES) return;
+  const prev = await env.NAMES.get("sub:" + ownerKey);
+  // גיבוי לפני כל דריסה, ולא רק בתיקון. בטופס הזה הגשה חוזרת כבר דרסה
+  // הגשה קודמת ואבדו 17 שמות ויארצייט אחד; מסלול התיקון הפתוח למוסר חוזר
+  // מכפיל את הסיכוי לזה, ולכן הגיבוי אינו אופציונלי. נשמר שנה.
+  if (prev) {
+    try {
+      await env.NAMES.put(
+        "bak:" + ownerKey + ":" + new Date().toISOString().replace(/[:.]/g, "-"),
+        prev,
+        { expirationTtl: 60 * 60 * 24 * 365 }
+      );
+    } catch (e) {
+      console.log("sub backup failed", String(e).slice(0, 200));
+    }
+  }
   if (!isFix) {
-    const prev = await env.NAMES.get("sub:" + ownerKey);
     if (prev) {
       try {
         const old = JSON.parse(prev) || {};
@@ -366,6 +380,46 @@ export default {
     // מלכודת ספאם: שדה שאדם אמיתי לעולם לא רואה ולכן לא ממלא.
     // מחזירים 200 בכוונה - בוט שמקבל שגיאה מנסה שוב, בוט שמקבל אישור הולך.
     if (d.website) return new Response("ok", { status: 200, headers });
+
+    // זיהוי מוסר חוזר. מוחזרים **השמות בלבד** - לא השם, לא הטלפון ולא המייל
+    // של המוסר. ההחלטה מ-22.9, שהרשומה הפרטית אינה מוגשת החוצה, נשמרת: מי
+    // שמקליד כתובת של אדם אחר לא רואה את פרטיו, ואת מה שהוא כן רואה - השמות -
+    // הוא ממילא רואה ברשימה הפומבית באתר. מסלול POST ולא GET בכוונה, כדי
+    // שהכתובת לא תישמר בהיסטוריית הדפדפן, ב-Referer או במטמון.
+    if (d.kind === "lookup") {
+      const em = String(d.email || "").trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))
+        return new Response("bad email", { status: 400, headers });
+      let souls = [];
+      try {
+        const raw = env.NAMES
+          ? await env.NAMES.get("sub:" + (await ownerHash(em)))
+          : null;
+        if (raw) {
+          const rec = JSON.parse(raw) || {};
+          // רשומה שהמוסר ביקש להסיר חוזרת ריקה. הוא הסיר אותה בכוונה,
+          // ואין להחיות אותה מאחורי גבו.
+          if (!rec.removed)
+            souls = (rec.souls || []).map((x) => ({
+              name: x.name || "",
+              parent: x.parent || "",
+              date: x.date || "",
+              relation: x.relation || "",
+              gender: x.gender || "",
+              year: x.year || "",
+            }));
+        }
+      } catch (e) {
+        console.log("lookup failed", String(e).slice(0, 200));
+      }
+      return new Response(JSON.stringify({ souls }), {
+        status: 200,
+        headers: Object.assign({}, headers, {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store",
+        }),
+      });
+    }
 
     for (const f of ["name", "phone", "email"]) {
       if (!d[f] || !String(d[f]).trim())

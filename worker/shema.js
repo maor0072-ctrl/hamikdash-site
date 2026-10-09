@@ -31,7 +31,11 @@ const KEVA =
   "https://www.matara.pro/nedarimplus/online/?mosad=7009579&KevaDefault=1";
 const PAGE = "https://hamikdash.co.il/shema.html";
 const WISHES_PAGE = "https://hamikdash.co.il/shema-wishes.html";
-const SELF_URL = "https://hamikdash-shema.maor0072.workers.dev";
+// 09.10.2026: קישור ההסרה נשלח במייל, ולכן הוא חייב להיות בדומיין שלנו
+// ולא ב-workers.dev - מי שהרשת שלו חוסמת את workers.dev לא יכול היה
+// למסור שם, ולא יוכל גם להסיר אותו. הכתובת הישנה ממשיכה לענות, ולכן
+// קישורים שיצאו במיילים קודמים לא נשברים.
+const SELF_URL = "https://shema.hamikdash.co.il";
 
 const MAX_WISHES = 3;
 const JOIN_TOKEN_DAYS = 30;

@@ -37,7 +37,11 @@ const DONATE = "https://nedar.im/7009579";
 const KEVA =
   "https://www.matara.pro/nedarimplus/online/?mosad=7009579&KevaDefault=1";
 const PAGE = "https://hamikdash.co.il/refua.html";
-const SELF = "https://hamikdash-refua.maor0072.workers.dev";
+// 09.10.2026: קישור ההסרה נשלח במייל, ולכן הוא חייב להיות בדומיין שלנו
+// ולא ב-workers.dev - מי שהרשת שלו חוסמת את workers.dev לא יכול היה
+// למסור שם, ולא יוכל גם להסיר אותו. הכתובת הישנה ממשיכה לענות, ולכן
+// קישורים שיצאו במיילים קודמים לא נשברים.
+const SELF = "https://refua.hamikdash.co.il";
 
 const MAX_CHOLIM = 5; // תקרה שפויה; מעבר לזה זו כנראה הזנה אוטומטית
 

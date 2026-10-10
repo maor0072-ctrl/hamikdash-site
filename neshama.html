@@ -533,7 +533,8 @@
       "</div>" +
       '<div class="row-2">' +
       '<div class="field"><label>תאריך הפטירה' +
-      '<span class="hint">עברי או לועזי. אם לועזי, נא לציין גם את השנה.</span></label>' +
+      '<span class="hint">עברי או לועזי. אם לועזי, נא לציין גם את השנה, ' +
+      'ואם הפטירה הייתה אחרי השקיעה - לכתוב זאת בהערות.</span></label>' +
       '<input type="text" class="n-date" value="' + esc(v.date) + '"></div>' +
       '<div class="field"><label>הקרבה אליכם</label>' +
       '<select class="n-relation"><option value="">בחרו</option>' +
@@ -549,7 +550,16 @@
       '<div class="field"><label>שנת הפטירה <span class="star">*</span>' +
       '<span class="hint">לא חובה</span></label>' +
       '<input type="text" class="n-year" value="' + esc(v.year) + '"></div>' +
-      "</div>";
+      "</div>" +
+      // הערה חופשית קצרה, להזכיר למוסר עצמו למי הוא עושה עילוי נשמה -
+      // „ניצול שואה שהכרתי, אין לו משפחה". היא נשמרת, מופיעה כאן בעריכה
+      // ובמיילים שנשלחים אליו, ו**אינה מופיעה ברשימה הגלויה באתר**.
+      // הוראת יעקב 10.10.2026.
+      '<div class="field"><label>הערות <span class="star">*</span>' +
+      '<span class="hint">לא חובה, ולא מופיע באתר. למשל „ניצול שואה שהכרתי, ' +
+      'אין לו משפחה" - כדי שתזכרו בשנה הבאה למי עשיתם עילוי נשמה.</span></label>' +
+      '<textarea class="n-notes" rows="2" maxlength="400">' +
+      esc(v.notes) + "</textarea></div>";
     d.querySelector(".niftar-remove").addEventListener("click", function () {
       var parent = d.parentNode;
       if (parent.id === "edit-niftarim" &&
@@ -603,8 +613,12 @@
         date: b.querySelector(".n-date").value.trim(),
         relation: b.querySelector(".n-relation").value.trim(),
         gender: b.querySelector(".n-gender").value.trim(),
-        year: b.querySelector(".n-year").value.trim()
+        year: b.querySelector(".n-year").value.trim(),
+        notes: b.querySelector(".n-notes").value.trim().slice(0, 400)
       };
+      // ההערה לבדה אינה הופכת בלוק ריק לבלוק מלא, ולכן היא אינה בתנאי הזה:
+      // אדם שהקליד הערה ולא הקליד שם קיבל אחרת שגיאה על „פרטים חסרים"
+      // בבלוק שהתכוון להשאיר ריק.
       if (!n.name && !n.parent && !n.date && !n.relation && !n.gender) continue;
       if (!n.name || !n.parent || !n.date || !n.relation || !n.gender)
         return { error: "בנפטר " + (i + 1) + " חסרים פרטים. כל השדות נדרשים, " +
@@ -715,9 +729,14 @@
   /* ---------- הצגת רשימות ---------- */
   function itemsHtml(list) {
     return list.map(function (n) {
+      // שלוש הרשימות שעוברות כאן הן **פרטיות למוסר** - „השמות שכבר מסרת",
+      // „שמות שמסרת קודם" ומסך הסיום שלו - ולכן ההערה שלו מוצגת בהן. הרשימה
+      // הגלויה באתר נבנית מ-/data/neshama-week.json ואינה מכילה הערות בכלל.
       return "<li><strong>" + esc(fullName(n)) + "</strong>" +
         '<span class="meta">' + esc(n.date) + (n.year ? " " + esc(n.year) : "") +
-        " · " + esc(n.relation) + "</span></li>";
+        " · " + esc(n.relation) + "</span>" +
+        (n.notes ? '<span class="meta">' + esc(n.notes) + "</span>" : "") +
+        "</li>";
     }).join("");
   }
   function listHtml(list) {

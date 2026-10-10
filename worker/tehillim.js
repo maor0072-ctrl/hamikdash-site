@@ -600,6 +600,26 @@ export default {
           headers: { "content-type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=60" },
         });
       }
+      // ד2 (הכרעת יעקב 11.10): הקטלוג נשאר על תת-הדומיין, ולכן תת-הדומיין צריך
+      // robots ו-sitemap משל עצמו. עמודי הספרים נושאים noindex ולכן אינם ברשימה -
+      // הם אותו HTML בכל כתובת טוקן, וריבוי שלהם היה נראה לגוגל כתוכן משוכפל דק.
+      if (url.pathname === "/robots.txt") {
+        return new Response(
+          "User-agent: *\nAllow: /\n\nSitemap: " + SHORT + "/sitemap.xml\n",
+          { status: 200, headers: { "content-type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=86400" } }
+        );
+      }
+      if (url.pathname === "/sitemap.xml") {
+        const body =
+          '<?xml version="1.0" encoding="UTF-8"?>' +
+          '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
+          "<url><loc>" + SHORT + "/sfarim</loc><changefreq>daily</changefreq><priority>0.8</priority></url>" +
+          "</urlset>";
+        return new Response(body, {
+          status: 200,
+          headers: { "content-type": "application/xml; charset=utf-8", "Cache-Control": "public, max-age=3600" },
+        });
+      }
       if (url.pathname === "/health") {
         return json({ ok: true, units: UNIT_COUNT }, 200, origin);
       }

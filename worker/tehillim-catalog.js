@@ -123,6 +123,9 @@ export function renderCatalog(items, opts) {
     "<title>ספרי תהילים פתוחים | תהילים ישראל</title>" +
     '<meta name="description" content="ספרי תהילים שנפתחו לרפואה, לעילוי נשמה ולהצלחה, ועדיין מחכים לקוראים. בוחרים פרק, קוראים ומסמנים.">' +
     '<meta property="og:title" content="ספרי תהילים פתוחים | תהילים ישראל">' +
+    '<meta property="og:description" content="ספרי תהילים שנפתחו לרפואה, להצלחה ולמשאלות הלב, ועדיין מחכים לקוראים. בוחרים פרק, קוראים ומסמנים.">' +
+    '<meta property="og:type" content="website">' +
+    '<meta property="og:url" content="' + SHORT + '/sfarim">' +
     '<meta property="og:locale" content="he_IL">' +
     '<link rel="canonical" href="' + SHORT + '/sfarim">' +
     '<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">' +

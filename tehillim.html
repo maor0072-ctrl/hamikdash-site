@@ -137,6 +137,12 @@
         והפועלים למען עם ישראל בכל מקום. לוקחים פרק וקוראים, מתי שרוצים.</span>
       </button>
 
+      <a class="door soft" href="https://t.hamikdash.co.il/sfarim">
+        <span class="t">ספרים פתוחים שאפשר להצטרף אליהם</span>
+        <span class="s">ספרי תהילים שנפתחו לרפואה ולעילוי נשמה ועדיין מחכים לקוראים. בוחרים
+        ספר, לוקחים פרק וקוראים.</span>
+      </a>
+
       <a class="door soft" href="/shema.html">
         <span class="t">להצטרפות לקהילת שמע רפא ומשאלות</span>
         <span class="s">קהילה שכל חבריה מתפללים זה על זה כל הזמן - על רפואה, על משאלות הלב,
@@ -230,6 +236,20 @@
           </div>
         </div>
 
+        <div class="field">
+          <label for="groupUrl">קישור לקבוצת וואטסאפ של הספר</label>
+          <input type="url" id="groupUrl" dir="ltr" placeholder="https://chat.whatsapp.com/..." autocomplete="off">
+          <span class="hint">אם פתחתם קבוצה לספר הזה, הקישור שלה יוצג בראש הספר. לא חובה</span>
+        </div>
+
+        <div class="field">
+          <label style="font-weight:400;display:flex;gap:10px;align-items:flex-start">
+            <input type="checkbox" id="listed" style="width:auto;margin-top:6px">
+            <span>להציג את הספר בקטלוג הציבורי של ספרים פתוחים, כדי שעוד אנשים יצטרפו לקרוא.
+            יוצגו שם הפרטי ושם האם כפי שנכתבו למעלה. אפשר להסיר בכל רגע ממסך הניהול.</span>
+          </label>
+        </div>
+
         <div class="actions">
           <button type="submit" class="btn btn-lg" id="submit-btn">לפתוח את הספר</button>
           <button type="button" class="btn btn-ghost" data-go="home">חזרה</button>
@@ -279,6 +299,7 @@
 
       <div class="actions">
         <a class="btn btn-lg" id="go-book" href="#">לפתוח את הספר</a>
+        <a class="btn btn-ghost" id="grp-done" href="#" style="display:none">להצטרפות לקבוצת הוואטסאפ של תהילים ישראל</a>
       </div>
     </div>
   </div>
@@ -360,6 +381,12 @@
 
   function copyFrom(input, btn) { if (input) copyText(input.value, btn); }
 
+  // ---------- קבוצת הוואטסאפ ----------
+  // הכפתור מוצג רק כשיש קבוצה פתוחה. אין קבוצה = אין כפתור, בלי הודעת שגיאה.
+  fetch(API + "/api/group").then(function (r) { return r.json(); }).then(function (d) {
+    if (d && d.ok && d.url) { $("grp-done").href = d.url; $("grp-done").style.display = ""; }
+  }).catch(function () { /* אין קבוצה */ });
+
   // ---------- המונה ----------
   function num(n) { return Number(n || 0).toLocaleString("he-IL"); }
 
@@ -429,8 +456,13 @@
       openerName: $("openerName").value.trim(),
       openerPhone: $("openerPhone").value.trim(),
       openerEmail: $("openerEmail").value.trim(),
-      openerRelation: $("openerRelation").value.trim()
+      openerRelation: $("openerRelation").value.trim(),
+      listed: $("listed").checked,
+      groupUrl: $("groupUrl").value.trim()
     };
+    if (body.groupUrl && !/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{10,40}(\?[A-Za-z0-9=&_.\-]{0,80})?$/.test(body.groupUrl)) {
+      return msg("הקישור לקבוצה צריך להיות קישור הצטרפות של וואטסאפ, שמתחיל ב-https://chat.whatsapp.com/", "err");
+    }
 
     if (!HEB.test(body.patientName)) return msg("השם הפרטי צריך להיכתב בעברית.", "err");
     if (!HEB.test(body.motherName)) return msg("שם האם צריך להיכתב בעברית.", "err");
@@ -455,6 +487,7 @@
     }).then(function (r) { return r.json(); }).then(function (d) {
       btn.disabled = false;
       btn.textContent = "לפתוח את הספר";
+      if (d && d.error === "bad_group") return msg("הקישור לקבוצה אינו קישור הצטרפות של וואטסאפ.", "err");
       if (!d || !d.ok) return msg("משהו השתבש בפתיחת הספר. נסו שוב.", "err");
       done(d, body);
     }).catch(function () {

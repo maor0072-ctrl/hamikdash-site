@@ -14,6 +14,7 @@ export { CounterDO } from "./tehillim-counter-do.js";
 
 import { UNITS } from "./tehillim-units.js";
 import { inQuietWindow } from "./tehillim-quiet.js";
+import { selectItems, renderCatalog, cleanGroupUrl, pickGroup } from "./tehillim-catalog.js";
 
 const ALLOWED = [
   "https://hamikdash.co.il",
@@ -184,6 +185,59 @@ async function doCall(stub, op, body) {
   return r.json();
 }
 
+// תיבת הסימון בטופס שולחת true. מקבלים גם "1" ו-"true" ולא שום דבר אחר:
+// ברירת המחדל היא לא לפרסם (ראה התוכנית, שאלה א1).
+const CATALOG_DEFAULT_ON = false;
+
+function wantsListing(v) {
+  if (v === undefined || v === null || v === "") return CATALOG_DEFAULT_ON;
+  return v === true || v === 1 || v === "1" || v === "true";
+}
+
+// ===== קבוצת הוואטסאפ הכללית =====
+
+// הקובץ יושב ב-GitHub Pages ונערך ביד. כשל בשליפה או קובץ שבור = אין קבוצה,
+// ולא שגיאה: הכפתורים פשוט אינם מוצגים.
+async function currentGroup() {
+  try {
+    const r = await fetch(SITE + "/tehillim/groups.json", { cf: { cacheTtl: 60, cacheEverything: true } });
+    if (!r.ok) return null;
+    return pickGroup(await r.json());
+  } catch (e) {
+    return null;
+  }
+}
+
+// ===== הקטלוג הציבורי =====
+
+// שולף חי מכל ספר רשום (במקביל) ובונה את הרשימה. הקריאה הכללית נכנסת תמיד,
+// בלי תלות ברישום: היא הספר הציבורי של העמותה עצמה.
+async function catalogItems(env) {
+  // הקריאה הכללית נוצרת בעצלתיים, בפעם הראשונה שמישהו לוחץ עליה. בלי השורה
+  // הזאת קטלוג שנפתח לפני כן היה מציג אותה חסרה. reopen אידמפוטנטי: ספר
+  // פתוח לא משתנה, וספר שנסגר נפתח מחדש כפי שהיה קורה בכל מקרה.
+  try {
+    await doCall(book(env, KLALI_ID), "reopen", { meta: KLALI_META });
+  } catch (e) {
+    /* תידלג בבנייה */
+  }
+  const reg = await doCall(counter(env), "catalog-list", { limit: 60 });
+  const ids = reg && reg.ok ? reg.books.map((b) => b.id) : [];
+  const all = [KLALI_ID].concat(ids.filter((id) => id !== KLALI_ID));
+  const rows = await Promise.all(
+    all.map(async (id) => {
+      try {
+        const r = await doCall(book(env, id), "counts", {});
+        r.id = id;
+        return r;
+      } catch (e) {
+        return null; // ספר אחד שנכשל לא מפיל את העמוד
+      }
+    })
+  );
+  return selectItems(rows, Date.now());
+}
+
 // ===== דואר =====
 
 async function sendMail(env, to, subject, html) {
@@ -239,6 +293,12 @@ async function createBook(request, env, origin) {
     return json({ ok: false, error: "bad_email" }, 400, origin);
   }
 
+  // קבוצת וואטסאפ של הספר, אם המארגן פתח אחת. ריק זה תקין; משהו שאינו
+  // כתובת הצטרפות של וואטסאפ נדחה במקום להישמר ולהפוך לקישור בדף.
+  const groupRaw = cleanFree(b.groupUrl, 200);
+  const groupUrl = cleanGroupUrl(groupRaw);
+  if (groupRaw && !groupUrl) return json({ ok: false, error: "bad_group" }, 400, origin);
+
   const secret = env.TEHILLIM_TOKEN_SECRET;
   if (!secret) return fail("no_secret", origin);
 
@@ -254,6 +314,7 @@ async function createBook(request, env, origin) {
     openerPhone: openerPhone,
     openerEmail: openerEmail,
     openerRelation: cleanFree(b.openerRelation, 40),
+    groupUrl: groupUrl,
     budgetMs: DEFAULT_BUDGET_MS,
   };
 
@@ -267,6 +328,16 @@ async function createBook(request, env, origin) {
     await doCall(counter(env), "book", {});
   } catch (e) {
     /* המונה אינו קריטי לפתיחת ספר */
+  }
+
+  // רישום בקטלוג הציבורי רק בהסכמה מפורשת של הפותח. כשל ברישום אינו
+  // מכשיל את פתיחת הספר: הפותח יכול להפעיל אותו אחר כך ממסך הניהול.
+  if (wantsListing(b.listed)) {
+    try {
+      await doCall(counter(env), "catalog-set", { bookId: id, listed: 1 });
+    } catch (e) {
+      /* ייווצר דרך מסך הניהול */
+    }
   }
 
   const publicUrl = SHORT + "/" + pub;
@@ -334,6 +405,19 @@ async function handleApi(request, url, env, origin) {
   if (parts[1] === "stats") {
     const s = await doCall(counter(env), "stats", {});
     return json(s, 200, origin, { "Cache-Control": "public, max-age=30" });
+  }
+
+  if (parts[1] === "group" && request.method === "GET") {
+    const g = await currentGroup();
+    // הכתובת שמוצגת היא הקבועה, לא של וואטסאפ: מה שנשלח לקבוצות לא משתנה
+    // כשקבוצה מתמלאת.
+    return json(g ? { ok: true, n: g.n, url: SHORT + "/kvutza" } : { ok: false }, 200, origin,
+      { "Cache-Control": "public, max-age=60" });
+  }
+
+  if (parts[1] === "catalog" && request.method === "GET") {
+    const items = await catalogItems(env);
+    return json({ ok: true, books: items }, 200, origin, { "Cache-Control": "public, max-age=60" });
   }
 
   if (parts[1] === "book" && parts.length === 2 && request.method === "POST") {
@@ -437,7 +521,14 @@ async function handleApi(request, url, env, origin) {
       s.roster = r && r.ok ? r.readers : [];
       s.quiet = inQuietWindow(Date.now());
       s.publicUrl = SHORT + "/" + (await publicToken(p.b));
+      const cg = await doCall(counter(env), "catalog-get", { bookId: p.b });
+      s.listed = cg && cg.listed ? 1 : 0;
       return json(s, 200, origin);
+    }
+
+    if (op === "listing" && request.method === "POST") {
+      const r = await doCall(counter(env), "catalog-set", { bookId: p.b, listed: b.listed ? 1 : 0 });
+      return json(r, r.ok ? 200 : 400, origin);
     }
 
     if (op === "distribute" && request.method === "POST") {
@@ -490,6 +581,23 @@ export default {
       }
       if (url.pathname.startsWith("/m/")) {
         return servePage("/tehillim/manage.html");
+      }
+      if (url.pathname === "/kvutza" || url.pathname === "/kvutza/") {
+        const g = await currentGroup();
+        if (g) return new Response(null, { status: 302, headers: { Location: g.url, "Cache-Control": "no-store" } });
+        return new Response(
+          "<!DOCTYPE html><html lang='he' dir='rtl'><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>" +
+            "<title>תהילים ישראל</title><body style='font-family:Arial,sans-serif;font-size:18px;padding:30px;line-height:1.8'>" +
+            "<p>קבוצת הוואטסאפ של תהילים ישראל עדיין לא נפתחה.</p><p><a href='" + SITE + "/tehillim.html'>חזרה לתהילים ישראל</a></p></body></html>",
+          { status: 404, headers: { "content-type": "text/html; charset=utf-8", "Cache-Control": "no-store" } }
+        );
+      }
+      if (url.pathname === "/sfarim" || url.pathname === "/sfarim/") {
+        const items = await catalogItems(env);
+        const g = await currentGroup();
+        return new Response(renderCatalog(items, g ? { groupUrl: SHORT + "/kvutza" } : {}), {
+          headers: { "content-type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=60" },
+        });
       }
       if (url.pathname === "/health") {
         return json({ ok: true, units: UNIT_COUNT }, 200, origin);

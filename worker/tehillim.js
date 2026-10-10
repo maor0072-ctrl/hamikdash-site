@@ -185,9 +185,10 @@ async function doCall(stub, op, body) {
   return r.json();
 }
 
-// תיבת הסימון בטופס שולחת true. מקבלים גם "1" ו-"true" ולא שום דבר אחר:
-// ברירת המחדל היא לא לפרסם (ראה התוכנית, שאלה א1).
-const CATALOG_DEFAULT_ON = false;
+// תיבת הסימון בטופס שולחת true או false. מקבלים גם "1" ו-"true" ולא שום דבר אחר.
+// ברירת המחדל היא כן לפרסם - הכרעת יעקב, ג1 ב-11.10.2026: קטלוג שאינו ברירת מחדל
+// נשאר ריק ואינו מביא אף אחד. מי שאינו רוצה מסיר את הסימון, או מכבה במסך הניהול.
+const CATALOG_DEFAULT_ON = true;
 
 function wantsListing(v) {
   if (v === undefined || v === null || v === "") return CATALOG_DEFAULT_ON;

@@ -392,14 +392,15 @@ export default {
         return new Response("bad email", { status: 400, headers });
       let souls = [];
       try {
-        const raw = env.NAMES
-          ? await env.NAMES.get("sub:" + (await ownerHash(em)))
-          : null;
+        const ownerKey = await ownerHash(em);
+        const raw = env.NAMES ? await env.NAMES.get("sub:" + ownerKey) : null;
+        let removed = false;
         if (raw) {
           const rec = JSON.parse(raw) || {};
           // רשומה שהמוסר ביקש להסיר חוזרת ריקה. הוא הסיר אותה בכוונה,
           // ואין להחיות אותה מאחורי גבו.
-          if (!rec.removed)
+          removed = !!rec.removed;
+          if (!removed)
             souls = (rec.souls || []).map((x) => ({
               name: x.name || "",
               parent: x.parent || "",
@@ -408,6 +409,27 @@ export default {
               gender: x.gender || "",
               year: x.year || "",
             }));
+        }
+        // ואיחוד עם הרשימה הפומבית לפי אותו מפתח בעלות. `souls` נכתב רק
+        // מהטופס ורק מ-22.9.2026, ואילו הרשימה הפומבית מכילה גם שמות
+        // שנטענו ידנית, שנמסרו לפני התאריך הזה או ששוחזרו מהדואר. בלי
+        // האיחוד הזה בעל 94 שמות ברשימה הפומבית ראה בטופס אפס - נמדד
+        // 10.10.2026 על הרשומה של יעקב עצמו.
+        if (!removed) {
+          const key = (x) => [x.name, x.parent, x.date].join("|");
+          const seen = new Set(souls.map(key));
+          for (const x of await readPublic(env)) {
+            if (x.owner !== ownerKey || seen.has(key(x))) continue;
+            seen.add(key(x));
+            souls.push({
+              name: x.name || "",
+              parent: x.parent || "",
+              date: x.date || "",
+              relation: x.relation || "",
+              gender: x.gender || "",
+              year: x.year || "",
+            });
+          }
         }
       } catch (e) {
         console.log("lookup failed", String(e).slice(0, 200));

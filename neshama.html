@@ -767,6 +767,28 @@
 
   refreshIntro();
 
+  // רענון שקט מהשרת כשהמכשיר כבר מכיר את כתובת הדואר. בלי זה מסך הפתיחה
+  // מציג את מה ש-localStorage זוכר כאילו הוא האמת, וזה נמדד 10.10.2026:
+  // המכשיר הראה שני שמות בזמן ששבעים ומשהו שמות אחרים ישבו בשרת על אותה
+  // כתובת. אין כאן שאלת פרטיות - זה אותו מכשיר שכבר מחזיק את הזהות.
+  if (me && me.email) {
+    lookupNames(me.email, function (souls, err) {
+      if (err || !souls || !souls.length) return;
+      var key = function (n) { return [n.name, n.parent, n.date].join("|"); };
+      var have = {};
+      for (var i = 0; i < souls.length; i++) have[key(souls[i])] = 1;
+      var extra = saved.filter(function (n) { return !have[key(n)]; });
+      var merged = souls.concat(extra);
+      if (merged.length === saved.length) return;
+      saved = merged;
+      save(KEY_NAMES, saved);
+      var on = document.querySelector(".view.on");
+      if (!on || on.id === "view-intro") refreshIntro();
+      if (on && on.id === "view-names") prepNames();
+      if (on && on.id === "view-list") renderList();
+    });
+  }
+
   /* ---------- הרשימה הפומבית ---------- */
   // שני מקורות: מה שאנשים מסרו דרך הטופס (יושב אצל ה-Worker), ורשימה ידנית
   // ב-/data/neshama-week.json ליארצייטים שיעקב מזין בעצמו. עד שיהיה מנוע

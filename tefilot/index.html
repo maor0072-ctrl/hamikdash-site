@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>תפילות ושירותים | אורות האמונה - בני משה</title>
+<meta name="description" content="מסרו שם ובקשה, והאברכים ילמדו ויתפללו עליה. לצד הבקשות עומדים התהילים של פרויקט תהילים ישראל ושותפי שמע בחצות.">
+<meta property="og:title" content="תפילות ושירותים | אורות האמונה - בני משה">
+<meta property="og:description" content="מסרו שם ובקשה, וכל הלימוד והתפילה של הכולל יכוונו גם אליה.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="he_IL">
+<meta property="og:image" content="https://hamikdash.co.il/assets/og/default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="אורות האמונה - בני משה">
+<meta property="og:url" content="https://hamikdash.co.il/tefilot/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/favicon.png" sizes="any">
+<link rel="apple-touch-icon" href="/assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+/* סגנונות מקומיים לעמוד הזה בלבד, כדי לא לגעת בגיליון הראשי */
+.form-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:28px 26px;margin:0 auto;max-width:760px}
+.field{margin-bottom:18px}
+.field label{display:block;font-weight:700;margin-bottom:6px;font-size:16px}
+.field .hint{display:block;font-weight:400;color:var(--ink-soft);font-size:14px;margin-top:2px}
+.field input,.field select,.field textarea{width:100%;font-family:inherit;font-size:17px;
+  color:var(--ink);background:var(--cream);border:1px solid var(--line);border-radius:8px;
+  padding:11px 13px;transition:border-color .15s,background .15s}
+.field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:var(--gold);
+  background:var(--white)}
+.field textarea{min-height:90px;resize:vertical}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+@media(max-width:640px){.row-2{grid-template-columns:1fr}}
+.niftar{border:1px solid var(--line);border-radius:var(--radius);padding:20px 18px 4px;
+  margin-bottom:16px;background:var(--cream-warm)}
+.niftar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.niftar-head h3{font-size:17px;color:var(--gold-deep);margin:0}
+.niftar-remove{background:none;border:0;color:var(--ink-soft);font-size:15px;cursor:pointer;
+  text-decoration:underline;font-family:inherit;padding:0}
+.form-sep{border:0;border-top:1px solid var(--line);margin:26px 0 22px}
+
+/* שדה מלכודת הספאם, מוסתר בלי ליצור גלישה אופקית.
+   לא להחזיר לעולם ל-left:-9999px: בדף RTL זה מותח את רוחב הגלילה ל-10,000
+   פיקסלים, הדפדפן נוחת בקצה הלא נכון, וכל התוכן נשאר מחוץ למסך - הדף נראה
+   ריק לגמרי בנייד. זה קרה בפועל ב-8.9.2026. */
+.hp{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+.form-msg{margin-top:16px;padding:14px 16px;border-radius:8px;font-size:16px;display:none}
+.form-msg.err{display:block;background:#fdecea;border-right:4px solid #c0392b;color:#7b241c}
+.form-msg.ok{display:block;background:var(--cream-warm);border-right:4px solid var(--gold);
+  color:var(--ink)}
+.note-box{background:var(--cream-warm);border-right:4px solid var(--gold);border-radius:8px;
+  padding:16px 20px;margin:22px 0}
+.note-box p{margin:0}
+.star{color:var(--gold-deep);font-weight:700}
+.view{display:none}
+.view.on{display:block}
+.step-mark{color:var(--gold-deep);font-size:15px;font-weight:700;margin-bottom:6px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.done-list{background:var(--cream-warm);border:1px solid var(--line);border-radius:var(--radius);
+  padding:6px 22px;margin:22px 0}
+.done-list li{margin:12px 0;line-height:1.6}
+.done-list .meta{color:var(--ink-soft);font-size:15px;display:block}
+.back-link{background:none;border:0;color:var(--ink-soft);font-family:inherit;font-size:16px;
+  text-decoration:underline;cursor:pointer;padding:0;margin-top:18px}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <a href="/"><span class="brand-name">אורות האמונה - בני משה</span></a>
+      <span class="brand-sub">בראשות הרב יעקב מאור</span>
+    </div>
+    <nav class="nav">
+      <a href="/">בית</a>
+      <a href="/about.html">אודות</a>
+      <a href="/neshama.html">עילוי נשמה</a>
+      <a href="/tefilot/" class="active">תפילות ושירותים</a>
+      <a href="/shema.html">שמע בחצות</a>
+      <a href="/torah.html">תוכן תורני</a>
+      <a href="/chagim/">חגים</a>
+      <a href="/contact.html">יצירת קשר</a>
+      <a href="/donate.html">לתרומה</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-head">
+  <div class="wrap">
+    <h1>תפילות ושירותים</h1>
+    <p>מסרו לנו שם ובקשה, והבקשה תעמוד לפני האברכים שלומדים בכולל כל יום. בלי שתצטרכו להכיר אותנו.</p>
+    <p>לצד השם מוסרים גם שם של הורה - שם האם או שם האב, כמנהגכם.</p>
+  </div>
+</div>
+
+<!-- ============ מסך 1: הסבר וכניסה ============ -->
+<section class="view on" id="view-intro">
+  <div class="wrap prose">
+
+    <!-- מבקר חדש -->
+    <div class="actions" id="intro-new" style="margin-top:0">
+      <button type="button" class="btn btn-lg" data-go="details">למסירת שם</button>
+    </div>
+
+    <!-- מי שכבר מסר מהמכשיר הזה -->
+    <div id="intro-return" style="display:none">
+      <div class="note-box" style="margin-top:0"><p id="return-line"></p></div>
+      <div class="actions" style="margin-top:0">
+        <button type="button" class="btn btn-lg" data-go="names">הוספת שמות</button>
+        <button type="button" class="btn btn-ghost btn-lg" data-go="edit">שינוי שמות שמסרת</button>
+      </div>
+    </div>
+
+    <h2 id="week-title">השמות שעומדים לתפילה:</h2>
+    <p style="color:var(--ink-soft);font-size:16px;margin-top:-6px">הבקשה עצמה אינה מופיעה כאן ואינה נראית לאף אחד מלבדנו. ברשימה הגלויה עומד השם בלבד, כדי שכל מי שנכנס יוכל לומר עליו מילה או פרק תהילים.</p>
+    <div id="week-box">
+      <p style="color:var(--ink-soft)">טוען...</p>
+    </div>
+
+    <hr class="form-sep">
+
+    <h2>מה עומד מאחורי הבקשה שלכם</h2>
+    <p>בכולל שלנו יושבים אברכים ולומדים כל יום, שנה אחרי שנה. שם שנמסר כאן עומד לפניהם, נאמר בתפילות ובעת פתיחת ההיכל, והלימוד של אותם ימים מכוון גם לכך שהבקשה שנמסרה איתו תתקבל.</p>
+    <p>ולא רק הכולל. בפרויקט <strong>תהילים ישראל</strong> אומרים המוני אנשים את ספר התהילים כולו, שוב ושוב, וכל ספר שנסגר נסגר גם על השמות שעומדים ברשימה הזאת. בפרויקט <strong>שמע בחצות</strong> יש שותפים שקמים בחצות הלילה, בשעה שהיא עת רצון, וגם הם אומרים את השמות. כל זה מצטרף לאותו דבר אחד: שהבקשה שלכם תתקבל.</p>
+    <p>אין כאן שום התחייבות. מי שרוצה לקחת חלק בהחזקת הכולל מוזמן, ומי שלא, השם שלו יעמוד בדיוק אותו הדבר.</p>
+
+    <h2>מה אפשר לבקש</h2>
+    <p>כל דבר שאדם מבקש מהקדוש ברוך הוא. פרנסה, זרע של קיימא, שלום בית, שידוך, הצלחה בלימוד, ישועה בדין, או משהו שאין לו שם ואתם יודעים מה הוא. תכתבו את זה במילים שלכם, קצר או ארוך, ואנחנו נקרא.</p>
+    <p><strong>מה שכתוב בבקשה נשאר אצלנו.</strong> הוא מגיע אלינו במייל ואינו עולה לשום רשימה גלויה, לא באתר ולא בשום מקום אחר. ברשימה שבדף הזה עומד השם בלבד.</p>
+
+    <h2>יש בקשות שיש להן דף משל עצמן</h2>
+    <p>אם הבקשה שלכם היא אחת מאלה, כדאי למסור אותה דווקא שם, כי שם יש פרויקט שבנוי בשבילה.</p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-mark"></div>
+        <h3><a href="/neshama.html">עילוי נשמה</a></h3>
+        <p>שם של נפטר. האברכים לומדים ומתפללים לעילוי נשמתו, ובכל שנה מגיעה אליכם תזכורת ליארצייט.</p>
+      </div>
+      <div class="card">
+        <div class="card-mark"></div>
+        <h3><a href="/refua.html">שמות לרפואה</a></h3>
+        <p>שם של חולה. נשאר ברשימה כל עוד הוא נחוץ, ועומד לפני האברכים ובפתיחת ההיכל.</p>
+      </div>
+      <div class="card">
+        <div class="card-mark"></div>
+        <h3><a href="/shema.html">שמע בחצות</a></h3>
+        <p>השותפות של מי שקם בחצות הלילה. עת רצון, ומסירת משאלה שנאמרת בה.</p>
+      </div>
+      <div class="card">
+        <div class="card-mark"></div>
+        <h3><a href="/tehillim.html">תהילים ישראל</a></h3>
+        <p>ספר תהילים שלם שמתחלק בין המונים ונסגר שוב ושוב, לרפואה, לישועה או לעילוי נשמה.</p>
+      </div>
+      <div class="card">
+        <div class="card-mark"></div>
+        <h3><a href="/pidyon-nefesh/">פדיון נפש</a></h3>
+        <p>פדיון שנעשה על שם ועל בקשה, בנוסח ובסדר שנהוג בו.</p>
+      </div>
+    </div>
+
+    <hr class="form-sep">
+
+    <h2>השם נשאר ברשימה כל עוד הוא נחוץ</h2>
+    <p>אין כאן תאריך שפג ואין צורך למסור את השם פעם שנייה. הוא נשאר ברשימה, ואתם מחליטים מתי להוציא אותו. במייל האישור שתקבלו יש קישור שמסיר את השמות בלחיצה אחת, בלי למלא שום דבר.</p>
+    <p>וכשתבוא הישועה, בבקשה הודיעו לנו. אנחנו רוצים לדעת, ורשימה מעודכנת היא גם תפילה מכוונת יותר.</p>
+
+    <div class="note-box">
+      <p><strong>אם הפרטים לא מדויקים.</strong> אם השם הכתוב אינו השם שקוראים בו, או שאינכם יודעים את שם ההורה במדויק, כתבו מה שאתם יודעים. שם שנמסר עם פרט חסר עדיף פי כמה על שם שלא נמסר, ואפשר לשנות בכל עת מהדף הזה.</p>
+    </div>
+
+  </div>
+  <div class="shr" data-share-text="מצאתי אתר מדהים של הרב יעקב מאור, למסירת שם ובקשה לתפילה. היכנסו ותנו שמות. זה מדהים. הפרטים באתר."></div>
+</section>
+
+<!-- ============ מסך 2: פרטי המבקש ============ -->
+<section class="view" id="view-details">
+  <div class="wrap">
+    <div class="form-card">
+      <div class="step-mark">שלב 1 מתוך 2</div>
+      <h2 style="font-size:24px;margin-bottom:8px">הפרטים שלכם</h2>
+      <p style="color:var(--ink-soft);font-size:15px;margin-bottom:22px">כל השדות נדרשים.</p>
+
+      <div class="row-2">
+        <div class="field">
+          <label for="name">שם מלא</label>
+          <input type="text" id="name" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="phone">טלפון נייד</label>
+          <input type="tel" id="phone" autocomplete="tel" inputmode="tel">
+        </div>
+      </div>
+      <div class="field">
+        <label for="email">דואר אלקטרוני</label>
+        <input type="email" id="email" autocomplete="email" inputmode="email">
+      </div>
+
+      <div class="hp" aria-hidden="true">
+        <label for="website">אל תמלאו שדה זה</label>
+        <input type="text" id="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-lg" id="details-next">המשך לשמות</button>
+      </div>
+      <div id="details-msg" class="form-msg"></div>
+      <button type="button" class="back-link" data-go="intro">חזרה</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ מסך 3: השמות ============ -->
+<section class="view" id="view-names">
+  <div class="wrap">
+    <div class="form-card">
+      <div class="step-mark" id="names-step">שלב 2 מתוך 2</div>
+      <h2 style="font-size:24px;margin-bottom:8px" id="names-title">השמות והבקשות</h2>
+      <p style="color:var(--ink-soft);font-size:15px;margin-bottom:22px">
+        עד חמישה שמות בפנייה אחת, ולכל שם הבקשה שלו. אפשר לכתוב את השם כפי שנוהגים להזכיר אותו בתפילה, עם שם המשפחה או בלעדיו.</p>
+
+      <div id="prev-on-names"></div>
+
+      <div id="niftarim"></div>
+
+      <p style="margin-bottom:22px">
+        <button type="button" id="add-niftar" class="btn btn-ghost">הוספת שם נוסף</button>
+      </p>
+
+      <div class="field">
+        <label for="note">הערה <span class="hint">לא חובה. אם יש משהו שחשוב שנדע.</span></label>
+        <textarea id="note"></textarea>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-lg" id="submit-btn">שליחת השמות</button>
+      </div>
+      <div id="names-msg" class="form-msg"></div>
+      <button type="button" class="back-link" data-go="intro">חזרה</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ מסך 4: אישור ============ -->
+<section class="view" id="view-done">
+  <div class="wrap">
+    <div class="form-card">
+      <h2 style="font-size:26px;margin-bottom:10px" id="done-title">השמות התקבלו</h2>
+      <p id="done-sub">שלחנו לכם אישור לדואר האלקטרוני, והשמות והבקשות מועברים לאברכי הכולל. שתזכו לישועה במהרה.</p>
+      <ul class="done-list" id="done-list"></ul>
+      <div id="done-prev"></div>
+      <div class="actions">
+        <button type="button" class="btn" data-go="names">הוספת שמות נוספים</button>
+        <button type="button" class="btn btn-ghost" data-go="edit">שינוי שמות שמסרת</button>
+        <a href="/donate.html" class="btn btn-ghost">להחזקת הכולל</a>
+      </div>
+    </div>
+  </div>
+  <div class="shr" data-share-text="מצאתי אתר מדהים של הרב יעקב מאור, למסירת שם ובקשה לתפילה. היכנסו ותנו שמות. זה מדהים. הפרטים באתר."></div>
+</section>
+
+<!-- ============ מסך 5: צפייה בשמות ============ -->
+<section class="view" id="view-list">
+  <div class="wrap">
+    <div class="form-card">
+      <h2 style="font-size:24px;margin-bottom:10px">השמות שמסרת</h2>
+      <p style="color:var(--ink-soft);font-size:15px" id="list-sub"></p>
+      <ul class="done-list" id="list-list"></ul>
+      <div class="actions">
+        <button type="button" class="btn" data-go="names">הוספת שמות נוספים</button>
+        <button type="button" class="btn btn-ghost" data-go="edit">תיקון לשמות שנמסרו</button>
+      </div>
+      <button type="button" class="back-link" data-go="intro">חזרה</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ מסך 6: תיקון ============ -->
+<section class="view" id="view-edit">
+  <div class="wrap">
+    <div class="form-card">
+      <h2 style="font-size:24px;margin-bottom:8px">תיקון השמות שנמסרו</h2>
+      <p style="color:var(--ink-soft);font-size:15px;margin-bottom:22px">
+        תקנו מה שצריך ושלחו, או מחקו שם שאינכם רוצים שיופיע. הרשימה
+        המתוקנת תחליף אצלנו את הקודמת.</p>
+
+      <div id="edit-niftarim"></div>
+      <div id="edit-empty" style="display:none">
+        <div class="note-box" style="border-right-color:#c0392b">
+          <p>מחקת את כל השמות. לחיצה על הכפתור תסיר אותם מרשימת הכולל.
+          אפשר למסור שמות מחדש בכל עת.</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-lg" id="edit-submit">שליחת התיקון</button>
+      </div>
+      <div id="edit-msg" class="form-msg"></div>
+      <button type="button" class="back-link" data-go="intro">חזרה</button>
+    </div>
+  </div>
+</section>
+
+<div class="band">
+  <h2>מה שמחזיק את הכולל</h2>
+  <p>אברכים שיושבים ולומדים כל יום נשענים על אנשים שנותנים בקביעות. כל שקל הולך ממש לקודש הקודשים.</p>
+  <a href="/donate.html" class="btn btn-lg">קחו חלק בהוראת קבע</a>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>אורות האמונה - בני משה</h4>
+        <p>עמותה רשומה הפועלת לחיזוק לימוד התורה, לליווי משפחות ולסיוע ישיר למי שנזקק.</p>
+      </div>
+      <div>
+        <h4>ניווט</h4>
+        <a href="/about.html">אודות</a>
+        <a href="/neshama.html">עילוי נשמה</a>
+        <a href="/refua.html">שמות לרפואה</a>
+        <a href="/shema.html">שמע בחצות</a>
+        <a href="/torah.html">תוכן תורני</a>
+        <a href="/chagim/">חגים</a>
+        <a href="/donate.html">תרומה</a>
+        <a href="/contact.html">יצירת קשר</a>
+      </div>
+      <div>
+        <h4>עקבו אחרינו</h4>
+        <a href="https://www.youtube.com/@ravmaor" target="_blank" rel="noopener">יוטיוב</a>
+        <a href="https://wa.me/972528395189" target="_blank" rel="noopener">וואטסאפ</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      כל הזכויות שמורות לעמותת אורות האמונה - בני משה
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  // 09.10.2026: עבר מ-workers.dev לדומיין משנה שלנו, כי workers.dev
+  // חסום ברשתות רבות ומוסר אמיתי נחסם מהטופס. הישן נשאר כגיבוי.
+  // 09.10.2026: מוסר אמיתי לא הצליח למסור שמות, והבקשה שלו **מעולם לא הגיעה
+  // לקלאודפלייר** - אין מייל, אין רשומה, ויומן הוורקר מראה אפס שגיאות. הסיבה
+  // הסבירה היחידה היא ש-`workers.dev` חסום ברשתות רבות (מסנני פרסומות, DNS
+  // מסונן, חלק מהספקים הסלולריים), כי הוא משמש להרבה דיוג. העמוד נטען מגיטהאב
+  // ועובד, וה-API מדומיין אחר נופל בשקט. לכן הכתובת עברה לדומיין משנה שלנו,
+  // בדיוק כמו `t.hamikdash.co.il` של התהילים.
+  var ENDPOINT = "https://tefilot.hamikdash.co.il";
+  var ENDPOINT_FALLBACK = "https://hamikdash-tefilot.maor0072.workers.dev";
+
+  // הכתובת הישנה נשארת כגיבוי ל**כשל רשת בלבד**: דחייה של fetch פירושה שלא
+  // הגענו לשרת כלל, ואז שווה לנסות את הכתובת האחרת. תשובה עם קוד שגיאה פירושה
+  // שהגענו והשרת אמר לא, ואותה אין להפנות לשום מקום. apiFetch עוטף את הקריאות
+  // ומשאיר כל שרשרת then/catch קיימת כפי שהיא.
+  function apiFetch(url, init) {
+    return fetch(url, init).catch(function (err) {
+      if (String(url).indexOf(ENDPOINT) !== 0) throw err;
+      return fetch(ENDPOINT_FALLBACK + String(url).slice(ENDPOINT.length), init);
+    });
+  }
+
+  // הודעה גנרית אחת לכל סוג כשל היא מה שהשאיר אותנו עיוורים: אותו „משהו
+  // השתבש" הוצג ל-400 ולידציה, ל-502 ולחסימת רשת. מעכשיו הנפגע יכול למסור לנו
+  // את הקוד. מה שאינו קוד ואינו כשל רשת אינו מוצג, כדי שלא יזלוג טקסט פנימי.
+  function why(err) {
+    var m = String((err && err.message) || "").match(/(\d{3})/);
+    if (m) return " (קוד " + m[1] + ")";
+    if (err && err.name === "TypeError") return " (אין חיבור לשרת)";
+    return "";
+  }
+  var MAX = 5;
+  // "עצמי" ראשון ובכוונה: בבקשה כללית רוב המוסרים מבקשים על עצמם, ובלעדיו
+  // הם נאלצים לבחור "אחר" על עצמם.
+  var RELATIONS = ["עצמי", "אב", "אם", "בעל", "אישה", "בן", "בת", "אח", "אחות",
+                   "סב", "סבתא", "דוד", "דודה", "קרוב משפחה", "קרובת משפחה",
+                   "חבר", "חברה", "רב", "אחר"];
+
+  // "ראובן" + "ניסן" הוא לא "ראובן ניסן" אלא "ראובן בן ניסן". המגדר נגזר
+  // מהקרבה, שהיא ממילא שדה חובה - בלי לשאול שאלה נוספת. אם המבקש כבר כתב
+  // "בן"/"בת" בעצמו, לא מוסיפים פעמיים.
+  function fullName(n) {
+    var name = String(n.name || "").trim(), parent = String(n.parent || "").trim();
+    if (!parent) return name;
+    if (/^(בן|בת|ב"ר|בר)\s/.test(parent)) return name + " " + parent;
+    if (n.gender === "f") return name + " בת " + parent;
+    if (n.gender === "m") return name + " בן " + parent;
+    return name + " " + parent; // בלי מגדר לא ממציאים
+  }
+
+  // הזיכרון יושב במכשיר של המבקש. בגל האפס אין מאגר בצד השרת, ובלי זה אין
+  // מה להראות לו אחרי השליחה ואין מה לתקן - וזה בדיוק מה שנשבר בבדיקה
+  // הראשונה: השמות נמחקו מהמסך והתחושה הייתה שהם לא נקלטו.
+  var KEY_ME = "hamikdash_tefilot_me";
+  var KEY_NAMES = "hamikdash_tefilot_names";
+
+  function load(k, fallback) {
+    try { return JSON.parse(localStorage.getItem(k)) || fallback; }
+    catch (e) { return fallback; }
+  }
+  function save(k, v) {
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {}
+  }
+
+  var me = load(KEY_ME, null);
+  var saved = load(KEY_NAMES, []);
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------- ניווט בין המסכים ---------- */
+  function show(view) {
+    var all = document.querySelectorAll(".view");
+    for (var i = 0; i < all.length; i++) all[i].classList.remove("on");
+    var el = $("view-" + view);
+    if (!el) el = $("view-intro");
+    el.classList.add("on");
+    window.scrollTo(0, 0);
+    if (view === "intro") { refreshIntro(); loadPublic(); }
+    if (view === "list") renderList();
+    if (view === "edit") renderEdit();
+    if (view === "names") prepNames();
+  }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("[data-go]") : null;
+    if (!b) return;
+    var target = b.getAttribute("data-go");
+    // אי אפשר למסור שמות בלי פרטים, ואי אפשר לתקן בלי שיש מה
+    if (target === "names" && !me) target = "details";
+    if ((target === "edit" || target === "list") && !saved.length) target = "intro";
+    show(target);
+  });
+
+  function refreshIntro() {
+    var has = saved.length > 0;
+    $("intro-new").style.display = has ? "none" : "";
+    $("intro-return").style.display = has ? "" : "none";
+    if (has) {
+      $("return-line").innerHTML =
+        "<strong>מסרת לנו " + saved.length +
+        (saved.length === 1 ? " שם" : " שמות") + ":</strong> " +
+        saved.map(function (n) { return esc(fullName(n)); }).join(" · ");
+    }
+  }
+
+  /* ---------- מסך פרטי המבקש ---------- */
+  function fillMe() {
+    if (!me) return;
+    $("name").value = me.name || "";
+    $("phone").value = me.phone || "";
+    $("email").value = me.email || "";
+  }
+  fillMe();
+
+  function msg(id, kind, text) {
+    var el = $(id);
+    el.className = "form-msg " + kind;
+    el.textContent = text;
+  }
+
+  function validPhone(p) {
+    var d = String(p).replace(/[\s\-().]/g, "");
+    return /^(\+?972|0)5\d{8}$/.test(d) || /^\+\d{9,15}$/.test(d);
+  }
+
+  $("details-next").addEventListener("click", function () {
+    var name = $("name").value.trim();
+    var phone = $("phone").value.trim();
+    var email = $("email").value.trim();
+    if (!name || !phone || !email)
+      return msg("details-msg", "err", "נא למלא שם, טלפון ודואר אלקטרוני.");
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
+      return msg("details-msg", "err", "כתובת הדואר האלקטרוני לא נראית תקינה.");
+    if (!validPhone(phone))
+      return msg("details-msg", "err", "מספר הנייד לא נראה תקין. לדוגמה: 0501234567");
+    me = { name: name, phone: phone, email: email };
+    save(KEY_ME, me);
+    msg("details-msg", "ok", "");
+    $("details-msg").className = "form-msg";
+    show("names");
+  });
+
+  /* ---------- בלוק שם ---------- */
+  function optionsHtml(sel) {
+    return RELATIONS.map(function (r) {
+      return '<option value="' + r + '"' + (r === sel ? " selected" : "") + ">" + r + "</option>";
+    }).join("");
+  }
+
+  function block(v, removable) {
+    v = v || {};
+    var d = document.createElement("div");
+    d.className = "niftar";
+    d.innerHTML =
+      '<div class="niftar-head"><h3>שם <span class="num"></span></h3>' +
+      '<button type="button" class="niftar-remove">הסרה</button></div>' +
+      '<div class="row-2">' +
+      '<div class="field"><label>השם' +
+      '<span class="hint">כפי שקוראים לו בתפילה</span></label>' +
+      '<input type="text" class="n-name" value="' + esc(v.name) + '"></div>' +
+      '<div class="field"><label>שם האם או האב' +
+      '<span class="hint">רק השם, למשל "רבקה"</span></label>' +
+      '<input type="text" class="n-parent" value="' + esc(v.parent) + '"></div>' +
+      "</div>" +
+      '<div class="row-2">' +
+      '<div class="field"><label>הקרבה אליכם</label>' +
+      '<select class="n-relation"><option value="">בחרו</option>' +
+      optionsHtml(v.relation) + "</select></div>" +
+      '<div class="field"><label>זכר או נקבה' +
+      '<span class="hint">כדי לדעת "בן" או "בת"</span></label>' +
+      '<select class="n-gender"><option value="">בחרו</option>' +
+      '<option value="m"' + (v.gender === "m" ? " selected" : "") + ">זכר</option>" +
+      '<option value="f"' + (v.gender === "f" ? " selected" : "") + ">נקבה</option>" +
+      "</select></div>" +
+      "</div>" +
+      '<div class="field"><label>הבקשה' +
+      '<span class="hint">במילים שלכם. פרנסה, זרע של קיימא, שלום בית, שידוך, הצלחה בלימוד, ישועה. מה שכתוב כאן נשאר אצלנו ואינו עולה לשום רשימה גלויה.</span></label>' +
+      '<textarea class="n-request">' + esc(v.request) + "</textarea></div>";
+    d.querySelector(".niftar-remove").addEventListener("click", function () {
+      var parent = d.parentNode;
+      if (parent.id === "edit-niftarim" &&
+          !window.confirm("למחוק את " + (fullName({
+            name: d.querySelector(".n-name").value,
+            parent: d.querySelector(".n-parent").value,
+            gender: d.querySelector(".n-gender").value
+          }) || "השם") + " מהרשימה?")) return;
+      d.remove();
+      renumber(parent);
+    });
+    return d;
+  }
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // מספור מחדש והסתרת כפתור ההסרה כשנשאר בלוק אחד, אחרת אפשר למחוק
+  // את כל השמות ולשלוח טופס ריק.
+  function renumber(wrap) {
+    var editing = wrap.id === "edit-niftarim";
+    var blocks = wrap.querySelectorAll(".niftar");
+    for (var i = 0; i < blocks.length; i++) {
+      blocks[i].querySelector(".num").textContent = i + 1;
+      var rm = blocks[i].querySelector(".niftar-remove");
+      // במסך העריכה המחיקה זמינה תמיד, גם לשם האחרון. אדם שמבקש להסיר
+      // שם חייב לקבל את זה, ולא להיתקע כי זה השם היחיד שנשאר לו.
+      rm.style.display = editing || blocks.length > 1 ? "" : "none";
+      rm.textContent = editing ? "מחיקת השם" : "הסרה";
+      rm.style.color = editing ? "#c0392b" : "";
+    }
+    if (wrap.id === "niftarim")
+      $("add-niftar").style.display = blocks.length >= MAX ? "none" : "";
+    if (editing) {
+      $("edit-empty").style.display = blocks.length ? "none" : "";
+      $("edit-submit").textContent = blocks.length
+        ? "שליחת התיקון" : "אישור מחיקת כל השמות";
+    }
+  }
+
+  function collect(wrap) {
+    var out = [], blocks = wrap.querySelectorAll(".niftar");
+    for (var i = 0; i < blocks.length; i++) {
+      var b = blocks[i];
+      var n = {
+        name: b.querySelector(".n-name").value.trim(),
+        parent: b.querySelector(".n-parent").value.trim(),
+        relation: b.querySelector(".n-relation").value.trim(),
+        gender: b.querySelector(".n-gender").value.trim(),
+        request: b.querySelector(".n-request").value.trim()
+      };
+      if (!n.name && !n.parent && !n.relation && !n.gender) continue;
+      if (!n.name || !n.parent || !n.relation || !n.gender)
+        return { error: "בשם " + (i + 1) + " חסרים פרטים. כל השדות נדרשים, " +
+                        "כולל זכר או נקבה." };
+      out.push(n);
+    }
+    if (!out.length) return { error: "נא למלא לפחות שם אחד." };
+    return { list: out };
+  }
+
+  /* ---------- מסך השמות ---------- */
+  var namesWrap = $("niftarim");
+
+  function prepNames() {
+    // מי שכבר מסר רואה קודם את מה שיש לו, ורק אחר כך את השדות הריקים.
+    // בלי זה הוא לא יודע אם השמות הישנים עדיין אצלנו.
+    $("prev-on-names").innerHTML = saved.length
+      ? '<h3 style="font-size:17px;color:var(--gold-deep);margin-bottom:0">' +
+        "השמות שכבר מסרת</h3>" + listHtml(saved) +
+        '<p style="margin:0 0 22px"><button type="button" class="btn btn-ghost" ' +
+        'data-go="edit">שינוי השמות האלה</button></p>' +
+        '<hr class="form-sep"><h3 style="font-size:17px;color:var(--gold-deep);' +
+        'margin-bottom:14px">שמות חדשים להוספה</h3>'
+      : "";
+    namesWrap.innerHTML = "";
+    namesWrap.appendChild(block());
+    renumber(namesWrap);
+    $("names-msg").className = "form-msg";
+    $("submit-btn").disabled = false;
+    $("submit-btn").textContent = "שליחת השמות";
+    var more = saved.length > 0;
+    $("names-step").textContent = more ? "" : "שלב 2 מתוך 2";
+    $("names-title").textContent = more ? "שמות ובקשות נוספים" : "השמות והבקשות";
+  }
+
+  $("add-niftar").addEventListener("click", function () {
+    if (namesWrap.querySelectorAll(".niftar").length >= MAX) return;
+    namesWrap.appendChild(block());
+    renumber(namesWrap);
+  });
+
+  function send(payload, msgId, btn, onOk) {
+    btn.disabled = true;
+    var original = btn.textContent;
+    btn.textContent = "שולח...";
+    msg(msgId, "ok", "רגע אחד...");
+    apiFetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) { if (!r.ok) throw new Error(String(r.status)); return true; })
+      .then(onOk)
+      .catch(function (e) {
+        btn.disabled = false;
+        btn.textContent = original;
+        msg(msgId, "err",
+          "משהו השתבש בשליחה" + why(e) + ". אפשר לנסות שוב, או לשלוח לנו את השמות בוואטסאפ " +
+          "למספר 052-8395189 ונטפל בזה ידנית.");
+      });
+  }
+
+  $("submit-btn").addEventListener("click", function () {
+    var got = collect(namesWrap);
+    if (got.error) return msg("names-msg", "err", got.error);
+    send({
+      name: me.name, phone: me.phone, email: me.email,
+      note: $("note").value.trim(),
+      website: $("website").value,
+      bakashot: got.list
+    }, "names-msg", $("submit-btn"), function () {
+      // נשמר לפני שמציגים אישור. אישור בלי רשומה שמורה הוא בדיוק
+      // התחושה של "השמות נעלמו" שהתקבלה בבדיקה הראשונה.
+      saved = saved.concat(got.list);
+      save(KEY_NAMES, saved);
+      $("note").value = "";
+      $("done-title").textContent = "השמות התקבלו";
+      $("done-sub").textContent =
+        "שלחנו לכם אישור לדואר האלקטרוני, והשמות והבקשות מועברים לאברכי הכולל. שתזכו לישועה במהרה.";
+      renderInto($("done-list"), got.list);
+      var prev = saved.slice(0, saved.length - got.list.length);
+      $("done-prev").innerHTML = prev.length
+        ? '<h3 style="font-size:17px;color:var(--gold-deep);margin:26px 0 0">' +
+          "שמות שמסרת קודם</h3>" + listHtml(prev)
+        : "";
+      show("done");
+    });
+  });
+
+  /* ---------- הצגת רשימות ---------- */
+  function itemsHtml(list) {
+    return list.map(function (n) {
+      return "<li><strong>" + esc(fullName(n)) + "</strong>" +
+        (n.relation ? '<span class="meta">' + esc(n.relation) + "</span>" : "") +
+        "</li>";
+    }).join("");
+  }
+  function listHtml(list) {
+    return '<ul class="done-list">' + itemsHtml(list) + "</ul>";
+  }
+  function renderInto(ul, list) { ul.innerHTML = itemsHtml(list); }
+
+  function renderList() {
+    $("list-sub").textContent =
+      "אלה השמות שמסרת מהמכשיר הזה. הם כבר אצל האברכים, ונשארים ברשימה כל עוד צריך.";
+    renderInto($("list-list"), saved);
+  }
+
+  /* ---------- מסך התיקון ---------- */
+  var editWrap = $("edit-niftarim");
+
+  function renderEdit() {
+    editWrap.innerHTML = "";
+    for (var i = 0; i < saved.length; i++) editWrap.appendChild(block(saved[i]));
+    renumber(editWrap);
+    $("edit-msg").className = "form-msg";
+    $("edit-submit").disabled = false;
+    $("edit-submit").textContent = "שליחת התיקון";
+  }
+
+  $("edit-submit").addEventListener("click", function () {
+    var empty = !editWrap.querySelectorAll(".niftar").length;
+    var got = empty ? { list: [] } : collect(editWrap);
+    if (got.error) return msg("edit-msg", "err", got.error);
+    send({
+      kind: "correction",
+      name: me.name, phone: me.phone, email: me.email,
+      website: $("website").value,
+      bakashot: got.list
+    }, "edit-msg", $("edit-submit"), function () {
+      saved = got.list;
+      save(KEY_NAMES, saved);
+      $("done-title").textContent = empty ? "השמות הוסרו" : "התיקון נשלח";
+      $("done-sub").textContent = empty
+        ? "השמות הוסרו מהרשימה. שלחנו לכם אישור לדואר האלקטרוני, ואפשר למסור שמות מחדש בכל עת."
+        : "הרשימה המתוקנת אצלנו והיא מחליפה את הקודמת. שלחנו לכם אישור לדואר האלקטרוני.";
+      renderInto($("done-list"), saved);
+      $("done-prev").innerHTML = "";
+      show("done");
+    });
+  });
+
+  refreshIntro();
+
+  /* ---------- הרשימה הפומבית ---------- */
+  // מקור אחד: מה שאנשים מסרו דרך הטופס, ויושב אצל ה-Worker. אין כאן חלון
+  // שבועי ואין מנוע תאריך עברי - לבקשה אין יארצייט, ולכן כל השמות שברשימה
+  // עומדים לתפילה בכל יום עד שמוסרם מוציא אותם.
+  function loadPublic() {
+    var box = $("week-box");
+    if (!box) return;
+    // עוקף מטמון לפי דקה. בלעדיו שם שנמסר בדקה הזאת לא מופיע ברשימה,
+    // והמוסר חושב שהמסירה לא נקלטה - זה בדיוק מה שנשבר בדף עילוי הנשמה.
+    apiFetch(ENDPOINT + "?list=public&v=" + Math.floor(Date.now() / 6e4))
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function (e) { return null; })
+      .then(function (res) {
+        var all = (res && res.names) || [];
+        // מסירה כפולה של אותו שם לא צריכה להופיע פעמיים ברשימה פומבית.
+        var seen = {}, uniq = [];
+        all.forEach(function (n) {
+          var line = fullName(n);
+          if (!line || seen[line]) return;
+          seen[line] = 1;
+          uniq.push(line);
+        });
+        if (!uniq.length) {
+          // מצב ריק אומר את האמת. רשימה ריקה עם כותרת נראית כמו תקלה.
+          box.innerHTML = '<div class="note-box"><p>אין כרגע שמות ברשימה. ' +
+            "היא מתעדכנת ברגע שנמסר שם.</p></div>";
+          return;
+        }
+        box.innerHTML =
+          '<ul class="done-list">' + uniq.map(function (line) {
+            return "<li><strong>" + esc(line) + "</strong></li>";
+          }).join("") + "</ul>" +
+          '<p style="color:var(--ink-soft);font-size:15px">' +
+          uniq.length + (uniq.length === 1 ? " שם" : " שמות") +
+          " ברשימה. שיתקבלו כל הבקשות במהרה.</p>";
+      });
+  }
+  loadPublic();
+})();
+</script>
+<script src="/assets/share.js" defer></script>

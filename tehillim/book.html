@@ -38,7 +38,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 /* ---------- כותרת הספר ---------- */
 .book-head{text-align:center;padding:26px 16px 6px}
 .book-head .for{font-size:26px;font-weight:800;line-height:1.35;color:var(--ink)}
-.book-head .lead{font-size:16px;color:var(--ink-soft);margin-bottom:2px}
+.book-head .lead{font-size:16px;font-weight:400;color:var(--ink-soft);margin:0 0 2px}
 .book-head .meta{font-size:15px;color:var(--ink-soft);margin-top:8px}
 @media(max-width:520px){.book-head .for{font-size:21px}}
 
@@ -199,7 +199,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 <div class="view" id="view-grid">
 
   <div class="book-head">
-    <div class="lead" id="bk-lead"></div>
+    <h1 class="lead" id="bk-lead"></h1>
     <div class="for" id="bk-for"></div>
     <div class="meta" id="bk-meta"></div>
     <div class="meta" id="bk-grp" style="display:none"><a id="bk-grp-a" href="#">לקבוצת הוואטסאפ של הספר</a></div>
@@ -343,7 +343,28 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 
 <footer class="site-footer">
   <div class="wrap">
-    <p>עמותת אורות האמונה - בני משה | בראשות הרב יעקב מאור</p>
+    <div class="footer-grid">
+      <div>
+        <h4>אורות האמונה - בני משה</h4>
+        <p>עמותה רשומה הפועלת לחיזוק לימוד התורה, לליווי משפחות ולסיוע ישיר למי שנזקק.</p>
+      </div>
+      <div>
+        <h4>ניווט</h4>
+        <a href="/about.html">אודות</a>
+        <a href="/torah.html">תוכן תורני</a>
+        <a href="/chagim/">חגים</a>
+        <a href="/donate.html">תרומה</a>
+        <a href="/contact.html">יצירת קשר</a>
+      </div>
+      <div>
+        <h4>עקבו אחרינו</h4>
+        <a href="https://www.youtube.com/@ravmaor" target="_blank" rel="noopener">יוטיוב</a>
+        <a href="/contact.html">וואטסאפ</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      כל הזכויות שמורות לעמותת אורות האמונה - בני משה
+    </div>
   </div>
 </footer>
 

@@ -559,7 +559,9 @@
       '<div class="field"><label>תאריך הפטירה' +
       '<span class="hint">עברי או לועזי. אם לועזי, נא לציין גם את השנה, ' +
       'ואם הפטירה הייתה אחרי השקיעה - לכתוב זאת בהערות.</span></label>' +
-      '<input type="text" class="n-date" value="' + esc(v.date) + '"></div>' +
+      '<input type="text" class="n-date" value="' + esc(v.date) + '">' +
+      '<span class="date-hint" style="display:none;font-size:13px;line-height:1.6;' +
+      'color:#a3312a;margin-top:6px"></span></div>' +
       '<div class="field"><label>הקרבה אליכם</label>' +
       '<select class="n-relation"><option value="">בחרו</option>' +
       optionsHtml(v.relation) + "</select></div>" +
@@ -585,6 +587,23 @@
     };
     nameIn.addEventListener("input", syncNote);
     syncNote();
+
+    // הערה **ליד השדה ברגע שיוצאים ממנו**, ולא חלון קופץ (יעקב, 12.10.2026:
+    // „כבר אז תשאל אותו שיתקן"). חלון באמצע המילוי קופץ על תאריך שעוד לא
+    // נגמר להקליד, ולכן כאן ההערה שקטה ובטקסט, והחלון נשמר לרגע השליחה.
+    // **`blur` ולא `input`**, מאותה סיבה בדיוק.
+    var dateIn = d.querySelector(".n-date"), dateHint = d.querySelector(".date-hint");
+    var checkNow = function () {
+      var bad = dateIn.value.trim() ? checkHebDate(dateIn.value) : null;
+      dateHint.textContent = bad ? bad.msg : "";
+      dateHint.style.display = bad ? "block" : "none";
+    };
+    dateIn.addEventListener("blur", checkNow);
+    // הקלדה מחדש מנקה את ההערה מיד, כדי שהיא לא תישאר מול תאריך שכבר תוקן.
+    dateIn.addEventListener("input", function () {
+      dateHint.style.display = "none";
+    });
+
     d.querySelector(".niftar-remove").addEventListener("click", function () {
       var parent = d.parentNode;
       if (parent.id === "edit-niftarim" &&

@@ -628,8 +628,204 @@
     }
   }
 
+  /* ---------- בדיקת תאריך בשעת ההקלדה ----------
+     יעקב, 12.10.2026: „אם אתה רואה משהו שהוא לא תקין או לא ברור, כבר אז תשאל
+     אותו שיתקן. למשל חלון שקופץ: כתבת יש בטבת. אין תאריך כזה." הסיבה מדודה -
+     „יש אדר" ו„ה חשוןן" עברו את הטופס, לא הופיעו ברשימה השבועית ולא קיבלו
+     תזכורת, וכל אחד מהם עלה סבב מיילים שלם. כאן זה נתפס לפני השליחה.
+
+     **אזהרה ולא חסימה, וזה עיקרון ולא פשרה.** ולידציה שחוסמת שליחה מסתכנת
+     באובדן השם כולו - מי שלא מבין מה רוצים ממנו נוטש את הטופס. ולכן תמיד יש
+     „זה מה שכתבתי, לשלוח כך", והטקסט נשלח בדיוק כפי שהוקלד. */
+  var HEB_MONTH_CANON = { 1: "ניסן", 2: "אייר", 3: "סיון", 4: "תמוז", 5: "אב",
+    6: "אלול", 7: "תשרי", 8: "חשוון", 9: "כסלו", 10: "טבת", 11: "שבט",
+    12: "אדר", 13: "אדר ב" };
+  var HEB_MONTH_SPELLINGS = [["ניסן",1],["אייר",2],["איר",2],["סיון",3],
+    ["סיוון",3],["תמוז",4],["אב",5],["מנחם אב",5],["אלול",6],["תשרי",7],
+    ["חשון",8],["חשוון",8],["מרחשון",8],["מרחשוון",8],["כסלו",9],["כסליו",9],
+    ["טבת",10],["שבט",11],["אדר",12],["אדר א",12],["אדר ב",13]];
+  // חודשים שאין בהם ל' לעולם. אדר נבדק בנפרד, כי באדר א' של שנה מעוברת יש ל'.
+  var NO_THIRTIETH = { 2: 1, 4: 1, 6: 1, 10: 1 };
+
+  // המפתח הפונטי: אות סופית, זוגות שנשמעים זהים (ט/ת, כ/ק, א/ע) ואות כפולה.
+  // זהה לקיפול שבצד הפייתון (`hebdate._month_key`); שינוי באחד מחייב שינוי
+  // בשני, אחרת הדף יזהיר על מה שהשרת דווקא מקבל, או להפך.
+  function monthKey(raw) {
+    var s = String(raw || "").replace(/["'׳״]/g, "").trim();
+    if (s.length > 2 && s.charAt(0) === "ב") s = s.slice(1);
+    var fold = { "ן":"נ","ם":"מ","ך":"כ","ף":"פ","ץ":"צ","ט":"ת","ק":"כ","ע":"א" };
+    var out = "", i, c;
+    for (i = 0; i < s.length; i++) {
+      c = fold[s.charAt(i)] || s.charAt(i);
+      if (out.charAt(out.length - 1) !== c) out += c;
+    }
+    return out;
+  }
+
+  function lev(a, b) {
+    var prev = [], cur = [], i, j;
+    for (j = 0; j <= b.length; j++) prev[j] = j;
+    for (i = 1; i <= a.length; i++) {
+      cur = [i];
+      for (j = 1; j <= b.length; j++)
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1,
+                          prev[j - 1] + (a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1));
+      prev = cur;
+    }
+    return prev[b.length];
+  }
+
+  var MONTH_KEYS = (function () {
+    var m = {}, i, k;
+    for (i = 0; i < HEB_MONTH_SPELLINGS.length; i++) {
+      k = monthKey(HEB_MONTH_SPELLINGS[i][0]);
+      if (!m[k]) m[k] = {};
+      m[k][HEB_MONTH_SPELLINGS[i][1]] = 1;
+    }
+    return m;
+  })();
+
+  // כל איות **כשר** כפי שהוא נכתב, ולא המפתח הפונטי שלו. ההבחנה הזאת היא
+  // כל ההבדל בין „מרחשון" לבין „חשוןן": לשניהם אותו מפתח פונטי, אבל הראשון
+  // הוא איות מוכר שאין להציע עליו תיקון, והשני אינו - ולכן דווקא הפענוח
+  // שמריץ הדף להצגת הרשימה לא יקרא אותו, ושווה להציע לתקן אותו עכשיו.
+  var MONTH_LITERAL = (function () {
+    var m = {}, i;
+    for (i = 0; i < HEB_MONTH_SPELLINGS.length; i++)
+      m[HEB_MONTH_SPELLINGS[i][0]] = 1;
+    return m;
+  })();
+
+  function bareMonth(tok) {
+    var s = String(tok || "").replace(/["'׳״]/g, "").trim();
+    if (s.length > 2 && s.charAt(0) === "ב" && !MONTH_LITERAL[s]) s = s.slice(1);
+    return s;
+  }
+
+  function monthNums(obj) {
+    var out = [], k;
+    for (k in obj) if (obj.hasOwnProperty(k)) out.push(parseInt(k, 10));
+    return out.sort(function (a, b) { return a - b; });
+  }
+
+  // „חשוון" -> מדויק · „חשבן" -> תוקן · שתי אפשרויות קרובות -> ספק, בלי לנחש.
+  // מאורך 3 ומעלה בלבד: „אב" במרחק עריכה 1 תופס כל מילה קצרה במשפט.
+  function resolveMonth(tok) {
+    var key = monthKey(tok), best = 2, hits = {}, k, d, got, n, x;
+    if (!key) return null;
+    if (MONTH_KEYS[key]) {
+      got = monthNums(MONTH_KEYS[key]);
+      if (got.length === 1) return { num: got[0], how: "exact" };
+    }
+    if (key.length < 3) return null;
+    for (k in MONTH_KEYS) {
+      if (!MONTH_KEYS.hasOwnProperty(k) || k.length < 3) continue;
+      if (Math.abs(k.length - key.length) > 1) continue;
+      d = lev(key, k);
+      if (d < best) { best = d; hits = {}; }
+      if (d === best) {
+        n = monthNums(MONTH_KEYS[k]);
+        for (x = 0; x < n.length; x++) hits[n[x]] = 1;
+      }
+    }
+    if (best > 1) return null;
+    got = monthNums(hits);
+    if (got.length > 1) {
+      var names = [];
+      for (x = 0; x < got.length; x++) names.push(HEB_MONTH_CANON[got[x]]);
+      return { how: "ambiguous", names: names };
+    }
+    return { num: got[0], how: "fixed" };
+  }
+
+  function hebDayNum(tok) {
+    var s = String(tok || "").replace(/["'׳״]/g, "");
+    if (/^[0-9]{1,2}$/.test(s)) return parseInt(s, 10);
+    var n = 0, i, v;
+    if (!s.length) return 0;
+    for (i = 0; i < s.length; i++) {
+      v = HEB_VAL[s.charAt(i)];
+      if (v === undefined) return 0;
+      n += v;
+    }
+    return n;
+  }
+
+  function isYearToken(tok) {
+    var s = String(tok || "").replace(/["'׳״]/g, "");
+    if (/^[0-9]{4}$/.test(s)) return true;
+    if (s.charAt(0) === "ה") s = s.slice(1);
+    return s.indexOf("תש") === 0 && s.length >= 3;
+  }
+
+  /* מחזיר null כשאין מה להעיר, או {msg, fix} - fix הוא הטקסט המתוקן, אם יש. */
+  function checkHebDate(raw) {
+    var s = String(raw || "").replace(/״/g, '"').replace(/׳/g, "'").trim();
+    if (!s) return null;
+    var civil = s.match(/^\s*([0-9]{1,2})[./]([0-9]{1,2})[./]([0-9]{2,4})\s*$/);
+    if (civil) {
+      var dd = parseInt(civil[1], 10), mm = parseInt(civil[2], 10);
+      if (mm < 1 || mm > 12 || dd < 1 || dd > 31)
+        return { msg: 'כתבתם „' + s + '". זה לא נראה כמו תאריך - אולי היום והחודש התחלפו?',
+                 fix: null };
+      return null;
+    }
+    if (/^\s*[0-9]{1,2}[./][0-9]{1,2}\s*$/.test(s))
+      return { msg: 'כתבתם „' + s + '". בתאריך לועזי נא לציין גם את השנה.', fix: null };
+
+    var toks = s.split(/\s+/), i, r, found = null, idx = -1, amb = null, x;
+    for (i = 0; i < toks.length; i++) {
+      r = resolveMonth(toks[i]);
+      if (!r) continue;
+      if (r.how === "exact") { found = r.num; idx = i; amb = null; break; }
+      if (r.how === "ambiguous") { if (!amb && found === null) amb = r; continue; }
+      if (found === null) { found = r.num; idx = i; }
+    }
+    if (amb && found === null)
+      return { msg: 'כתבתם „' + s + '". לא ברור אם התכוונתם ל' +
+                    amb.names.join(" או ל") + ".", fix: null };
+    if (found === null)
+      return { msg: 'כתבתם „' + s + '". לא זיהינו כאן חודש עברי. אפשר לכתוב למשל ' +
+                    '„ה חשוון תשפ״ו", ואפשר תאריך לועזי מלא כמו „29.8.2026".',
+               fix: null };
+
+    var fixed = toks.slice(0), note = null;
+    if (!MONTH_LITERAL[bareMonth(toks[idx])]) {
+      var pre = (bareMonth(toks[idx]) !== toks[idx].replace(/["'׳״]/g, "")) ? "ב" : "";
+      fixed[idx] = pre + HEB_MONTH_CANON[found];
+      note = 'כתבתם „' + toks[idx] + '", ואין חודש בשם הזה. התכוונתם ל„' +
+             HEB_MONTH_CANON[found] + '"?';
+    }
+    // „אדר ב" הוא שתי מילים, והשנייה היא אות בודדת.
+    var skip = -1;
+    if (found === 12 && idx + 1 < toks.length) {
+      var nx = toks[idx + 1].replace(/["'׳״]/g, "");
+      if (nx === "ב") { found = 13; skip = idx + 1; }
+      else if (nx === "א") { skip = idx + 1; }
+    }
+    var day = 0, dayTok = "", bad = [], v;
+    for (i = 0; i < toks.length; i++) {
+      if (i === idx || i === skip || isYearToken(toks[i])) continue;
+      v = hebDayNum(toks[i]);
+      if (v >= 1 && v <= 30) { day = v; dayTok = toks[i]; break; }
+      if (v > 0) bad.push(toks[i]);
+    }
+    var monthShown = fixed[idx];
+    if (!day) {
+      var what = bad.length ? bad[0] : (toks.length > 1 ? toks[idx === 0 ? 1 : 0] : s);
+      return { msg: 'כתבתם „' + what + " " + monthShown + '". „' + what +
+                    '" אינו יום בחודש - אפשר לכתוב למשל „ה", „ט״ו" או „15".',
+               fix: null };
+    }
+    if (day === 30 && (NO_THIRTIETH[found] || found === 12))
+      return { msg: 'כתבתם „' + dayTok + " " + monthShown + '", ואין יום ל\' בחודש הזה - ' +
+                    "יש בו 29 ימים.", fix: null };
+    if (note) return { msg: note, fix: fixed.join(" ") };
+    return null;
+  }
+
   function collect(wrap) {
-    var out = [], blocks = wrap.querySelectorAll(".niftar");
+    var out = [], warn = [], blocks = wrap.querySelectorAll(".niftar");
     for (var i = 0; i < blocks.length; i++) {
       var b = blocks[i];
       var n = {
@@ -648,10 +844,37 @@
       if (!n.name || !n.parent || !n.date || !n.relation || !n.gender)
         return { error: "בנפטר " + (i + 1) + " חסרים פרטים. כל השדות נדרשים, " +
                         "כולל אם הנפטר זכר או נקבה." };
+      // **אזהרה, לא שגיאה.** היא נאספת לצד הרשימה ואינה עוצרת את האיסוף, כדי
+      // שמסלול השליחה יישאר אחד ושום שם לא ייפול בגלל בדיקה שאינה בטוחה.
+      var bad = checkHebDate(n.date);
+      if (bad) warn.push({ who: fullName(n) || ("נפטר " + (i + 1)),
+                           input: b.querySelector(".n-date"),
+                           msg: bad.msg, fix: bad.fix });
       out.push(n);
     }
     if (!out.length) return { error: "נא למלא לפחות שם נפטר אחד." };
-    return { list: out };
+    return { list: out, warn: warn };
+  }
+
+  /* האזהרה מוצגת כחלון קופץ אחד, על הראשונה בלבד - מי שקיבל שלושה חלונות
+     ברצף סוגר את כולם בלי לקרוא. אישור = לתקן (או לשלוח כך, כשאין תיקון),
+     ביטול = חוזרים לשדה והוא מקבל פוקוס. **אין מסלול שבו השליחה נחסמת.** */
+  function dateGate(got, onReady) {
+    if (!got.warn || !got.warn.length) return onReady();
+    var NL = String.fromCharCode(10);
+    var w = got.warn[0];
+    var head = "בתאריך הפטירה של " + w.who + ":" + NL + NL + w.msg + NL + NL;
+    if (w.fix) {
+      if (window.confirm(head + "אישור - לתקן ולשלוח." + NL + "ביטול - לחזור ולערוך.")) {
+        w.input.value = w.fix;
+        return onReady(true);
+      }
+    } else if (window.confirm(head + "אישור - לשלוח כפי שכתבתי." + NL +
+                              "ביטול - לחזור ולערוך.")) {
+      return onReady();
+    }
+    w.input.focus();
+    if (w.input.select) w.input.select();
   }
 
   /* ---------- מסך השמות ---------- */
@@ -727,6 +950,8 @@
   $("submit-btn").addEventListener("click", function () {
     var got = collect(namesWrap);
     if (got.error) return msg("names-msg", "err", got.error);
+    dateGate(got, function (fixed) {
+    if (fixed) got = collect(namesWrap);
     send({
       name: me.name, phone: me.phone, email: me.email,
       note: $("note").value.trim(),
@@ -748,6 +973,7 @@
           "שמות שמסרת קודם</h3>" + listHtml(prev)
         : "";
       show("done");
+    });
     });
   });
 
@@ -791,6 +1017,8 @@
     var empty = !editWrap.querySelectorAll(".niftar").length;
     var got = empty ? { list: [] } : collect(editWrap);
     if (got.error) return msg("edit-msg", "err", got.error);
+    dateGate(got, function (fixed) {
+    if (fixed) got = collect(editWrap);
     send({
       kind: "correction",
       name: me.name, phone: me.phone, email: me.email,
@@ -806,6 +1034,7 @@
       renderInto($("done-list"), saved);
       $("done-prev").innerHTML = "";
       show("done");
+    });
     });
   });
 

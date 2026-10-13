@@ -243,8 +243,20 @@ function thanksHtml(name, niftarim, isFix, isEmpty) {
       `<ul style="background:#f3ece0;border-right:4px solid #b08434;padding:14px 24px 14px 18px;` +
       `border-radius:8px;list-style:none;margin:20px 0">${list}</ul>`) +
     explain +
+    // **קישור תיקון, בולט, בכל שלוש הגרסאות.** עד 13.10.2026 המייל הזה החזיק
+    // שני קישורים בלבד ושניהם לתרומה, ואת כתובת הדף הוא הציג כטקסט אפור שאינו
+    // לחיץ - כלומר אמר „אפשר לשנות שמות בכל עת דרך האתר" ולא נתן דרך לעשות
+    // זאת. יעקב מסר שם עם טעות, קיבל את המייל, ולא מצא בו איך לתקן.
+    // `?edit=1` מוביל ישר למסך הפרטים, שמשם השמות נשלפים מהשרת בכל מכשיר.
+    (isEmpty ? "" :
+      `<p style="margin:26px 0 8px"><a href="${PAGE}?edit=1" ` +
+      `style="background:#f3ece0;border:1px solid #b08434;color:#6b4e12;` +
+      `text-decoration:none;padding:11px 22px;border-radius:8px;` +
+      `display:inline-block;font-weight:bold">לתיקון השמות או להוספת שמות</a></p>` +
+      `<p style="font-size:14px;color:#6b655c;margin:0">נפתח בכל מכשיר - מקלידים ` +
+      `את כתובת הדואר הזאת ובוחרים „מסרנו שמות בעבר", והשמות שמסרתם ייטענו מעצמם.</p>`) +
     (isFix || isEmpty
-      ? `<p>אם משהו בפרטים לא מדויק, אפשר פשוט להשיב למייל הזה ונתקן.</p>`
+      ? `<p>ואם משהו בפרטים לא מדויק, אפשר גם פשוט להשיב למייל הזה ונתקן.</p>`
       : "") +
     `<hr style="border:0;border-top:1px solid #e5ddd0;margin:28px 0">` +
     `<p>מה שמחזיק את הכולל הוא אנשים שנותנים בקביעות. אם רצונך לקחת חלק, כל סכום עוזר, ` +
@@ -256,7 +268,7 @@ function thanksHtml(name, niftarim, isFix, isEmpty) {
     `display:inline-block;padding:12px 18px">או תרומה חד פעמית</a></p>` +
     `<p style="margin-top:28px">שתזכו לרוב נחת, ולכל הברכות והישועות.</p>` +
     `<p>באהבה,<br>יעקב מאור<br>0528395189</p>` +
-    `<p style="font-size:13px;color:#8a8478">${PAGE}</p>` +
+    `<p style="font-size:13px"><a href="${PAGE}" style="color:#8a8478">${PAGE}</a></p>` +
     `</div>`
   );
 }
@@ -550,6 +562,12 @@ export default {
           `<div style="background:#f3ece0;border-right:4px solid #b08434;padding:14px 18px;` +
           `border-radius:8px;white-space:pre-wrap">${esc(d.note)}</div>`
         : "") +
+      // קישור גם בהודעה ליעקב, ומאותה סיבה: הוא קורא אותה בטלפון, ואם פרט
+      // נראה לו שגוי הוא צריך דרך לגשת ולתקן בלי לחפש את הדף.
+      (isEmpty ? "" :
+        `<p style="margin:22px 0 0;font-size:14px">` +
+        `<a href="${PAGE}?edit=1" style="color:#b08434">לפתוח את הטופס ולתקן</a>` +
+        ` &middot; <a href="${PAGE}" style="color:#8a8478">דף עילוי הנשמות</a></p>`) +
       `</div>`;
 
     const okNotice = await sendMail(

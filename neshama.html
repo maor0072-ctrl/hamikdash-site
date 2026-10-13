@@ -438,6 +438,13 @@
   }
   fillMe();
 
+  /* `?edit=1` - הכתובת שיוצאת במייל האישור ובהודעה ליעקב, כדי שתיקון שם
+     יהיה לחיצה אחת ולא חיפוש בדף. **היא מובילה למסך הפרטים ולא ל„עריכה"**:
+     כפתור „שינוי שמות שמסרת" נשען על זיכרון מקומי, ולכן מי שפותח את המייל
+     במכשיר אחר היה נזרק חזרה לדף הפתיחה. מסך הפרטים מוביל ל„מסרנו שמות
+     בעבר", ושם השמות נשלפים מהשרת לפי כתובת הדואר - בכל מכשיר. */
+  if (/[?&]edit=1\b/.test(window.location.search)) show(me ? "choice" : "details");
+
   function msg(id, kind, text) {
     var el = $(id);
     el.className = "form-msg " + kind;
@@ -875,25 +882,45 @@
     return { list: out, warn: warn };
   }
 
-  /* האזהרה מוצגת כחלון קופץ אחד, על הראשונה בלבד - מי שקיבל שלושה חלונות
-     ברצף סוגר את כולם בלי לקרוא. אישור = לתקן (או לשלוח כך, כשאין תיקון),
-     ביטול = חוזרים לשדה והוא מקבל פוקוס. **אין מסלול שבו השליחה נחסמת.** */
-  function dateGate(got, onReady) {
-    if (!got.warn || !got.warn.length) return onReady();
-    var NL = String.fromCharCode(10);
-    var w = got.warn[0];
-    var head = "בתאריך הפטירה של " + w.who + ":" + NL + NL + w.msg + NL + NL;
-    if (w.fix) {
-      if (window.confirm(head + "אישור - לתקן ולשלוח." + NL + "ביטול - לחזור ולערוך.")) {
-        w.input.value = w.fix;
-        return onReady(true);
+  /* **כל אזהרה מוצגת, אחת אחרי השנייה, ולא הראשונה בלבד.** הגרסה הראשונה
+     הציגה רק את הראשונה, בנימוק שחלונות ברצף נסגרים בלי שנקראו - **והנימוק
+     הזה שגוי כשכל חלון הוא נפטר אחר.** יעקב מסר 13.10.2026 שני שמות, בשניהם
+     טעות בשם החודש; הוא נשאל על הראשון, תיקן, והטופס נשלח מיד - והשני עבר
+     עם „ן חשבן" בלי שנשאל עליו. אזהרה שלא הוצגה גרועה מאזהרה מעייפת.
+
+     אישור = לתקן (או לשלוח כך, כשאין תיקון) וממשיכים לאזהרה הבאה · ביטול =
+     חוזרים לשדה והוא מקבל פוקוס. **אין מסלול שבו השליחה נחסמת.** */
+  function dateGate(wrap, onReady) {
+    var NL = String.fromCharCode(10), fixedAny = false, seen = {}, rounds = 0;
+
+    function step() {
+      // נאסף מחדש בכל סבב, כי תיקון משנה את הטקסט בשדה ולכן גם את האזהרות.
+      var got = collect(wrap);
+      if (got.error) return onReady(fixedAny, got);
+      var list = (got.warn || []).filter(function (w) {
+        return !seen[w.who + "|" + w.input.value];
+      });
+      if (!list.length || ++rounds > 12) return onReady(fixedAny, got);
+
+      var w = list[0];
+      var head = "בתאריך הפטירה של " + w.who + ":" + NL + NL + w.msg + NL + NL;
+      if (w.fix) {
+        if (window.confirm(head + "אישור - לתקן ולהמשיך." + NL + "ביטול - לחזור ולערוך.")) {
+          w.input.value = w.fix;
+          fixedAny = true;
+          return step();
+        }
+      } else if (window.confirm(head + "אישור - להשאיר כפי שכתבתי." + NL +
+                                "ביטול - לחזור ולערוך.")) {
+        // „להשאיר כך" נזכר, אחרת אותה אזהרה תחזור בסבב הבא ותיצור לופ.
+        seen[w.who + "|" + w.input.value] = 1;
+        return step();
       }
-    } else if (window.confirm(head + "אישור - לשלוח כפי שכתבתי." + NL +
-                              "ביטול - לחזור ולערוך.")) {
-      return onReady();
+      w.input.focus();
+      if (w.input.select) w.input.select();
     }
-    w.input.focus();
-    if (w.input.select) w.input.select();
+
+    step();
   }
 
   /* ---------- מסך השמות ---------- */
@@ -967,10 +994,10 @@
   }
 
   $("submit-btn").addEventListener("click", function () {
-    var got = collect(namesWrap);
+    var first = collect(namesWrap);
+    if (first.error) return msg("names-msg", "err", first.error);
+    dateGate(namesWrap, function (fixed, got) {
     if (got.error) return msg("names-msg", "err", got.error);
-    dateGate(got, function (fixed) {
-    if (fixed) got = collect(namesWrap);
     send({
       name: me.name, phone: me.phone, email: me.email,
       note: $("note").value.trim(),
@@ -1034,10 +1061,12 @@
 
   $("edit-submit").addEventListener("click", function () {
     var empty = !editWrap.querySelectorAll(".niftar").length;
-    var got = empty ? { list: [] } : collect(editWrap);
+    var first = empty ? { list: [] } : collect(editWrap);
+    if (first.error) return msg("edit-msg", "err", first.error);
+    // רשימה ריקה היא בקשת הסרה מפורשת, ואין בה תאריכים לבדוק.
+    var gate = empty ? function (_, cb) { cb(false, { list: [] }); } : dateGate;
+    gate(editWrap, function (fixed, got) {
     if (got.error) return msg("edit-msg", "err", got.error);
-    dateGate(got, function (fixed) {
-    if (fixed) got = collect(editWrap);
     send({
       kind: "correction",
       name: me.name, phone: me.phone, email: me.email,

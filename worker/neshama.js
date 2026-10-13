@@ -404,6 +404,57 @@ async function ownerHash(email) {
     .map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+// ============ הסרה מהודעות על סיומי מסכת ============
+//
+// **למה שני שלבים ולא קישור אחד שמבצע.** סורקי דואר, אנטי וירוס וחלק
+// מלקוחות הדואר פותחים כל קישור שבהודעה כדי לבדוק אותו, ולכן קישור GET
+// שמבצע את ההסרה בעצמו מסיר אנשים שלא לחצו מעולם - והם לא יֵדעו, כי
+// ההודעות פשוט יפסיקו להגיע. לכן ה-GET רק מציג דף עם כפתור, וה-POST הוא
+// שמבצע. סורק לא לוחץ על כפתור.
+//
+// **ולמה חתימה ולא רק מפתח הבעלות.** `ownerHash` הוא גיבוב של המייל עם
+// קידומת שמופיעה בקוד, כלומר מי שמכיר את כתובת הדואר של אדם יכול לחשב
+// אותו ולהסיר אותו מההודעות. `NESHAMA_UNSUB_SECRET` הופך את זה לבלתי
+// אפשרי: בלי הסוד אין טוקן תקף.
+async function unsubToken(env, ownerKey) {
+  const secret = env.NESHAMA_UNSUB_SECRET || "";
+  if (!secret) return "";
+  const key = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign(
+    "HMAC", key, new TextEncoder().encode("siyum:" + ownerKey));
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0"))
+    .join("").slice(0, 32);
+}
+
+// השוואה בזמן קבוע. השוואת מחרוזות רגילה נעצרת בתו הראשון שנבדל, ומזליגה
+// את אורך ההתאמה; כאן זה זול למנוע ולכן אין סיבה לא.
+function sameToken(a, b) {
+  if (!a || !b || a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+function unsubPage(bodyHtml) {
+  return new Response(
+    '<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    "<title>הודעות על סיומים</title><style>" +
+    "body{margin:0;background:#faf7f1;font-family:Arial,Helvetica,sans-serif;" +
+    "color:#1c1a17;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}" +
+    ".card{background:#fff;border:1px solid #e5ddd0;border-radius:12px;padding:30px 28px;" +
+    "max-width:520px;box-shadow:0 2px 14px rgba(0,0,0,.06);line-height:1.8;font-size:16px}" +
+    "h1{font-size:22px;color:#8a6d3b;margin:0 0 14px}" +
+    "p{margin:0 0 14px}" +
+    "button{background:#8a6d3b;color:#fff;border:0;border-radius:8px;padding:13px 30px;" +
+    "font-size:16px;font-weight:bold;cursor:pointer;font-family:inherit}" +
+    "a{color:#8a6d3b}</style></head><body><div class=\"card\">" + bodyHtml +
+    "</div></body></html>",
+    { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } });
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -424,7 +475,52 @@ export default {
           }),
         });
       }
+      // GET ?unsub=<ownerKey>&t=<token> - **רק מציג** את דף האישור.
+      const okey = url.searchParams.get("unsub");
+      if (okey) {
+        const good = await unsubToken(env, okey);
+        if (!sameToken(good, url.searchParams.get("t") || ""))
+          return unsubPage("<h1>הקישור אינו תקף</h1><p>אפשר להשיב למייל שקיבלתם " +
+            "ואנחנו נטפל בזה.</p>");
+        return unsubPage(
+          "<h1>הודעות על סיומי מסכת</h1>" +
+          "<p>לחיצה על הכפתור תפסיק את ההודעות על סיומי מסכת, סיומי משניות " +
+          "וסיומי שס שנשלחות אליכם.</p>" +
+          "<p><strong>ההודעות על היארצייטים לא ייפגעו וימשיכו להגיע כרגיל</strong>, " +
+          "וגם השמות עצמם נשארים ברשימת הכולל ללא שינוי.</p>" +
+          '<form method="POST"><button type="submit">להפסיק הודעות על סיומים</button></form>');
+      }
       return new Response("method not allowed", { status: 405, headers });
+    }
+
+    // POST ?unsub=... - זה מה שמבצע בפועל. סורק דואר אינו מגיע לכאן.
+    if (request.method === "POST") {
+      const url = new URL(request.url);
+      const okey = url.searchParams.get("unsub");
+      if (okey) {
+        const good = await unsubToken(env, okey);
+        if (!sameToken(good, url.searchParams.get("t") || ""))
+          return unsubPage("<h1>הקישור אינו תקף</h1><p>אפשר להשיב למייל " +
+            "שקיבלתם ואנחנו נטפל בזה.</p>");
+        if (!env.NAMES)
+          return unsubPage("<h1>לא הצלחנו לשמור את הבקשה</h1><p>אפשר להשיב " +
+            "למייל שקיבלתם ואנחנו נטפל בזה ידנית.</p>");
+        const raw = await env.NAMES.get("sub:" + okey);
+        if (!raw)
+          return unsubPage("<h1>לא מצאנו רשומה</h1><p>כנראה שההודעות כבר " +
+            "אינן נשלחות אליכם. אפשר להשיב למייל כדי לוודא.</p>");
+        let rec;
+        try { rec = JSON.parse(raw) || {}; } catch (e) { rec = {}; }
+        rec.siyumOptOut = true;
+        rec.siyumOptOutAt = new Date().toISOString();
+        await env.NAMES.put("sub:" + okey, JSON.stringify(rec));
+        return unsubPage(
+          "<h1>הוסרתם מהודעות על סיומים</h1>" +
+          "<p>מעכשיו לא יישלחו אליכם הודעות על סיומי מסכת, משניות או שס.</p>" +
+          "<p><strong>ההודעות על היארצייטים ימשיכו להגיע כרגיל</strong>, והשמות " +
+          "נשארים ברשימת הכולל.</p>" +
+          "<p>אם זו הייתה טעות, אפשר להשיב למייל שקיבלתם ונחזיר את ההודעות.</p>");
+      }
     }
 
     if (request.method !== "POST")

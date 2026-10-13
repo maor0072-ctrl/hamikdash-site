@@ -602,6 +602,18 @@
     var dateIn = d.querySelector(".n-date"), dateHint = d.querySelector(".date-hint");
     var checkNow = function () {
       var bad = dateIn.value.trim() ? checkHebDate(dateIn.value) : null;
+      // **תיקון ודאי מוחל מיד ולא נשאל עליו (הוראת יעקב 13.10.2026).** מה
+      // שחוזר עם `fix` הוא תיקון מכני - ן בספרת היום, או שם חודש שאינו קיים
+      // ויש לו שכן יחיד במרחק אות אחת. **ההחלה גלויה ולא שקטה:** השדה משתנה
+      // מול העיניים וההסבר יושב מתחתיו, ולכן אין כאן שינוי מאחורי הגב.
+      if (bad && bad.fix) {
+        dateIn.value = bad.fix;
+        dateHint.textContent = bad.msg + " תוקן.";
+        dateHint.style.color = "#6b4e12";
+        dateHint.style.display = "block";
+        return;
+      }
+      dateHint.style.color = "#a3312a";
       dateHint.textContent = bad ? bad.msg : "";
       dateHint.style.display = bad ? "block" : "none";
     };
@@ -834,6 +846,21 @@
       if (i === idx || i === skip || isYearToken(toks[i])) continue;
       v = hebDayNum(toks[i]);
       if (v >= 1 && v <= 30) { day = v; dayTok = toks[i]; break; }
+      // **ן בספרת היום מוחלפת ב-ו (הוראת יעקב 13.10.2026).** במקלדת העברית
+      // השתיים צמודות ושתיהן קו אנכי, ולכן הטעות נפוצה ובלתי נראית לעין.
+      // **ההחלפה בטוחה כאן ואסורה בשם החודש ובשנה:** ספרת היום נכתבת באותיות
+      // א-ל ואין בה אות סופית לעולם, בעוד „ניסן" ו„חשוון" נגמרות ב-ן
+      // לגיטימית ו„תש״ן" היא שנה אמיתית - ולכן החודש והשנה מדולגים למעלה.
+      if (toks[i].indexOf("ן") >= 0) {
+        var alt = toks[i].replace(/ן/g, "ו"), av = hebDayNum(alt);
+        if (av >= 1 && av <= 30) {
+          fixed[i] = alt;
+          if (!note) note = 'כתבתם „' + toks[i] + '" ביום בחודש. ' +
+                            'ן ו-ו צמודות במקלדת, ולכן תיקנו ל„' + alt + '".';
+          day = av; dayTok = alt;
+          break;
+        }
+      }
       if (v > 0) bad.push(toks[i]);
     }
     var monthShown = fixed[idx];

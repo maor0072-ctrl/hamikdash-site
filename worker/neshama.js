@@ -154,12 +154,16 @@ async function sendViaGmail(env, raw) {
 
 function fullName(n) {
   const parent = String(n.parent || "").trim();
+  // שם המשפחה נספח בסוגריים **אחרי** צורת התפילה, ולא בתוכה:
+  // „רבקה בת ברוך לוי" נקרא כאילו שם ההורה הוא „ברוך לוי".
+  const famRaw = String(n.family || "").trim();
+  const fam = famRaw ? " (" + famRaw + ")" : "";
   const name = String(n.name || "").trim();
-  if (!parent) return name;
-  if (/^(בן|בת|ב"ר|בר)\s/.test(parent)) return name + " " + parent;
-  if (n.gender === "f") return name + " בת " + parent;
-  if (n.gender === "m") return name + " בן " + parent;
-  return name + " " + parent; // בלי מגדר לא ממציאים
+  if (!parent) return name + fam;
+  if (/^(בן|בת|ב"ר|בר)\s/.test(parent)) return name + " " + parent + fam;
+  if (n.gender === "f") return name + " בת " + parent + fam;
+  if (n.gender === "m") return name + " בן " + parent + fam;
+  return name + " " + parent + fam; // בלי מגדר לא ממציאים
 }
 
 function niftarBlock(n, i) {
@@ -169,6 +173,7 @@ function niftarBlock(n, i) {
     row("השם המלא", fullName(n)) +
     row("שם הנפטר", n.name) +
     row("שם ההורה", n.parent) +
+    row("שם משפחה", n.family) +
     row("תאריך הפטירה", n.date) +
     row("שנת הפטירה", n.year) +
     row("קרבה למבקש", n.relation) +
@@ -308,7 +313,11 @@ const MAX_PUBLIC = 5000;
 // אין לו משפחה" - והיא פרטית לו: היא מופיעה בטופס שלו ובמיילים שנשלחים אליו,
 // ולעולם לא בטבלה הגלויה באתר.
 function publicEntry(n) {
-  return { name: n.name, parent: n.parent, gender: n.gender,
+  // `family` כן נכנס לכאן, בניגוד ל-`notes`, וההבדל מכוון: ההערה נכתבה כדי
+  // שהמוסר יזכור למי הוא עושה עילוי נשמה והיא פרטית לו, בעוד שם המשפחה
+  // נמסר **כדי** שיראו אותו - וההנחיה בטופס אומרת לו במפורש שהוא יופיע
+  // ברשימה השבועית שבאתר (הוראת יעקב 13.10.2026).
+  return { name: n.name, parent: n.parent, family: n.family, gender: n.gender,
            date: n.date, year: n.year };
 }
 
@@ -455,6 +464,7 @@ export default {
             souls = (rec.souls || []).map((x) => ({
               name: x.name || "",
               parent: x.parent || "",
+              family: x.family || "",
               date: x.date || "",
               relation: x.relation || "",
               gender: x.gender || "",
@@ -479,6 +489,7 @@ export default {
             souls.push({
               name: x.name || "",
               parent: x.parent || "",
+              family: x.family || "",
               date: x.date || "",
               relation: x.relation || "",
               gender: x.gender || "",
@@ -516,6 +527,8 @@ export default {
       .map((n) => ({
         name: String((n && n.name) || "").trim(),
         parent: String((n && n.parent) || "").trim(),
+        // שם משפחה, לא חובה (הוראת יעקב 13.10.2026). אינו חלק מצורת התפילה.
+        family: String((n && n.family) || "").trim().slice(0, 60),
         date: String((n && n.date) || "").trim(),
         relation: String((n && n.relation) || "").trim(),
         gender: (n && n.gender) === "f" ? "f" : (n && n.gender) === "m" ? "m" : "",

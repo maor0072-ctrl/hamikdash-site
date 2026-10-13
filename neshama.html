@@ -372,13 +372,20 @@
   // "ראובן" + "ניסן" הוא לא "ראובן ניסן" אלא "ראובן בן ניסן". המגדר נגזר
   // מהקרבה, שהיא ממילא שדה חובה - בלי לשאול שאלה נוספת. אם המבקש כבר כתב
   // "בן"/"בת" בעצמו, לא מוסיפים פעמיים.
+  // שם המשפחה נספח **בסוגריים ואחרי** „X בן/בת Y", ולא בתוך המחרוזת. זה לא
+  // עניין של טעם: „רבקה בת ברוך לוי" נקרא כאילו שם ההורה הוא „ברוך לוי",
+  // וצורת התפילה חייבת להישאר שלמה וחד משמעית לפני הסוגריים.
+  function famSuffix(n) {
+    var f = String(n.family || "").trim();
+    return f ? " (" + f + ")" : "";
+  }
   function fullName(n) {
     var name = String(n.name || "").trim(), parent = String(n.parent || "").trim();
-    if (!parent) return name;
-    if (/^(בן|בת|ב"ר|בר)\s/.test(parent)) return name + " " + parent;
-    if (n.gender === "f") return name + " בת " + parent;
-    if (n.gender === "m") return name + " בן " + parent;
-    return name + " " + parent; // בלי מגדר לא ממציאים
+    if (!parent) return name + famSuffix(n);
+    if (/^(בן|בת|ב"ר|בר)\s/.test(parent)) return name + " " + parent + famSuffix(n);
+    if (n.gender === "f") return name + " בת " + parent + famSuffix(n);
+    if (n.gender === "m") return name + " בן " + parent + famSuffix(n);
+    return name + " " + parent + famSuffix(n); // בלי מגדר לא ממציאים
   }
 
   // הזיכרון יושב במכשיר של המבקש. בגל האפס אין מאגר בצד השרת, ובלי זה אין
@@ -560,6 +567,16 @@
       '<div class="field"><label>שם ההורה' +
       '<span class="hint">רק השם, למשל "ניסן"</span></label>' +
       '<input type="text" class="n-parent" value="' + esc(v.parent) + '"></div>' +
+      "</div>" +
+      // שם משפחה, לא חובה (הוראת יעקב 13.10.2026): „יש אנשים שחשוב להם לראות
+      // את שם המשפחה". הוא **אינו** חלק מצורת התפילה „X בן/בת Y" ולכן מוצג
+      // בסוגריים לידה. ההנחיה אומרת במפורש שהוא יופיע ברשימה הגלויה, כדי
+      // שמי שממלא אותו יעשה זאת ביודעין.
+      '<div class="row-2">' +
+      '<div class="field"><label>שם משפחה <span class="star">*</span>' +
+      '<span class="hint">לא חובה. אם תמלאו, יופיע בסוגריים ליד השם, ' +
+      'גם ברשימה השבועית שבאתר.</span></label>' +
+      '<input type="text" class="n-family" value="' + esc(v.family) + '"></div>' +
       "</div>" +
       // ההערה יושבת **מיד מתחת לשם** ולא בתחתית הבלוק, והכותרת שלה נושאת את
       // השם עצמו. כשהיא הייתה למטה היא נקראה כתחילת נפטר חדש, כי בדיוק שם
@@ -892,6 +909,7 @@
       var n = {
         name: b.querySelector(".n-name").value.trim(),
         parent: b.querySelector(".n-parent").value.trim(),
+        family: b.querySelector(".n-family").value.trim().slice(0, 60),
         date: b.querySelector(".n-date").value.trim(),
         relation: b.querySelector(".n-relation").value.trim(),
         gender: b.querySelector(".n-gender").value.trim(),

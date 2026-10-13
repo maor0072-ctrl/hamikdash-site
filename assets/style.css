@@ -298,3 +298,48 @@ section.tight { padding: 40px 0; }
 @media (max-width: 560px) {
   .cards.cards-4 { grid-template-columns: 1fr; }
 }
+
+/* nav:start */
+/* פירורי לחם נווטים וסרגל נושאים - מחולל על ידי scripts/hamikdash_site_nav.py */
+/* בלי opacity על המיכל - הוא מחלחל גם לחלונית הנפתחת והופך אותה לשקופה */
+.crumbnav{ display:flex; flex-wrap:wrap; align-items:center; gap:2px 4px;
+  font-size:.92rem; line-height:1.5; margin:0 0 8px; text-align:start;
+  color:var(--ink-soft,#6b6357); }
+.crumbnav .sep{ color:var(--line,#c9c0ad); margin:0 3px; }
+.crumbnav a{ color:inherit; text-decoration:none; border-bottom:1px solid transparent; }
+.crumbnav a:hover{ border-bottom-color:currentColor; }
+.crumbnav .here{ font-weight:700; }
+.crumbnav details.crumb{ position:relative; display:inline-block; }
+.crumbnav details.crumb>summary{ list-style:none; cursor:pointer;
+  display:inline-flex; align-items:center; gap:4px; }
+.crumbnav details.crumb>summary::-webkit-details-marker{ display:none; }
+.crumbnav details.crumb>summary::after{ content:"\25BE"; font-size:.72em; opacity:.6; }
+.crumbnav details.crumb[open]>summary::after{ opacity:1; }
+.crumbnav details.crumb>ul{ position:absolute; z-index:40; inset-inline-start:0; top:1.9em;
+  margin:0; padding:6px 0; list-style:none; min-width:190px;
+  background:#fff; border:1px solid var(--line,#e5ddcd);
+  border-radius:8px; box-shadow:0 10px 28px rgba(0,0,0,.16);
+  text-align:start; line-height:1.4; }
+.crumbnav details.crumb>ul li{ margin:0; padding:0; }
+.crumbnav details.crumb>ul a{ display:block; padding:9px 16px; font-size:.95rem;
+  line-height:1.35; text-align:start; white-space:nowrap; border:0;
+  color:var(--ink,#2c2a26); }
+.crumbnav details.crumb>ul a:hover{ background:var(--cream-warm,#f7f1e4); }
+
+.topic-nav-wrap{ border-bottom:1px solid var(--line,#e5ddcd);
+  background:var(--cream,#fdfaf3); }
+.topic-nav{ display:flex; flex-wrap:wrap; gap:8px; padding:12px 0; }
+.topic-pill{ display:inline-block; padding:7px 15px; border-radius:999px;
+  font-size:.95rem; line-height:1.35; text-decoration:none;
+  border:1px solid var(--line,#e5ddcd); background:var(--white,#fff);
+  color:var(--ink,#2c2a26); transition:background .15s,border-color .15s; }
+a.topic-pill:hover{ border-color:var(--gold,#c9ab77); background:var(--cream-warm,#f7f1e4); }
+.topic-pill.is-current{ background:var(--gold,#c9ab77); border-color:var(--gold,#c9ab77);
+  color:#fff; font-weight:700; }
+@media(max-width:680px){
+  .topic-nav{ flex-wrap:nowrap; overflow-x:auto; padding-bottom:14px;
+    scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .topic-nav::-webkit-scrollbar{ display:none; }
+  .topic-pill{ flex:0 0 auto; }
+}
+/* nav:end */

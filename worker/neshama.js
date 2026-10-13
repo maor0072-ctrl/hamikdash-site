@@ -178,7 +178,7 @@ function niftarBlock(n, i) {
   );
 }
 
-function thanksHtml(name, niftarim, isFix, isEmpty) {
+function thanksHtml(name, niftarim, isFix, isEmpty, total) {
   // ההערה הפרטית מוצגת למוסר **מתחת לשם**, ובמכוון. היא נכתבה כדי שהוא
   // יזכור למי הוא עושה עילוי נשמה, ולכן מייל שמזכיר את השם בלי ההערה מחמיץ
   // בדיוק את מה שבשבילו היא נמסרה. באתר הגלוי היא אינה מופיעה.
@@ -248,13 +248,22 @@ function thanksHtml(name, niftarim, isFix, isEmpty) {
     // לחיץ - כלומר אמר „אפשר לשנות שמות בכל עת דרך האתר" ולא נתן דרך לעשות
     // זאת. יעקב מסר שם עם טעות, קיבל את המייל, ולא מצא בו איך לתקן.
     // `?edit=1` מוביל ישר למסך הפרטים, שמשם השמות נשלפים מהשרת בכל מכשיר.
+    // **„עד כה שלחתם N שמות" בכל מייל אישור, הוראת יעקב 13.10.2026.** המספר
+    // הוא המצטבר מרשומת המוסר, כדי שמי שמסר בשתי פעימות יראה את הסך הכול
+    // ולא יחשוב שהמנה הראשונה אבדה. חסר (KV נפל)? השורה פשוט לא מוצגת.
+    (isEmpty || !total ? "" :
+      `<p style="margin:26px 0 0">עד כה שלחתם <strong>${total}</strong> ` +
+      `${total === 1 ? "שם" : "שמות"} לעילוי נשמה.</p>`) +
     (isEmpty ? "" :
-      `<p style="margin:26px 0 8px"><a href="${PAGE}?edit=1" ` +
+      `<p style="margin:14px 0 8px"><a href="${PAGE}?edit=1" ` +
       `style="background:#f3ece0;border:1px solid #b08434;color:#6b4e12;` +
       `text-decoration:none;padding:11px 22px;border-radius:8px;` +
       `display:inline-block;font-weight:bold">לתיקון השמות או להוספת שמות</a></p>` +
       `<p style="font-size:14px;color:#6b655c;margin:0">נפתח בכל מכשיר - מקלידים ` +
       `את כתובת הדואר הזאת ובוחרים „מסרנו שמות בעבר", והשמות שמסרתם ייטענו מעצמם.</p>`) +
+    (isEmpty ? "" :
+      `<p style="margin:16px 0 0">ורצוי מאוד לתרום סכום כלשהו על כל שם ושם. ` +
+      `הצדקה עצמה היא עילוי נשמה, והיא מה שמאפשר לאברכים לשבת וללמוד.</p>`) +
     (isFix || isEmpty
       ? `<p>ואם משהו בפרטים לא מדויק, אפשר גם פשוט להשיב למייל הזה ונתקן.</p>`
       : "") +
@@ -341,7 +350,7 @@ async function appendPublic(env, list, ownerKey, isFix) {
 // יום חמישי שולחת למוסר. אם הוא מוחלף במנה האחרונה, התזכורת מציגה לאדם
 // פחות שמות ממה שמסר - כלומר הבאג היה נשאר חי גם אחרי תיקון הדף.
 async function saveSubmitter(env, ownerKey, data, isFix) {
-  if (!env.NAMES) return;
+  if (!env.NAMES) return null;
   const prev = await env.NAMES.get("sub:" + ownerKey);
   // גיבוי לפני כל דריסה, ולא רק בתיקון. בטופס הזה הגשה חוזרת כבר דרסה
   // הגשה קודמת ואבדו 17 שמות ויארצייט אחד; מסלול התיקון הפתוח למוסר חוזר
@@ -371,6 +380,10 @@ async function saveSubmitter(env, ownerKey, data, isFix) {
     }
   }
   await env.NAMES.put("sub:" + ownerKey, JSON.stringify(data));
+  // המספר הכולל **אחרי** המיזוג, ולא אורך המנה הנוכחית. מייל האישור אומר
+  // „עד כה שלחתם N שמות", ובמסירה שנייה המנה לבדה הייתה אומרת מספר קטן
+  // מהאמת ונראית כאילו השמות הקודמים נמחקו.
+  return (data.souls || []).length;
 }
 
 // מפתח בעלות אנונימי: גיבוב של המייל, כדי שתיקון יחליף את השמות של אותו
@@ -586,10 +599,11 @@ export default {
     // הסדר הזה מכוון: שם שמופיע באתר ולא הגיע ליעקב הוא הבטחה ריקה.
     // הערה למי שיבדוק את זה בעתיד: כתיבה ל-KV מתפשטת עד כדקה. בדיקה
     // שקוראת מיד אחרי POST תראה את הערך הישן, וזה לא באג.
+    let total = null;
     try {
       const ownerKey = await ownerHash(email);
       await appendPublic(env, niftarim, ownerKey, isFix);
-      await saveSubmitter(env, ownerKey, {
+      total = await saveSubmitter(env, ownerKey, {
         sender: String(d.name).trim().slice(0, 120),
         phone: digits,
         email: email.toLowerCase(),
@@ -609,7 +623,7 @@ export default {
         replyTo: REPLY_TO_OWNER,
         subject: isEmpty ? "השמות הוסרו"
                : isFix ? "התיקון התקבל" : "קיבלנו את השמות לעילוי נשמה",
-        html: thanksHtml(d.name, niftarim, isFix, isEmpty),
+        html: thanksHtml(d.name, niftarim, isFix, isEmpty, total),
       })
     );
 

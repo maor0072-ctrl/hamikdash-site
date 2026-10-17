@@ -69,9 +69,15 @@ table.roster td.n{font-variant-numeric:tabular-nums}
       <span class="brand-sub">בראשות הרב יעקב מאור</span>
     </div>
     <nav class="nav">
-      <a href="https://hamikdash.co.il/">בית</a>
-      <a href="https://hamikdash.co.il/tehillim.html">תהילים ישראל</a>
-      <a href="https://hamikdash.co.il/donate.html">לתרומה</a>
+      <!-- nav:start -->
+      <a href="/">בית</a>
+      <a href="/about.html">אודות</a>
+      <details class="navdrop"><summary><a href="/chagim/">חגים</a></summary><ul><li><a href="/chagim/yom-kippur/">יום כיפור</a></li><li><a href="/chagim/rosh-hashana/">ראש השנה</a></li><li><a href="/chagim/sukkot/">סוכות תשפ"ז</a></li><li><a href="/chagim/pesach/">פסח תשפ"ז</a></li><li><a href="/chagim/tzomot/">צומות ותעניות ציבור</a></li></ul></details>
+      <details class="navdrop"><summary><a href="/tefilot/">תפילות ושירותים</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">שמות לרפואה</a></li><li><a href="/shema.html">שמע בחצות</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details>
+      <details class="navdrop"><summary><a href="/torah.html">תוכן תורני</a></summary><ul><li><a href="/torah/bitachon-vehishtadlut.html">ביטחון והשתדלות</a></li><li><a href="/torah/tefila-shelo-nenata.html">תפילה שלא נענתה</a></li><li><a href="/torah/chinuch-yeladim.html">חינוך ילדים</a></li><li><a href="/torah/zugiyut-vekaas.html">זוגיות וכעס</a></li><li><a href="/torah/ahavat-chinam.html">אהבת חינם</a></li><li><a href="/torah/shabbat-vebayit.html">שבת ובית</a></li></ul></details>
+      <a href="/contact.html">יצירת קשר</a>
+      <a href="/donate.html" class="btn">לתרומה</a>
+      <!-- nav:end -->
     </nav>
   </div>
 </header>
@@ -82,6 +88,9 @@ table.roster td.n{font-variant-numeric:tabular-nums}
 
   <div class="card">
     <p class="tiny" style="margin:0">מסך ניהול</p>
+    <!-- crumbs:start -->
+<nav class="crumbnav" aria-label="מיקום באתר"><a href="/">בית</a><span class="sep">&rsaquo;</span><details class="crumb"><summary><a href="/tefilot/">תפילות ושירותים</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">שמות לרפואה</a></li><li><a href="/shema.html">שמע בחצות</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details><span class="sep">&rsaquo;</span><details class="crumb"><summary><a href="/tehillim.html">תהילים ישראל</a></summary><ul><li><a href="/tehillim/book.html">ספר תהילים</a></li></ul></details><span class="sep">&rsaquo;</span><span class="here">ניהול ספר תהילים</span></nav>
+    <!-- crumbs:end -->
     <h1 style="font-size:26px;margin:2px 0 4px" id="bk-for"></h1>
     <p class="tiny" id="bk-meta" style="margin:0 0 18px"></p>
 
@@ -163,11 +172,19 @@ table.roster td.n{font-variant-numeric:tabular-nums}
       </div>
       <div>
         <h4>ניווט</h4>
+        <!-- footnav:start -->
         <a href="/about.html">אודות</a>
         <a href="/torah.html">תוכן תורני</a>
         <a href="/chagim/">חגים</a>
+        <a href="/neshama.html">עילוי נשמה</a>
+        <a href="/shema.html">שמע בחצות</a>
+        <a href="/pidyon-nefesh/">פדיון נפש</a>
+        <a href="/refua.html">שמות לרפואה</a>
+        <a href="/tehillim.html">תהילים ישראל</a>
+        <a href="/matana/">הספר „רק הנשמה”</a>
         <a href="/donate.html">תרומה</a>
         <a href="/contact.html">יצירת קשר</a>
+        <!-- footnav:end -->
       </div>
       <div>
         <h4>עקבו אחרינו</h4>

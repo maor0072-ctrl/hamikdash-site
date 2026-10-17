@@ -46,6 +46,13 @@ const SELF = "https://refua.hamikdash.co.il";
 
 const MAX_CHOLIM = 5; // תקרה שפויה; מעבר לזה זו כנראה הזנה אוטומטית
 
+// תקרות אורך לכל שדה. **דוחים ולא חותכים.** חיתוך שקט מחזיר „התקבל" על שם
+// שאינו השם שנמסר, ומוחק בשקט את השמות שמעל התקרה - בדיוק הבאג שתוקן
+// ב-worker/neshama.js. הטופס עצמו מגביל גם את המספר וגם את האורך, ולכן מי
+// שמגיע לכאן הוא הזנה אוטומטית או עקיפה, ושם חיתוך שקט הוא הנזק הגדול.
+const FIELD_MAX = { name: 120, parent: 120, relation: 80 };
+const FIELD_LABEL = { name: "השם", parent: "שם ההורה", relation: "הקרבה" };
+
 function cors(origin) {
   const allow = ALLOWED.includes(origin) ? origin : ALLOWED[0];
   return {
@@ -458,13 +465,31 @@ export default {
 
     const cholim = (Array.isArray(d.cholim) ? d.cholim : [])
       .map((n) => ({
-        name: String((n && n.name) || "").trim().slice(0, 120),
-        parent: String((n && n.parent) || "").trim().slice(0, 120),
-        relation: String((n && n.relation) || "").trim().slice(0, 80),
+        name: String((n && n.name) || "").trim(),
+        parent: String((n && n.parent) || "").trim(),
+        relation: String((n && n.relation) || "").trim(),
         gender: (n && n.gender) === "f" ? "f" : (n && n.gender) === "m" ? "m" : "",
       }))
-      .filter((n) => n.name)
-      .slice(0, MAX_CHOLIM);
+      .filter((n) => n.name);
+
+    // כאן היה `.slice(0, MAX_CHOLIM)` וחיתוך אורך על כל שדה - חיתוך שקט
+    // שהוחזר כהצלחה. דחייה בקול במקומו.
+    if (cholim.length > MAX_CHOLIM)
+      return new Response(
+        `אפשר למסור עד ${MAX_CHOLIM} שמות בהגשה אחת, ונשלחו ${cholim.length}. ` +
+          `אפשר לשלוח את השאר בהגשה נוספת.`,
+        { status: 400, headers }
+      );
+    for (const n of cholim) {
+      for (const f in FIELD_MAX) {
+        if (String(n[f] || "").length > FIELD_MAX[f])
+          return new Response(
+            `${FIELD_LABEL[f]} של „${String(n.name).slice(0, 40)}" ארוך מדי ` +
+              `(עד ${FIELD_MAX[f]} תווים, נשלחו ${String(n[f]).length}).`,
+            { status: 400, headers }
+          );
+      }
+    }
 
     // רשימה ריקה **בתיקון** היא בקשת הסרה מפורשת, לא טופס פגום.
     const isFix = d.kind === "correction";

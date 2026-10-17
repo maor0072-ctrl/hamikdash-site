@@ -588,10 +588,10 @@
       '<button type="button" class="niftar-remove">הסרה</button></div>' +
       '<div class="row-2">' +
       '<div class="field"><label>שם פרטי של הנפטר</label>' +
-      '<input type="text" class="n-name" value="' + esc(v.name) + '"></div>' +
+      '<input type="text" maxlength="120" class="n-name" value="' + esc(v.name) + '"></div>' +
       '<div class="field"><label>שם ההורה' +
       '<span class="hint">רק השם, למשל "ניסן"</span></label>' +
-      '<input type="text" class="n-parent" value="' + esc(v.parent) + '"></div>' +
+      '<input type="text" maxlength="120" class="n-parent" value="' + esc(v.parent) + '"></div>' +
       "</div>" +
       // שם משפחה, לא חובה (הוראת יעקב 13.10.2026): „יש אנשים שחשוב להם לראות
       // את שם המשפחה". הוא **אינו** חלק מצורת התפילה „X בן/בת Y" ולכן מוצג
@@ -601,7 +601,7 @@
       '<div class="field"><label>שם משפחה <span class="star">*</span>' +
       '<span class="hint">לא חובה. אם תמלאו, יופיע בסוגריים ליד השם, ' +
       'גם ברשימה השבועית שבאתר.</span></label>' +
-      '<input type="text" class="n-family" value="' + esc(v.family) + '"></div>' +
+      '<input type="text" maxlength="60" class="n-family" value="' + esc(v.family) + '"></div>' +
       "</div>" +
       // ההערה יושבת **מיד מתחת לשם** ולא בתחתית הבלוק, והכותרת שלה נושאת את
       // השם עצמו. כשהיא הייתה למטה היא נקראה כתחילת נפטר חדש, כי בדיוק שם
@@ -616,7 +616,7 @@
       '<div class="field"><label>תאריך הפטירה' +
       '<span class="hint">עברי או לועזי. אם לועזי, נא לציין גם את השנה, ' +
       'ואם הפטירה הייתה אחרי השקיעה - לכתוב זאת בהערות.</span></label>' +
-      '<input type="text" class="n-date" value="' + esc(v.date) + '">' +
+      '<input type="text" maxlength="60" class="n-date" value="' + esc(v.date) + '">' +
       '<span class="date-hint" style="display:none;font-size:13px;line-height:1.6;' +
       'color:#a3312a;margin-top:6px"></span></div>' +
       '<div class="field"><label>הקרבה אליכם</label>' +
@@ -632,7 +632,7 @@
       "</select></div>" +
       '<div class="field"><label>שנת הפטירה <span class="star">*</span>' +
       '<span class="hint">לא חובה</span></label>' +
-      '<input type="text" class="n-year" value="' + esc(v.year) + '"></div>' +
+      '<input type="text" maxlength="30" class="n-year" value="' + esc(v.year) + '"></div>' +
       "</div>";
 
     // כותרת ההערה נושאת את שם הנפטר ומתעדכנת תוך כדי הקלדה, כדי שלא יהיה
@@ -1058,13 +1058,26 @@
     // וגם לחסימת רשת, ולכן הנפגע לא יכול היה למסור שום דבר שימושי.
     // דחייה של fetch = לא הגענו לשרת -> מנסים את הכתובת החלופית.
     // תשובה עם קוד שגיאה = הגענו, והשרת אמר לא -> מדווחים את הקוד ולא חוזרים.
+
+    // **נוסח הדחייה של השרת מוצג כפי שהוא, כשהוא בעברית.** השרת מחזיר נוסח
+    // עברי מלא על חריגה מהתקרות („אפשר למסור עד 5 שמות... ונשלחו 6"), ו„קוד
+    // 400" לבדו הוא כשל אטום בדיוק כמו החיתוך השקט שהוחלף בו - האדם אינו
+    // יודע מה לתקן, ולכן אינו מוסר. בדיקות ולידציה ותיקות מחזירות אנגלית,
+    // וזאת אין להציג, אז נופלים חזרה לקוד.
+    function serverSaid(r) {
+      return r.text().then(function (t) {
+        var msg = String(t || "").trim();
+        return /[\u0590-\u05FF]/.test(msg) ? msg : "קוד " + r.status;
+      }, function () { return "קוד " + r.status; });
+    }
+
     post(ENDPOINT).then(function (r) {
       if (r.ok) return onOk(true);
-      fail("קוד " + r.status);
+      serverSaid(r).then(fail);
     }, function () {
       post(ENDPOINT_FALLBACK).then(function (r) {
         if (r.ok) return onOk(true);
-        fail("קוד " + r.status);
+        serverSaid(r).then(fail);
       }, function () {
         fail("אין חיבור לשרת");
       });

@@ -38,6 +38,13 @@ const WISHES_PAGE = "https://hamikdash.co.il/shema-wishes.html";
 const SELF_URL = "https://shema.hamikdash.co.il";
 
 const MAX_WISHES = 3;
+
+// תקרות אורך לכל שדה. **דוחים ולא חותכים.** חיתוך שקט מחזיר „התקבל" על שם
+// שאינו השם שנמסר, ומוחק בשקט את השמות שמעל התקרה - בדיוק הבאג שתוקן
+// ב-worker/neshama.js. הטופס עצמו מגביל גם את המספר וגם את האורך, ולכן מי
+// שמגיע לכאן הוא הזנה אוטומטית או עקיפה, ושם חיתוך שקט הוא הנזק הגדול.
+const FIELD_MAX = { name: 80, parent: 80, wish: 500, relation: 80 };
+const FIELD_LABEL = { name: "השם", parent: "שם ההורה", wish: "המשאלה", relation: "הקרבה" };
 const JOIN_TOKEN_DAYS = 30;
 const REMOVE_TOKEN_DAYS = 14;
 
@@ -494,19 +501,37 @@ async function handleWishes(d, env, headers) {
   const raw = Array.isArray(d.wishes) ? d.wishes : [];
   const wishes = raw
     .map((w) => ({
-      name: String((w && w.name) || "").trim().slice(0, 80),
-      parent: String((w && w.parent) || "").trim().slice(0, 80),
+      name: String((w && w.name) || "").trim(),
+      parent: String((w && w.parent) || "").trim(),
       // מגדר מי שמתפללים עליו/ה - שדה חובה מפורש, לא נגזר מהקרבה. "אברהם"
       // + "שרה" הוא לא "אברהם שרה" אלא "אברהם בן שרה", וללא מגדר אי אפשר
       // לדעת "בן" או "בת" - זהה למוסכמה ב-neshama.js ובפדיון הכפרות.
       gender: (w && w.gender) === "f" ? "f" : (w && w.gender) === "m" ? "m" : "",
-      wish: String((w && w.wish) || "").trim().slice(0, 500),
-      relation: String((w && w.relation) || "").trim().slice(0, 80),
+      wish: String((w && w.wish) || "").trim(),
+      relation: String((w && w.relation) || "").trim(),
       publicOk: !!(w && w.publicOk),
       privateOnly: !!(w && w.privateOnly),
     }))
-    .filter((w) => w.name)
-    .slice(0, MAX_WISHES);
+    .filter((w) => w.name);
+
+  // כאן היה `.slice(0, MAX_WISHES)` וחיתוך אורך על כל שדה - חיתוך שקט
+  // שהוחזר כהצלחה. דחייה בקול במקומו.
+  if (wishes.length > MAX_WISHES)
+    return new Response(
+      `אפשר למסור עד ${MAX_WISHES} משאלות בהגשה אחת, ונשלחו ${wishes.length}. ` +
+        `אפשר לשלוח את השאר בהגשה נוספת.`,
+      { status: 400, headers }
+    );
+  for (const w of wishes) {
+    for (const f in FIELD_MAX) {
+      if (String(w[f] || "").length > FIELD_MAX[f])
+        return new Response(
+          `${FIELD_LABEL[f]} של „${String(w.name).slice(0, 40)}" ארוך מדי ` +
+            `(עד ${FIELD_MAX[f]} תווים, נשלחו ${String(w[f]).length}).`,
+          { status: 400, headers }
+        );
+    }
+  }
 
   if (!wishes.length) return new Response("no wishes", { status: 400, headers });
   for (const w of wishes) {

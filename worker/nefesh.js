@@ -42,6 +42,13 @@ const SHEMOT_PAGE = "https://hamikdash.co.il/pidyon-nefesh/shemot.html";
 // משפחה גדולה היא לגמרי סבירה כאן - פדיון נפש עושים לכל נפש, כולל ילדים וסבים.
 // התקרה נועדה רק לעצור הזנה אוטומטית.
 const MAX_SOULS = 30;
+
+// תקרות אורך לכל שדה. **דוחים ולא חותכים.** חיתוך שקט מחזיר „התקבל" על שם
+// שאינו השם שנמסר, ומוחק בשקט את השמות שמעל התקרה - בדיוק הבאג שתוקן
+// ב-worker/neshama.js. `soulsError` נקרא לפני `cleanSouls` ומחזיר נוסח עברי
+// או null; `cleanSouls` עצמו שוב אינו חותך דבר.
+const FIELD_MAX = { name: 120, parent: 120, wish: 300, relation: 80 };
+const FIELD_LABEL = { name: "השם", parent: "שם ההורה", wish: "המשאלה", relation: "הקרבה" };
 const TOKEN_DAYS = 60;
 
 function cors(origin) {
@@ -371,14 +378,30 @@ function ownerHtml(sender, phone, email, souls, note, kind) {
 function cleanSouls(raw) {
   return (Array.isArray(raw) ? raw : [])
     .map((n) => ({
-      name: String((n && n.name) || "").trim().slice(0, 120),
-      parent: String((n && n.parent) || "").trim().slice(0, 120),
+      name: String((n && n.name) || "").trim(),
+      parent: String((n && n.parent) || "").trim(),
       gender: (n && n.gender) === "f" ? "f" : (n && n.gender) === "m" ? "m" : "",
-      wish: String((n && n.wish) || "").trim().slice(0, 300),
-      relation: String((n && n.relation) || "").trim().slice(0, 80),
+      wish: String((n && n.wish) || "").trim(),
+      relation: String((n && n.relation) || "").trim(),
     }))
-    .filter((n) => n.name)
-    .slice(0, MAX_SOULS);
+    .filter((n) => n.name);
+}
+
+// הנוסח שחוזר למוסר כשההגשה חורגת. מוחזר, לא נחתך.
+function soulsError(raw) {
+  const list = (Array.isArray(raw) ? raw : [])
+    .filter((n) => n && String(n.name || "").trim());
+  if (list.length > MAX_SOULS)
+    return `אפשר למסור עד ${MAX_SOULS} שמות בהגשה אחת, ונשלחו ${list.length}.`;
+  for (const n of list) {
+    for (const f in FIELD_MAX) {
+      const v = String((n && n[f]) || "").trim();
+      if (v.length > FIELD_MAX[f])
+        return `${FIELD_LABEL[f]} של „${String(n.name).trim().slice(0, 40)}" ` +
+          `ארוך מדי (עד ${FIELD_MAX[f]} תווים, נשלחו ${v.length}).`;
+    }
+  }
+  return null;
 }
 
 // ==========================================================================
@@ -816,6 +839,8 @@ export default {
         return json({ ok: true, deleted: true });
       }
 
+      const soulsErr = soulsError(d.souls);
+      if (soulsErr) return json({ ok: false, reason: soulsErr }, 400);
       const souls = cleanSouls(d.souls);
       if (!souls.length) return json({ ok: false, reason: "no souls" }, 400);
       for (const n of souls) {

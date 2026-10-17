@@ -38,6 +38,25 @@ const PAGE = "https://hamikdash.co.il/neshama.html";
 
 const MAX_NIFTARIM = 5; // תקרה שפויה; מעבר לזה זו כנראה הזנה אוטומטית
 
+// תקרות אורך לכל שדה של נפטר, ול שדות המוסר. **דוחים ולא חותכים.** חיתוך שקט
+// מחזיר „קיבלנו את השמות" על שם שאינו השם שנמסר, כלומר אדם אחר ברשימת הכולל
+// והמוסר אינו יודע. אותו טעם חל על תקרת חמישה הנפטרים: הגשה שישית נדחית בקול,
+// ולא נחתכת ומוחזרת כהצלחה. הטופס עצמו מגביל את שני הדברים, ולכן מי שמגיע לכאן
+// הוא הזנה אוטומטית או עקיפה - ובדיוק שם חיתוך שקט הוא הנזק הגדול.
+const FIELD_MAX = {
+  name: 120, parent: 120, family: 60, date: 60,
+  relation: 80, year: 30, notes: 400,
+};
+const FIELD_LABEL = {
+  name: "שם הנפטר", parent: "שם ההורה", family: "שם המשפחה",
+  date: "תאריך הפטירה", relation: "הקרבה", year: "שנת הפטירה",
+  notes: "ההערה",
+};
+const SENDER_MAX = { name: 120, email: 160, phone: 40, note: 2000 };
+const SENDER_LABEL = {
+  name: "שם המבקש", email: "כתובת הדוא\"ל", phone: "הטלפון", note: "ההערה",
+};
+
 function cors(origin) {
   const allow = ALLOWED.includes(origin) ? origin : ALLOWED[0];
   return {
@@ -619,26 +638,53 @@ export default {
     if (!/^(\+?972|0)5\d{8}$/.test(digits) && !/^\+\d{9,15}$/.test(digits))
       return new Response("bad phone", { status: 400, headers });
 
+    for (const f in SENDER_MAX) {
+      const v = String(d[f] || "").trim();
+      if (v.length > SENDER_MAX[f])
+        return new Response(
+          `${SENDER_LABEL[f]} ארוך מדי (עד ${SENDER_MAX[f]} תווים, נשלחו ${v.length}).`,
+          { status: 400, headers }
+        );
+    }
+
     const niftarim = (Array.isArray(d.niftarim) ? d.niftarim : [])
       .map((n) => ({
         name: String((n && n.name) || "").trim(),
         parent: String((n && n.parent) || "").trim(),
         // שם משפחה, לא חובה (הוראת יעקב 13.10.2026). אינו חלק מצורת התפילה.
-        family: String((n && n.family) || "").trim().slice(0, 60),
+        family: String((n && n.family) || "").trim(),
         date: String((n && n.date) || "").trim(),
         relation: String((n && n.relation) || "").trim(),
         gender: (n && n.gender) === "f" ? "f" : (n && n.gender) === "m" ? "m" : "",
         // שנת הפטירה, לא חובה. היא מה שיאפשר בגל 1 להציג שם **כל השנה
         // הראשונה** ולא רק בשבוע היארצייט. נאספת כבר עכשיו כדי שלא נאבד
         // אותה ממי שמוסר בימים האלה.
-        year: String((n && n.year) || "").trim().slice(0, 30),
+        year: String((n && n.year) || "").trim(),
         // הערה חופשית קצרה של המוסר על הנפטר הזה, לא חובה (יעקב, 10.10.2026).
         // "ניצול שואה שהכרתי, אין לו משפחה" - מה שמאפשר לאדם לזכור בשנה הבאה
         // למי הוא עושה עילוי נשמה. פרטית לו: במיילים אליו כן, בטבלה הגלויה לא.
-        notes: String((n && n.notes) || "").trim().slice(0, 400),
+        notes: String((n && n.notes) || "").trim(),
       }))
-      .filter((n) => n.name)
-      .slice(0, MAX_NIFTARIM);
+      .filter((n) => n.name);
+
+    // כאן היה `.slice(0, MAX_NIFTARIM)` ושבע קריאות `.slice` על שדות - חיתוך
+    // שקט שהוחזר כהצלחה. **דחייה בקול במקומו**, ולכל שדה גם תקרה משלו.
+    if (niftarim.length > MAX_NIFTARIM)
+      return new Response(
+        `אפשר למסור עד ${MAX_NIFTARIM} שמות בהגשה אחת, ונשלחו ${niftarim.length}. ` +
+          `אפשר לשלוח את השאר בהגשה נוספת.`,
+        { status: 400, headers }
+      );
+    for (const n of niftarim) {
+      for (const f in FIELD_MAX) {
+        if (n[f].length > FIELD_MAX[f])
+          return new Response(
+            `${FIELD_LABEL[f]} של „${n.name.slice(0, 40)}" ארוך מדי ` +
+              `(עד ${FIELD_MAX[f]} תווים, נשלחו ${n[f].length}).`,
+            { status: 400, headers }
+          );
+      }
+    }
 
     // רשימה ריקה **בתיקון** היא בקשת הסרה מפורשת, לא טופס פגום. אדם
     // שמבקש להסיר שם חייב לקבל את זה בלחיצה אחת, בלי מכשולים.
@@ -713,7 +759,7 @@ export default {
       const ownerKey = await ownerHash(email);
       await appendPublic(env, niftarim, ownerKey, isFix);
       total = await saveSubmitter(env, ownerKey, {
-        sender: String(d.name).trim().slice(0, 120),
+        sender: String(d.name).trim(), // האורך נבדק למעלה ונדחה, לא נחתך
         phone: digits,
         email: email.toLowerCase(),
         souls: niftarim,

@@ -404,6 +404,54 @@ async function resolve(token, env, role) {
 async function handleApi(request, url, env, origin) {
   const parts = url.pathname.split("/").filter(Boolean); // ["api", ...]
 
+  // הרשמה מרצון של קורא (הכרעות 5, 9, 19, ג3): כל השדות אינם חובה. טלפון או מייל
+  // נותנים מפתח קבוע, וכך אותו אדם מזוהה בכל מכשיר ורואה מה פתוח אצלו.
+  if (parts[1] === "me") {
+    let b = {};
+    if (request.method === "POST") {
+      try {
+        b = await request.json();
+      } catch (e) {
+        b = {};
+      }
+    }
+    const rkIn = cleanFree(b.readerKey || url.searchParams.get("rk"), 40);
+    if (request.method !== "POST") {
+      if (!rkIn || rkIn[0] !== "p") return json({ ok: true, known: 0, marked: 0 }, 200, origin);
+      return json(await doCall(counter(env), "person-get", { pkey: rkIn.slice(1) }), 200, origin);
+    }
+    const phone = String(b.phone || "").replace(/[^0-9]/g, "").replace(/^972/, "0");
+    const email = cleanFree(b.email, 80).toLowerCase();
+    const okPhone = /^0\d{8,9}$/.test(phone);
+    const okMail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+    const first = cleanFree(b.first, 40);
+    const last = cleanFree(b.last, 40);
+    if (!okPhone && !okMail) return json({ ok: true, rk: rkIn, known: 0 }, 200, origin);
+    const ident = okPhone ? "ph:" + phone : "em:" + email;
+    const pkey = (await manageSig(ident, env.TEHILLIM_TOKEN_SECRET)).slice(0, 20);
+    const rk = "p" + pkey;
+    const person = await doCall(counter(env), "person-upsert", {
+      pkey: pkey,
+      first: first,
+      last: last,
+      email: okMail ? email : "",
+    });
+    const tok = cleanFree(b.book, 24);
+    if (tok && rkIn) {
+      const p = await resolve(tok, env, "p");
+      if (p) {
+        await doCall(book(env, p.b), "rekey", {
+          oldKey: rkIn,
+          newKey: rk,
+          name: first,
+          phoneTail: okPhone ? phone.slice(-4) : "",
+          email: okMail ? email : "",
+        });
+      }
+    }
+    return json({ ok: true, rk: rk, known: person.known, first: person.first, marked: person.marked }, 200, origin);
+  }
+
   if (parts[1] === "stats") {
     const s = await doCall(counter(env), "stats", {});
     return json(s, 200, origin, { "Cache-Control": "public, max-age=30" });
@@ -475,6 +523,13 @@ async function handleApi(request, url, env, origin) {
       if (!idxs || !readerKey) return json({ ok: false, error: "bad_request" }, 400, origin);
       const r = await doCall(stub, "read", { readerKey: readerKey, idxs: idxs, readerName: cleanFree(b.readerName, 40) });
       if (r.ok && r.read && r.read.length) {
+        if (readerKey[0] === "p") {
+          try {
+            await doCall(counter(env), "person-bump", { pkey: readerKey.slice(1), n: r.read.length });
+          } catch (e) {
+            /* הספירה האישית אינה קריטית לסימון */
+          }
+        }
         try {
           await doCall(counter(env), "bump", { n: r.read.length });
         } catch (e) {

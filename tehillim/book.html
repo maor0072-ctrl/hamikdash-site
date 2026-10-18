@@ -303,14 +303,22 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     <p id="who-what" style="font-size:17px"></p>
 
     <form id="who-form" novalidate>
-      <div class="field">
-        <label for="rname">שם פרטי *</label>
-        <input type="text" id="rname" autocomplete="given-name" required>
+      <p class="tiny" style="margin-top:0">שום שדה כאן אינו חובה, ואפשר לקרוא בלי להירשם. מי שנרשם
+      יהיה מעודכן במצב הפרקים שנקראו ובמידע נוסף, ויראה בכל מכשיר מה פתוח אצלו.</p>
+      <div class="row-2">
+        <div class="field">
+          <label for="rname">שם פרטי</label>
+          <input type="text" id="rname" autocomplete="given-name">
+        </div>
+        <div class="field">
+          <label for="rlast">שם משפחה</label>
+          <input type="text" id="rlast" autocomplete="family-name">
+        </div>
       </div>
       <div class="field">
-        <label for="rphone">טלפון</label>
+        <label for="rphone">טלפון נייד</label>
         <input type="tel" id="rphone" autocomplete="tel" inputmode="tel">
-        <span class="hint">אם תציינו טלפון, תדעו כמה פרקים קראתם במצטבר היום ובמצטבר החודשי.</span>
+        <span class="hint">עם הטלפון תזוהו גם ממכשיר אחר, ותדעו כמה פרקים קראתם במצטבר.</span>
       </div>
       <div class="field">
         <label for="rmail">מייל</label>
@@ -358,6 +366,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   <div class="yasher">
     <div class="halo"><h2>ישר כוח!</h2></div>
     <p class="what" id="end-what"></p>
+    <p class="tiny" id="end-count" style="text-align:center"></p>
 
     <div class="actions" style="justify-content:center;margin-top:30px">
       <button type="button" class="btn btn-lg" id="end-more">לקחת עוד פרקים</button>
@@ -461,6 +470,36 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     } catch (e) { return v || ""; }
   }
   var RK = readerKey();
+
+  // ---------- הרשמה מרצון (הכרעות 5, 9, 19) ----------
+  function saveMe(me) {
+    try { localStorage.setItem("tehillim_me", JSON.stringify(me)); } catch (e) { /* פרטיות חסומה */ }
+  }
+  function loadMe() {
+    try { return JSON.parse(localStorage.getItem("tehillim_me") || "{}") || {}; } catch (e) { return {}; }
+  }
+  // טלפון או מייל מחזירים מפתח קבוע מהשרת. בלעדיהם ממשיכים עם המפתח המקומי.
+  function register(me) {
+    if (!me.phone && !me.email) return Promise.resolve();
+    return fetch(API + "/api/me", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ readerKey: RK, book: TOKEN, first: me.first, last: me.last, phone: me.phone, email: me.email })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.ok && d.rk && d.rk !== RK) {
+        RK = d.rk;
+        try { localStorage.setItem("tehillim_rk", RK); } catch (e) { /* בסדר */ }
+      }
+    }).catch(function () { /* ההרשמה אינה תנאי לקריאה */ });
+  }
+  function showMyCount() {
+    if (!RK || RK[0] !== "p") return;
+    fetch(API + "/api/me?rk=" + encodeURIComponent(RK)).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.known || !d.marked) return;
+      var el = $("end-count");
+      if (el) el.textContent = "עד היום קראתם " + d.marked + (d.marked === 1 ? " פרק" : " פרקים") + " בכל ספרי תהילים ישראל.";
+    }).catch(function () { /* לא קריטי */ });
+  }
   var PENDING_NOTE = "";
   var AGAIN_OK = [];
 
@@ -695,6 +734,10 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     $("who-what").textContent = (SEL.length === 1 ? "בחרתם פרק אחד: " : "בחרתם " + SEL.length + " פרקים: ") + names;
     var n = readerName();
     if (n) $("rname").value = n;
+    var me = loadMe();
+    if (me.last) $("rlast").value = me.last;
+    if (me.phone) $("rphone").value = me.phone;
+    if (me.email) $("rmail").value = me.email;
     show("who");
   });
 
@@ -713,18 +756,33 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   $("who-form").addEventListener("submit", function (e) {
     e.preventDefault();
     var name = $("rname").value.trim();
-    if (name.length < 2) {
+    var me = {
+      first: name,
+      last: $("rlast").value.trim(),
+      phone: $("rphone").value.trim(),
+      email: $("rmail").value.trim()
+    };
+    var digits = me.phone.replace(/[^0-9]/g, "");
+    if (me.phone && !/^(0|972)\d{8,9}$/.test(digits)) {
       $("who-msg").className = "form-msg err";
-      $("who-msg").textContent = "צריך שם פרטי כדי להמשיך.";
+      $("who-msg").textContent = "מספר הטלפון אינו תקין. אפשר גם להשאיר אותו ריק.";
+      return;
+    }
+    if (me.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(me.email)) {
+      $("who-msg").className = "form-msg err";
+      $("who-msg").textContent = "כתובת המייל אינה תקינה. אפשר גם להשאיר אותה ריקה.";
       return;
     }
     readerName(name);
+    saveMe(me);
     var btn = $("who-go");
     btn.disabled = true;
     btn.textContent = "תופס את הפרקים...";
     $("who-msg").className = "form-msg";
 
-    post("/take", { readerKey: RK, readerName: name, idxs: SEL.slice() })
+    register(me).then(function () {
+      return post("/take", { readerKey: RK, readerName: name, idxs: SEL.slice() });
+    })
       .then(function (d) {
         btn.disabled = false;
         btn.textContent = "לקריאה לחצו כאן";
@@ -998,6 +1056,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   // ---------- מסך הסיום ----------
   function finish() {
     stopClock();
+    showMyCount();
     if (!DONE_NOW.length) { refresh(); show("grid"); return; }
     var names = DONE_NOW.map(function (i) { return UNITS[i].name; }).join(", ");
     var who = STATE && STATE.kind === "klali"

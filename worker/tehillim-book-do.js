@@ -340,6 +340,40 @@ export class BookDO {
     return { ok: true, cycle: cycle + 1, created: false, reopened: true };
   }
 
+  // מי שנרשם עם טלפון מקבל מפתח קבוע. מה שהחזיק תחת המפתח המקומי עובר אליו,
+  // כדי שלא יאבד את מה שלקח לפני שנרשם.
+  rekey(oldKey, newKey, name, phoneTail, email) {
+    if (!oldKey || !newKey) return { ok: false, error: "bad_request" };
+    if (oldKey !== newKey) {
+      this.sql.exec("UPDATE OR IGNORE holds SET rkey = ? WHERE rkey = ?", newKey, oldKey);
+      this.sql.exec("DELETE FROM holds WHERE rkey = ?", oldKey);
+      this.sql.exec("UPDATE units SET readerKey = ? WHERE readerKey = ?", newKey, oldKey);
+      const old = this.sql.exec("SELECT marked, lastMarkAt FROM readers WHERE rkey = ?", oldKey).toArray()[0];
+      this.sql.exec("DELETE FROM readers WHERE rkey = ?", oldKey);
+      this.sql.exec(
+        "INSERT INTO readers (rkey, name, marked, lastMarkAt) VALUES (?, ?, ?, ?) " +
+          "ON CONFLICT(rkey) DO UPDATE SET marked = marked + excluded.marked, " +
+          "lastMarkAt = MAX(lastMarkAt, excluded.lastMarkAt)",
+        newKey,
+        name || "",
+        old ? Number(old.marked || 0) : 0,
+        old ? Number(old.lastMarkAt || 0) : 0
+      );
+    }
+    this.sql.exec(
+      "INSERT INTO readers (rkey, name, phone, email) VALUES (?, ?, ?, ?) " +
+        "ON CONFLICT(rkey) DO UPDATE SET " +
+        "name = CASE WHEN excluded.name != '' THEN excluded.name ELSE name END, " +
+        "phone = CASE WHEN excluded.phone != '' THEN excluded.phone ELSE phone END, " +
+        "email = CASE WHEN excluded.email != '' THEN excluded.email ELSE email END",
+      newKey,
+      name || "",
+      phoneTail || "",
+      email || ""
+    );
+    return { ok: true };
+  }
+
   release(readerKey, idxs) {
     const now = Date.now();
     for (const i of idxs || []) {
@@ -446,6 +480,7 @@ export class BookDO {
     if (op === "create") out = this.create(body.meta || {}, body.unitCount || 171);
     else if (op === "state") out = this.snapshot(body.readerKey || url.searchParams.get("rk"));
     else if (op === "take") out = this.take(body.readerKey, body.readerName, body.idxs, body.budgetMs || 3600000);
+    else if (op === "rekey") out = this.rekey(body.oldKey, body.newKey, body.name, body.phoneTail, body.email);
     else if (op === "read") out = this.markRead(body.readerKey, body.idxs, body.readerName);
     else if (op === "release") out = this.release(body.readerKey, body.idxs);
     else if (op === "reopen") out = this.reopen(body.meta);

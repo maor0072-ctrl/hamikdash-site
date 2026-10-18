@@ -80,6 +80,28 @@
 .link-box input{flex:1;min-width:0;font-family:inherit;font-size:15px;direction:ltr;
   text-align:left;background:var(--cream);border:1px solid var(--line);border-radius:8px;
   padding:11px 13px;color:var(--ink)}
+.lbl{display:block;font-weight:700;margin-bottom:6px}
+.topics details{border:1px solid #e3d9c8;border-radius:10px;margin-bottom:8px;background:#fff}
+.topics summary{cursor:pointer;padding:12px 14px;list-style:none;display:flex;flex-direction:column;gap:2px}
+.topics summary::-webkit-details-marker{display:none}
+.topics summary .t{font-weight:700;font-size:16px}
+.topics summary .s{font-size:13px;color:#7a6a55}
+.topics details[open] summary{border-bottom:1px solid #efe7da}
+.topic-opts{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px}
+.topic-btn{font-family:inherit;font-size:15px;padding:9px 14px;border-radius:999px;border:1px solid #d9c9ad;background:#faf7f1;cursor:pointer;min-height:44px}
+.topic-btn[aria-pressed="true"]{background:var(--gold-deep,#8a6d3b);color:#fff;border-color:transparent}
+.topics .all{margin-top:14px}
+.topics .all .lbl{font-size:14px;font-weight:400;color:#7a6a55}
+.charity{margin:22px 0 4px;padding:14px 16px;border-radius:10px;background:#f6efe2;border:1px solid #e3d9c8}
+.charity p{margin:0 0 8px}
+.charity a{font-weight:700}
+.today-mode{display:flex;gap:8px;margin:10px 0 18px;flex-wrap:wrap}
+#view-today .verses{font-family:"Frank Ruhl Libre","Heebo",serif;font-size:22px;line-height:2.05;text-align:right}
+#view-today .verses p{margin:0 0 12px}
+#view-today .verses .vn{font-size:13px;color:var(--gold-deep,#8a6d3b);font-weight:700;margin-left:8px;font-family:"Heebo",sans-serif}
+#view-today .ch-h{font-family:"Frank Ruhl Libre","Heebo",serif;font-size:24px;font-weight:800;color:var(--gold-deep,#8a6d3b);margin:26px 0 10px;text-align:center}
+.invite-today{margin-top:28px;padding-top:18px;border-top:1px solid #efe7da}
+.invite-today h3{margin:0 0 8px}
 .copy-btn{white-space:nowrap;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
   background:var(--gold);color:#fff;border:0;border-radius:8px;padding:11px 18px}
 .copy-btn:hover{background:var(--gold-deep)}
@@ -135,9 +157,14 @@
   <!-- ============ מסך 1: בשביל מי אתה כאן ============ -->
   <div class="view on" id="view-home">
     <div class="doors">
+      <button type="button" class="door" id="door-today">
+        <span class="t">התהילים של היום</span>
+        <span class="s" id="door-today-s">פרקי התהילים של היום לפי החלוקה החודשית. לחיצה אחת והם פתוחים לקריאה.</span>
+      </button>
+
       <button type="button" class="door" data-go="form">
         <span class="t">לפתוח ספר תהילים</span>
-        <span class="s">לרפואת אדם, לעילוי נשמה, להצלחה או לזיווג. מקבלים קישור אחד ושולחים אותו
+        <span class="s">לרפואה, לישועה, להצלחה, לזיווג או לשמירה. מקבלים קישור אחד ושולחים אותו
         לכל מי שרוצים.</span>
       </button>
 
@@ -161,6 +188,28 @@
     </div>
   </div>
 
+
+  <!-- ============ מסך: התהילים של היום (הכרעות 16, 23) ============ -->
+  <div class="view" id="view-today">
+    <div class="form-card">
+      <h2 style="margin-top:0">התהילים של היום</h2>
+      <p class="tiny" id="today-sub"></p>
+      <div class="today-mode" role="group" aria-label="סוג החלוקה">
+        <button type="button" class="topic-btn" data-mode="month" aria-pressed="true">חלוקה חודשית</button>
+        <button type="button" class="topic-btn" data-mode="week" aria-pressed="false">חלוקה שבועית</button>
+      </div>
+      <div class="verses" id="today-text"><p class="tiny">טוען...</p></div>
+
+      <div class="invite-today">
+        <h3>ישר כוח!</h3>
+        <p>מי שקורא תהילים בכל יום מוזמן להצטרף גם לשאר המיזמים באתר המקדש - ספרי תהילים שנפתחו לרפואת אנשים ומחכים לקוראים, הקריאה הכללית, מסירת שמות לתפילה ועוד.</p>
+        <p><a class="copy-btn" style="display:inline-block;text-decoration:none" href="/tefilot/">לכל המיזמים</a></p>
+      </div>
+      <div class="charity" id="charity-today"></div>
+      <p style="text-align:center;margin-top:18px"><a href="#" data-go="home">חזרה</a></p>
+    </div>
+  </div>
+
   <!-- ============ מסך 2: טופס פתיחת ספר ============ -->
   <div class="view" id="view-form">
     <div class="form-card">
@@ -180,8 +229,9 @@
             <input type="text" id="patientName" autocomplete="off" required>
           </div>
           <div class="field">
-            <label for="motherName">שם האם *</label>
+            <label for="motherName">שם ההורה *</label>
             <input type="text" id="motherName" autocomplete="off" required>
+            <span class="hint">אב או אם, כמנהגכם</span>
           </div>
         </div>
 
@@ -192,30 +242,25 @@
             <option value="m">זכר</option>
             <option value="f">נקבה</option>
           </select>
-          <span class="hint">כדי לכתוב בתפילה „פלוני בן פלונית" או „פלונית בת פלונית"</span>
+          <span class="hint">כדי לכתוב בתפילה „בן" או „בת"</span>
           <span class="hint" id="name-preview"></span>
         </div>
 
-        <div class="row-2">
-          <div class="field">
-            <label for="intent">הכוונה *</label>
-            <select id="intent" required>
-              <option value="refua">רפואה שלמה</option>
-              <option value="neshama">עילוי נשמה</option>
-              <option value="hatzlacha">הצלחה</option>
-              <option value="zivug">זיווג</option>
-              <option value="other">אחר</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="targetDate">תאריך יעד</label>
-            <input type="date" id="targetDate">
-            <span class="hint">מתי הייתם רוצים שהספר יושלם</span>
-          </div>
+        <div class="field">
+          <span class="lbl" id="topic-lbl">על מה מתפללים *</span>
+          <input type="hidden" id="intent" value="">
+          <div class="topics" id="topics" role="group" aria-labelledby="topic-lbl"></div>
+          <span class="hint" id="topic-chosen"></span>
+        </div>
+
+        <div class="field">
+          <label for="targetDate">תאריך יעד</label>
+          <input type="date" id="targetDate">
+          <span class="hint">מתי הייתם רוצים שהספר יושלם</span>
         </div>
 
         <div class="field" id="intent-other-wrap" style="display:none">
-          <label for="intentOther">פרטו את הכוונה</label>
+          <label for="intentOther">על מה מתפללים, במילים שלכם</label>
           <input type="text" id="intentOther" maxlength="60" autocomplete="off">
         </div>
 
@@ -288,6 +333,8 @@
       <h3 style="font-size:17px;margin:26px 0 8px">הודעה מוכנה לוואטסאפ</h3>
       <div class="wa-preview" id="wa-text"></div>
       <button type="button" class="copy-btn" id="copy-wa">העתקת ההודעה</button>
+
+      <div class="charity" id="charity-done"></div>
 
       <div id="qr-wrap"></div>
       <p class="tiny" style="text-align:center">קוד QR לשימוש מחוץ למסך - מודעה בבית כנסת,
@@ -366,6 +413,7 @@
 </footer>
 
 <script src="/assets/qrcode.js"></script>
+<script src="/tehillim/topics.js"></script>
 <script>
 (function () {
   "use strict";
@@ -453,9 +501,180 @@
     $(id).addEventListener("change", preview);
   });
 
-  $("intent").addEventListener("change", function () {
-    $("intent-other-wrap").style.display = this.value === "other" ? "" : "none";
+  // ---------- תפריט הנושאים (הכרעות 14, 20, 21) ----------
+  // חמישה כפתורים נפתחים עם פירוט קטן, ומתחתם כל הנושאים פרושים במבט אחד.
+  // עילוי נשמה אינו בתפריט במכוון; מי שרוצה יכתוב זאת בנושא החופשי.
+  var T = window.TH_TOPICS;
+  function topicBtn(key) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "topic-btn";
+    b.setAttribute("data-topic", key);
+    b.setAttribute("aria-pressed", "false");
+    b.textContent = T.items[key].l;
+    return b;
+  }
+  function buildTopics() {
+    var box = $("topics");
+    T.groups.forEach(function (g) {
+      var d = document.createElement("details");
+      var sm = document.createElement("summary");
+      sm.innerHTML = '<span class="t"></span><span class="s"></span>';
+      sm.querySelector(".t").textContent = g.t;
+      sm.querySelector(".s").textContent = g.s;
+      d.appendChild(sm);
+      var opts = document.createElement("div");
+      opts.className = "topic-opts";
+      g.items.forEach(function (k) { opts.appendChild(topicBtn(k)); });
+      d.appendChild(opts);
+      box.appendChild(d);
+    });
+    var all = document.createElement("div");
+    all.className = "all";
+    all.innerHTML = '<span class="lbl">או ישירות, כל הנושאים:</span>';
+    var opts = document.createElement("div");
+    opts.className = "topic-opts";
+    opts.style.padding = "0";
+    T.groups.forEach(function (g) { g.items.forEach(function (k) { opts.appendChild(topicBtn(k)); }); });
+    all.appendChild(opts);
+    box.appendChild(all);
+    box.addEventListener("click", function (e) {
+      var b = e.target.closest ? e.target.closest("[data-topic]") : null;
+      if (b) pickTopic(b.getAttribute("data-topic"));
+    });
+  }
+  function pickTopic(key) {
+    $("intent").value = key;
+    var btns = document.querySelectorAll("#topics [data-topic]");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute("aria-pressed", btns[i].getAttribute("data-topic") === key ? "true" : "false");
+    }
+    $("topic-chosen").textContent = "נבחר: " + T.items[key].l;
+    $("intent-other-wrap").style.display = key === "other" ? "" : "none";
+    if (key === "other") $("intentOther").focus();
+  }
+  if (T) buildTopics();
+
+
+  // ---------- התהילים של היום (הכרעות 16, 23) ----------
+  // היום העברי מתחלף בשקיעה, ולכן אחרי השקיעה בירושלים מוצגים פרקי מחר.
+  // חלוקה חודשית כברירת מחדל ומתג לשבועית. בחודש חסר, ביום כ"ט קוראים גם את של יום ל'.
+  var MONTH_DIV = [[1,9],[10,17],[18,22],[23,28],[29,34],[35,38],[39,43],[44,48],[49,54],[55,59],
+    [60,65],[66,68],[69,71],[72,76],[77,78],[79,82],[83,87],[88,89],[90,96],[97,103],[104,105],
+    [106,107],[108,112],[113,118],["119a"],["119b"],[120,134],[135,139],[140,144],[145,150]];
+  var WEEK_DIV = [[1,29],[30,50],[51,72],[73,89],[90,106],[107,119],[120,150]];
+  var GEM = ["","א׳","ב׳","ג׳","ד׳","ה׳","ו׳","ז׳","ח׳","ט׳","י׳","י״א","י״ב","י״ג","י״ד","ט״ו","ט״ז",
+    "י״ז","י״ח","י״ט","כ׳","כ״א","כ״ב","כ״ג","כ״ד","כ״ה","כ״ו","כ״ז","כ״ח","כ״ט","ל׳"];
+  var DAYS = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+
+  // שקיעה בירושלים לפי אלגוריתם האלמנך - דיוק של דקות, מספיק להחלפת יום
+  function sunsetUtcMs(d) {
+    var lat = 31.778, lng = 35.235, R = Math.PI / 180;
+    var y = d.getUTCFullYear();
+    var N = Math.round((Date.UTC(y, d.getUTCMonth(), d.getUTCDate()) - Date.UTC(y, 0, 0)) / 864e5);
+    var lh = lng / 15, t = N + ((18 - lh) / 24);
+    var M = 0.9856 * t - 3.289;
+    var L = (M + 1.916 * Math.sin(M * R) + 0.020 * Math.sin(2 * M * R) + 282.634 + 720) % 360;
+    var RA = (Math.atan(0.91764 * Math.tan(L * R)) / R + 360) % 360;
+    RA = (RA + Math.floor(L / 90) * 90 - Math.floor(RA / 90) * 90) / 15;
+    var sinDec = 0.39782 * Math.sin(L * R), cosDec = Math.cos(Math.asin(sinDec));
+    var cosH = (Math.cos(90.833 * R) - sinDec * Math.sin(lat * R)) / (cosDec * Math.cos(lat * R));
+    var H = Math.acos(cosH) / R / 15;
+    var UT = ((H + RA - 0.06571 * t - 6.622 - lh) % 24 + 24) % 24;
+    return Date.UTC(y, d.getUTCMonth(), d.getUTCDate()) + UT * 36e5;
+  }
+  function hebDay(d) {
+    return parseInt(new Intl.DateTimeFormat("en-u-ca-hebrew", { day: "numeric", timeZone: "Asia/Jerusalem" }).format(d), 10);
+  }
+  function hebMonth(d) {
+    return new Intl.DateTimeFormat("he-u-ca-hebrew", { month: "long", timeZone: "Asia/Jerusalem" }).format(d);
+  }
+  function effectiveDay(now) {
+    // הצהריים של היום האזרחי בירושלים, ואחרי השקיעה - הצהריים של מחר
+    var p = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).format(now).split("-");
+    var noon = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], 10));
+    if (now.getTime() >= sunsetUtcMs(noon)) noon = new Date(noon.getTime() + 864e5);
+    return noon;
+  }
+  function unitsFor(ranges) {
+    var out = [];
+    ranges.forEach(function (r) {
+      if (r[0] === "119a" || r[0] === "119b") {
+        TH_UNITS.forEach(function (u) { if (u.ch === 119 && (r[0] === "119a" ? u.part <= 12 : u.part >= 13)) out.push(u); });
+        return;
+      }
+      TH_UNITS.forEach(function (u) { if (u.ch >= r[0] && u.ch <= r[1]) out.push(u); });
+    });
+    return out;
+  }
+  function todayPlan(mode, now) {
+    var d = effectiveDay(now || new Date());
+    var day = hebDay(d);
+    if (mode === "week") {
+      var wd = d.getUTCDay();
+      return { label: "יום " + DAYS[wd] + ", " + GEM[day] + " " + hebMonth(d), ranges: [WEEK_DIV[wd]] };
+    }
+    var ranges = [MONTH_DIV[day - 1]];
+    var short = day === 29 && hebDay(new Date(d.getTime() + 864e5)) === 1;
+    if (short) ranges.push(MONTH_DIV[29]);
+    return { label: GEM[day] + " " + hebMonth(d) + (short ? " - חודש חסר, ולכן היום קוראים גם את פרקי יום ל׳" : ""), ranges: ranges };
+  }
+  window.__thTodayPlan = todayPlan; // לבדיקות בלבד
+
+  var TH_UNITS = null, TODAY_MODE = "month";
+  try { if (localStorage.getItem("th_today_mode") === "week") TODAY_MODE = "week"; } catch (e) { /* גלישה פרטית */ }
+  var TEXT_BASE = "https://hamikdash.co.il/tehillim/";
+  function loadUnits() {
+    if (TH_UNITS) return Promise.resolve(TH_UNITS);
+    return fetch(TEXT_BASE + "units.json").then(function (r) { return r.json(); }).then(function (u) { TH_UNITS = u; return u; });
+  }
+  function esc(x) { return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function paintMode() {
+    var b = document.querySelectorAll("#view-today [data-mode]");
+    for (var i = 0; i < b.length; i++) b[i].setAttribute("aria-pressed", b[i].getAttribute("data-mode") === TODAY_MODE ? "true" : "false");
+  }
+  function openToday() {
+    show("today");
+    if (location.hash !== "#today") history.replaceState(null, "", "#today");
+    paintMode();
+    charity($("charity-today"));
+    $("today-text").innerHTML = "<p class='tiny'>טוען...</p>";
+    loadUnits().then(function () {
+      var plan = todayPlan(TODAY_MODE);
+      var list = unitsFor(plan.ranges);
+      var mins = 0;
+      list.forEach(function (u) { mins += u.min; });
+      $("today-sub").textContent = plan.label + " · כ-" + mins + " דקות קריאה, ומי שקורא מהר יסיים בפחות";
+      return Promise.all(list.map(function (u) {
+        return fetch(TEXT_BASE + "text/" + u.i + ".json").then(function (r) { return r.json(); });
+      })).then(function (docs) {
+        var html = "";
+        docs.forEach(function (d, k) {
+          var u = list[k];
+          var off = u.ch === 119 && u.part ? (u.part - 1) * 8 : 0;
+          if (!(u.ch === 119 && u.part > 1 && list[k - 1] && list[k - 1].ch === 119)) {
+            html += "<div class='ch-h'>" + esc("תהילים " + (u.ch === 119 ? "קי״ט" : u.name)) + "</div>";
+          }
+          d.verses.forEach(function (v, n) { html += "<p><span class='vn'>" + (n + 1 + off) + "</span>" + esc(v) + "</p>"; });
+        });
+        $("today-text").innerHTML = html;
+      });
+    }).catch(function () {
+      $("today-text").innerHTML = "<p class='tiny'>לא הצלחנו לטעון את הטקסט. נסו לרענן את הדף.</p>";
+    });
+  }
+  $("door-today").addEventListener("click", openToday);
+  Array.prototype.forEach.call(document.querySelectorAll("#view-today [data-mode]"), function (b) {
+    b.addEventListener("click", function () {
+      TODAY_MODE = b.getAttribute("data-mode");
+      try { localStorage.setItem("th_today_mode", TODAY_MODE); } catch (e) { /* גלישה פרטית */ }
+      openToday();
+    });
   });
+  try {
+    $("door-today-s").textContent = "היום " + todayPlan("month").label.split(" - ")[0] +
+      ". פרקי התהילים של היום לפי החלוקה החודשית, לחיצה אחת והם פתוחים לקריאה.";
+  } catch (e) { /* הדלת נשארת עם הנוסח הכללי */ }
 
   // ---------- הקריאה הכללית ----------
   $("door-klali").addEventListener("click", function () {
@@ -503,8 +722,10 @@
     }
 
     if (!HEB.test(body.patientName)) return msg("השם הפרטי צריך להיכתב בעברית.", "err");
-    if (!HEB.test(body.motherName)) return msg("שם האם צריך להיכתב בעברית.", "err");
+    if (!HEB.test(body.motherName)) return msg("שם ההורה צריך להיכתב בעברית.", "err");
     if (!body.gender) return msg("בחרו זכר או נקבה.", "err");
+    if (!body.intent) return msg("בחרו על מה מתפללים.", "err");
+    if (body.intent === "other" && !body.intentOther) return msg("כתבו במילים שלכם על מה מתפללים.", "err");
     if (!body.openerName) return msg("חסר השם שלכם.", "err");
     if (!/^0\d{1,2}-?\d{7}$/.test(body.openerPhone.replace(/[\s()]/g, ""))) {
       return msg("מספר הטלפון אינו תקין.", "err");
@@ -536,23 +757,30 @@
   });
 
   // ---------- מסך ההצלחה ----------
-  var INTENT_HE = {
-    refua: "לרפואת", neshama: "לעילוי נשמת",
-    hatzlacha: "להצלחת", zivug: "לזיווגו/ה של", other: "עבור"
-  };
+  function charity(el) {
+    if (!el || !T || !T.charity) return;
+    el.innerHTML = "<p></p><a target=\"_blank\" rel=\"noopener\"></a>";
+    el.querySelector("p").textContent = T.charity.t;
+    var a = el.querySelector("a");
+    a.textContent = T.charity.cta;
+    a.href = T.charity.url;
+  }
 
   function done(d, body) {
     var forWhom = body.patientName + (body.gender === "f" ? " בת " : " בן ") + body.motherName;
-    var lead = INTENT_HE[body.intent] || "עבור";
+    if (body.intent === "other" && body.intentOther) forWhom += " - " + body.intentOther;
+    var lead = window.TH_LEAD(body.intent, body.gender);
 
     $("done-for").textContent = lead + " " + forWhom;
+    charity($("charity-done"));
     $("pub-link").value = d.publicUrl;
     $("man-link").value = d.manageUrl;
     $("go-book").href = d.publicUrl;
 
     // הודעת וואטסאפ - טקסט קצר בלבד. בלי תמונת רשת ובלי רשימת פרקים.
     var wa = "פתחנו ספר תהילים " + lead + " " + forWhom + ".\n\n" +
-             "נלקחו 0 פרקים מתוך 150. נשארו 150 פרקים פנויים.\n\n" +
+             "נלקחו 0 פרקים מתוך 150. נשארו 150 פרקים פנויים.\n" +
+             "פרק לוקח בדרך כלל דקה עד שלוש, ומי שקורא מהר יסיים בפחות.\n\n" +
              "להצטרפות ולבחירת פרקים:\n" + d.publicUrl;
     $("wa-text").textContent = wa;
     $("copy-wa").onclick = function () { copyText(wa, this); };
@@ -581,6 +809,7 @@
       wrap.innerHTML = "<p class='tiny'>קוד ה-QR לא נוצר. הקישור עצמו למעלה ותקין.</p>";
     }
   }
+  if (location.hash === "#today") openToday();
 })();
 </script>
 </body>

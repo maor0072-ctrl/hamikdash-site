@@ -199,6 +199,7 @@ table.roster td.n{font-variant-numeric:tabular-nums}
 </footer>
 
 <script src="https://hamikdash.co.il/assets/qrcode.js"></script>
+<script src="https://hamikdash.co.il/tehillim/topics.js"></script>
 <script>
 (function () {
   "use strict";
@@ -213,16 +214,11 @@ table.roster td.n{font-variant-numeric:tabular-nums}
   var $ = function (id) { return document.getElementById(id); };
   var UNITS = null, STATE = null;
 
-  var INTENT_HE = {
-    refua: "לרפואת", neshama: "לעילוי נשמת", hatzlacha: "להצלחת",
-    zivug: "לזיווגו של", other: "עבור", klali: ""
-  };
-
   function forWhom(s) {
     if (!s || s.kind === "klali") return s && s.title ? s.title : "הקריאה הכללית";
-    var lead = INTENT_HE[s.intent] || "עבור";
-    if (s.intent === "zivug" && s.gender === "f") lead = "לזיווגה של";
-    return lead + " " + s.patientName + (s.gender === "f" ? " בת " : " בן ") + s.motherName;
+    var who = s.patientName + (s.gender === "f" ? " בת " : " בן ") + s.motherName;
+    if (s.intent === "other" && s.intentOther) who += " - " + s.intentOther;
+    return window.TH_LEAD(s.intent, s.gender) + " " + who;
   }
 
   function fmtDate(iso) {
@@ -283,7 +279,8 @@ table.roster td.n{font-variant-numeric:tabular-nums}
     var ch = chapterStats();
     var taken = ch.taken + ch.read;
     return "פתחנו ספר תהילים " + forWhom(STATE) + ".\n\n" +
-      "נלקחו " + taken + " פרקים מתוך 150. נשארו " + ch.free + " פרקים פנויים.\n\n" +
+      "נלקחו " + taken + " פרקים מתוך 150. נשארו " + ch.free + " פרקים פנויים.\n" +
+      "פרק לוקח בדרך כלל דקה עד שלוש, ומי שקורא מהר יסיים בפחות.\n\n" +
       "להצטרפות ולבחירת פרקים:\n" + STATE.publicUrl;
   }
 

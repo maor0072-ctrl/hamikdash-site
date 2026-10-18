@@ -6,18 +6,13 @@
 // בלי Worker (ראה _test_catalog.mjs).
 
 import { UNITS } from "./tehillim-units.js";
+import { lead as topicLead } from "./tehillim-topics.js";
 
 const SITE = "https://hamikdash.co.il";
 const SHORT = "https://t.hamikdash.co.il";
 const STALE_MS = 90 * 24 * 60 * 60 * 1000; // ספר בלי תנועה 90 יום יוצא מהרשימה
 
-const INTENT_LEAD = {
-  refua: "לרפואת",
-  neshama: "לעילוי נשמת",
-  hatzlacha: "להצלחת",
-  zivug: "לזיווגו/ה של",
-  other: "עבור",
-};
+// הנושאים והקידומות שלהם במקור אחד: tehillim-topics.js
 
 export function esc(s) {
   return String(s == null ? "" : s)
@@ -56,9 +51,9 @@ export function chapterStats(states) {
 
 export function labelFor(c) {
   if (c.kind === "klali") return c.title || "הקריאה הכללית";
-  const lead = INTENT_LEAD[c.intent] || "עבור";
   const who = c.patientName + (c.gender === "f" ? " בת " : " בן ") + c.motherName;
-  return lead + " " + who;
+  const extra = c.intent === "other" && c.intentOther ? " - " + c.intentOther : "";
+  return topicLead(c.intent, c.gender) + " " + who + extra;
 }
 
 // מסנן ומסדר. הקריאה הכללית תמיד ראשונה, אחריה החדשים.

@@ -700,7 +700,9 @@ export default {
           { status: 404, headers: { "content-type": "text/html; charset=utf-8", "Cache-Control": "no-store" } }
         );
       }
-      if (url.pathname === "/sfarim" || url.pathname === "/sfarim/") {
+      // ו1 (18.10): הקטלוג מוגש גם תחת הדומיין הראשי, דרך Workers Route על hamikdash.co.il/tehillim/sfarim*.
+      // /sfarim בדומיין הראשי הוא מדור הספרים של יעקב ואינו מנותב לכאן.
+      if (url.pathname === "/sfarim" || url.pathname === "/sfarim/" || url.pathname === "/tehillim/sfarim" || url.pathname === "/tehillim/sfarim/") {
         const items = await catalogItems(env);
         const g = await currentGroup();
         return new Response(renderCatalog(items, g ? { groupUrl: SHORT + "/kvutza" } : {}), {

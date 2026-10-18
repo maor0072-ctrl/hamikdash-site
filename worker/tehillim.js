@@ -404,6 +404,55 @@ async function resolve(token, env, role) {
 async function handleApi(request, url, env, origin) {
   const parts = url.pathname.split("/").filter(Boolean); // ["api", ...]
 
+  // רשימת הנמענים למייל החודשי (הכרעה 10). לסקריפט השליחה המקומי בלבד:
+  // הוא חותם "mail-list:<דקה>" באותו סוד, כך שהסוד עצמו אינו עובר ברשת,
+  // וחתימה שדלפה פגה תוך חמש דקות.
+  if (parts[1] === "mail-list") {
+    const ts = Number(url.searchParams.get("ts") || 0);
+    const now = Math.floor(Date.now() / 60000);
+    const sig = url.searchParams.get("s") || "";
+    if (!ts || Math.abs(now - ts) > 5) return json({ ok: false, error: "forbidden" }, 403, origin);
+    if (sig !== (await manageSig("mail-list:" + ts, env.TEHILLIM_TOKEN_SECRET))) {
+      return json({ ok: false, error: "forbidden" }, 403, origin);
+    }
+    const list = await doCall(counter(env), "mail-list", {});
+    const out = [];
+    for (const p of list.people || []) {
+      out.push({ first: p.first, email: p.email, unsub: SHORT + "/api/unsub?k=" + encodeURIComponent(p.email) + "." + (await manageSig("unsub:" + p.email, env.TEHILLIM_TOKEN_SECRET)) });
+    }
+    return json({ ok: true, people: out }, 200, origin);
+  }
+
+  // הסרה מהמייל החודשי. GET מציג כפתור ואינו מוחק, כי סורקי קישורים בתיבות
+  // הדואר פותחים כל קישור במייל, והסרה ב-GET הייתה מוחקת נמענים שלא ביקשו.
+  // POST מוחק - גם מהכפתור וגם מ-List-Unsubscribe-Post של ג'ימייל (RFC 8058).
+  if (parts[1] === "unsub") {
+    // פרמטר אחד בלי "&": המייל נקרא כטקסט, ו-&amp; שובר את הקישור לשניים בתצוגה.
+    // החתימה היא base64url ואין בה נקודה, ולכן הנקודה האחרונה מפרידה.
+    const k = String(url.searchParams.get("k") || "");
+    const dot = k.lastIndexOf(".");
+    const email = (dot > 0 ? k.slice(0, dot) : "").toLowerCase().slice(0, 80);
+    const sig = dot > 0 ? k.slice(dot + 1) : "";
+    const page = (msg, form) =>
+      new Response(
+        "<!DOCTYPE html><html lang='he' dir='rtl'><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>" +
+          "<title>הסרה מרשימת התפוצה - תהילים ישראל</title><body dir='rtl' style='font-family:Arial,sans-serif;font-size:18px;padding:30px;line-height:1.8;text-align:right'>" +
+          "<p>" + msg + "</p>" + (form || "") + "<p><a href='" + SITE + "/tehillim.html'>לתהילים ישראל</a></p></body></html>",
+        { status: 200, headers: { "content-type": "text/html; charset=utf-8", "Cache-Control": "no-store" } }
+      );
+    if (!email || sig !== (await manageSig("unsub:" + email, env.TEHILLIM_TOKEN_SECRET))) {
+      return page("הקישור אינו תקין. אפשר להשיב למייל במילה „הסרה” ונסיר אתכם ביד.");
+    }
+    if (request.method === "POST") {
+      await doCall(counter(env), "person-unsub", { email: email });
+      return page("הוסרתם מרשימת התפוצה של תהילים ישראל. לא יישלח אליכם עוד המייל החודשי.");
+    }
+    return page(
+      "להסיר את הכתובת מהמייל החודשי של תהילים ישראל?",
+      "<form method='post'><button type='submit' style='font-size:18px;padding:10px 24px'>כן, להסיר</button></form>"
+    );
+  }
+
   // הרשמה מרצון של קורא (הכרעות 5, 9, 19, ג3): כל השדות אינם חובה. טלפון או מייל
   // נותנים מפתח קבוע, וכך אותו אדם מזוהה בכל מכשיר ורואה מה פתוח אצלו.
   if (parts[1] === "me") {

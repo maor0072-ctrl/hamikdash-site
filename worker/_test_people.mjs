@@ -32,4 +32,6 @@ ok(c.personGet("ABC").marked === 7, "ספירה אישית מצטברת");
 c.personUpsert({ pkey: "ABC", first: "", last: "", email: "" });
 ok(c.mailList().people.length === 1 && c.mailList().people[0].email === "s@x.co", "רשימת המייל החודשי שומרת את המייל");
 ok(c.personGet("nope").known === 0, "קורא לא מוכר");
+c.personUnsub("S@X.co");
+ok(c.mailList().people.length === 0 && c.personGet("ABC").marked === 7, "הסרה מוחקת את המייל ומשאירה את הקורא והספירה");
 process.exit(fail ? 1 : 0);

@@ -67,6 +67,14 @@ export class CounterDO {
     return { ok: true, people: rows.map((r) => ({ first: r.first || "", email: r.email })) };
   }
 
+  // הסרה מהמייל החודשי: המייל נמחק, הקורא והספירה שלו נשארים.
+  personUnsub(email) {
+    const e = String(email || "").toLowerCase();
+    if (!e) return { ok: false, error: "bad_request" };
+    this.sql.exec("UPDATE people SET email = '' WHERE email = ?", e);
+    return { ok: true };
+  }
+
   get(k) {
     const rows = this.sql.exec("SELECT v FROM c WHERE k = ?", k).toArray();
     return rows.length ? Number(rows[0].v) : 0;
@@ -168,6 +176,7 @@ export class CounterDO {
     else if (op === "person-bump") out = this.personBump(body.pkey, body.n);
     else if (op === "person-get") out = this.personGet(body.pkey);
     else if (op === "mail-list") out = this.mailList();
+    else if (op === "person-unsub") out = this.personUnsub(body.email);
     else out = this.stats();
 
     return new Response(JSON.stringify(out), {

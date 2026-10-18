@@ -200,6 +200,11 @@
       </div>
       <div class="verses" id="today-text"><p class="tiny">טוען...</p></div>
 
+      <div style="text-align:center;margin-top:20px">
+        <button type="button" class="copy-btn" id="today-mark">קראתי - לסמן בקריאה הכללית</button>
+        <p class="tiny" id="today-msg" style="margin-top:10px">הקריאה נזקפת לקריאה הכללית, להצלחת תורמי העמותה, חברי פרויקט שמע ישראל והפועלים למען עם ישראל.</p>
+      </div>
+
       <div class="invite-today">
         <h3>ישר כוח!</h3>
         <p>מי שקורא תהילים בכל יום מוזמן להצטרף גם לשאר המיזמים באתר המקדש - ספרי תהילים שנפתחו לרפואת אנשים ומחכים לקוראים, הקריאה הכללית, מסירת שמות לתפילה ועוד.</p>
@@ -621,7 +626,16 @@
   }
   window.__thTodayPlan = todayPlan; // לבדיקות בלבד
 
-  var TH_UNITS = null, TODAY_MODE = "month";
+  var TH_UNITS = null, TODAY_MODE = "month", TODAY_LIST = [];
+  function myReaderKey() {
+    var k = null;
+    try { k = localStorage.getItem("tehillim_rk"); } catch (e) { /* גלישה פרטית */ }
+    if (!k) {
+      k = "r" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      try { localStorage.setItem("tehillim_rk", k); } catch (e) { /* בסדר */ }
+    }
+    return k;
+  }
   try { if (localStorage.getItem("th_today_mode") === "week") TODAY_MODE = "week"; } catch (e) { /* גלישה פרטית */ }
   var TEXT_BASE = "https://hamikdash.co.il/tehillim/";
   function loadUnits() {
@@ -642,6 +656,9 @@
     loadUnits().then(function () {
       var plan = todayPlan(TODAY_MODE);
       var list = unitsFor(plan.ranges);
+      TODAY_LIST = list.map(function (u) { return u.i; });
+      $("today-mark").disabled = false;
+      $("today-mark").textContent = "קראתי - לסמן בקריאה הכללית";
       var mins = 0;
       list.forEach(function (u) { mins += u.min; });
       $("today-sub").textContent = plan.label + " · כ-" + mins + " דקות קריאה, ומי שקורא מהר יסיים בפחות";
@@ -664,6 +681,28 @@
     });
   }
   $("door-today").addEventListener("click", openToday);
+  $("today-mark").addEventListener("click", function () {
+    if (!TODAY_LIST.length) return;
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = "מסמן...";
+    fetch(API + "/api/book/klali/read", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ readerKey: myReaderKey(), idxs: TODAY_LIST })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.ok) throw new Error("x");
+      btn.textContent = "סומן. ישר כוח!";
+      var got = (d.read || []).length;
+      $("today-msg").textContent = got
+        ? got + (got === 1 ? " קטע נוסף" : " קטעים נוספו") + " לקריאה הכללית. תודה שהצטרפתם."
+        : "הפרקים האלה כבר נקראו בסבב הנוכחי של הקריאה הכללית, והקריאה שלכם מצטרפת אליהם.";
+    }).catch(function () {
+      btn.disabled = false;
+      btn.textContent = "קראתי - לסמן בקריאה הכללית";
+      $("today-msg").textContent = "הסימון לא נקלט. נסו שוב בעוד רגע.";
+    });
+  });
   Array.prototype.forEach.call(document.querySelectorAll("#view-today [data-mode]"), function (b) {
     b.addEventListener("click", function () {
       TODAY_MODE = b.getAttribute("data-mode");

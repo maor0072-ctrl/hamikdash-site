@@ -156,7 +156,8 @@ function cleanIdxs(v) {
     if (!Number.isInteger(n) || n < 0 || n >= UNIT_COUNT) return null;
     if (out.indexOf(n) === -1) out.push(n);
   }
-  if (!out.length || out.length > 30) return null;
+  // הכרעה 3: אין תקרה על כמה פרקים מסמנים, גם ספר שלם
+  if (!out.length || out.length > UNIT_COUNT) return null;
   return out;
 }
 
@@ -472,7 +473,7 @@ async function handleApi(request, url, env, origin) {
     if (op === "read" && request.method === "POST") {
       const idxs = cleanIdxs(b.idxs);
       if (!idxs || !readerKey) return json({ ok: false, error: "bad_request" }, 400, origin);
-      const r = await doCall(stub, "read", { readerKey: readerKey, idxs: idxs });
+      const r = await doCall(stub, "read", { readerKey: readerKey, idxs: idxs, readerName: cleanFree(b.readerName, 40) });
       if (r.ok && r.read && r.read.length) {
         try {
           await doCall(counter(env), "bump", { n: r.read.length });

@@ -80,7 +80,8 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 .cellu.sel{background:#fff6e0;border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
 .cellu.mine{background:#e8f0fb;border-color:#7ba0d4}
 .cellu.mine .n{color:#2c4f80}
-.cellu.busy{background:#eeeae3;border-color:#ddd5c8;cursor:default;opacity:.85}
+.cellu.busy{background:#eeeae3;border-color:#ddd5c8;cursor:pointer;opacity:.85}
+.cellu.busy.sel{outline:3px solid var(--gold);opacity:1}
 .cellu.busy .n{color:#8d8579;font-weight:500}
 .cellu.done{background:#eeeae3;border-color:#ddd5c8;cursor:default}
 .cellu.done .n{color:#8d8579;font-weight:500;text-decoration:none}
@@ -103,6 +104,13 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   border-radius:8px;padding:11px 22px;border:0}
 .tray .go{background:var(--gold);color:#fff}
 .tray .go:hover{background:var(--gold-deep)}
+.tray .mark{background:#fff;color:var(--gold-deep);border:1px solid var(--gold)}
+.range{max-width:900px;margin:0 auto 12px;padding:0 20px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
+.range input{width:76px;padding:9px;font-family:inherit;font-size:16px;border:1px solid #d9c9ad;border-radius:8px;text-align:center}
+.range button,.sefer-all{font-family:inherit;font-size:14px;padding:8px 12px;border-radius:999px;border:1px solid #d9c9ad;background:#faf7f1;cursor:pointer}
+.sefer-all{margin-right:10px;font-weight:400}
+.again{margin:0 0 16px;padding:12px 14px;border-radius:10px;background:#fff7e6;border:1px solid #efd9a8;text-align:center}
+.again button{margin:6px 4px 0}
 .tray .clr{background:none;color:var(--ink-soft);text-decoration:underline;padding:11px 8px}
 
 /* ---------- טופס הקורא ---------- */
@@ -232,8 +240,13 @@ body{padding-bottom:env(safe-area-inset-bottom)}
       <p>למה שעה? כי מה שעוצר ספר תהילים שנפתח לרפואת אדם זה לא מי שלא קרא, אלא פרקים שנתפסו
       ונשכחו. פרק שתפוס ולא נקרא חוסם את כולם, והספר נתקע באמצע. לכן אם עברה שעה בלי סימון,
       הפרק חוזר לרשימה ומישהו אחר יכול לקחת אותו ולקרוא.</p>
-      <p>ואם אחרי השעה תסמנו שקראתם את הפרק, ואיש לא לקח אותו בינתיים, הסימון שלכם נקלט כרגיל
-      והפרק יוצא מהרשימה. שום דבר לא הולך לאיבוד.</p>
+      <p>ואם אחרי השעה תסמנו שקראתם את הפרק, הסימון שלכם נקלט כרגיל והפרק יוצא מהרשימה. שום דבר
+      לא הולך לאיבוד.</p>
+      <p>המטרה כאן היא לסיים כמה שיותר ספרי תהילים, כמה שיותר מהר. לכן פרק שמישהו לקח ועוד לא קרא
+      אינו נעול: אפשר לקחת אותו מיד ולקרוא, ומי שקורא ראשון - הפרק נספר כנקרא. קריאה כפולה אינה
+      בעיה; עדיף פעמיים מלחכות.</p>
+      <p>קראתם מתוך ספר מודפס? בוחרים את הפרקים, או רצף מפרק עד פרק, או ספר שלם מחמשת הספרים,
+      ולוחצים „סימנתי שקראתי". אין הגבלה על הכמות.</p>
     </div>
     <p class="tiny" id="quiet-note" style="margin-top:14px;display:none">
       השעון עוצר בשבת ובחג. פרק שנלקח לפני כניסת השבת לא יפקע בתוכה.
@@ -242,6 +255,15 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 
   <p class="invite-line">אפשר לבחור את הפרקים הקבועים שלך, או כל פרק ופרק אחר.
   גם אם לא נסיים היום, כל מי שקורא משהו, זה נשמר.</p>
+
+  <div class="range" role="group" aria-label="בחירת רצף">
+    <span>רצף מפרק</span>
+    <input type="number" id="rg-from" min="1" max="150" inputmode="numeric" aria-label="פרק ראשון">
+    <span>עד פרק</span>
+    <input type="number" id="rg-to" min="1" max="150" inputmode="numeric" aria-label="פרק אחרון">
+    <button type="button" id="rg-go">לבחור את הרצף</button>
+  </div>
+  <p class="tiny" style="text-align:center;margin:0 0 10px" id="rg-msg"></p>
 
   <div class="filters">
     <button type="button" class="on" data-f="all">הכל</button>
@@ -268,6 +290,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     <div class="sum"><span id="tray-count"></span></div>
     <div class="btns">
       <button type="button" class="clr" id="tray-clear">ביטול</button>
+      <button type="button" class="mark" id="tray-mark">סימנתי שקראתי</button>
       <button type="button" class="go" id="tray-go">לקריאה לחצו כאן</button>
     </div>
   </div>
@@ -438,6 +461,8 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     } catch (e) { return v || ""; }
   }
   var RK = readerKey();
+  var PENDING_NOTE = "";
+  var AGAIN_OK = [];
 
   function show(name) {
     var vs = document.querySelectorAll(".view");
@@ -475,6 +500,12 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     SFARIM.forEach(function (s, si) {
       var h = document.createElement("h3");
       h.textContent = s.t + " · פרקים " + s.from + "-" + s.to;
+      var all = document.createElement("button");
+      all.type = "button";
+      all.className = "sefer-all";
+      all.textContent = "לבחור את כל ה" + s.t;
+      all.addEventListener("click", function () { selectRange(s.from, s.to); });
+      h.appendChild(all);
       var g = document.createElement("div");
       g.className = "grid";
       g.id = "grid-" + si;
@@ -524,7 +555,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
         b.classList.add("mine");
       } else if (u.s === "taken") {
         b.classList.add("busy");
-        b.disabled = true;
+        if (SEL.indexOf(i) !== -1) b.classList.add("sel");
       } else if (SEL.indexOf(i) !== -1) {
         b.classList.add("sel");
       }
@@ -592,13 +623,60 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     if (!u) return;
 
     if (u.s === "taken" && u.mine) { QUEUE = [i]; QPOS = 0; DONE_NOW = []; RELEASED_NOW = 0; openRead(); return; }
-    if (u.s !== "free") return;
+    if (u.s === "read") return;
 
     var p = SEL.indexOf(i);
-    if (p === -1) { if (SEL.length >= 30) return; SEL.push(i); }
+    if (p === -1) SEL.push(i);
     else SEL.splice(p, 1);
     paint();
   }
+
+  // רצף מפרק עד פרק (הכרעה 1). פרקים שכבר נקראו מדלגים עליהם ואומרים כמה.
+  function selectRange(from, to) {
+    if (from > to) { var t = from; from = to; to = t; }
+    var byI = {};
+    STATE.units.forEach(function (u) { byI[u.i] = u; });
+    var added = 0, skipped = 0;
+    UNITS.forEach(function (u) {
+      if (u.ch < from || u.ch > to) return;
+      var st = byI[u.i];
+      if (st && st.s === "read") { skipped++; return; }
+      if (st && st.s === "taken" && st.mine) return;
+      if (SEL.indexOf(u.i) === -1) { SEL.push(u.i); added++; }
+    });
+    $("rg-msg").textContent = "נבחרו " + added + (added === 1 ? " קטע" : " קטעים") +
+      (skipped ? ". " + skipped + " כבר נקראו ולא נבחרו" : "") + ".";
+    paint();
+  }
+  $("rg-go").addEventListener("click", function () {
+    var f = parseInt($("rg-from").value, 10), t = parseInt($("rg-to").value, 10);
+    if (!(f >= 1 && f <= 150 && t >= 1 && t <= 150)) {
+      $("rg-msg").textContent = "כתבו פרק ראשון ופרק אחרון, בין 1 ל-150.";
+      return;
+    }
+    selectRange(f, t);
+  });
+
+  // סימון דיווחי בלי מסך הקריאה (הכרעות 2, 3, 4): מי שקרא מספר מודפס
+  $("tray-mark").addEventListener("click", function () {
+    if (!SEL.length) return;
+    var n = SEL.length;
+    if (!window.confirm("לסמן " + (n === 1 ? "פרק אחד" : n + " פרקים") + " כנקראים? זה מתאים למי שכבר קרא אותם, למשל מתוך ספר מודפס.")) return;
+    var btn = $("tray-mark");
+    btn.disabled = true;
+    post("/read", { readerKey: RK, readerName: readerName(), idxs: SEL.slice() }).then(function (d) {
+      btn.disabled = false;
+      if (!d || !d.ok) { $("rg-msg").textContent = "הסימון לא נקלט. נסו שוב בעוד רגע."; return; }
+      var got = (d.read || []).length, already = (d.already || []).length;
+      $("rg-msg").textContent = "ישר כוח! " + got + (got === 1 ? " קטע סומן" : " קטעים סומנו") + " כנקראים" +
+        (already ? ", ו-" + already + " כבר היו נקראים לפני כן" : "") + ".";
+      SEL = [];
+      refresh();
+    }).catch(function () {
+      btn.disabled = false;
+      $("rg-msg").textContent = "אין חיבור לשרת כרגע. נסו שוב בעוד רגע.";
+    });
+  });
 
   function trayPaint() {
     var t = $("tray");
@@ -656,8 +734,23 @@ body{padding-bottom:env(safe-area-inset-bottom)}
           DONE_NOW = [];
           RELEASED_NOW = 0;
           SEL = [];
-          refresh();
-          openRead();
+          var notes = [];
+          if (d.shared && d.shared.length) {
+            notes.push("מישהו אחר כבר לקח על עצמו את " + d.shared.map(function (i) { return UNITS[i].name; }).join(", ") +
+              ". אם תקראו לפניו, הפרק יסומן כנקרא.");
+          }
+          if (d.alreadyRead && d.alreadyRead.length) {
+            notes.push("הפרקים " + d.alreadyRead.map(function (i) { return UNITS[i].name; }).join(", ") +
+              " כבר נקראו בינתיים, ולכן לא נלקחו.");
+          }
+          PENDING_NOTE = notes.join(" ");
+          if (!QUEUE.length) {
+            $("who-msg").className = "form-msg err";
+            $("who-msg").textContent = PENDING_NOTE || "כל הפרקים שבחרתם כבר נקראו.";
+            refresh();
+            return;
+          }
+          refresh().then(function () { openRead(); });
           return;
         }
         if (d && d.error === "lost") {
@@ -705,6 +798,17 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     $("r-msg").className = "form-msg";
     $("r-title").textContent = "תהילים " + UNITS[i].name;
     $("r-verses").innerHTML = "<p class='tiny'>טוען...</p>";
+    if (PENDING_NOTE) {
+      $("r-msg").className = "form-msg";
+      $("r-msg").textContent = PENDING_NOTE;
+      PENDING_NOTE = "";
+    }
+    var cur = null;
+    if (STATE) STATE.units.forEach(function (u) { if (u.i === i) cur = u; });
+    if (cur && cur.s === "read" && DONE_NOW.indexOf(i) === -1 && AGAIN_OK.indexOf(i) === -1) {
+      showAgain(i);
+      return;
+    }
     resetReadButtons();
     show("read");
     startClock();
@@ -720,6 +824,17 @@ body{padding-bottom:env(safe-area-inset-bottom)}
       $("r-verses").innerHTML = "<p class='tiny'>לא הצלחנו לטעון את הטקסט. " +
         "נסו לרענן את הדף - הפרק עדיין שמור על שמכם.</p>";
     });
+  }
+
+  // הפרק נקרא כבר על ידי מישהו אחר: לקרוא שוב, או לדלג לפרק הבא שלא נקרא
+  function showAgain(i) {
+    show("read");
+    $("r-verses").innerHTML =
+      "<div class='again'><p>תהילים " + escapeHtml(UNITS[i].name) + " כבר נקרא על ידי מישהו אחר.</p>" +
+      "<button type='button' class='btn' id='again-read'>לקרוא אותו בכל זאת</button>" +
+      "<button type='button' class='btn btn-ghost' id='again-skip'>לדלג לפרק הבא שלא נקרא</button></div>";
+    $("again-read").onclick = function () { AGAIN_OK.push(i); openRead(); };
+    $("again-skip").onclick = function () { QPOS++; openRead(); };
   }
 
   function escapeHtml(s) {
@@ -778,14 +893,14 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     var label = btn.innerHTML;
     btn.textContent = "מסמן...";
 
-    post("/read", { readerKey: RK, idxs: [i] }).then(function (d) {
-      var accepted = d && d.ok && d.read && d.read.length;
+    post("/read", { readerKey: RK, readerName: readerName(), idxs: [i] }).then(function (d) {
+      // נקלט, או שמישהו אחר סימן אותו קודם - שניהם קריאה שהתקבלה (הכרעה 17)
+      var accepted = d && d.ok && ((d.read && d.read.length) || (d.already && d.already.length));
       if (accepted) DONE_NOW.push(i);
 
       if (!accepted) {
-        // לא נקלט: כנראה מישהו אחר כבר לקח את הפרק אחרי שהשעה עברה
         $("r-msg").className = "form-msg err";
-        $("r-msg").textContent = "הפרק הזה כבר נלקח על ידי מישהו אחר.";
+        $("r-msg").textContent = "הסימון לא נקלט. נסו שוב בעוד רגע.";
       }
 
       if (!stop) {

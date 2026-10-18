@@ -28,6 +28,50 @@ export class BookDO {
         "rkey TEXT PRIMARY KEY, name TEXT, phone TEXT, email TEXT, " +
         "lastMarkAt INTEGER DEFAULT 0, marked INTEGER DEFAULT 0)"
     );
+    // הכרעה 17 (10.10.2026): שום פרק אינו נעול. כמה אנשים יכולים להחזיק את
+    // אותו פרק, וכל אחד רואה אותו כ"שלי". units נשארת עם מצב אחד לפרק -
+    // הראשון שסימן הוא שנספר, ואין ספירה כפולה.
+    this.sql.exec(
+      "CREATE TABLE IF NOT EXISTS holds (" +
+        "idx INTEGER NOT NULL, rkey TEXT NOT NULL, name TEXT, takenAt INTEGER NOT NULL, " +
+        "budgetMs INTEGER NOT NULL, PRIMARY KEY (idx, rkey))"
+    );
+    // ספרים שנפתחו לפני הטבלה: ההחזקה היחידה ישבה על units עצמה
+    if (!this.getMeta("holdsMigrated")) {
+      this.sql.exec(
+        "INSERT OR IGNORE INTO holds (idx, rkey, name, takenAt, budgetMs) " +
+          "SELECT idx, readerKey, COALESCE(readerName, ''), takenAt, budgetMs FROM units " +
+          "WHERE state = 'taken' AND readerKey IS NOT NULL AND takenAt IS NOT NULL"
+      );
+      this.setMeta("holdsMigrated", Date.now());
+    }
+  }
+
+  // מעדכן את שורת הפרק לפי ההחזקות החיות שלו. פרק שנקרא אינו זז.
+  // הנושא שמוצג ("נלקח על ידי") הוא ההחזקה הוותיקה ביותר שעוד בתוקף.
+  syncUnit(idx, now) {
+    const u = this.sql.exec("SELECT state FROM units WHERE idx = ?", idx).toArray()[0];
+    if (!u || u.state === "read") return;
+    const hs = this.sql
+      .exec("SELECT rkey, name, takenAt, budgetMs FROM holds WHERE idx = ? ORDER BY takenAt", idx)
+      .toArray()
+      .filter((h) => expiryFor(h.takenAt, h.budgetMs) > now);
+    if (!hs.length) {
+      this.sql.exec(
+        "UPDATE units SET state='free', readerKey=NULL, readerName=NULL, takenAt=NULL, budgetMs=NULL WHERE idx = ?",
+        idx
+      );
+      return;
+    }
+    const h = hs[0];
+    this.sql.exec(
+      "UPDATE units SET state='taken', readerKey=?, readerName=?, takenAt=?, budgetMs=? WHERE idx = ?",
+      h.rkey,
+      h.name || "",
+      h.takenAt,
+      h.budgetMs,
+      idx
+    );
   }
 
   getMeta(k) {
@@ -70,13 +114,26 @@ export class BookDO {
         "SELECT idx, state, readerKey, readerName, takenAt, budgetMs, readAt FROM units ORDER BY idx"
       )
       .toArray();
+    const myHolds = {};
+    const holders = {};
+    this.sql
+      .exec("SELECT idx, rkey, takenAt, budgetMs FROM holds")
+      .toArray()
+      .forEach(function (h) {
+        const e = expiryFor(h.takenAt, h.budgetMs);
+        if (e <= now) return;
+        holders[h.idx] = (holders[h.idx] || 0) + 1;
+        if (readerKey && h.rkey === readerKey) myHolds[h.idx] = e;
+      });
     const units = rows.map(function (r) {
+      const myExp = myHolds[r.idx];
       return {
         i: r.idx,
         s: r.state,
-        mine: r.state !== "free" && readerKey && r.readerKey === readerKey ? 1 : 0,
-        exp: r.state === "taken" ? expiryFor(r.takenAt, r.budgetMs) : null,
+        mine: (myExp && r.state !== "read") || (r.state === "read" && readerKey && r.readerKey === readerKey) ? 1 : 0,
+        exp: r.state === "taken" ? (myExp || expiryFor(r.takenAt, r.budgetMs)) : null,
         by: r.state !== "free" ? r.readerName || "" : "",
+        n: holders[r.idx] || 0,
       };
     });
     let taken = 0;
@@ -140,50 +197,63 @@ export class BookDO {
   // משחרר כל יחידה תפוסה שעבר זמנה. זו הפעולה שמחזירה פרקים למחזור
   // בלי שאף אדם יצטרך לעשות משהו.
   sweep(now) {
-    const rows = this.sql
-      .exec("SELECT idx, takenAt, budgetMs FROM units WHERE state = 'taken'")
-      .toArray();
-    let n = 0;
-    for (const r of rows) {
-      if (expiryFor(r.takenAt, r.budgetMs) > now) continue;
-      this.sql.exec(
-        "UPDATE units SET state='free', readerKey=NULL, readerName=NULL, takenAt=NULL, budgetMs=NULL WHERE idx = ?",
-        r.idx
-      );
-      n++;
+    const dead = this.sql
+      .exec("SELECT idx, rkey, takenAt, budgetMs FROM holds")
+      .toArray()
+      .filter((h) => expiryFor(h.takenAt, h.budgetMs) <= now);
+    const touched = {};
+    for (const h of dead) {
+      this.sql.exec("DELETE FROM holds WHERE idx = ? AND rkey = ?", h.idx, h.rkey);
+      touched[h.idx] = 1;
     }
-    return n;
+    // וגם פרק שסומן תפוס בלי שום החזקה (למשל אחרי שחרור)
+    this.sql
+      .exec("SELECT idx FROM units WHERE state = 'taken'")
+      .toArray()
+      .forEach((r) => {
+        touched[r.idx] = 1;
+      });
+    for (const k of Object.keys(touched)) this.syncUnit(Number(k), now);
+    return dead.length;
   }
 
   // ---- take ------------------------------------------------------------
 
-  // הכל-או-כלום בכוונה: אם מתוך חמישה פרקים אחד נחטף, לא נותנים ארבעה בשקט.
-  // האדם בוחר שוב ויודע מה קרה, במקום לגלות אחר כך שקיבל פחות.
+  // הכרעות 6 ו-17: שום פרק אינו נעול. מי שבוחר פרק שמישהו אחר כבר לקח
+  // מקבל אותו בכל זאת, יחד עם הודעה גלויה. פרק שכבר נקרא אינו נלקח -
+  // הוא מוחזר ב-alreadyRead והמסך מציע לקרוא שוב או לדלג (הכרעה 8).
+  // אין עוד הכל-או-כלום: בחירה של רצף ארוך לא נכשלת בגלל פרק אחד.
   take(readerKey, readerName, idxs, budgetMs) {
     const now = Date.now();
     this.sweep(now);
     if ((this.getMeta("status") || "open") !== "open") return { ok: false, error: "closed" };
     if (!readerKey || !idxs || !idxs.length) return { ok: false, error: "bad_request" };
 
-    const want = [];
-    const lost = [];
+    const taken = [];
+    const shared = [];
+    const alreadyRead = [];
     for (const i of idxs) {
       const rows = this.sql.exec("SELECT state FROM units WHERE idx = ?", i).toArray();
-      if (!rows.length) lost.push(i);
-      else if (rows[0].state === "free") want.push(i);
-      else lost.push(i);
-    }
-    if (lost.length) return { ok: false, error: "lost", lost: lost, taken: [] };
-
-    for (const i of want) {
+      if (!rows.length) continue;
+      if (rows[0].state === "read") {
+        alreadyRead.push(i);
+        continue;
+      }
+      const others = this.sql
+        .exec("SELECT COUNT(*) AS c FROM holds WHERE idx = ? AND rkey != ?", i, readerKey)
+        .toArray()[0].c;
+      if (others > 0) shared.push(i);
       this.sql.exec(
-        "UPDATE units SET state='taken', readerKey=?, readerName=?, takenAt=?, budgetMs=? WHERE idx = ? AND state='free'",
+        "INSERT INTO holds (idx, rkey, name, takenAt, budgetMs) VALUES (?, ?, ?, ?, ?) " +
+          "ON CONFLICT(idx, rkey) DO UPDATE SET name = excluded.name, takenAt = excluded.takenAt, budgetMs = excluded.budgetMs",
+        i,
         readerKey,
         readerName || "",
         now,
-        budgetMs,
-        i
+        budgetMs
       );
+      this.syncUnit(i, now);
+      taken.push(i);
     }
     this.sql.exec(
       "INSERT INTO readers (rkey, name) VALUES (?, ?) ON CONFLICT(rkey) DO UPDATE SET name = excluded.name",
@@ -191,14 +261,14 @@ export class BookDO {
       readerName || ""
     );
     this.scheduleAlarm();
-    return { ok: true, taken: want, takenAt: now, budgetMs: budgetMs };
+    return { ok: true, taken: taken, shared: shared, alreadyRead: alreadyRead, takenAt: now, budgetMs: budgetMs };
   }
 
   // ---- read ------------------------------------------------------------
 
   // החסד המובנה: סימון שמגיע אחרי הפקיעה מתקבל, כל עוד איש אחר לא לקח
   // את היחידה בינתיים. אדם שקרא באמת לא מאבד את מה שקרא בגלל שעון.
-  markRead(readerKey, idxs) {
+  markRead(readerKey, idxs, readerName) {
     const now = Date.now();
     if (!readerKey || !idxs || !idxs.length) return { ok: false, error: "bad_request" };
 
@@ -207,15 +277,26 @@ export class BookDO {
     // הוא אינו חושש מרמאים, והתגמול כאן הוא תפילה ולא כסף.
 
     const done = [];
+    const already = [];
     for (const i of idxs) {
       const rows = this.sql.exec("SELECT state, readerKey FROM units WHERE idx = ?", i).toArray();
       if (!rows.length) continue;
       const u = rows[0];
-      if (u.state === "read") continue;
-      const mine = u.readerKey === readerKey;
-      const free = u.state === "free";
-      if (!mine && !free) continue;
-      this.sql.exec("UPDATE units SET state='read', readerKey=?, readAt=? WHERE idx = ?", readerKey, now, i);
+      // הראשון שסימן נספר; השני מקבל את ההרגשה שקרא, בלי ספירה כפולה (הכרעה 17)
+      if (u.state === "read") {
+        already.push(i);
+        continue;
+      }
+      // אין בדיקת בעלות: גם פרק שאחר מחזיק נסגר על ידי מי שקרא אותו ראשון (הכרעה 6),
+      // וגם סימון דיווחי של מי שקרא מספר מודפס בלי לקחת קודם (הכרעות 2, 3)
+      this.sql.exec(
+        "UPDATE units SET state='read', readerKey=?, readerName=COALESCE(?, readerName), readAt=?, takenAt=NULL, budgetMs=NULL WHERE idx = ?",
+        readerKey,
+        readerName || null,
+        now,
+        i
+      );
+      this.sql.exec("DELETE FROM holds WHERE idx = ?", i);
       done.push(i);
     }
     if (done.length) {
@@ -232,7 +313,7 @@ export class BookDO {
     const left = this.sql.exec("SELECT COUNT(*) AS c FROM units WHERE state != 'read'").toArray()[0].c;
     if (left === 0) this.setMeta("status", "closed");
 
-    return { ok: true, read: done, left: left, closed: left === 0 };
+    return { ok: true, read: done, already: already, left: left, closed: left === 0 };
   }
 
   // ---- הקריאה הכללית ------------------------------------------------
@@ -252,6 +333,7 @@ export class BookDO {
     this.sql.exec(
       "UPDATE units SET state='free', readerKey=NULL, readerName=NULL, takenAt=NULL, budgetMs=NULL, readAt=NULL"
     );
+    this.sql.exec("DELETE FROM holds");
     this.setMeta("status", "open");
     this.setMeta("cycle", cycle + 1);
     this.setMeta("cycleStartedAt", Date.now());
@@ -259,13 +341,10 @@ export class BookDO {
   }
 
   release(readerKey, idxs) {
+    const now = Date.now();
     for (const i of idxs || []) {
-      this.sql.exec(
-        "UPDATE units SET state='free', readerKey=NULL, readerName=NULL, takenAt=NULL, budgetMs=NULL " +
-          "WHERE idx = ? AND state='taken' AND readerKey = ?",
-        i,
-        readerKey
-      );
+      this.sql.exec("DELETE FROM holds WHERE idx = ? AND rkey = ?", i, readerKey);
+      this.syncUnit(i, now);
     }
     return { ok: true };
   }
@@ -293,13 +372,15 @@ export class BookDO {
     free.forEach((idx, k) => {
       const r = readers[k % readers.length];
       this.sql.exec(
-        "UPDATE units SET state='taken', readerKey=?, readerName=?, takenAt=?, budgetMs=? WHERE idx = ? AND state='free'",
+        "INSERT INTO holds (idx, rkey, name, takenAt, budgetMs) VALUES (?, ?, ?, ?, ?) " +
+          "ON CONFLICT(idx, rkey) DO UPDATE SET takenAt = excluded.takenAt, budgetMs = excluded.budgetMs",
+        idx,
         r.rkey,
         r.name || "",
         now,
-        budget,
-        idx
+        budget
       );
+      this.syncUnit(idx, now);
       n++;
     });
     this.scheduleAlarm();
@@ -318,10 +399,10 @@ export class BookDO {
       .toArray();
     const holding = {};
     this.sql
-      .exec("SELECT readerKey, COUNT(*) AS c FROM units WHERE state = 'taken' GROUP BY readerKey")
+      .exec("SELECT rkey, COUNT(*) AS c FROM holds GROUP BY rkey")
       .toArray()
       .forEach((r) => {
-        holding[r.readerKey] = Number(r.c);
+        holding[r.rkey] = Number(r.c);
       });
     return {
       ok: true,
@@ -337,7 +418,7 @@ export class BookDO {
   // ---- alarm -----------------------------------------------------------
 
   scheduleAlarm() {
-    const rows = this.sql.exec("SELECT takenAt, budgetMs FROM units WHERE state = 'taken'").toArray();
+    const rows = this.sql.exec("SELECT takenAt, budgetMs FROM holds").toArray();
     let next = Infinity;
     for (const r of rows) next = Math.min(next, expiryFor(r.takenAt, r.budgetMs));
     if (next < Infinity) this.ctx.storage.setAlarm(next);
@@ -365,7 +446,7 @@ export class BookDO {
     if (op === "create") out = this.create(body.meta || {}, body.unitCount || 171);
     else if (op === "state") out = this.snapshot(body.readerKey || url.searchParams.get("rk"));
     else if (op === "take") out = this.take(body.readerKey, body.readerName, body.idxs, body.budgetMs || 3600000);
-    else if (op === "read") out = this.markRead(body.readerKey, body.idxs);
+    else if (op === "read") out = this.markRead(body.readerKey, body.idxs, body.readerName);
     else if (op === "release") out = this.release(body.readerKey, body.idxs);
     else if (op === "reopen") out = this.reopen(body.meta);
     else if (op === "distribute") out = this.distribute();

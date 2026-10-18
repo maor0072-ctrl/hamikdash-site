@@ -190,6 +190,8 @@ export class BookDO {
       targetDate: this.getMeta("targetDate") || "",
       createdAt: Number(this.getMeta("createdAt") || 0),
       lastMarkAt: Number((last && last.m) || 0),
+      cycle: Number(this.getMeta("cycle") || 0),
+      cycleStartedAt: Number(this.getMeta("cycleStartedAt") || 0),
       states: states,
     };
   }
@@ -321,7 +323,8 @@ export class BookDO {
   // ישראל. זו אותה מכונה בדיוק, ספר קבוע שפשוט נפתח מחדש כשהוא נסגר -
   // וזה מה שהופך את הקישור למשהו שנשלח כל יום ולא רק בשעת משבר.
   reopen(meta) {
-    const cycle = Number(this.getMeta("cycle") || 0);
+    // ספר פרטי לא רושם cycle בפתיחה, והסבב הראשון שלו הוא 1
+    const cycle = Number(this.getMeta("cycle") || 1);
     if (!this.getMeta("createdAt")) {
       const r = this.create(meta || {}, 171);
       this.setMeta("cycle", 1);

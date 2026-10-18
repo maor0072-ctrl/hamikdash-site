@@ -10,6 +10,7 @@ import { lead as topicLead } from "./tehillim-topics.js";
 
 const SITE = "https://hamikdash.co.il";
 const SHORT = "https://t.hamikdash.co.il";
+const ROUND_IDLE_MS = 7 * 24 * 60 * 60 * 1000;
 const STALE_MS = 90 * 24 * 60 * 60 * 1000; // ספר בלי תנועה 90 יום יוצא מהרשימה
 
 // הנושאים והקידומות שלהם במקור אחד: tehillim-topics.js
@@ -66,6 +67,8 @@ export function selectItems(rows, now) {
     if (st.free === 0) continue;
     const last = Math.max(r.lastMarkAt || 0, r.createdAt || 0);
     if (r.kind !== "klali" && now - last > STALE_MS) continue;
+    // סבב נוסף שאיש לא קרא בו שבוע יורד מהקטלוג (הכרעה 13)
+    if (r.kind !== "klali" && r.cycle > 1 && now - Math.max(r.lastMarkAt || 0, r.cycleStartedAt || 0) > ROUND_IDLE_MS) continue;
     out.push({
       id: r.id,
       klali: r.kind === "klali",

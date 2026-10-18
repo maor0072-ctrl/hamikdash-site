@@ -1113,6 +1113,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     var m = [];
     if (STATE.openerName) m.push("נפתח על ידי " + STATE.openerName);
     if (STATE.targetDate) m.push("תאריך יעד: " + fmtDate(STATE.targetDate));
+    if (STATE.cycle > 1) m.push("סבב " + STATE.cycle + " - הספר הושלם ונפתח שוב");
     $("bk-meta").textContent = m.join(" · ");
   }
 

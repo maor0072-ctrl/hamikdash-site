@@ -536,11 +536,13 @@ async function handleApi(request, url, env, origin) {
           /* המונה אינו קריטי לסימון */
         }
       }
-      // הקריאה הכללית נפתחת מחדש ברגע שהיא נסגרת - זו בריכה תמידית,
-      // לא ספר שמסתיים.
-      if (r.ok && r.closed && p.b === KLALI_ID) {
+      // כל ספר שנגמר נפתח מיד לסבב נוסף, ולא רק הקריאה הכללית (הכרעה 13, 10.10:
+      // „ברגע שהוא נסגר לפתוח עוד אחד"). סבב נוסף שאין בו קוראים שבוע יורד מהקטלוג
+      // מעצמו (tehillim-catalog.js), כך שסבבים ריקים אינם מציפים אותו.
+      if (r.ok && r.closed) {
+        r.reopened = true;
         try {
-          await doCall(stub, "reopen", { meta: KLALI_META });
+          await doCall(stub, "reopen", { meta: p.b === KLALI_ID ? KLALI_META : {} });
         } catch (e) {
           /* ייפתח בקריאה הבאה ל-/api/klali */
         }

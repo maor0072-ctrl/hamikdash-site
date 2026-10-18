@@ -702,6 +702,8 @@ export default {
       }
       // ו1 (18.10): הקטלוג מוגש גם תחת הדומיין הראשי, דרך Workers Route על hamikdash.co.il/tehillim/sfarim*.
       // /sfarim בדומיין הראשי הוא מדור הספרים של יעקב ואינו מנותב לכאן.
+      // שינוי הנתיב מחייב גם עדכון של הראוט בקלאודפלייר וגם של השורה ב-scripts/hamikdash_site_tree.py
+      // (ילד של „תהילים ישראל"), אחרת נוצר קישור שבור בכל דפי תהילים.
       if (url.pathname === "/sfarim" || url.pathname === "/sfarim/" || url.pathname === "/tehillim/sfarim" || url.pathname === "/tehillim/sfarim/") {
         const items = await catalogItems(env);
         const g = await currentGroup();

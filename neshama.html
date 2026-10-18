@@ -418,6 +418,27 @@
   // הראשונה: השמות נמחקו מהמסך והתחושה הייתה שהם לא נקלטו.
   var KEY_ME = "hamikdash_neshama_me";
   var KEY_NAMES = "hamikdash_neshama_names";
+  var KEY_SYNCED = "hamikdash_neshama_synced";
+
+  // MERGE-START
+  // איחוד רשימת השרת עם מה שהמכשיר זוכר - **מקור אחד לשני המסלולים**.
+  // השרת הוא האמת מאז 22.9; שם מקומי שהשרת לא מכיר נשמר רק אם השרת
+  // **מעולם** לא הכיר אותו (שם ותיק מלפני 22.9, או מסירה שעוד לא התפשטה).
+  // שם שהשרת הכיר פעם ועכשיו אינו מחזיר - נמחק ממכשיר אחר, ואסור להחיות
+  // אותו: הוא היה חוזר למסך, ובתיקון הבא מהמכשיר הזה נשלח שוב לשרת
+  // ונכנס חזרה לרשימת הכולל בניגוד לרצון המוסר (נמצא 11.10.2026).
+  function soulKey(n) { return [n.name, n.parent, n.date].join("|"); }
+  function mergeFromServer(server, local, synced) {
+    var have = {}, seen = {}, i;
+    for (i = 0; i < server.length; i++) have[soulKey(server[i])] = 1;
+    for (i = 0; i < (synced || []).length; i++) seen[synced[i]] = 1;
+    var extra = local.filter(function (n) {
+      var k = soulKey(n);
+      return !have[k] && !seen[k];
+    });
+    return { list: server.concat(extra), synced: Object.keys(have) };
+  }
+  // MERGE-END
 
   function load(k, fallback) {
     try { return JSON.parse(localStorage.getItem(k)) || fallback; }
@@ -553,6 +574,12 @@
       if (err)
         return msg("choice-msg", "err", "לא הצלחנו לבדוק מול השרת (" + err +
           "). אפשר להמשיך למסירת שמות - שמות שמסרתם בעבר לא ייפגעו מזה.");
+      if (!souls.length) {
+        var m0 = mergeFromServer(souls, saved, load(KEY_SYNCED, []));
+        saved = m0.list;
+        save(KEY_NAMES, saved);
+        save(KEY_SYNCED, m0.synced);
+      }
       if (!souls.length)
         return msg("choice-msg", "err", "לא מצאנו שמות שנמסרו מהכתובת " +
           me.email + ". אם מסרתם מכתובת אחרת, אפשר לחזור ולהקליד אותה; " +
@@ -560,14 +587,10 @@
       // איחוד ולא החלפה. השרת מכיר כל מה שנמסר מכל מכשיר מאז 22.9, אבל
       // שמות שנמסרו **לפני** התאריך הזה קיימים רק באחסון המקומי, ולכן
       // החלפה גורפת הייתה מוחקת אותם מהמסך של מי שמסר גם לפני וגם אחרי.
-      var key = function (n) {
-        return [n.name, n.parent, n.date].join("|");
-      };
-      var have = {};
-      for (var i = 0; i < souls.length; i++) have[key(souls[i])] = 1;
-      var extra = saved.filter(function (n) { return !have[key(n)]; });
-      saved = souls.concat(extra);
+      var m = mergeFromServer(souls, saved, load(KEY_SYNCED, []));
+      saved = m.list;
       save(KEY_NAMES, saved);
+      save(KEY_SYNCED, m.synced);
       show("names");
     });
   });
@@ -1185,14 +1208,15 @@
   // כתובת. אין כאן שאלת פרטיות - זה אותו מכשיר שכבר מחזיק את הזהות.
   if (me && me.email) {
     lookupNames(me.email, function (souls, err) {
-      if (err || !souls || !souls.length) return;
-      var key = function (n) { return [n.name, n.parent, n.date].join("|"); };
-      var have = {};
-      for (var i = 0; i < souls.length; i++) have[key(souls[i])] = 1;
-      var extra = saved.filter(function (n) { return !have[key(n)]; });
-      var merged = souls.concat(extra);
-      if (merged.length === saved.length) return;
-      saved = merged;
+      // רשימה ריקה מהשרת היא תשובה ולא כשל: אם השרת הכיר שמות והם כולם
+      // נמחקו ממכשיר אחר, דווקא כאן הם היו קמים לתחייה.
+      if (err || !souls) return;
+      var m = mergeFromServer(souls, saved, load(KEY_SYNCED, []));
+      save(KEY_SYNCED, m.synced);
+      // השוואת מפתחות ולא אורך: מחיקה במכשיר אחר ותוספת בשלישי מחזירות
+      // אותו אורך ורשימה אחרת, והבדיקה הישנה (`length ===`) בלעה את זה.
+      if (m.list.map(soulKey).join("~") === saved.map(soulKey).join("~")) return;
+      saved = m.list;
       save(KEY_NAMES, saved);
       var on = document.querySelector(".view.on");
       if (!on || on.id === "view-intro") refreshIntro();

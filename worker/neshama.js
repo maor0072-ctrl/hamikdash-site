@@ -31,9 +31,12 @@ const REPLY_TO_OWNER = "maor0072@gmail.com";
 const COMPOSIO_USER = "maor0072@gmail.com";
 const GMAIL_ACCOUNT = "ca_NGVDA1Vrsmz0";
 
-const DONATE = "https://nedar.im/7009579";
+// Groupe must be an existing Nedarim category (free text is not locked);
+// Analytic carries the source into the transaction comment (plan L4).
+const DONATE =
+  "https://www.matara.pro/nedarimplus/online/?mosad=7009579&Groupe=%D7%A2%D7%99%D7%9C%D7%95%D7%99%20%D7%A0%D7%A9%D7%9E%D7%94&GroupeLock=1&Analytic=%D7%A2%D7%99%D7%9C%D7%95%D7%99%20%D7%A0%D7%A9%D7%9E%D7%94%20-%20%D7%9E%D7%99%D7%99%D7%9C%20%D7%90%D7%99%D7%A9%D7%95%D7%A8";
 const KEVA =
-  "https://www.matara.pro/nedarimplus/online/?mosad=7009579&KevaDefault=1";
+  "https://www.matara.pro/nedarimplus/online/?mosad=7009579&KevaDefault=1&Groupe=%D7%A2%D7%99%D7%9C%D7%95%D7%99%20%D7%A0%D7%A9%D7%9E%D7%94&GroupeLock=1&Analytic=%D7%A2%D7%99%D7%9C%D7%95%D7%99%20%D7%A0%D7%A9%D7%9E%D7%94%20-%20%D7%9E%D7%99%D7%99%D7%9C%20%D7%90%D7%99%D7%A9%D7%95%D7%A8";
 const PAGE = "https://hamikdash.co.il/neshama.html";
 
 const MAX_NIFTARIM = 5; // תקרה שפויה; מעבר לזה זו כנראה הזנה אוטומטית

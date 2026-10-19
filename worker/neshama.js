@@ -438,14 +438,54 @@ async function ownerHash(email) {
 // קידומת שמופיעה בקוד, כלומר מי שמכיר את כתובת הדואר של אדם יכול לחשב
 // אותו ולהסיר אותו מההודעות. `NESHAMA_UNSUB_SECRET` הופך את זה לבלתי
 // אפשרי: בלי הסוד אין טוקן תקף.
-async function unsubToken(env, ownerKey) {
+// מפלסי ההסרה (שלב ד בתוכנית, ל2). `siyum` הוא הקיים ונשאר בלי `l` בכתובת,
+// כדי שקישורים שכבר נשלחו ימשיכו לעבוד. `ask` מפסיק בקשות תרומה, `all`
+// מפסיק כל מייל - **ובשניהם השמות נשארים ברשימה** (הכרעת יעקב א2, 19.10).
+// הדגלים הם אותו מבנה ש-`neshama_flag.py` כותב ו-`neshama_silence` קורא.
+const OFF_LEVELS = {
+  siyum: {
+    title: "הודעות על סיומי מסכת",
+    what: "לחיצה על הכפתור תפסיק את ההודעות על סיומי מסכת, סיומי משניות וסיומי שס שנשלחות אליכם.",
+    keeps: "ההודעות על היארצייטים לא ייפגעו וימשיכו להגיע כרגיל",
+    button: "להפסיק הודעות על סיומים",
+    done: "הוסרתם מהודעות על סיומים",
+    apply(rec, now) { rec.siyumOptOut = true; rec.siyumOptOutAt = now; },
+  },
+  ask: {
+    title: "בקשות תרומה",
+    what: "לחיצה על הכפתור תפסיק את המיילים שמזמינים לתרום לכולל.",
+    keeps: "התזכורות לפני היארצייט ימשיכו להגיע כרגיל",
+    button: "להפסיק בקשות תרומה",
+    done: "לא נבקש מכם עוד תרומה",
+    apply(rec, now) { rec.no_ask = true; rec.no_ask_since = now.slice(0, 10); rec.no_ask_reason = "קישור הסרה במייל"; },
+  },
+  all: {
+    title: "כל המיילים",
+    what: "לחיצה על הכפתור תפסיק את כל המיילים שאנחנו שולחים אליכם: תזכורות, בקשות והודעות.",
+    keeps: "לא יגיעו אליכם עוד מיילים מאיתנו",
+    button: "להפסיק את כל המיילים",
+    done: "הוסרתם מכל המיילים",
+    apply(rec, now) {
+      rec.no_mail = true; rec.no_mail_since = now.slice(0, 10); rec.no_mail_reason = "קישור הסרה במייל";
+      rec.siyumOptOut = true; rec.siyumOptOutAt = now;
+    },
+  },
+};
+
+function offLevel(url) {
+  const l = url.searchParams.get("l") || "siyum";
+  return OFF_LEVELS[l] ? l : "";
+}
+
+async function unsubToken(env, ownerKey, level) {
   const secret = env.NESHAMA_UNSUB_SECRET || "";
   if (!secret) return "";
   const key = await crypto.subtle.importKey(
     "raw", new TextEncoder().encode(secret),
     { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   const sig = await crypto.subtle.sign(
-    "HMAC", key, new TextEncoder().encode("siyum:" + ownerKey));
+    "HMAC", key, new TextEncoder().encode(
+      (!level || level === "siyum" ? "siyum:" : "off:" + level + ":") + ownerKey));
   return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0"))
     .join("").slice(0, 32);
 }
@@ -500,17 +540,17 @@ export default {
       // GET ?unsub=<ownerKey>&t=<token> - **רק מציג** את דף האישור.
       const okey = url.searchParams.get("unsub");
       if (okey) {
-        const good = await unsubToken(env, okey);
+        const lv = offLevel(url);
+        const good = lv ? await unsubToken(env, okey, lv) : "";
         if (!sameToken(good, url.searchParams.get("t") || ""))
           return unsubPage("<h1>הקישור אינו תקף</h1><p>אפשר להשיב למייל שקיבלתם " +
             "ואנחנו נטפל בזה.</p>");
+        const L = OFF_LEVELS[lv];
         return unsubPage(
-          "<h1>הודעות על סיומי מסכת</h1>" +
-          "<p>לחיצה על הכפתור תפסיק את ההודעות על סיומי מסכת, סיומי משניות " +
-          "וסיומי שס שנשלחות אליכם.</p>" +
-          "<p><strong>ההודעות על היארצייטים לא ייפגעו וימשיכו להגיע כרגיל</strong>, " +
-          "וגם השמות עצמם נשארים ברשימת הכולל ללא שינוי.</p>" +
-          '<form method="POST"><button type="submit">להפסיק הודעות על סיומים</button></form>');
+          "<h1>" + L.title + "</h1><p>" + L.what + "</p>" +
+          "<p><strong>" + L.keeps + "</strong>, " +
+          "והשמות עצמם נשארים ברשימת הכולל ללא שינוי, והלימוד עליהם נמשך.</p>" +
+          '<form method="POST"><button type="submit">' + L.button + "</button></form>");
       }
       return new Response("method not allowed", { status: 405, headers });
     }
@@ -520,7 +560,8 @@ export default {
       const url = new URL(request.url);
       const okey = url.searchParams.get("unsub");
       if (okey) {
-        const good = await unsubToken(env, okey);
+        const lv = offLevel(url);
+        const good = lv ? await unsubToken(env, okey, lv) : "";
         if (!sameToken(good, url.searchParams.get("t") || ""))
           return unsubPage("<h1>הקישור אינו תקף</h1><p>אפשר להשיב למייל " +
             "שקיבלתם ואנחנו נטפל בזה.</p>");
@@ -533,14 +574,13 @@ export default {
             "אינן נשלחות אליכם. אפשר להשיב למייל כדי לוודא.</p>");
         let rec;
         try { rec = JSON.parse(raw) || {}; } catch (e) { rec = {}; }
-        rec.siyumOptOut = true;
-        rec.siyumOptOutAt = new Date().toISOString();
+        const L = OFF_LEVELS[lv];
+        L.apply(rec, new Date().toISOString());
         await env.NAMES.put("sub:" + okey, JSON.stringify(rec));
         return unsubPage(
-          "<h1>הוסרתם מהודעות על סיומים</h1>" +
-          "<p>מעכשיו לא יישלחו אליכם הודעות על סיומי מסכת, משניות או שס.</p>" +
-          "<p><strong>ההודעות על היארצייטים ימשיכו להגיע כרגיל</strong>, והשמות " +
-          "נשארים ברשימת הכולל.</p>" +
+          "<h1>" + L.done + "</h1>" +
+          "<p><strong>" + L.keeps + "</strong>, והשמות " +
+          "נשארים ברשימת הכולל, והלימוד עליהם נמשך.</p>" +
           "<p>אם זו הייתה טעות, אפשר להשיב למייל שקיבלתם ונחזיר את ההודעות.</p>");
       }
     }

@@ -205,7 +205,7 @@ function niftarBlock(n, i) {
   );
 }
 
-function thanksHtml(name, niftarim, isFix, isEmpty, total) {
+function thanksHtml(name, niftarim, isFix, isEmpty, total, restoreUrl) {
   // ההערה הפרטית מוצגת למוסר **מתחת לשם**, ובמכוון. היא נכתבה כדי שהוא
   // יזכור למי הוא עושה עילוי נשמה, ולכן מייל שמזכיר את השם בלי ההערה מחמיץ
   // בדיוק את מה שבשבילו היא נמסרה. באתר הגלוי היא אינה מופיעה.
@@ -293,6 +293,15 @@ function thanksHtml(name, niftarim, isFix, isEmpty, total) {
       `הצדקה עצמה היא עילוי נשמה, והיא מה שמאפשר לאברכים לשבת וללמוד.</p>`) +
     (isFix || isEmpty
       ? `<p>ואם משהו בפרטים לא מדויק, אפשר גם פשוט להשיב למייל הזה ונתקן.</p>`
+      : "") +
+    // ה1, הכרעת יעקב 20.10.2026: במקום קוד חד-פעמי („כמה שפחות סרבול"),
+    // כל שינוי מודיע לבעל הכתובת ונותן לו לבטל בלחיצה. המייל הזה ממילא
+    // נשלח לכתובת שהוקלדה, כלומר לבעליה - גם כשמישהו אחר הקליד אותה.
+    (restoreUrl
+      ? `<p style="margin:18px 0 0;padding:12px 14px;background:#fdf6e6;` +
+        `border-right:4px solid #b08434;border-radius:6px">` +
+        `<strong>לא אתם ביקשתם את השינוי?</strong> ` +
+        `<a href="${restoreUrl}" style="color:#8a6d3b">לחצו כאן והרשימה תחזור למצבה הקודם</a>.</p>`
       : "") +
     `<hr style="border:0;border-top:1px solid #e5ddd0;margin:28px 0">` +
     `<p>מה שמחזיק את הכולל הוא אנשים שנותנים בקביעות. אם רצונך לקחת חלק, כל סכום עוזר, ` +
@@ -383,13 +392,15 @@ async function appendPublic(env, list, ownerKey, isFix) {
 async function saveSubmitter(env, ownerKey, data, isFix) {
   if (!env.NAMES) return null;
   const prev = await env.NAMES.get("sub:" + ownerKey);
+  let bakKey = "";
   // גיבוי לפני כל דריסה, ולא רק בתיקון. בטופס הזה הגשה חוזרת כבר דרסה
   // הגשה קודמת ואבדו 17 שמות ויארצייט אחד; מסלול התיקון הפתוח למוסר חוזר
   // מכפיל את הסיכוי לזה, ולכן הגיבוי אינו אופציונלי. נשמר שנה.
   if (prev) {
     try {
+      bakKey = "bak:" + ownerKey + ":" + new Date().toISOString().replace(/[:.]/g, "-");
       await env.NAMES.put(
-        "bak:" + ownerKey + ":" + new Date().toISOString().replace(/[:.]/g, "-"),
+        bakKey,
         prev,
         { expirationTtl: 60 * 60 * 24 * 365 }
       );
@@ -414,7 +425,7 @@ async function saveSubmitter(env, ownerKey, data, isFix) {
   // המספר הכולל **אחרי** המיזוג, ולא אורך המנה הנוכחית. מייל האישור אומר
   // „עד כה שלחתם N שמות", ובמסירה שנייה המנה לבדה הייתה אומרת מספר קטן
   // מהאמת ונראית כאילו השמות הקודמים נמחקו.
-  return (data.souls || []).length;
+  return { total: (data.souls || []).length, bak: bakKey };
 }
 
 // מפתח בעלות אנונימי: גיבוב של המייל, כדי שתיקון יחליף את השמות של אותו
@@ -477,6 +488,17 @@ function offLevel(url) {
   return OFF_LEVELS[l] ? l : "";
 }
 
+async function signed(env, msg) {
+  const secret = env.NESHAMA_UNSUB_SECRET || "";
+  if (!secret) return "";
+  const key = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(msg));
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0"))
+    .join("").slice(0, 32);
+}
+
 async function unsubToken(env, ownerKey, level) {
   const secret = env.NESHAMA_UNSUB_SECRET || "";
   if (!secret) return "";
@@ -537,6 +559,17 @@ export default {
           }),
         });
       }
+      // GET ?restore=<ownerKey>&b=<backup>&t=<token> - רק מציג אישור. ה-POST משחזר.
+      const rkey = url.searchParams.get("restore");
+      if (rkey) {
+        const b = url.searchParams.get("b") || "";
+        const good = await signed(env, "restore:" + rkey + ":" + b);
+        if (!sameToken(good, url.searchParams.get("t") || ""))
+          return unsubPage("<h1>הקישור אינו תקף</h1><p>אפשר להשיב למייל שקיבלתם ואנחנו נטפל בזה.</p>");
+        return unsubPage("<h1>החזרת הרשימה למצבה הקודם</h1>" +
+          "<p>לחיצה על הכפתור תבטל את השינוי האחרון בשמות שמסרתם, והרשימה תחזור להיות כמו שהייתה לפניו.</p>" +
+          '<form method="POST"><button type="submit">להחזיר את הרשימה</button></form>');
+      }
       // GET ?unsub=<ownerKey>&t=<token> - **רק מציג** את דף האישור.
       const okey = url.searchParams.get("unsub");
       if (okey) {
@@ -558,6 +591,35 @@ export default {
     // POST ?unsub=... - זה מה שמבצע בפועל. סורק דואר אינו מגיע לכאן.
     if (request.method === "POST") {
       const url = new URL(request.url);
+      const rkey = url.searchParams.get("restore");
+      if (rkey) {
+        const b = url.searchParams.get("b") || "";
+        const good = await signed(env, "restore:" + rkey + ":" + b);
+        if (!sameToken(good, url.searchParams.get("t") || ""))
+          return unsubPage("<h1>הקישור אינו תקף</h1><p>אפשר להשיב למייל שקיבלתם ואנחנו נטפל בזה.</p>");
+        const old = env.NAMES ? await env.NAMES.get("bak:" + rkey + ":" + b) : null;
+        if (!old)
+          return unsubPage("<h1>לא מצאנו את הגרסה הקודמת</h1><p>אפשר להשיב למייל שקיבלתם ונחזיר אותה ידנית.</p>");
+        let rec;
+        try { rec = JSON.parse(old) || {}; } catch (e) { rec = {}; }
+        const cur = await env.NAMES.get("sub:" + rkey);
+        if (cur) await env.NAMES.put("bak:" + rkey + ":" + new Date().toISOString().replace(/[:.]/g, "-"),
+          cur, { expirationTtl: 60 * 60 * 24 * 365 });
+        rec.restoredAt = new Date().toISOString();
+        await env.NAMES.put("sub:" + rkey, JSON.stringify(rec));
+        await appendPublic(env, rec.removed ? [] : (rec.souls || []), rkey, true);
+        // יעקב מחזיק את הרשומה הקובעת בתיבה שלו, ולכן גם השחזור מגיע אליו.
+        await sendMail(env, {
+          to: TO, replyTo: rec.email || REPLY_TO_OWNER,
+          subject: "שחזור עילוי נשמה: " + (rec.sender || "") + " (" + (rec.souls || []).length + ")",
+          html: '<div dir="rtl" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7">' +
+            "<h2 style=\"margin:0 0 4px;color:#c0392b\">בעל הכתובת ביטל את השינוי האחרון</h2>" +
+            "<p>הוא לחץ על „לא אתם ביקשתם?\" במייל האישור. הרשימה הוחזרה למצבה הקודם:</p>" +
+            (rec.souls || []).map(niftarBlock).join("") + "</div>",
+        });
+        return unsubPage("<h1>הרשימה הוחזרה</h1><p>השמות שמסרתם חזרו להיות כמו לפני השינוי האחרון, " +
+          "והלימוד לעילוי נשמתם נמשך.</p><p>אם משהו עדיין לא נכון, אפשר להשיב למייל שקיבלתם.</p>");
+      }
       const okey = url.searchParams.get("unsub");
       if (okey) {
         const lv = offLevel(url);
@@ -798,10 +860,11 @@ export default {
     // הערה למי שיבדוק את זה בעתיד: כתיבה ל-KV מתפשטת עד כדקה. בדיקה
     // שקוראת מיד אחרי POST תראה את הערך הישן, וזה לא באג.
     let total = null;
+    let restoreUrl = "";
     try {
       const ownerKey = await ownerHash(email);
       await appendPublic(env, niftarim, ownerKey, isFix);
-      total = await saveSubmitter(env, ownerKey, {
+      const saved = await saveSubmitter(env, ownerKey, {
         sender: String(d.name).trim(), // האורך נבדק למעלה ונדחה, לא נחתך
         phone: digits,
         email: email.toLowerCase(),
@@ -809,6 +872,14 @@ export default {
         removed: isEmpty,
         updated: new Date().toISOString(),
       }, isFix);
+      total = saved && saved.total;
+      // שחזור מוצע רק כשמשהו הוחלף או הוסר. מסירה רגילה מצטברת ואינה מוחקת.
+      if (isFix && saved && saved.bak) {
+        const bakId = saved.bak.slice(("bak:" + ownerKey + ":").length);
+        const t = await signed(env, "restore:" + ownerKey + ":" + bakId);
+        if (t) restoreUrl = `${new URL(request.url).origin}/?restore=${encodeURIComponent(ownerKey)}` +
+          `&b=${encodeURIComponent(bakId)}&t=${t}`;
+      }
     } catch (e) {
       console.log('kv append failed', String(e).slice(0, 200));
     }
@@ -821,7 +892,7 @@ export default {
         replyTo: REPLY_TO_OWNER,
         subject: isEmpty ? "השמות הוסרו"
                : isFix ? "התיקון התקבל" : "קיבלנו את השמות לעילוי נשמה",
-        html: thanksHtml(d.name, niftarim, isFix, isEmpty, total),
+        html: thanksHtml(d.name, niftarim, isFix, isEmpty, total, restoreUrl),
       })
     );
 

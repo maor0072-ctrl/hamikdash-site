@@ -274,9 +274,7 @@ function thanksHtml(name, bakashot, isFix, isEmpty, removeUrl) {
     `וכל שקל הולך ממש לקודש הקודשים.</p>` +
     `<p><a href="${KEVA}" style="background:#b08434;color:#fff;text-decoration:none;` +
     `padding:12px 24px;border-radius:8px;display:inline-block;font-weight:bold">` +
-    `להוראת קבע לכולל</a>` +
-    `<a href="${DONATE}" style="color:#4a453e;text-decoration:underline;` +
-    `display:inline-block;padding:12px 18px">או תרומה חד פעמית</a></p>` +
+    `לתרומה חד פעמית או להוראת קבע</a></p>` +
     `<p style="margin-top:28px">שתזכו לבשורות טובות, ושהבקשה תתקבל במהרה.</p>` +
     `<p>באהבה,<br>יעקב מאור<br>0528395189</p>` +
     removeLine +

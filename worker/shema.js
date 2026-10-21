@@ -388,9 +388,7 @@ function wishesThanksHtml(name, wishes) {
     `<p>מה שמחזיק את הכולל הוא אנשים שנותנים בקביעות. אם רצונך לקחת חלק, כל סכום עוזר.</p>` +
     `<p><a href="${KEVA}" style="background:#b08434;color:#fff;text-decoration:none;` +
     `padding:12px 24px;border-radius:8px;display:inline-block;font-weight:bold">` +
-    `להוראת קבע לכולל</a>` +
-    `<a href="${DONATE}" style="color:#4a453e;text-decoration:underline;` +
-    `display:inline-block;padding:12px 18px">או תרומה חד פעמית</a></p>` +
+    `לתרומה חד פעמית או להוראת קבע</a></p>` +
     `<p style="margin-top:28px">באהבה,<br>יעקב מאור<br>0528395189</p>` +
     `<p style="font-size:13px;color:#8a8478">${PAGE}</p>` +
     `</div>`

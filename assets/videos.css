@@ -1,0 +1,38 @@
+/* ספריית הסרטונים - צפייה נקייה. נוצר על ידי scripts/hamikdash_videos.py */
+.library, .watch { padding-top: 32px; padding-bottom: 56px; }
+.library h1 { font-size: 2rem; margin-bottom: 8px; }
+.lib-lead { color: var(--ink-soft); max-width: 720px; margin-bottom: 20px; }
+.lib-tools { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 8px; }
+.lib-tools input { flex: 1 1 280px; font: inherit; font-size: 1rem; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); }
+.tabs { display: flex; gap: 6px; }
+.tabs button, .lib-more, .watch-share button, .end-actions button { font: inherit; font-size: .95rem; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--white); color: var(--ink); cursor: pointer; }
+.tabs button.on { background: var(--gold); border-color: var(--gold); color: var(--white); }
+.lib-count { color: var(--ink-soft); font-size: .9rem; margin: 8px 0 16px; }
+.vgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 22px 18px; }
+.vcard { display: flex; flex-direction: column; text-decoration: none; color: var(--ink); }
+.vcard .thumb { position: relative; display: block; aspect-ratio: 16/9; border-radius: var(--radius); overflow: hidden; background: var(--cream-warm); }
+.vcard img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vcard .dur { position: absolute; bottom: 6px; left: 6px; background: rgba(28,26,23,.82); color: #fff; font-size: .78rem; padding: 1px 6px; border-radius: 4px; direction: ltr; }
+.vcard .vtitle { font-weight: 500; font-size: .98rem; line-height: 1.45; margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vcard .vdate { color: var(--ink-soft); font-size: .82rem; }
+.vcard:hover .vtitle { color: var(--gold-deep); }
+.lib-more { display: block; margin: 28px auto 0; padding: 10px 28px; }
+.watch { max-width: 900px; }
+.watch-back { display: inline-block; margin-bottom: 14px; color: var(--gold-deep); text-decoration: none; }
+.watch-back::before { content: "→ "; }
+.player-frame { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: var(--radius); overflow: hidden; }
+.player-frame.short { aspect-ratio: 9/16; max-width: 380px; margin: 0 auto; }
+#player-box, #player-box iframe, #player-box .poster { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+#player-box .poster { object-fit: cover; opacity: .55; }
+.end-card { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: var(--cream-warm); text-align: center; padding: 20px; }
+.end-card[hidden] { display: none; }
+.end-title { font-size: 1.5rem; font-weight: 700; }
+.end-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.end-actions a { padding: 8px 16px; border-radius: 999px; background: var(--gold); color: #fff; text-decoration: none; }
+.end-donate { font-size: .9rem; color: var(--ink-soft); max-width: 460px; }
+.end-donate a { color: var(--gold-deep); }
+.watch-title { font-size: 1.5rem; line-height: 1.4; margin-top: 18px; }
+.watch-meta { color: var(--ink-soft); font-size: .9rem; margin: 4px 0 14px; }
+.watch-share { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+.btn-wa { padding: 8px 16px; border-radius: 999px; background: #1f8f4e; color: #fff; text-decoration: none; font-size: .95rem; }
+.watch-desc p { margin-bottom: 10px; color: var(--ink-soft); }

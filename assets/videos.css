@@ -2,7 +2,12 @@
 .library, .watch { padding-top: 32px; padding-bottom: 56px; }
 .library h1 { font-size: 2rem; margin-bottom: 8px; }
 .lib-lead { color: var(--ink-soft); max-width: 720px; margin-bottom: 20px; }
-.lib-tools { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 8px; }
+.lib-tools { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; margin-bottom: 8px; }
+/* שורת החיפוש והכפתורים צמודה לראש המסך בזמן הגלילה - בספרייה של 1,100 סרטונים
+   מי שירד למטה לא צריך לגלול חזרה כדי לחפש. הכותרת של האתר מפסיקה להיצמד בדף הזה,
+   כדי ששתי הרצועות לא יאכלו יחד חצי ממסך הטלפון. */
+.library-page .site-header { position: static; }
+.library-page .lib-tools { position: sticky; top: 0; z-index: 20; background: var(--cream); padding: 10px 0; margin: 0 -20px 8px; padding-left: 20px; padding-right: 20px; border-bottom: 1px solid var(--line); }
 .lib-tools input { flex: 1 1 280px; font: inherit; font-size: 1rem; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); }
 .tabs { display: flex; gap: 6px; }
 .tabs button, .lib-more, .watch-share button, .end-actions button { font: inherit; font-size: .95rem; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--white); color: var(--ink); cursor: pointer; }

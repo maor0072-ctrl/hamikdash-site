@@ -183,12 +183,8 @@
   function viaMail(){
     location.href = 'mailto:maor0072@gmail.com'
       + '?subject=' + encodeURIComponent('מעוניין בספר רק הנשמה')
-      + '&body=' + encodeURIComponent('שם: ' + v('gname') + '
-מייל: ' + v('gmail') + '
-טלפון: ' + v('gphone')
-      + '
-
-אני מעוניין בספר "רק הנשמה". נא לחזור אלי עם הפרטים. תודה!');
+      + '&body=' + encodeURIComponent(['שם: ' + v('gname'), 'מייל: ' + v('gmail'), 'טלפון: ' + v('gphone'), '',
+          'אני מעוניין בספר "רק הנשמה". נא לחזור אלי עם הפרטים. תודה!'].join('\r\n'));
   }
   f.addEventListener('submit', function(e){
     e.preventDefault();

@@ -106,21 +106,17 @@
   </div>
 
   <div class="form-box">
-    <!-- ================================================================
-         חיבור טופס: להחליף את ה-action בכתובת formResponse של טופס גוגל,
-         ואת name של השדות ב-entry.NNNNNNN המתאימים. עד אז, הכפתור
-         נופל חזרה לשליחת מייל ישירה (ראו הסקריפט בתחתית הקובץ).
-         ================================================================ -->
-    <form id="giftForm" method="post" target="giftSink" action="">
+    <!-- הטופס שולח ל-/api/matana (ורקר hamikdash-matana), שכותב כל נרשם לגיליון גוגל. בכשל - נופל למייל. -->
+    <form id="giftForm" method="post" action="/api/matana">
       <label for="gname">השם שלכם</label>
       <input id="gname" name="gname" type="text" autocomplete="name" placeholder="איך לפנות אליכם" required>
       <label for="gmail">כתובת מייל</label>
       <input id="gmail" name="gmail" type="email" autocomplete="email" placeholder="name@example.com" required>
       <label for="gphone">טלפון נייד</label>
       <input id="gphone" name="gphone" type="tel" autocomplete="tel" inputmode="tel" placeholder="0501234567" required>
+      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
       <button class="btn" type="submit">אני מעוניין בספר</button>
     </form>
-    <iframe name="giftSink" style="display:none" title="שליחה"></iframe>
     <p class="privacy">הפרטים משמשים כדי לחזור אליכם בעניין הספר ולעדכונים מהעמותה בלבד. לא מועברים לאף גורם, ואפשר להסיר בכל רגע.</p>
 
     <div class="altrow">
@@ -183,21 +179,28 @@
 <script>
 (function(){
   var f = document.getElementById('giftForm');
+  function v(id){ return document.getElementById(id).value; }
+  function viaMail(){
+    location.href = 'mailto:maor0072@gmail.com'
+      + '?subject=' + encodeURIComponent('מעוניין בספר רק הנשמה')
+      + '&body=' + encodeURIComponent('שם: ' + v('gname') + '
+מייל: ' + v('gmail') + '
+טלפון: ' + v('gphone')
+      + '
+
+אני מעוניין בספר "רק הנשמה". נא לחזור אלי עם הפרטים. תודה!');
+  }
   f.addEventListener('submit', function(e){
-    if (!f.getAttribute('action')) {          // עוד לא חובר טופס גוגל - נופלים למייל
-      e.preventDefault();
-      var n = encodeURIComponent(document.getElementById('gname').value);
-      var m = encodeURIComponent(document.getElementById('gmail').value);
-      var p = encodeURIComponent(document.getElementById('gphone').value);
-      location.href = 'mailto:maor0072@gmail.com'
-        + '?subject=' + encodeURIComponent('מעוניין בספר רק הנשמה')
-        + '&body=' + encodeURIComponent('שם: ') + n + '%0D%0A'
-        + encodeURIComponent('מייל: ') + m + '%0D%0A'
-        + encodeURIComponent('טלפון: ') + p + '%0D%0A%0D%0A'
-        + encodeURIComponent('אני מעוניין בספר "רק הנשמה". נא לחזור אלי עם הפרטים. תודה!');
-      return;
-    }
-    document.getElementById('thanks').style.display = 'block';
+    e.preventDefault();
+    var btn = f.querySelector('button'); btn.disabled = true;
+    fetch('/api/matana', { method: 'POST', body: new FormData(f) })
+      .then(function(r){ return r.json(); })
+      .then(function(o){
+        if (!o || !o.ok) throw new Error('not ok');
+        f.style.display = 'none';
+        document.getElementById('thanks').style.display = 'block';
+      })
+      .catch(function(){ btn.disabled = false; viaMail(); });
   });
 })();
 </script>

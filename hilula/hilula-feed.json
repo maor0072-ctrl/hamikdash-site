@@ -1,34 +1,6 @@
 {
- "generated": "2026-10-25T03:30",
+ "generated": "2026-10-26T03:30",
  "days": [
-  {
-   "starts_at": "2026-10-24T17:57+03:00",
-   "civil_day": "2026-10-25",
-   "hebrew_date": "י״ד חשוון תשפ״ז",
-   "weekday": "ראשון",
-   "title": "סגולות היום · הילולת צדיקים",
-   "wisdom": {
-    "text": "לֵב יוֹדֵעַ מׇרַּת נַפְשׁוֹ וּבְשִׂמְחָתוֹ לֹא יִתְעָרַב זָר",
-    "source": "משלי י״ד, י׳",
-    "explanation": "כל לב נושא עולם משלו שאחר לא רואה. לכן נזהרים לשפוט, ומקשיבים יותר."
-   },
-   "tzadikim": [
-    {
-     "name": "רבי אברהם אלימלך מקרלין",
-     "one_liner": "האדמו״ר השמיני בשושלת קרלין, שעמד בראשה מ-ה׳תרפ״א עד שנרצח בשואה.",
-     "burial_place": null
-    }
-   ],
-   "segula": "נוהגים בעת חולי לבדוק את המזוזות ולהרבות בצדקה, שהצדקה מצילה ומוסיפה ימים. (ובכל מקרה - לצד הרופאים ולא במקומם.)",
-   "prayer": [],
-   "learning": {
-    "דף יומי": "בכורות ל״ז",
-    "משנה יומית": "אהלות י״ב, ה׳-ו׳"
-   },
-   "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
-   }
-  },
   {
    "starts_at": "2026-10-25T16:56+02:00",
    "civil_day": "2026-10-26",
@@ -66,7 +38,8 @@
     "משנה יומית": "אהלות י״ב, ז׳-ח׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://docs.google.com/document/d/12IbLTsFoFdOznttiNPfIo-4ugUIGtj1riu_d3lssNlU/view"
    }
   },
   {
@@ -94,7 +67,8 @@
     "משנה יומית": "אהלות י״ג, א׳-ב׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://docs.google.com/document/d/12IbLTsFoFdOznttiNPfIo-4ugUIGtj1riu_d3lssNlU/view"
    }
   },
   {
@@ -116,7 +90,8 @@
     "משנה יומית": "אהלות י״ג, ג׳-ד׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://docs.google.com/document/d/12IbLTsFoFdOznttiNPfIo-4ugUIGtj1riu_d3lssNlU/view"
    }
   },
   {
@@ -144,7 +119,8 @@
     "משנה יומית": "אהלות י״ג, ה׳-ו׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://docs.google.com/document/d/12IbLTsFoFdOznttiNPfIo-4ugUIGtj1riu_d3lssNlU/view"
    }
   },
   {
@@ -172,7 +148,8 @@
     "משנה יומית": "אהלות י״ד, א׳-ב׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://docs.google.com/document/d/12IbLTsFoFdOznttiNPfIo-4ugUIGtj1riu_d3lssNlU/view"
    }
   },
   {
@@ -205,7 +182,8 @@
     "משנה יומית": "אהלות י״ד, ג׳-ד׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://docs.google.com/document/d/12IbLTsFoFdOznttiNPfIo-4ugUIGtj1riu_d3lssNlU/view"
    }
   },
   {
@@ -227,7 +205,8 @@
     "משנה יומית": "אהלות י״ד, ה׳-ו׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://docs.google.com/document/d/12IbLTsFoFdOznttiNPfIo-4ugUIGtj1riu_d3lssNlU/view"
    }
   },
   {
@@ -260,7 +239,8 @@
     "משנה יומית": "אהלות י״ד, ז׳ עד ט״ו, א׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://docs.google.com/document/d/12IbLTsFoFdOznttiNPfIo-4ugUIGtj1riu_d3lssNlU/view"
    }
   },
   {
@@ -282,7 +262,8 @@
     "משנה יומית": "אהלות ט״ו, ב׳-ג׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://docs.google.com/document/d/12IbLTsFoFdOznttiNPfIo-4ugUIGtj1riu_d3lssNlU/view"
    }
   },
   {
@@ -310,7 +291,8 @@
     "משנה יומית": "אהלות ט״ו, ד׳-ה׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://docs.google.com/document/d/12IbLTsFoFdOznttiNPfIo-4ugUIGtj1riu_d3lssNlU/view"
    }
   },
   {
@@ -332,7 +314,8 @@
     "משנה יומית": "אהלות ט״ו, ו׳-ז׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://docs.google.com/document/d/12IbLTsFoFdOznttiNPfIo-4ugUIGtj1riu_d3lssNlU/view"
    }
   },
   {
@@ -354,7 +337,8 @@
     "משנה יומית": "אהלות ט״ו, ח׳-ט׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://docs.google.com/document/d/12IbLTsFoFdOznttiNPfIo-4ugUIGtj1riu_d3lssNlU/view"
    }
   },
   {
@@ -387,7 +371,37 @@
     "משנה יומית": "אהלות ט״ו, י׳ עד ט״ז, א׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://docs.google.com/document/d/12IbLTsFoFdOznttiNPfIo-4ugUIGtj1riu_d3lssNlU/view"
+   }
+  },
+  {
+   "starts_at": "2026-11-07T16:44+02:00",
+   "civil_day": "2026-11-08",
+   "hebrew_date": "כ״ח חשוון תשפ״ז",
+   "weekday": "ראשון",
+   "title": "סגולות היום · הילולת צדיקים",
+   "wisdom": {
+    "text": "מְכַסֶּה פְשָׁעָיו לֹא יַצְלִיחַ וּמוֹדֶה וְעֹזֵב יְרֻחָם",
+    "source": "משלי כ״ח, י״ג",
+    "explanation": "מי שמודה בטעות ועוזב אותה זוכה לרחמים. הכרה כנה פותחת דרך חדשה."
+   },
+   "tzadikim": [
+    {
+     "name": "רבנו יונה",
+     "one_liner": "מחבר שערי תשובה, הספר שהוא עד היום הטקסט המרכזי שבו לומדים מהי תשובה בעשרת ימי תשובה.",
+     "burial_place": "טולדו (ספרד)"
+    }
+   ],
+   "segula": "נוהגים להקפיד על הנחת תפילין בכל יום חול, וחז\"ל אמרו שהמניח תפילין מאריך ימים.",
+   "prayer": [],
+   "learning": {
+    "דף יומי": "בכורות נ״א",
+    "משנה יומית": "אהלות ט״ז, ב׳-ג׳"
+   },
+   "links": {
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://docs.google.com/document/d/12IbLTsFoFdOznttiNPfIo-4ugUIGtj1riu_d3lssNlU/view"
    }
   }
  ]

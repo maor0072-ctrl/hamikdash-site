@@ -317,6 +317,7 @@ async function appendPublic(env, entries, ownerKey) {
 // מעכשיו משאלה מסומנת יושבת כאן, והמייל ליעקב נושא קישור אישור וקישור דחייה
 // על אותו מנגנון HMAC של קישור ההסרה - בלי דף ניהול ובלי סיסמה חדשה.
 const PENDING_KEY = "pending-review";
+const MAX_PENDING = 500;
 
 async function readPending(env) {
   if (!env.SHEMA_WISHES) return [];
@@ -326,18 +327,30 @@ async function readPending(env) {
 
 async function writePending(env, list) {
   if (!env.SHEMA_WISHES) return;
-  await env.SHEMA_WISHES.put(PENDING_KEY, JSON.stringify(list.slice(-MAX_PUBLIC)));
+  await env.SHEMA_WISHES.put(PENDING_KEY, JSON.stringify(list));
 }
 
+// **זורק כשאין binding במקום לצאת בשקט.** בלי זה הפונקציה הייתה מחזירה
+// רשומות עם מזהה, המייל היה נושא קישורי אישור, ולא היה מדף שהם מצביעים אליו.
+// ו**ניטרול כפילויות כמו במדף הציבורי**: אם מייל ההתראה נכשל המוסר שולח שוב,
+// ובלי הניטרול נוצרות שתי רשומות המתנה זהות עם שני קישורי אישור.
 async function appendPending(env, entries, ownerKey) {
+  if (!env.SHEMA_WISHES) throw new Error("no KV binding for pending shelf");
   const cur = await readPending(env);
-  const add = entries.map((e) => ({
-    id: crypto.randomUUID(),
-    name: e.name,
-    parent: e.parent,
-    gender: e.gender,
-    owner: ownerKey,
-  }));
+  const key = (e) => [e.name, e.parent, e.gender].join("|");
+  const seen = new Set(cur.filter((e) => e.owner === ownerKey).map(key));
+  const add = entries
+    .filter((e) => !seen.has(key(e)))
+    .map((e) => ({
+      id: crypto.randomUUID(),
+      name: e.name,
+      parent: e.parent,
+      gender: e.gender,
+      owner: ownerKey,
+    }));
+  // **תקרה שזורקת ולא חותכת בשקט.** `slice` על מדף שאיש אינו קורא היה מוחק
+  // דווקא את הרשומות שממתינות הכי הרבה זמן.
+  if (cur.length + add.length > MAX_PENDING) throw new Error("pending shelf full");
   await writePending(env, cur.concat(add));
   return add;
 }
@@ -392,23 +405,23 @@ function joinMailHtml(name, wishesUrl) {
 // קישורי ההכרעה לכל שורה שנעצרה. חתומים ב-HMAC כמו קישור ההסרה, בלי סיסמה
 // ובלי דף ניהול, ותקפים לאותו מספר ימים. המפתח במפה הוא נוסח המשאלה, מפני
 // שזה מה שמחבר בין השורה שיעקב קורא במייל לשורה שיושבת במדף ההמתנה.
-async function reviewLinks(env, held, heldWishes) {
-  const map = {};
+async function reviewLinks(env, held, heldIdx) {
+  const map = new Map();
   for (let i = 0; i < held.length; i++) {
     const exp = Date.now() + REVIEW_TOKEN_DAYS * 86400000;
     const ok = await signToken({ action: "approve", id: held[i].id, exp }, env.SHEMA_TOKEN_SECRET);
     const no = await signToken({ action: "reject", id: held[i].id, exp }, env.SHEMA_TOKEN_SECRET);
-    map[heldWishes[i].wish] = {
-      approve: `${SELF_URL}/approve?token=${encodeURIComponent(ok)}`,
-      reject: `${SELF_URL}/reject?token=${encodeURIComponent(no)}`,
-    };
+    map.set(heldIdx[i], {
+      approve: SELF_URL + "/approve?token=" + encodeURIComponent(ok),
+      reject: SELF_URL + "/reject?token=" + encodeURIComponent(no),
+    });
   }
   return map;
 }
 
 function ownerNoticeHtml(d, wishes, flags, links) {
   const list = wishes.map((w, i) => {
-    const link = (links || {})[w.wish];
+    const link = links && links.get ? links.get(i) : null;
     const mark = flags[i] === "NEEDS_REVIEW"
       ? `<p style="margin:0 0 6px;color:#c0392b;font-weight:bold">⚠️ לבדוק` +
         (link ? ` - השורה הזאת <u>לא התפרסמה</u> והיא ממתינה להכרעתך` : "") +
@@ -441,9 +454,12 @@ function ownerNoticeHtml(d, wishes, flags, links) {
   );
 }
 
-function wishesThanksHtml(name, wishes) {
-  const pub = wishes.filter((w) => w.publicOk && !w.privateOnly);
-  const priv = wishes.filter((w) => !(w.publicOk && !w.privateOnly));
+function wishesThanksHtml(name, wishes, flags) {
+  // שורה שנעצרה לבדיקה אינה נמנית כאן כ"עלתה לרשימה", אחרת המייל אומר
+  // למוסר דבר שאינו נכון. היא נמנית עם הפרטיות, בלי לספר לו שהיא נבדקת.
+  const f = flags || wishes.map(() => "OK");
+  const pub = wishes.filter((w, i) => w.publicOk && !w.privateOnly && f[i] !== "NEEDS_REVIEW");
+  const priv = wishes.filter((w, i) => !(w.publicOk && !w.privateOnly && f[i] !== "NEEDS_REVIEW"));
   const li = (w) => `<li style="margin:4px 0">${esc(fullName(w))}</li>`;
   return (
     `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:16px;line-height:1.8;color:#1c1a17">` +
@@ -506,13 +522,35 @@ export default {
       // הכרעה על שורה שנעצרה: אישור מעביר אותה למדף הציבורי, דחייה מוחקת
       // אותה. שתיהן אידמפוטנטיות - לחיצה שנייה על אותו קישור אינה משנה דבר
       // ואינה מחזירה שגיאה, כי יעקב קורא מיילים בטלפון וקישור נלחץ פעמיים.
+      // הכרעה על שורה שנעצרה. **שלב אישור מכוון:** הקישור במייל מציג דף עם
+      // כפתור, וההכרעה עצמה דורשת `confirm=1`. בלי זה סורק קישורים של אנטי
+      // וירוס או תצוגה מקדימה של תיבת מייל היו מפרסמים בשקט בדיוק את התוכן
+      // שהמנוע סימן כבעייתי, בלי שאיש לחץ. סורק אינו מרנדר דף ואינו לוחץ.
       if (url.pathname === "/approve" || url.pathname === "/reject") {
         const want = url.pathname === "/approve" ? "approve" : "reject";
-        const payload = await verifyToken(url.searchParams.get("token"), env.SHEMA_TOKEN_SECRET);
+        const token = url.searchParams.get("token");
+        const payload = await verifyToken(token, env.SHEMA_TOKEN_SECRET);
         if (!payload || payload.action !== want) {
           return new Response(removedHtml("הקישור הזה כבר לא בתוקף, או שההכרעה כבר נעשתה."), {
             status: 200, headers: { "Content-Type": "text/html; charset=utf-8" },
           });
+        }
+        if (url.searchParams.get("confirm") !== "1") {
+          const href = SELF_URL + url.pathname + "?token=" +
+            encodeURIComponent(token) + "&confirm=1";
+          const label = want === "approve" ? "לאשר ולפרסם" : "לא לפרסם";
+          const color = want === "approve" ? "#1e8449" : "#c0392b";
+          return new Response(
+            `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="utf-8">` +
+            `<meta name="viewport" content="width=device-width, initial-scale=1">` +
+            `<title>שמע בחצות</title></head><body style="font-family:Arial,sans-serif;` +
+            `font-size:18px;padding:40px 24px;text-align:center;color:#1c1a17">` +
+            `<p>לאישור ההכרעה יש ללחוץ על הכפתור.</p>` +
+            `<p><a href="${href}" style="display:inline-block;padding:12px 28px;` +
+            `background:${color};color:#fff;text-decoration:none;border-radius:8px">` +
+            `${label}</a></p></body></html>`,
+            { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } }
+          );
         }
         const pending = await readPending(env);
         const entry = pending.find((e) => e.id === payload.id);
@@ -521,17 +559,28 @@ export default {
             status: 200, headers: { "Content-Type": "text/html; charset=utf-8" },
           });
         }
-        await writePending(env, pending.filter((e) => e.id !== payload.id));
         if (want === "approve") {
+          // **כותבים לרשימה הציבורית לפני שמסירים מהמדף.** בסדר ההפוך כשל
+          // בכתיבה השנייה מאבד את השורה משני המדפים, ולחיצה חוזרת הייתה
+          // מדווחת "כבר הוכרעה" - הרגעה על אובדן. כפילות ניתן לתקן ב-/remove.
           const cur = await readPublic(env);
-          await writePublic(env, cur.concat([{
-            id: entry.id, name: entry.name, parent: entry.parent,
-            gender: entry.gender, owner: entry.owner,
-          }]));
-          return new Response(removedHtml("השורה אושרה והיא מופיעה עכשיו ברשימה הכללית."), {
+          const dup = cur.some((e) => e.id === entry.id ||
+            (e.owner === entry.owner && e.name === entry.name &&
+             e.parent === entry.parent && e.gender === entry.gender));
+          if (!dup) {
+            await writePublic(env, cur.concat([{
+              id: entry.id, name: entry.name, parent: entry.parent,
+              gender: entry.gender, owner: entry.owner,
+            }]));
+          }
+          await writePending(env, pending.filter((e) => e.id !== payload.id));
+          return new Response(removedHtml(dup
+            ? "השורה הזאת כבר מופיעה ברשימה הכללית, והיא הוסרה ממדף ההמתנה."
+            : "השורה אושרה. היא תופיע בדף בתוך דקה."), {
             status: 200, headers: { "Content-Type": "text/html; charset=utf-8" },
           });
         }
+        await writePending(env, pending.filter((e) => e.id !== payload.id));
         return new Response(removedHtml("השורה לא תתפרסם, והיא הוסרה ממדף ההמתנה."), {
           status: 200, headers: { "Content-Type": "text/html; charset=utf-8" },
         });
@@ -657,9 +706,13 @@ async function handleWishes(d, env, headers) {
   // ההמתנה עד שיעקב לוחץ „לאשר" במייל. הכתיבה למדף קודמת למייל בכוונה, כי
   // המייל חייב לשאת את מזהה השורה; אם המייל ייכשל השורה נשארת ממתינה, כלומר
   // כשל נוטה לכיוון הזהיר. למשאלה נקייה הסדר נשאר כשהיה - מייל ואז פרסום.
-  const wantsPublic = (w, i) => w.publicOk && !w.privateOnly;
-  const cleanPublic = wishes.filter((w, i) => wantsPublic(w, i) && flags[i] !== "NEEDS_REVIEW");
-  const heldPublic = wishes.filter((w, i) => wantsPublic(w, i) && flags[i] === "NEEDS_REVIEW");
+  const wantsPublic = (w) => w.publicOk && !w.privateOnly;
+  const cleanPublic = wishes.filter((w, i) => wantsPublic(w) && flags[i] !== "NEEDS_REVIEW");
+  const heldPublic = wishes.filter((w, i) => wantsPublic(w) && flags[i] === "NEEDS_REVIEW");
+  // האינדקס המקורי של כל שורה שנעצרה, כדי שהקישורים במייל יוצמדו לשורה
+  // הנכונה גם כששתי משאלות נושאות אותו נוסח מדויק.
+  const heldIdx = wishes.map((w, i) => i)
+    .filter((i) => wantsPublic(wishes[i]) && flags[i] === "NEEDS_REVIEW");
 
   let held = [];
   if (heldPublic.length) {
@@ -667,6 +720,12 @@ async function handleWishes(d, env, headers) {
       held = await appendPending(env, heldPublic, ownerKey);
     } catch (e) {
       console.log("kv pending failed", String(e).slice(0, 200));
+    }
+    // **אם לא כל שורה שנעצרה אכן נכתבה למדף - עוצרים ומחזירים שגיאה.**
+    // אחרת המשאלה נעלמת בשקט: היא אינה בציבורי, אינה במדף, והמייל מציג
+    // אזהרה בלי קישור. עדיף שהמוסר ינסה שוב, וניטרול הכפילויות מגן על כך.
+    if (held.length !== heldPublic.length) {
+      return new Response("pending save failed", { status: 502, headers });
     }
   }
 
@@ -676,7 +735,7 @@ async function handleWishes(d, env, headers) {
     subject: (flaggedAny ? "⚠️ לבדוק: " : "") +
       `בקשת משאלות: ${requester.name} (${wishes.length})`,
     html: ownerNoticeHtml(requester, wishes, flags,
-      await reviewLinks(env, held, heldPublic)),
+      await reviewLinks(env, held, heldIdx)),
   });
   if (!okNotice) return new Response("send failed", { status: 502, headers });
 
@@ -692,7 +751,7 @@ async function handleWishes(d, env, headers) {
     to: requester.email,
     replyTo: REPLY_TO_OWNER,
     subject: "קיבלנו את המשאלות שלך",
-    html: wishesThanksHtml(requester.name, wishes),
+    html: wishesThanksHtml(requester.name, wishes, flags),
   });
 
   return new Response("ok", { status: 200, headers });

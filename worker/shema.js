@@ -47,6 +47,10 @@ const FIELD_MAX = { name: 80, parent: 80, wish: 500, relation: 80 };
 const FIELD_LABEL = { name: "השם", parent: "שם ההורה", wish: "המשאלה", relation: "הקרבה" };
 const JOIN_TOKEN_DAYS = 30;
 const REMOVE_TOKEN_DAYS = 14;
+// קישורי האישור/הדחייה חיים ארוך בכוונה, ו**זה לא אותו שיקול כמו קישור
+// הסרה**: שורה שממתינה להכרעה ושקישורה פג אינה ניתנת לאישור בשום דרך אחרת -
+// אין דף ניהול - ולכן 14 יום היו הופכים משאלה שנשכחה לשבוע לשורה אבודה.
+const REVIEW_TOKEN_DAYS = 180;
 
 function cors(origin) {
   const allow = ALLOWED.includes(origin) ? origin : ALLOWED[0];
@@ -306,6 +310,38 @@ async function appendPublic(env, entries, ownerKey) {
   return add;
 }
 
+// ===== מדף ההמתנה: משאלה שסומנה לבדיקה אינה מתפרסמת עד שיעקב מאשר =====
+// הכרעת יעקב, 28.10.2026 („ג1 עשה את המלצתך"). **עד אז הסימון לא מנע דבר** -
+// הוא רק הוסיף „⚠️ לבדוק" לשורת הנושא של המייל, והמשאלה נכנסה לרשימה
+// הציבורית בכל מקרה. כלומר היה כאן שומר שנראה כמו שומר ולא עצר כלום.
+// מעכשיו משאלה מסומנת יושבת כאן, והמייל ליעקב נושא קישור אישור וקישור דחייה
+// על אותו מנגנון HMAC של קישור ההסרה - בלי דף ניהול ובלי סיסמה חדשה.
+const PENDING_KEY = "pending-review";
+
+async function readPending(env) {
+  if (!env.SHEMA_WISHES) return [];
+  const raw = await env.SHEMA_WISHES.get(PENDING_KEY);
+  try { return raw ? JSON.parse(raw) : []; } catch (e) { return []; }
+}
+
+async function writePending(env, list) {
+  if (!env.SHEMA_WISHES) return;
+  await env.SHEMA_WISHES.put(PENDING_KEY, JSON.stringify(list.slice(-MAX_PUBLIC)));
+}
+
+async function appendPending(env, entries, ownerKey) {
+  const cur = await readPending(env);
+  const add = entries.map((e) => ({
+    id: crypto.randomUUID(),
+    name: e.name,
+    parent: e.parent,
+    gender: e.gender,
+    owner: ownerKey,
+  }));
+  await writePending(env, cur.concat(add));
+  return add;
+}
+
 async function ownerHash(email) {
   const buf = await crypto.subtle.digest(
     "SHA-256", new TextEncoder().encode("shema:" + email.toLowerCase()));
@@ -353,10 +389,40 @@ function joinMailHtml(name, wishesUrl) {
   );
 }
 
-function ownerNoticeHtml(d, wishes, flags) {
+// קישורי ההכרעה לכל שורה שנעצרה. חתומים ב-HMAC כמו קישור ההסרה, בלי סיסמה
+// ובלי דף ניהול, ותקפים לאותו מספר ימים. המפתח במפה הוא נוסח המשאלה, מפני
+// שזה מה שמחבר בין השורה שיעקב קורא במייל לשורה שיושבת במדף ההמתנה.
+async function reviewLinks(env, held, heldWishes) {
+  const map = {};
+  for (let i = 0; i < held.length; i++) {
+    const exp = Date.now() + REVIEW_TOKEN_DAYS * 86400000;
+    const ok = await signToken({ action: "approve", id: held[i].id, exp }, env.SHEMA_TOKEN_SECRET);
+    const no = await signToken({ action: "reject", id: held[i].id, exp }, env.SHEMA_TOKEN_SECRET);
+    map[heldWishes[i].wish] = {
+      approve: `${SELF_URL}/approve?token=${encodeURIComponent(ok)}`,
+      reject: `${SELF_URL}/reject?token=${encodeURIComponent(no)}`,
+    };
+  }
+  return map;
+}
+
+function ownerNoticeHtml(d, wishes, flags, links) {
   const list = wishes.map((w, i) => {
+    const link = (links || {})[w.wish];
     const mark = flags[i] === "NEEDS_REVIEW"
-      ? `<p style="margin:0 0 6px;color:#c0392b;font-weight:bold">⚠️ לבדוק</p>` : "";
+      ? `<p style="margin:0 0 6px;color:#c0392b;font-weight:bold">⚠️ לבדוק` +
+        (link ? ` - השורה הזאת <u>לא התפרסמה</u> והיא ממתינה להכרעתך` : "") +
+        `</p>` +
+        (link
+          ? `<p style="margin:0 0 10px">` +
+            `<a href="${link.approve}" style="display:inline-block;padding:8px 16px;` +
+            `background:#1e8449;color:#fff;text-decoration:none;border-radius:6px">` +
+            `לאשר ולפרסם</a>&nbsp;&nbsp;` +
+            `<a href="${link.reject}" style="display:inline-block;padding:8px 16px;` +
+            `background:#c0392b;color:#fff;text-decoration:none;border-radius:6px">` +
+            `לא לפרסם</a></p>`
+          : "")
+      : "";
     return `<table style="border-collapse:collapse;margin:0 0 16px">` +
       `<tr><td colspan="2">${mark}</td></tr>` +
       row("שם", w.name) + row("שם ההורה", w.parent) +
@@ -434,6 +500,39 @@ export default {
         const next = cur.filter((e) => e.id !== payload.id);
         await writePublic(env, next);
         return new Response(removedHtml("השורה הוסרה מהרשימה הכללית."), {
+          status: 200, headers: { "Content-Type": "text/html; charset=utf-8" },
+        });
+      }
+      // הכרעה על שורה שנעצרה: אישור מעביר אותה למדף הציבורי, דחייה מוחקת
+      // אותה. שתיהן אידמפוטנטיות - לחיצה שנייה על אותו קישור אינה משנה דבר
+      // ואינה מחזירה שגיאה, כי יעקב קורא מיילים בטלפון וקישור נלחץ פעמיים.
+      if (url.pathname === "/approve" || url.pathname === "/reject") {
+        const want = url.pathname === "/approve" ? "approve" : "reject";
+        const payload = await verifyToken(url.searchParams.get("token"), env.SHEMA_TOKEN_SECRET);
+        if (!payload || payload.action !== want) {
+          return new Response(removedHtml("הקישור הזה כבר לא בתוקף, או שההכרעה כבר נעשתה."), {
+            status: 200, headers: { "Content-Type": "text/html; charset=utf-8" },
+          });
+        }
+        const pending = await readPending(env);
+        const entry = pending.find((e) => e.id === payload.id);
+        if (!entry) {
+          return new Response(removedHtml("השורה הזאת כבר הוכרעה."), {
+            status: 200, headers: { "Content-Type": "text/html; charset=utf-8" },
+          });
+        }
+        await writePending(env, pending.filter((e) => e.id !== payload.id));
+        if (want === "approve") {
+          const cur = await readPublic(env);
+          await writePublic(env, cur.concat([{
+            id: entry.id, name: entry.name, parent: entry.parent,
+            gender: entry.gender, owner: entry.owner,
+          }]));
+          return new Response(removedHtml("השורה אושרה והיא מופיעה עכשיו ברשימה הכללית."), {
+            status: 200, headers: { "Content-Type": "text/html; charset=utf-8" },
+          });
+        }
+        return new Response(removedHtml("השורה לא תתפרסם, והיא הוסרה ממדף ההמתנה."), {
           status: 200, headers: { "Content-Type": "text/html; charset=utf-8" },
         });
       }
@@ -552,19 +651,38 @@ async function handleWishes(d, env, headers) {
 
   const requester = { name: identity.name, phone: identity.phone, email: identity.email };
   const flaggedAny = flags.some((f) => f === "NEEDS_REVIEW");
+  const ownerKey = await ownerHash(requester.email);
+
+  // משאלה שביקשו לפרסם ושסומנה לבדיקה **אינה מתפרסמת** אלא יושבת במדף
+  // ההמתנה עד שיעקב לוחץ „לאשר" במייל. הכתיבה למדף קודמת למייל בכוונה, כי
+  // המייל חייב לשאת את מזהה השורה; אם המייל ייכשל השורה נשארת ממתינה, כלומר
+  // כשל נוטה לכיוון הזהיר. למשאלה נקייה הסדר נשאר כשהיה - מייל ואז פרסום.
+  const wantsPublic = (w, i) => w.publicOk && !w.privateOnly;
+  const cleanPublic = wishes.filter((w, i) => wantsPublic(w, i) && flags[i] !== "NEEDS_REVIEW");
+  const heldPublic = wishes.filter((w, i) => wantsPublic(w, i) && flags[i] === "NEEDS_REVIEW");
+
+  let held = [];
+  if (heldPublic.length) {
+    try {
+      held = await appendPending(env, heldPublic, ownerKey);
+    } catch (e) {
+      console.log("kv pending failed", String(e).slice(0, 200));
+    }
+  }
+
   const okNotice = await sendMail(env, {
     to: TO,
     replyTo: requester.email,
     subject: (flaggedAny ? "⚠️ לבדוק: " : "") +
       `בקשת משאלות: ${requester.name} (${wishes.length})`,
-    html: ownerNoticeHtml(requester, wishes, flags),
+    html: ownerNoticeHtml(requester, wishes, flags,
+      await reviewLinks(env, held, heldPublic)),
   });
   if (!okNotice) return new Response("send failed", { status: 502, headers });
 
-  const publicWishes = wishes.filter((w) => w.publicOk && !w.privateOnly);
-  if (publicWishes.length) {
+  if (cleanPublic.length) {
     try {
-      await appendPublic(env, publicWishes, await ownerHash(requester.email));
+      await appendPublic(env, cleanPublic, ownerKey);
     } catch (e) {
       console.log("kv append failed", String(e).slice(0, 200));
     }

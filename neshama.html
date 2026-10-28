@@ -74,6 +74,98 @@
 .done-list .meta{color:var(--ink-soft);font-size:15px;display:block}
 .back-link{background:none;border:0;color:var(--ink-soft);font-family:inherit;font-size:16px;
   text-decoration:underline;cursor:pointer;padding:0;margin-top:18px}
+/* ---- הטופס החדש (28.10.2026): כרטיס נפטר אחד פעיל, שורות סיכום, ושדה מימין
+   ודוגמה משמאל. חובה = מסגרת עבה וכוכבית; רשות = מסגרת דקה ובהירה. ---- */
+@media(max-width:640px){.form-card{padding:16px 12px}}
+.nf-lead{color:var(--ink-soft);font-size:15px;margin:0 0 14px}
+.nf-done{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:9px 14px;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:16px}
+.nf-done .ok{color:#2f6b3a;font-weight:700}
+.nf-done .warn{color:#a3312a;font-weight:800}
+.nf-done .miss{color:#a3312a;font-size:14px}
+.nf-done .acts{display:flex;gap:14px;flex-shrink:0}
+.nf-link{background:none;border:0;color:var(--gold-deep);font-family:inherit;font-size:15px;
+  text-decoration:underline;cursor:pointer;padding:4px 0}
+.nf-link.del{color:#c0392b}
+.nf-card{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:14px 14px 12px;
+  margin-bottom:10px;box-shadow:var(--shadow)}
+.nf-card h3{margin:0 0 8px;font-size:19px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.nf-cols{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:8px;font-size:13px;
+  font-weight:700;color:var(--ink-soft);margin-bottom:2px}
+.nf-cols span:last-child{color:var(--gold-deep)}
+.nf-q{border-top:1px solid var(--line);padding:12px 0}
+.nf-q .lbl{font-weight:700;font-size:17px;display:block;margin-bottom:2px}
+.nf-opt .lbl{font-weight:500}
+.nf-hint{font-size:15px;color:var(--ink-soft);margin:0 0 6px}
+.nf-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:8px;align-items:stretch}
+.nf-row+.nf-row,.nf-sub{margin-top:8px}
+.nf-in{display:block;width:100%;font-family:inherit;font-size:18px;color:var(--ink);padding:10px;
+  border:3px solid var(--gold-deep);border-radius:8px;background:#fffdf7}
+.nf-opt .nf-in,.nf-in.yr{font-size:17px;padding:8px 9px;border:2px solid #cfc3ad;background:#fff}
+textarea.nf-in{min-height:64px;resize:vertical}
+.nf-in:focus,.nf-pick button:focus,.nf-btn:focus{outline:3px solid rgba(176,132,52,.45);outline-offset:1px}
+.req{color:#a3312a;font-weight:800}
+.optl{font-weight:400;font-size:14px;color:var(--ink-soft)}
+.nf-ex{background:var(--cream-warm);border:1px dashed var(--gold);border-radius:8px;padding:6px 8px;
+  font-size:15px;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.nf-ex small{font-size:12px;color:var(--gold-deep);font-weight:700}
+.nf-ex b{font-size:17px}
+.nf-ex ul{margin:2px 0 0;padding:0 16px 0 0;font-size:15px;font-weight:700}
+.nf-ex .ltr{direction:ltr;unicode-bidi:isolate;font-size:14px;text-align:right;white-space:nowrap}
+@media(max-width:699px){.nf-row.sx,.nf-cols.sx{grid-template-columns:minmax(0,3fr) minmax(0,2fr)}}
+.nf-pick{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.nf-pick.three{grid-template-columns:1fr 1fr 1fr}
+.nf-pick button{font-family:inherit;font-size:17px;color:var(--ink);padding:10px 4px;line-height:1.3;
+  border:3px solid var(--gold-deep);background:#fff;border-radius:8px;cursor:pointer}
+.nf-pick button.on{background:#f6eedc;font-weight:700;box-shadow:inset 0 0 0 2px var(--gold-deep)}
+.nf-opt .nf-pick button{border:2px solid #cfc3ad;font-size:16px}
+.nf-opt .nf-pick button.on{border-color:var(--gold-deep);box-shadow:none}
+.nf-dlab{display:grid;grid-template-columns:1fr 1.4fr 1.3fr;gap:5px;font-size:13px;color:var(--ink-soft)}
+.nf-dlab b{color:var(--gold-deep)}
+.nf-date{display:grid;grid-template-columns:1fr 1.4fr 1.3fr;gap:5px;margin-top:2px}
+.nf-date .nf-in{font-size:16px;padding:9px 4px}
+.nf-in.yr{text-align:right;cursor:pointer;font-size:16px;padding:9px 6px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.nf-yp{margin-top:8px;border:3px solid var(--gold-deep);border-radius:10px;background:#fff;
+  box-shadow:0 6px 22px rgba(0,0,0,.18);overflow:hidden}
+.nf-yp .o1,.nf-yp .o2{display:block;width:100%;text-align:right;font-family:inherit;font-size:18px;
+  color:var(--ink);padding:13px 12px;border:0;cursor:pointer}
+.nf-yp .o1{font-weight:700;background:#f6eedc;border-bottom:1px solid var(--line)}
+.nf-yp .o2{background:#fff;border-bottom:2px solid var(--gold)}
+.nf-yp .sub{font-size:13px;color:var(--ink-soft);padding:8px 12px 2px}
+.nf-yp .typer{display:flex;gap:6px;padding:4px 12px 8px}
+.nf-yp .typer .nf-in{font-size:18px;padding:8px;border:3px solid var(--gold-deep);background:#fffdf7}
+.nf-yp .typer button{font-family:inherit;font-size:17px;font-weight:700;padding:8px 16px;border-radius:8px;
+  border:0;background:var(--gold-deep);color:#fff;cursor:pointer;flex-shrink:0}
+.nf-yp .yerr{padding:0 12px}
+.nf-yp ul{list-style:none;margin:0;padding:0;max-height:220px;overflow-y:auto;border-top:1px solid var(--line)}
+.nf-yp li button{display:block;width:100%;text-align:right;font-family:inherit;font-size:18px;color:var(--ink);
+  padding:10px 12px;border:0;border-bottom:1px solid var(--line);background:#fff;cursor:pointer}
+.nf-yp li button.sel{background:#f6eedc;font-weight:700}
+.nf-said{font-size:15px;color:#2f6b3a;margin:8px 0 0}
+.nf-sub .lbl2{font-weight:700;font-size:16px;display:block}
+.nf-err{display:none;color:#a3312a;font-size:15px;font-weight:700;margin-top:6px}
+.nf-err.on{display:block}
+.nf-q.bad .nf-in:not(.yr),.nf-q.bad .nf-pick button{border-color:#c0392b}
+.nf-gate{margin-top:8px;padding:10px 12px;background:#fdf6e6;border-right:4px solid #b08434;
+  border-radius:8px;font-size:15px}
+.nf-gate p{margin:0}
+.nf-gate .b{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.nf-gate .nf-btn{font-size:16px;padding:9px 16px}
+.nf-preview{margin-top:10px;background:#eef5ef;border:1px solid #b9d6be;border-radius:10px;padding:10px;
+  text-align:center}
+.nf-preview small{display:block;font-size:13px;color:var(--ink-soft)}
+.nf-preview b{font-size:22px}
+.nf-btns{display:grid;gap:10px;margin-top:14px}
+.nf-btn{font-family:inherit;font-size:18px;font-weight:700;padding:13px;border-radius:10px;
+  border:2px solid var(--gold-deep);background:#fff;color:var(--gold-deep);cursor:pointer}
+.nf-btn.main{background:var(--gold-deep);color:#fff}
+.nf-btn:disabled{opacity:.6;cursor:default}
+@media(min-width:700px){.nf-row,.nf-cols{grid-template-columns:1fr 1fr}}
+/* הכותרת העליונה של האתר דביקה, ובנייד היא גבוהה. בלי המרווח הזה גלילה אל
+   כרטיס או אל שדה עם שגיאה הייתה נוחתת מתחת לכותרת. */
+.nf-card,.nf-q,.nf-gate,.nf-done{scroll-margin-top:110px}
+@media(max-width:640px){.nf-card,.nf-q,.nf-gate,.nf-done{scroll-margin-top:200px}}
 </style>
 </head>
 <body>
@@ -128,8 +220,9 @@
   <div class="wrap prose">
 
     <!-- מבקר חדש -->
-    <div class="actions" id="intro-new" style="margin-top:0">
-      <button type="button" class="btn btn-lg" data-go="details">למסירת שם</button>
+    <div class="actions" id="intro-new" style="margin:0 0 22px">
+      <button type="button" class="btn btn-lg" data-go="names">למסירת שם</button>
+      <button type="button" class="btn btn-ghost btn-lg" data-go="edit">שינוי שמות שמסרת</button>
     </div>
 
     <!-- מי שכבר מסר מהמכשיר הזה -->
@@ -180,27 +273,64 @@
   <div class="shr" data-share-text="מצאתי אתר מדהים של הרב יעקב מאור, לעילוי נשמה. היכנסו ותנו שמות. זה מדהים. הפרטים באתר."></div>
 </section>
 
-<!-- ============ מסך 2: פרטי המבקש ============ -->
+<!-- ============ מסך 2: שמות הנפטרים (שלב 1 מתוך 2) ============ -->
+<!-- 28.10.2026: השמות קודם והמוסר אחר כך. כרטיס אחד פתוח בכל פעם, ומה שהושלם
+     מתקפל לשורת סיכום. השאלה „מסרתם שמות בעבר?" ירדה מהמסלול, כי השרת ממזג
+     מסירות לפי כתובת הדואר (saveSubmitter + appendPublic ב-worker/neshama.js). -->
+<section class="view" id="view-names">
+  <div class="wrap">
+    <div class="form-card">
+      <div class="step-mark" id="names-step">שלב 1 מתוך 2 · שמות הנפטרים</div>
+      <h2 style="font-size:24px;margin-bottom:6px" id="names-title">מסירת שם לעילוי נשמה</h2>
+      <p class="nf-lead">ממלאים נפטר אחד, ומוסיפים עוד כמה שרוצים. בכל שורה: מימין מה שאתם ממלאים, משמאל דוגמה. <span class="req">*</span> = חובה.</p>
+
+      <div id="prev-on-names"></div>
+      <div id="niftarim"></div>
+
+      <div class="nf-btns">
+        <button type="button" id="add-niftar" class="nf-btn">+ הוספת נפטר נוסף</button>
+        <button type="button" id="names-next" class="nf-btn main">סיימתי עם השמות - להמשיך</button>
+      </div>
+      <div id="names-msg" class="form-msg"></div>
+      <button type="button" class="back-link" data-go="intro">חזרה</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ מסך 3: הפרטים של המוסר (שלב 2 מתוך 2) ============ -->
+<!-- אותו מסך משמש גם לכניסה ל„שינוי שמות שמסרת" ממכשיר אחר: שם הוא שואל את
+     השרת לפי כתובת הדואר (kind: "lookup") ומוביל למסך התיקון. -->
 <section class="view" id="view-details">
   <div class="wrap">
     <div class="form-card">
-      <div class="step-mark">שלב 1 מתוך 2</div>
-      <h2 style="font-size:24px;margin-bottom:8px">הפרטים שלכם</h2>
-      <p style="color:var(--ink-soft);font-size:15px;margin-bottom:22px">כל השדות נדרשים.</p>
-
-      <div class="row-2">
-        <div class="field">
-          <label for="name">שם מלא</label>
-          <input type="text" id="name" autocomplete="name">
-        </div>
-        <div class="field">
-          <label for="phone">טלפון נייד</label>
-          <input type="tel" id="phone" autocomplete="tel" inputmode="tel">
-        </div>
+      <div class="step-mark" id="det-step">שלב 2 מתוך 2 · הפרטים שלכם</div>
+      <h2 style="font-size:24px;margin-bottom:6px" id="det-title">כמעט סיימנו</h2>
+      <div id="det-names-wrap">
+        <p class="nf-lead">אלה השמות שמסרתם. אפשר לתקן כל אחד לפני השליחה.</p>
+        <div id="det-names"></div>
       </div>
-      <div class="field">
-        <label for="email">דואר אלקטרוני</label>
-        <input type="email" id="email" autocomplete="email" inputmode="email">
+      <p class="nf-lead" id="det-lookup-lead" style="display:none">כדי להציג את השמות שמסרתם, מלאו את הפרטים שלכם. השמות נשלפים לפי כתובת הדואר האלקטרוני, מכל מכשיר.</p>
+
+      <div class="nf-card" style="margin-top:12px">
+        <h3>הפרטים שלכם - מי שמוסר את השמות</h3>
+        <p class="nf-hint">כדי שנשלח לכם תזכורת ביום חמישי שלפני היארצייט, ותוכלו לתקן את השמות בהמשך. <span class="req">*</span> = חובה.</p>
+        <div class="nf-cols sx"><span>מה שאתם ממלאים</span><span>דוגמה</span></div>
+        <div class="nf-q">
+          <label class="lbl" for="name">השם שלכם <span class="req">*</span></label>
+          <div class="nf-row sx"><input type="text" class="nf-in" id="name" autocomplete="name" maxlength="120"><div class="nf-ex"><small>לדוגמה</small><b>דוד לוי</b></div></div>
+          <div class="nf-err" id="err-name"></div>
+        </div>
+        <div class="nf-q">
+          <label class="lbl" for="phone">טלפון נייד <span class="req">*</span></label>
+          <div class="nf-row sx"><input type="tel" class="nf-in" id="phone" autocomplete="tel" inputmode="tel" maxlength="40"><div class="nf-ex"><small>לדוגמה</small><b class="ltr">050-1234567</b></div></div>
+          <div class="nf-err" id="err-phone"></div>
+        </div>
+        <div class="nf-q">
+          <label class="lbl" for="email">דואר אלקטרוני <span class="req">*</span></label>
+          <p class="nf-hint">לכאן תגיע התזכורת לפני כל יארצייט.</p>
+          <div class="nf-row sx"><input type="email" class="nf-in" id="email" autocomplete="email" inputmode="email" maxlength="160"><div class="nf-ex"><small>לדוגמה</small><b class="ltr">dl@gmail.com</b></div></div>
+          <div class="nf-err" id="err-email"></div>
+        </div>
       </div>
 
       <div class="hp" aria-hidden="true">
@@ -208,71 +338,12 @@
         <input type="text" id="website" tabindex="-1" autocomplete="off">
       </div>
 
-      <div class="actions">
-        <button type="button" class="btn btn-lg" id="details-next">המשך לשמות</button>
+      <div class="nf-btns">
+        <button type="button" class="nf-btn main" id="submit-btn">שליחת השמות</button>
+        <button type="button" class="nf-btn main" id="lookup-btn" style="display:none">הצגת השמות שמסרתי</button>
+        <button type="button" class="nf-btn" id="det-back" data-go="names">חזרה לשמות</button>
       </div>
       <div id="details-msg" class="form-msg"></div>
-      <button type="button" class="back-link" data-go="intro">חזרה</button>
-    </div>
-  </div>
-</section>
-
-<!-- ============ מסך 2ב: ראשון או חוזר ============ -->
-<!-- המסך הזה קיים כי הזיהוי עד כאן נשען על localStorage בלבד, ולכן מי שחזר
-     ממכשיר אחר, מדפדפן אחר או אחרי ניקוי אחסון לא ראה דבר ממה שמסר, ומסר
-     הכול מחדש. הכפתור „מסרנו שמות בעבר" שואל את השרת לפי כתובת הדואר. -->
-<section class="view" id="view-choice">
-  <div class="wrap">
-    <div class="form-card">
-      <h2 style="font-size:24px;margin-bottom:8px">מסרתם שמות בעבר?</h2>
-      <p style="color:var(--ink-soft);font-size:15px;margin-bottom:22px">אם כבר מסרתם, נציג את השמות שמסרתם כדי שתוכלו לתקן כל אחד מהם ולהוסיף אליהם שמות חדשים, במקום למסור את הכול מחדש.</p>
-
-      <div class="actions" style="margin-top:0">
-        <button type="button" class="btn btn-lg" id="choice-returning">מסרנו שמות בעבר</button>
-      </div>
-      <p style="margin:14px 0 0">
-        <button type="button" class="btn btn-ghost" id="choice-first">זו הפעם הראשונה</button>
-      </p>
-      <div id="choice-msg" class="form-msg"></div>
-      <button type="button" class="back-link" data-go="details">חזרה</button>
-    </div>
-  </div>
-</section>
-
-<!-- ============ מסך 3: השמות ============ -->
-<section class="view" id="view-names">
-  <div class="wrap">
-    <div class="form-card">
-      <div class="step-mark" id="names-step">שלב 2 מתוך 2</div>
-      <h2 style="font-size:24px;margin-bottom:8px" id="names-title">שמות הנפטרים</h2>
-      <p style="color:var(--ink-soft);font-size:15px;margin-bottom:22px">
-        רשמו כל שם שאתם יודעים את תאריך פטירתו, בלי קשר למתי נפטר. אין צורך לבחור את מי שהיארצייט שלו קרוב. בשדה השם כותבים את השם הפרטי של הנפטר בלבד.</p>
-      <p style="color:var(--ink-soft);font-size:15px;margin-bottom:22px">יש לכם יותר מחמישה? שלחו את החמישה האלה, חזרו לדף והוסיפו עוד. השמות שכבר נמסרו יישמרו, ולא תצטרכו להקליד אותם מחדש.</p>
-
-      <div id="prev-on-names"></div>
-
-      <div id="niftarim"></div>
-
-      <p style="margin-bottom:22px">
-        <button type="button" id="add-niftar" class="btn btn-ghost">הוספת נפטר נוסף</button>
-      </p>
-
-      <div class="note-box">
-        <p><span class="star">*</span> אם הנפטר בתוך השנה הראשונה לפטירתו,
-        מומלץ לרשום גם את שנת הפטירה, כדי ששמו יישאר כל השנה ברשימת עילוי
-        הנשמות. לגבי שאר הנפטרים, שנת הפטירה תעזור לכם לזכור כמה שנים נפטר.</p>
-      </div>
-
-      <div class="field">
-        <label for="note">הערה <span class="hint">לא חובה. אם יש משהו שחשוב שנדע.</span></label>
-        <textarea id="note"></textarea>
-      </div>
-
-      <div class="actions">
-        <button type="button" class="btn btn-lg" id="submit-btn">שליחת השמות</button>
-      </div>
-      <div id="names-msg" class="form-msg"></div>
-      <button type="button" class="back-link" data-go="intro">חזרה</button>
     </div>
   </div>
 </section>
@@ -464,21 +535,24 @@
     var el = $("view-" + view);
     if (!el) el = $("view-intro");
     el.classList.add("on");
+    currentView = el.id.slice(5);
     window.scrollTo(0, 0);
     if (view === "intro") { refreshIntro(); loadPublic(); }
     if (view === "list") renderList();
     if (view === "edit") renderEdit();
     if (view === "names") prepNames();
-    if (view === "choice") $("choice-msg").className = "form-msg";
+    if (view === "details") prepDetails();
+    if (view === "names" || view === "details") saveDraft();
   }
 
   document.addEventListener("click", function (e) {
     var b = e.target.closest ? e.target.closest("[data-go]") : null;
     if (!b) return;
     var target = b.getAttribute("data-go");
-    // אי אפשר למסור שמות בלי פרטים, ואי אפשר לתקן בלי שיש מה
-    if (target === "names" && !me) target = "details";
-    if ((target === "edit" || target === "list") && !saved.length) target = "intro";
+    // השמות קודם והמוסר אחר כך. תיקון בלי שמות במכשיר (או בלי פרטי מוסר)
+    // עובר קודם דרך מסך הפרטים, שמשם השמות נשלפים מהשרת לפי המייל.
+    if (target === "edit" && (!saved.length || !me)) { detMode = "lookup"; target = "details"; }
+    if (target === "list" && !saved.length) target = "intro";
     show(target);
   });
 
@@ -494,7 +568,7 @@
     }
   }
 
-  /* ---------- מסך פרטי המבקש ---------- */
+  /* ---------- מסך הפרטים של המוסר (שלב 2) ---------- */
   function fillMe() {
     if (!me) return;
     $("name").value = me.name || "";
@@ -502,13 +576,6 @@
     $("email").value = me.email || "";
   }
   fillMe();
-
-  /* `?edit=1` - הכתובת שיוצאת במייל האישור ובהודעה ליעקב, כדי שתיקון שם
-     יהיה לחיצה אחת ולא חיפוש בדף. **היא מובילה למסך הפרטים ולא ל„עריכה"**:
-     כפתור „שינוי שמות שמסרת" נשען על זיכרון מקומי, ולכן מי שפותח את המייל
-     במכשיר אחר היה נזרק חזרה לדף הפתיחה. מסך הפרטים מוביל ל„מסרנו שמות
-     בעבר", ושם השמות נשלפים מהשרת לפי כתובת הדואר - בכל מכשיר. */
-  if (/[?&]edit=1\b/.test(window.location.search)) show(me ? "choice" : "details");
 
   function msg(id, kind, text) {
     var el = $(id);
@@ -520,28 +587,51 @@
     var d = String(p).replace(/[\s\-().]/g, "");
     return /^(\+?972|0)5\d{8}$/.test(d) || /^\+\d{9,15}$/.test(d);
   }
+  function validEmail(e) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e); }
 
-  $("details-next").addEventListener("click", function () {
-    var name = $("name").value.trim();
-    var phone = $("phone").value.trim();
-    var email = $("email").value.trim();
-    if (!name || !phone || !email)
-      return msg("details-msg", "err", "נא למלא שם, טלפון ודואר אלקטרוני.");
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
-      return msg("details-msg", "err", "כתובת הדואר האלקטרוני לא נראית תקינה.");
+  // שגיאה **ליד השדה החסר**, בנוסח שאומר מה חסר, והמסך גולל אליו ומעביר אליו
+  // מיקוד. הודעה כללית בתחתית הטופס („חסרים פרטים") השאירה את האדם לחפש לבד.
+  function showErrAt(errEl, focusEl, text) {
+    if (!errEl) return;
+    errEl.textContent = text;
+    errEl.classList.add("on");
+    var q = errEl.closest ? errEl.closest(".nf-q") : null;
+    if (q) q.classList.add("bad");
+    var target = focusEl || errEl;
+    try { target.scrollIntoView({ block: "center" }); } catch (e) { target.scrollIntoView(); }
+    if (focusEl && focusEl.focus) { try { focusEl.focus({ preventScroll: true }); } catch (e) { focusEl.focus(); } }
+  }
+  function clearQ(q) {
+    if (!q) return;
+    q.classList.remove("bad");
+    var er = q.querySelectorAll(".nf-err");
+    for (var i = 0; i < er.length; i++) { er[i].classList.remove("on"); er[i].textContent = ""; }
+  }
+
+  function senderErrors() {
+    var name = $("name").value.trim(), phone = $("phone").value.trim(), email = $("email").value.trim();
+    if (!name) return ["name", "חסר השם שלכם. כותבים שם פרטי ושם משפחה, למשל „דוד לוי\"."];
+    if (!phone) return ["phone", "חסר מספר טלפון נייד, למשל 050-1234567."];
     if (!validPhone(phone))
-      return msg("details-msg", "err", "מספר הנייד לא נראה תקין. לדוגמה: 0501234567");
-    me = { name: name, phone: phone, email: email };
+      return ["phone", "מספר הנייד לא נראה תקין. כותבים 10 ספרות שמתחילות ב-05, למשל 050-1234567."];
+    if (!email) return ["email", "חסרה כתובת דואר אלקטרוני. לכאן תגיע התזכורת, למשל dl@gmail.com."];
+    if (!validEmail(email))
+      return ["email", "כתובת הדואר האלקטרוני לא נראית תקינה. היא צריכה להיראות כמו dl@gmail.com."];
+    return null;
+  }
+  function checkSender() {
+    ["name", "phone", "email"].forEach(function (id) { clearQ($(id).closest(".nf-q")); });
+    var e = senderErrors();
+    if (e) { showErrAt($("err-" + e[0]), $(e[0]), e[1]); return false; }
+    me = { name: $("name").value.trim(), phone: $("phone").value.trim(), email: $("email").value.trim() };
     save(KEY_ME, me);
-    msg("details-msg", "ok", "");
-    $("details-msg").className = "form-msg";
-    show("choice");
-  });
+    return true;
+  }
 
-  /* ---------- מסך ראשון או חוזר ---------- */
-  // שאילתת זיהוי מול השרת. מוחזרים השמות בלבד, בלי שם, טלפון ומייל, ולכן
-  // הקלדת כתובת של אדם אחר אינה חושפת את פרטיו. POST ולא GET בכוונה, כדי
-  // שהכתובת לא תישמר בהיסטוריית הדפדפן ולא תעבור ב-Referer.
+  /* ---------- שאילתת זיהוי מול השרת ---------- */
+  // מוחזרים השמות בלבד, בלי שם, טלפון ומייל, ולכן הקלדת כתובת של אדם אחר אינה
+  // חושפת את פרטיו. POST ולא GET בכוונה, כדי שהכתובת לא תישמר בהיסטוריית
+  // הדפדפן ולא תעבור ב-Referer.
   function lookupNames(email, onDone) {
     var payload = { kind: "lookup", email: email };
     function post(url) {
@@ -565,182 +655,397 @@
     });
   }
 
-  $("choice-first").addEventListener("click", function () { show("names"); });
-
-  $("choice-returning").addEventListener("click", function () {
-    var btn = this, original = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = "בודקים...";
-    msg("choice-msg", "ok", "רגע אחד...");
-    lookupNames(me.email, function (souls, err) {
-      btn.disabled = false;
-      btn.textContent = original;
-      if (err)
-        return msg("choice-msg", "err", "לא הצלחנו לבדוק מול השרת (" + err +
-          "). אפשר להמשיך למסירת שמות - שמות שמסרתם בעבר לא ייפגעו מזה.");
-      if (!souls.length) {
-        var m0 = mergeFromServer(souls, saved, load(KEY_SYNCED, []));
-        saved = m0.list;
-        save(KEY_NAMES, saved);
-        save(KEY_SYNCED, m0.synced);
-      }
-      if (!souls.length)
-        return msg("choice-msg", "err", "לא מצאנו שמות שנמסרו מהכתובת " +
-          me.email + ". אם מסרתם מכתובת אחרת, אפשר לחזור ולהקליד אותה; " +
-          "אחרת אפשר להמשיך כמי שמוסר בפעם הראשונה.");
-      // איחוד ולא החלפה. השרת מכיר כל מה שנמסר מכל מכשיר מאז 22.9, אבל
-      // שמות שנמסרו **לפני** התאריך הזה קיימים רק באחסון המקומי, ולכן
-      // החלפה גורפת הייתה מוחקת אותם מהמסך של מי שמסר גם לפני וגם אחרי.
-      var m = mergeFromServer(souls, saved, load(KEY_SYNCED, []));
-      saved = m.list;
-      save(KEY_NAMES, saved);
-      save(KEY_SYNCED, m.synced);
-      show("names");
-    });
-  });
-
-  /* ---------- בלוק נפטר ---------- */
-  function optionsHtml(sel) {
-    return RELATIONS.map(function (r) {
-      return '<option value="' + r + '"' + (r === sel ? " selected" : "") + ">" + r + "</option>";
-    }).join("");
-  }
-
-  function block(v, removable) {
-    v = v || {};
-    var d = document.createElement("div");
-    d.className = "niftar";
-    d.innerHTML =
-      '<div class="niftar-head"><h3>נפטר <span class="num"></span></h3>' +
-      '<button type="button" class="niftar-remove">הסרה</button></div>' +
-      '<div class="row-2">' +
-      '<div class="field"><label>שם פרטי של הנפטר</label>' +
-      '<input type="text" maxlength="120" class="n-name" value="' + esc(v.name) + '"></div>' +
-      '<div class="field"><label>שם ההורה' +
-      '<span class="hint">רק השם, למשל "ניסן"</span></label>' +
-      '<input type="text" maxlength="120" class="n-parent" value="' + esc(v.parent) + '"></div>' +
-      "</div>" +
-      // שם משפחה, לא חובה (הוראת יעקב 13.10.2026): „יש אנשים שחשוב להם לראות
-      // את שם המשפחה". הוא **אינו** חלק מצורת התפילה „X בן/בת Y" ולכן מוצג
-      // בסוגריים לידה. ההנחיה אומרת במפורש שהוא יופיע ברשימה הגלויה, כדי
-      // שמי שממלא אותו יעשה זאת ביודעין.
-      '<div class="row-2">' +
-      '<div class="field"><label>שם משפחה <span class="star">*</span>' +
-      '<span class="hint">לא חובה. אם תמלאו, יופיע בסוגריים ליד השם, ' +
-      'גם ברשימה השבועית שבאתר.</span></label>' +
-      '<input type="text" maxlength="60" class="n-family" value="' + esc(v.family) + '"></div>' +
-      "</div>" +
-      // ההערה יושבת **מיד מתחת לשם** ולא בתחתית הבלוק, והכותרת שלה נושאת את
-      // השם עצמו. כשהיא הייתה למטה היא נקראה כתחילת נפטר חדש, כי בדיוק שם
-      // מתחיל הבלוק הבא (יעקב, 11.10.2026).
-      '<div class="field note-field"><label><span class="note-for">' +
-      'הערה על הנפטר הזה</span> <span class="star">*</span>' +
-      '<span class="hint">לא חובה, ולא מופיע באתר. למשל „ניצול שואה שהכרתי, ' +
-      'אין לו משפחה" - כדי שתזכרו בשנה הבאה למי עשיתם עילוי נשמה.</span></label>' +
-      '<textarea class="n-notes" rows="2" maxlength="400">' +
-      esc(v.notes) + "</textarea></div>" +
-      '<div class="row-2">' +
-      '<div class="field"><label>תאריך הפטירה' +
-      '<span class="hint">עברי או לועזי. אם לועזי, נא לציין גם את השנה, ' +
-      'ואם הפטירה הייתה אחרי השקיעה - לכתוב זאת בהערות.</span></label>' +
-      '<input type="text" maxlength="60" class="n-date" value="' + esc(v.date) + '">' +
-      '<span class="date-hint" style="display:none;font-size:13px;line-height:1.6;' +
-      'color:#a3312a;margin-top:6px"></span></div>' +
-      '<div class="field"><label>הקרבה אליכם</label>' +
-      '<select class="n-relation"><option value="">בחרו</option>' +
-      optionsHtml(v.relation) + "</select></div>" +
-      "</div>" +
-      '<div class="row-2">' +
-      '<div class="field"><label>הנפטר ז/נ' +
-      '<span class="hint">זכר או נקבה</span></label>' +
-      '<select class="n-gender"><option value="">בחרו</option>' +
-      '<option value="m"' + (v.gender === "m" ? " selected" : "") + ">זכר</option>" +
-      '<option value="f"' + (v.gender === "f" ? " selected" : "") + ">נקבה</option>" +
-      "</select></div>" +
-      '<div class="field"><label>שנת הפטירה <span class="star">*</span>' +
-      '<span class="hint">לא חובה</span></label>' +
-      '<input type="text" maxlength="30" class="n-year" value="' + esc(v.year) + '"></div>' +
-      "</div>";
-
-    // כותרת ההערה נושאת את שם הנפטר ומתעדכנת תוך כדי הקלדה, כדי שלא יהיה
-    // ספק על מי ההערה. בלי זה היא נקראת כשדה כללי של הטופס.
-    var nameIn = d.querySelector(".n-name"), noteFor = d.querySelector(".note-for");
-    var syncNote = function () {
-      var t = (nameIn.value || "").trim();
-      noteFor.textContent = t ? "הערה על " + t : "הערה על הנפטר הזה";
-    };
-    nameIn.addEventListener("input", syncNote);
-    syncNote();
-
-    // הערה **ליד השדה ברגע שיוצאים ממנו**, ולא חלון קופץ (יעקב, 12.10.2026:
-    // „כבר אז תשאל אותו שיתקן"). חלון באמצע המילוי קופץ על תאריך שעוד לא
-    // נגמר להקליד, ולכן כאן ההערה שקטה ובטקסט, והחלון נשמר לרגע השליחה.
-    // **`blur` ולא `input`**, מאותה סיבה בדיוק.
-    var dateIn = d.querySelector(".n-date"), dateHint = d.querySelector(".date-hint");
-    var checkNow = function () {
-      var bad = dateIn.value.trim() ? checkHebDate(dateIn.value) : null;
-      // **תיקון ודאי מוחל מיד ולא נשאל עליו (הוראת יעקב 13.10.2026).** מה
-      // שחוזר עם `fix` הוא תיקון מכני - ן בספרת היום, או שם חודש שאינו קיים
-      // ויש לו שכן יחיד במרחק אות אחת. **ההחלה גלויה ולא שקטה:** השדה משתנה
-      // מול העיניים וההסבר יושב מתחתיו, ולכן אין כאן שינוי מאחורי הגב.
-      if (bad && bad.fix) {
-        dateIn.value = bad.fix;
-        dateHint.textContent = bad.msg + " תוקן.";
-        dateHint.style.color = "#6b4e12";
-        dateHint.style.display = "block";
-        return;
-      }
-      dateHint.style.color = "#a3312a";
-      dateHint.textContent = bad ? bad.msg : "";
-      dateHint.style.display = bad ? "block" : "none";
-    };
-    dateIn.addEventListener("blur", checkNow);
-    // הקלדה מחדש מנקה את ההערה מיד, כדי שהיא לא תישאר מול תאריך שכבר תוקן.
-    dateIn.addEventListener("input", function () {
-      dateHint.style.display = "none";
-    });
-
-    d.querySelector(".niftar-remove").addEventListener("click", function () {
-      var parent = d.parentNode;
-      if (parent.id === "edit-niftarim" &&
-          !window.confirm("למחוק את " + (fullName({
-            name: d.querySelector(".n-name").value,
-            parent: d.querySelector(".n-parent").value,
-            gender: d.querySelector(".n-gender").value
-          }) || "השם") + " מהרשימה?")) return;
-      d.remove();
-      renumber(parent);
-    });
-    return d;
-  }
-
   function esc(s) {
     return String(s == null ? "" : s)
       .replace(/&/g, "&amp;").replace(/"/g, "&quot;")
       .replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
-  // מספור מחדש והסתרת כפתור ההסרה כשנשאר בלוק אחד, אחרת אפשר למחוק
-  // את כל השמות ולשלוח טופס ריק.
-  function renumber(wrap) {
-    var editing = wrap.id === "edit-niftarim";
-    var blocks = wrap.querySelectorAll(".niftar");
-    for (var i = 0; i < blocks.length; i++) {
-      blocks[i].querySelector(".num").textContent = i + 1;
-      var rm = blocks[i].querySelector(".niftar-remove");
-      // במסך העריכה המחיקה זמינה תמיד, גם לשם האחרון. אדם שמבקש להסיר
-      // שם חייב לקבל את זה, ולא להיתקע כי זה השם היחיד שנשאר לו.
-      rm.style.display = editing || blocks.length > 1 ? "" : "none";
-      rm.textContent = editing ? "מחיקת השם" : "הסרה";
-      rm.style.color = editing ? "#c0392b" : "";
+  /* ---------- כרטיס הנפטר: הנתונים ----------
+     כל כרטיס הוא אובייקט מצב, והטופס מצויר ממנו. **מה שנשלח לשרת נגזר מהמצב
+     בפונקציה אחת (soulOf), באותם שמונה שדות בדיוק כמו בטופס הקודם**: name,
+     parent, family, date, relation, gender, year, notes. השרת לא השתנה. */
+  var KEY_DRAFT = "hamikdash_neshama_draft";
+  var G1 = "׳", G2 = "״"; // גרש וגרשיים
+  var HEB_DAYS = ["א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט", "י", "יא", "יב", "יג", "יד",
+    "טו", "טז", "יז", "יח", "יט", "כ", "כא", "כב", "כג", "כד", "כה", "כו", "כז", "כח", "כט", "ל"]
+    .map(function (t) { return t.length === 1 ? t + G1 : t.charAt(0) + G2 + t.charAt(1); });
+  // הכתיב הקבוע של החודשים: חשוון, כסלו, אייר, סיון, מנחם אב, אלול.
+  var HEB_MONTH_LIST = ["תשרי", "חשוון", "כסלו", "טבת", "שבט", "אדר", "אדר א" + G1, "אדר ב" + G1,
+    "ניסן", "אייר", "סיון", "תמוז", "מנחם אב", "אלול"];
+  // אותו מספור כמו hebKey ו-PAGE_MONTH שבפייתון: מתשרי, אדר 6, אדר א 6.1, אדר ב 6.2.
+  var PAGE_ORDER = { "תשרי": 1, "חשוון": 2, "כסלו": 3, "טבת": 4, "שבט": 5, "אדר": 6 };
+  PAGE_ORDER["אדר א" + G1] = 6.1; PAGE_ORDER["אדר ב" + G1] = 6.2;
+  PAGE_ORDER["ניסן"] = 8; PAGE_ORDER["אייר"] = 9; PAGE_ORDER["סיון"] = 10;
+  PAGE_ORDER["תמוז"] = 11; PAGE_ORDER["מנחם אב"] = 12; PAGE_ORDER["אלול"] = 13;
+  var CIV_MONTHS = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט",
+    "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
+  var CIV_DAYS_MAX = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  // השרת מחייב relation. הטקסט החופשי נכנס ל-notes, ואם הוא אחד מערכי הרשימה
+  // (או כינוי ברור שלהם) הוא נשלח גם ל-relation; אחרת נשלח „אחר", ערך קיים.
+  var REL_ALIAS = { "אבא": "אב", "אמא": "אם", "אימא": "אם", "סבא": "סב", "אשה": "אישה" };
+  // „בערב" נמסר לשרת כמו שנמסר עד היום „אחרי השקיעה": בהערות. אין לזה שדה
+  // בשרת, והכרעת יעקב (neshama_week.py) היא שמחשבים לפני השקיעה אלא אם כתוב אחרת.
+  var EVE_M = "נפטר בערב, אחרי השקיעה", EVE_F = "נפטרה בערב, אחרי השקיעה";
+  var NODATE = "בלי תאריך לא נוכל לשבץ את השם בשבוע היארצייט. אם ידוע משהו (למשל החודש) - " +
+    "כתבו אותו בשדה הקרבה וההערה ונברר.";
+  // השרת דוחה נפטר בלי תאריך (incomplete niftar), ולכן כרטיס כזה לא יוצא.
+  var NODATE_BLOCK = " השרת שלנו אינו מקבל שם בלי תאריך, ולכן אי אפשר לשלוח את הכרטיס הזה כך. " +
+    "אם ידוע לכם חודש או יום משוער, בחרו אותו בלוח העברי או הלועזי וכתבו בהערה שהתאריך משוער. " +
+    "אפשר גם לשלוח לנו את הפרטים בוואטסאפ למספר 052-8395189.";
+  var FY = null; // cur/prev/today מ-/data/neshama-week.json, נטען ב-loadPublic
+
+  function trim(v) { return String(v == null ? "" : v).trim(); }
+
+  function newCard() {
+    return { name: "", family: "", gender: "", parent: "", cal: "", hd: 0, hm: "",
+             hyMode: "", hy: "", cd: 0, cm: 0, cyMode: "", cy: "", tod: "", rel: "",
+             legacy: "", legacyYear: "", dateOk: "", textDirty: false, ypOpen: false };
+  }
+
+  // שם שכבר נמסר נטען לכרטיס **כמו שהוא**: התאריך נשמר כטקסט המקורי (מצב
+  // "text"), וההערה והקרבה המקוריות נשלחות בחזרה כל עוד לא נגעו בשדה. כך תיקון
+  // של שם אחד אינו משנה בשקט את המחרוזות של שאר השמות.
+  function fromSoul(n) {
+    var s = newCard();
+    s.name = n.name || ""; s.family = n.family || ""; s.gender = n.gender || "";
+    s.parent = n.parent || "";
+    s.orig = { name: n.name || "", parent: n.parent || "", family: n.family || "",
+               date: n.date || "", relation: n.relation || "", gender: n.gender || "",
+               year: n.year || "", notes: n.notes || "" };
+    s.cal = "text"; s.legacy = n.date || ""; s.legacyYear = n.year || "";
+    s.rel = n.notes || (n.relation && n.relation !== "אחר" ? n.relation : "");
+    return s;
+  }
+
+  /* שנה עברית: גימטריה בשני הכיוונים. „תשפ״ו" <-> 5786. */
+  var GEM = { "א": 1, "ב": 2, "ג": 3, "ד": 4, "ה": 5, "ו": 6, "ז": 7, "ח": 8, "ט": 9, "י": 10,
+    "כ": 20, "ך": 20, "ל": 30, "מ": 40, "ם": 40, "נ": 50, "ן": 50, "ס": 60, "ע": 70, "פ": 80,
+    "ף": 80, "צ": 90, "ץ": 90, "ק": 100, "ר": 200, "ש": 300, "ת": 400 };
+  function hebYearNum(t) {
+    var s = String(t || "").replace(/["'׳״\s]/g, ""), n = 0, i, v;
+    if (s.length > 2 && s.charAt(0) === "ה" && s.charAt(1) === "ת") s = s.slice(1);
+    if (!s) return 0;
+    for (i = 0; i < s.length; i++) { v = GEM[s.charAt(i)]; if (!v) return 0; n += v; }
+    return n < 1000 ? 5000 + n : n;
+  }
+  function hebYearStr(n) {
+    var y = n % 1000, out = "", T = [[90, "צ"], [80, "פ"], [70, "ע"], [60, "ס"], [50, "נ"],
+      [40, "מ"], [30, "ל"], [20, "כ"], [10, "י"]], O = " אבגדהוזחט", i;
+    while (y >= 400) { out += "ת"; y -= 400; }
+    if (y >= 300) { out += "ש"; y -= 300; } else if (y >= 200) { out += "ר"; y -= 200; }
+    else if (y >= 100) { out += "ק"; y -= 100; }
+    if (y === 15) { out += "טו"; y = 0; } else if (y === 16) { out += "טז"; y = 0; }
+    for (i = 0; i < T.length; i++) if (y >= T[i][0]) { out += T[i][1]; y -= T[i][0]; break; }
+    if (y) out += O.charAt(y);
+    if (out.length === 1) return out + G1;
+    return out.slice(0, -1) + G2 + out.slice(-1);
+  }
+
+  // התאריך העברי של היום. קודם מהקובץ שהפייתון מחשב בכל יום, ואם הוא לא נטען -
+  // מלוח השנה העברי המובנה בדפדפן (Intl). בלי אחד מהם לא מחשבים, ולא מנחשים.
+  function hebToday() {
+    if (FY && FY.cur && FY.today) {
+      var c = hebYearNum(FY.cur);
+      if (c > 5000) return { year: c, md: FY.today };
     }
-    if (wrap.id === "niftarim")
-      $("add-niftar").style.display = blocks.length >= MAX ? "none" : "";
-    if (editing) {
-      $("edit-empty").style.display = blocks.length ? "none" : "";
-      $("edit-submit").textContent = blocks.length
-        ? "שליחת התיקון" : "אישור מחיקת כל השמות";
+    try {
+      var parts = new Intl.DateTimeFormat("en-u-ca-hebrew",
+        { day: "numeric", month: "long", year: "numeric" }).formatToParts(new Date());
+      var d = 0, m = "", y = 0, MO = { "Tishri": 1, "Tishrei": 1, "Heshvan": 2, "Cheshvan": 2,
+        "Kislev": 3, "Tevet": 4, "Shevat": 5, "Adar": 6, "Adar I": 6, "Adar II": 6.2, "Nisan": 8,
+        "Iyar": 9, "Sivan": 10, "Tamuz": 11, "Tammuz": 11, "Av": 12, "Elul": 13 };
+      parts.forEach(function (p) {
+        if (p.type === "day") d = parseInt(p.value, 10);
+        if (p.type === "month") m = p.value;
+        if (p.type === "year" || p.type === "relatedYear") y = parseInt(p.value, 10) || y;
+      });
+      if (d && MO[m] && y > 5000) return { year: y, md: [MO[m], d] };
+    } catch (e) {}
+    return null;
+  }
+
+  // „בשנה הראשונה לפטירה" = השנה של המופע האחרון של היום והחודש שכבר עבר עד
+  // היום. נשלח כשנה רגילה, והשרת והפייתון מזהים ממנה שנה ראשונה באותו כלל
+  // (first_year ב-neshama_week.py: השנה הנוכחית, או הקודמת כשהתאריך טרם הגיע).
+  function firstYearOf(s) {
+    if (s.cal === "civ") {
+      if (!s.cd || !s.cm) return "";
+      var now = new Date(), m = now.getMonth() + 1, d = now.getDate();
+      var passed = s.cm < m || (s.cm === m && s.cd <= d);
+      return String(now.getFullYear() - (passed ? 0 : 1));
     }
+    var t = hebToday();
+    if (!t || !s.hd || !PAGE_ORDER[s.hm]) return "";
+    var mo = PAGE_ORDER[s.hm];
+    var ok = mo < t.md[0] || (mo === t.md[0] && s.hd <= t.md[1]);
+    return hebYearStr(ok ? t.year : t.year - 1);
+  }
+
+  function yearOf(s) {
+    if (s.cal === "text") return s.legacyYear || "";
+    if (s.cal === "heb") return s.hyMode === "first" ? firstYearOf(s) : s.hyMode === "value" ? s.hy : "";
+    return "";
+  }
+  function civYearOf(s) {
+    return s.cyMode === "first" ? firstYearOf(s) : s.cyMode === "value" ? s.cy : "";
+  }
+  // התאריך בפורמט שהפייתון כבר קורא: „י״ב תשרי" (השנה בשדה year) או „5.3.2024".
+  function dateOf(s) {
+    if (s.cal === "text") return trim(s.legacy);
+    if (s.cal === "heb") return s.hd && s.hm ? HEB_DAYS[s.hd - 1] + " " + s.hm : "";
+    if (s.cal === "civ") {
+      if (!s.cd || !s.cm) return "";
+      var y = civYearOf(s);
+      return s.cd + "." + s.cm + (y ? "." + y : "");
+    }
+    return "";
+  }
+  function matchRel(t) {
+    t = trim(t);
+    if (RELATIONS.indexOf(t) >= 0) return t;
+    return REL_ALIAS[t] || "";
+  }
+
+  function soulOf(s) {
+    var t = trim(s.rel), notes, relation;
+    if (s.orig && !s.textDirty) { notes = s.orig.notes || ""; relation = s.orig.relation || ""; }
+    else { notes = t; relation = matchRel(t) || (s.orig ? s.orig.relation : "") || ""; }
+    if (s.cal === "civ" && s.tod === "evening" && notes.indexOf("אחרי השקיעה") < 0) {
+      var ph = s.gender === "f" ? EVE_F : EVE_M;
+      notes = notes ? notes + " · " + ph : ph;
+    }
+    return {
+      name: trim(s.name),
+      parent: trim(s.parent),
+      family: trim(s.family).slice(0, 60),
+      date: dateOf(s),
+      relation: relation || "אחר",
+      gender: s.gender === "f" ? "f" : s.gender === "m" ? "m" : "",
+      year: yearOf(s),
+      notes: notes.slice(0, 400)
+    };
+  }
+
+  function cardEmpty(s) {
+    return !trim(s.name) && !trim(s.parent) && !s.gender && !s.cal && !trim(s.rel) && !trim(s.family);
+  }
+
+  // השגיאה הראשונה בכרטיס, עם השדה שאליו היא שייכת. כל הודעה אומרת מה בדיוק חסר.
+  function validate(s) {
+    if (!trim(s.name)) return { field: "name", msg: "חסר השם הפרטי של הנפטר. כותבים אותו כאן, למשל „יעקב משה\"." };
+    if (!s.gender) return { field: "gender", msg: "בחרו „נפטר\" או „נפטרת\"." };
+    if (!trim(s.parent)) return { field: "parent", msg: "חסר שם ההורה. כותבים את שם האב או את שם האם, למשל „ניסן\"." };
+    if (!s.cal) return { field: "date", msg: "בחרו איך ידוע לכם תאריך הפטירה: עברי, לועזי, או לא יודע." };
+    if (s.cal === "none") return { field: "date", msg: NODATE + NODATE_BLOCK };
+    if (s.cal === "text" && !trim(s.legacy)) return { field: "date", msg: "בחרו את תאריך הפטירה: עברי או לועזי." };
+    if (s.cal === "heb") {
+      if (!s.hd) return { field: "hd", msg: "בחרו את היום בחודש העברי." };
+      if (!s.hm) return { field: "hm", msg: "בחרו את החודש העברי." };
+    }
+    if (s.cal === "civ") {
+      if (!s.cd) return { field: "cd", msg: "בחרו את היום בחודש הלועזי." };
+      if (!s.cm) return { field: "cm", msg: "בחרו את החודש הלועזי." };
+      if (s.cd > CIV_DAYS_MAX[s.cm - 1])
+        return { field: "cd", msg: "בחודש " + CIV_MONTHS[s.cm - 1] + " אין " + s.cd + " ימים. בחרו יום אחר." };
+    }
+    return null;
+  }
+
+  // כך יופיע השם לתפילה, חי תוך כדי הקלדה.
+  function previewName(s) {
+    var name = trim(s.name), parent = trim(s.parent), fam = trim(s.family);
+    if (!name) return "...";
+    if (!parent) return name + (s.gender === "f" ? " בת ..." : s.gender === "m" ? " בן ..." : " ...") +
+      (fam ? " (" + fam + ")" : "");
+    return fullName({ name: name, parent: parent, family: fam, gender: s.gender });
+  }
+
+  // התאריך שנבחר, במילים. אין בדף ממיר תאריכים לחישוב „היארצייט הבא", ולכן
+  // מציגים בחזרה את מה שנבחר ולא ממציאים חישוב.
+  function saidWords(s) {
+    if (s.cal === "heb" && s.hd && s.hm) {
+      var y = yearOf(s);
+      return HEB_DAYS[s.hd - 1] + " " + s.hm + (y ? " " + y : "") +
+        (s.hyMode === "first" ? " (השנה הראשונה לפטירה)" : "");
+    }
+    if (s.cal === "civ" && s.cd && s.cm) {
+      var cy = civYearOf(s), tod = { morning: ", בבוקר", noon: ", אחר הצהריים", evening: ", בערב (אחרי השקיעה)" };
+      return s.cd + " ב" + CIV_MONTHS[s.cm - 1] + (cy ? " " + cy : "") + (tod[s.tod] || "") +
+        (s.cyMode === "first" ? " (השנה הראשונה לפטירה)" : "");
+    }
+    return "";
+  }
+
+  function yearLabel(s) {
+    var mode = s.cal === "civ" ? s.cyMode : s.hyMode, val = s.cal === "civ" ? s.cy : s.hy;
+    if (mode === "first") return "בשנה הראשונה";
+    if (mode === "unknown") return "לא יודע";
+    if (mode === "value" && val) return val;
+    return "בחרו";
+  }
+
+  function monthByOrder(o) {
+    for (var k in PAGE_ORDER) if (PAGE_ORDER.hasOwnProperty(k) && PAGE_ORDER[k] === o) return k;
+    return "";
+  }
+  // מי שבוחר מחדש תאריך שנמסר כטקסט מקבל את הבחירות ממולאות מראש, ככל שהטקסט נקרא.
+  function prefillFromText(s, cal) {
+    var t = trim(s.legacy), m;
+    if (cal === "civ") {
+      m = t.match(/^(\d{1,2})\s*[.\/,]\s*(\d{1,2})(?:\s*[.\/,]\s*(\d{2,4}))?$/);
+      if (m) {
+        s.cd = parseInt(m[1], 10); s.cm = parseInt(m[2], 10);
+        if (s.cm < 1 || s.cm > 12) s.cm = 0;
+        if (s.cd < 1 || s.cd > 31) s.cd = 0;
+        if (m[3]) { var y = parseInt(m[3], 10); s.cy = String(y < 100 ? 2000 + y : y); s.cyMode = "value"; }
+      }
+      return;
+    }
+    if (cal !== "heb") return;
+    var k = hebKey(t);
+    if (k[0] !== 99) s.hm = monthByOrder(k[0]);
+    if (k[1] !== 99) s.hd = k[1];
+    var yy = trim(s.legacyYear) || yearInDate(t), n = hebYearNum(yy);
+    if (n > 5000) { s.hy = hebYearStr(n); s.hyMode = "value"; }
+  }
+
+  function parseYearInput(s, t) {
+    t = trim(t);
+    var nowY = new Date().getFullYear();
+    if (s.cal === "civ") {
+      var c = /^\d{4}$/.test(t) ? parseInt(t, 10) : 0;
+      return c >= 1880 && c <= nowY ? String(c) : "";
+    }
+    var cur = (hebToday() || { year: 5787 }).year, n = hebYearNum(t);
+    return n >= 5600 && n <= cur ? hebYearStr(n) : "";
+  }
+
+  /* ---------- כרטיס הנפטר: הציור ---------- */
+  function exB(text) { return '<div class="nf-ex"><small>לדוגמה</small><b>' + text + "</b></div>"; }
+  function q(id, f, req, label, hint, field, ex, extra) {
+    return '<div class="nf-q' + (req ? "" : " nf-opt") + '" data-q="' + f + '">' +
+      '<label class="lbl"' + (id ? ' for="' + id + '"' : "") + ">" + label +
+      (req ? ' <span class="req">*</span>' : ' <span class="optl">(לא חובה)</span>') + "</label>" +
+      (hint ? '<p class="nf-hint">' + hint + "</p>" : "") +
+      '<div class="nf-row">' + field + ex + "</div>" + (extra || "") +
+      '<div class="nf-err" data-err="' + f + '"></div></div>';
+  }
+  function pickBtn(act, v, label, on, extra) {
+    return '<button type="button" data-act="' + act + '" data-v="' + v + '"' + (extra || "") +
+      (on ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + ">" + label + "</button>";
+  }
+  function opt(v, label, sel) {
+    return '<option value="' + esc(v) + '"' + (String(v) === String(sel) ? " selected" : "") + ">" +
+      esc(label) + "</option>";
+  }
+
+  function yearPanel(s) {
+    var civ = s.cal === "civ", cur = civ ? new Date().getFullYear() : (hebToday() || { year: 5787 }).year;
+    var sel = civ ? s.cy : s.hy, items = "", n, v;
+    for (n = cur; n >= cur - 100; n--) {
+      v = civ ? String(n) : hebYearStr(n);
+      items += '<li><button type="button" data-act="ypick" data-v="' + v + '"' +
+        (v === sel ? ' class="sel"' : "") + ">" + v + "</button></li>";
+    }
+    return '<div class="nf-yp">' +
+      '<button type="button" class="o1" data-act="yfirst">בשנה הראשונה לפטירה</button>' +
+      '<button type="button" class="o2" data-act="yunk">לא יודע</button>' +
+      '<div class="sub">או כותבים את השנה ומאשרים:</div>' +
+      '<div class="typer"><input type="text" class="nf-in" data-yt maxlength="12" ' +
+      (civ ? 'inputmode="numeric" placeholder="למשל 1998"' : 'placeholder="למשל תשע' + G2 + 'ח"') +
+      ' aria-label="שנת הפטירה"><button type="button" data-act="ytype">אישור</button></div>' +
+      '<div class="yerr"><div class="nf-err" data-yerr></div></div>' +
+      '<div class="sub">או גוללים ובוחרים:</div><ul>' + items + "</ul></div>" +
+      '<p class="nf-hint" style="margin-top:8px">לחיצה על „בשנה הראשונה לפטירה" שומרת את השם ברשימה כל השנה הזאת.</p>';
+  }
+
+  function dateBlock(s, pre) {
+    var h = "", i;
+    if (s.cal === "text" && trim(s.legacy))
+      h += '<p class="nf-said">התאריך שנמסר: <strong>' + esc(s.legacy) +
+        (s.legacyYear ? " " + esc(s.legacyYear) : "") + "</strong>. " +
+        "אפשר להשאיר אותו כך, או לבחור למעלה עברי או לועזי ולבחור אותו מחדש.</p>";
+    if (s.cal === "heb" || s.cal === "civ") {
+      var civ = s.cal === "civ", days = "", months = "";
+      days = opt("", "יום", "");
+      for (i = 1; i <= (civ ? 31 : 30); i++) days += opt(i, civ ? String(i) : HEB_DAYS[i - 1], civ ? s.cd : s.hd);
+      months = opt("", "חודש", "");
+      if (civ) for (i = 1; i <= 12; i++) months += opt(i, CIV_MONTHS[i - 1], s.cm);
+      else for (i = 0; i < HEB_MONTH_LIST.length; i++) months += opt(HEB_MONTH_LIST[i], HEB_MONTH_LIST[i], s.hm);
+      h += '<div class="nf-row"><div><div class="nf-dlab"><span>יום</span><span>חודש</span>' +
+        '<span style="white-space:nowrap">שנה · <b>לא חובה</b></span></div><div class="nf-date">' +
+        '<select class="nf-in" id="' + pre + (civ ? "cd" : "hd") + '" data-k="' + (civ ? "cd" : "hd") +
+        '" aria-label="יום">' + days + "</select>" +
+        '<select class="nf-in" id="' + pre + (civ ? "cm" : "hm") + '" data-k="' + (civ ? "cm" : "hm") +
+        '" aria-label="חודש">' + months + "</select>" +
+        '<button type="button" class="nf-in yr" data-act="year" aria-expanded="' + (s.ypOpen ? "true" : "false") +
+        '" aria-label="שנת הפטירה, לא חובה">' + esc(yearLabel(s)) + "</button></div></div>" +
+        exB(civ ? '<span class="ltr">29.8.2025</span>' : "י" + G2 + "ב תשרי תשפ" + G2 + "ה") + "</div>";
+      if (s.ypOpen) h += yearPanel(s);
+      if (civ)
+        h += '<div class="nf-sub"><span class="lbl2">באיזה חלק של היום? <span class="optl">(לא חובה)</span></span>' +
+          '<p class="nf-hint">אם הפטירה הייתה אחרי השקיעה, התאריך העברי הוא של היום שאחרי.</p>' +
+          '<div class="nf-row"><div class="nf-pick">' +
+          pickBtn("tod", "morning", "בבוקר", s.tod === "morning") +
+          pickBtn("tod", "noon", "אחר הצהריים", s.tod === "noon") +
+          pickBtn("tod", "evening", "בערב", s.tod === "evening") +
+          pickBtn("tod", "unknown", "לא יודע", s.tod === "unknown") +
+          "</div>" + exB("בערב") + "</div></div>";
+      var w = saidWords(s);
+      if (w) h += '<p class="nf-said">✓ בחרתם: ' + esc(w) + "</p>";
+    }
+    if (s.cal === "none") h += '<div class="nf-gate"><p>' + esc(NODATE) + "</p></div>";
+    return h + '<div class="nf-gate" data-gate style="display:none"></div>';
+  }
+
+  function cardHtml(s, i, ctx, total) {
+    var pre = "c-" + ctx + i + "-", rm = ctx === "edit" ? "מחיקת השם" : (total > 1 ? "הסרה" : "");
+    var head = ctx === "edit" ? "תיקון: " + (fullName(soulOf(s)) || "נפטר " + (i + 1)) : "נפטר " + (i + 1);
+    return '<div class="nf-card" data-i="' + i + '"><h3><span>' + esc(head) + "</span>" +
+      (rm ? '<button type="button" class="nf-link' + (ctx === "edit" ? " del" : "") +
+        '" data-act="remove">' + rm + "</button>" : "") + "</h3>" +
+      '<div class="nf-cols"><span>מה שאתם ממלאים</span><span>דוגמה</span></div>' +
+      q(pre + "name", "name", true, "השם הפרטי של הנפטר", "אם היו לו שני שמות, כותבים את שניהם. בלי שם משפחה.",
+        '<input type="text" class="nf-in n-name" id="' + pre + 'name" data-k="name" maxlength="120" value="' +
+        esc(s.name) + '">', exB("יעקב משה")) +
+      q(pre + "family", "family", false, "שם משפחה של הנפטר", "יופיע בסוגריים ליד השם, גם ברשימה השבועית שבאתר.",
+        '<input type="text" class="nf-in n-family" id="' + pre + 'family" data-k="family" maxlength="60" value="' +
+        esc(s.family) + '">', exB("כהן")) +
+      q("", "gender", true, "נפטר או נפטרת", "",
+        '<div class="nf-pick" role="group" aria-label="נפטר או נפטרת">' +
+        pickBtn("gender", "m", "נפטר", s.gender === "m", ' data-f="gender"') +
+        pickBtn("gender", "f", "נפטרת", s.gender === "f") + "</div>", exB("נפטר")) +
+      q(pre + "parent", "parent", true, "שם ההורה",
+        "אפשר שם האב, שם האם, או שניהם - מה שידוע לכם. רק השם הפרטי.",
+        '<input type="text" class="nf-in n-parent" id="' + pre + 'parent" data-k="parent" maxlength="120" value="' +
+        esc(s.parent) + '">', exB("ניסן")) +
+      q("", "date", true, "תאריך הפטירה", "בוחרים את הלוח שאתם יודעים. השנה - רק אם ידועה.",
+        '<div class="nf-pick three" role="group" aria-label="סוג התאריך">' +
+        pickBtn("cal", "heb", "עברי", s.cal === "heb", ' data-f="date"') +
+        pickBtn("cal", "civ", "לועזי", s.cal === "civ") +
+        pickBtn("cal", "none", "לא יודע", s.cal === "none") + "</div>",
+        exB("עברי"), dateBlock(s, pre)) +
+      q(pre + "rel", "rel", false,
+        "קרבת הנפטר למי שממלא את הפרטים, או הערה שתזכיר לכם את הקשר לנפטר",
+        "לא מופיע באתר. נועד לכם, כדי שתזכרו בשנה הבאה למי עשיתם עילוי נשמה.",
+        '<textarea class="nf-in n-notes" id="' + pre + 'rel" data-k="rel" rows="2" maxlength="360">' +
+        esc(s.rel) + "</textarea>",
+        '<div class="nf-ex"><small>דוגמאות</small><ul><li>אבא</li><li>ניצול שואה ערירי</li>' +
+        "<li>סבא של אימא</li></ul></div>") +
+      '<div class="nf-preview"><small>כך יופיע השם לתפילה</small><b class="pv">' +
+      esc(previewName(s)) + "</b></div></div>";
+  }
+
+  function summaryHtml(s, i, ctx) {
+    var ok = !validate(s), n = soulOf(s);
+    return '<div class="nf-done" data-i="' + i + '"><span>' +
+      (ok ? '<span class="ok">✓</span> ' : '<span class="warn">!</span> ') +
+      esc(fullName(n) || "נפטר " + (i + 1)) + (n.date ? " · " + esc(n.date) : "") +
+      (ok ? "" : ' <span class="miss">חסרים פרטים</span>') +
+      '</span><span class="acts"><button type="button" class="nf-link" data-act="open">תיקון</button>' +
+      (ctx === "edit" ? '<button type="button" class="nf-link del" data-act="remove">מחיקת השם</button>' : "") +
+      "</span></div>";
   }
 
   /* ---------- בדיקת תאריך בשעת ההקלדה ----------
@@ -954,37 +1259,37 @@
     return null;
   }
 
+  // האיסוף מקבל רשימת כרטיסים. כרטיס ריק לגמרי (ולא שם שנטען לתיקון) מדולג.
+  // שגיאה חוזרת עם הכרטיס והשדה, כדי שתוצג ליד השדה עצמו.
   function collect(wrap) {
-    var out = [], warn = [], blocks = wrap.querySelectorAll(".niftar");
-    for (var i = 0; i < blocks.length; i++) {
-      var b = blocks[i];
-      var n = {
-        name: b.querySelector(".n-name").value.trim(),
-        parent: b.querySelector(".n-parent").value.trim(),
-        family: b.querySelector(".n-family").value.trim().slice(0, 60),
-        date: b.querySelector(".n-date").value.trim(),
-        relation: b.querySelector(".n-relation").value.trim(),
-        gender: b.querySelector(".n-gender").value.trim(),
-        year: b.querySelector(".n-year").value.trim(),
-        notes: b.querySelector(".n-notes").value.trim().slice(0, 400)
-      };
-      // ההערה לבדה אינה הופכת בלוק ריק לבלוק מלא, ולכן היא אינה בתנאי הזה:
-      // אדם שהקליד הערה ולא הקליד שם קיבל אחרת שגיאה על „פרטים חסרים"
-      // בבלוק שהתכוון להשאיר ריק.
-      if (!n.name && !n.parent && !n.date && !n.relation && !n.gender) continue;
-      if (!n.name || !n.parent || !n.date || !n.relation || !n.gender)
-        return { error: "בנפטר " + (i + 1) + " חסרים פרטים. כל השדות נדרשים, " +
-                        "כולל אם הנפטר זכר או נקבה." };
-      // **אזהרה, לא שגיאה.** היא נאספת לצד הרשימה ואינה עוצרת את האיסוף, כדי
-      // שמסלול השליחה יישאר אחד ושום שם לא ייפול בגלל בדיקה שאינה בטוחה.
-      var bad = checkHebDate(n.date);
-      if (bad) warn.push({ who: fullName(n) || ("נפטר " + (i + 1)),
-                           input: b.querySelector(".n-date"),
-                           msg: bad.msg, fix: bad.fix });
+    var out = [], warn = [], cards = [];
+    for (var i = 0; i < wrap.length; i++) {
+      var s = wrap[i];
+      if (!s.orig && cardEmpty(s)) continue;
+      var bad = validate(s);
+      if (bad) return { error: bad.msg, card: s, field: bad.field };
+      var n = soulOf(s);
+      // **אזהרה, לא שגיאה.** תאריך שהמוסר כבר אישר „להשאיר כך" לא נשאל שוב.
+      var chk = s.dateOk === n.date ? null : checkHebDate(n.date);
+      if (chk) warn.push({ who: fullName(n) || ("נפטר " + (i + 1)), input: dateProxy(s),
+                           msg: chk.msg, fix: chk.fix, card: s });
       out.push(n);
+      cards.push(s);
     }
-    if (!out.length) return { error: "נא למלא לפחות שם נפטר אחד." };
-    return { list: out, warn: warn };
+    if (!out.length)
+      return { error: "חסר השם הפרטי של הנפטר. כותבים אותו כאן, למשל „יעקב משה\".",
+               card: wrap[0], field: "name" };
+    return { list: out, warn: warn, cards: cards };
+  }
+
+  // „שדה התאריך" של הגייט. תיקון מכני (fix) נכתב כטקסט, כמו בטופס הקודם.
+  function dateProxy(s) {
+    return {
+      get value() { return dateOf(s); },
+      set value(v) { s.cal = "text"; s.legacy = v; s.legacyYear = yearOf(s); },
+      focus: function () { focusField(s, s.cal === "heb" ? (s.hd ? "hm" : "hd") : s.cal === "civ" ? (s.cd ? "cm" : "cd") : "date"); },
+      select: function () {}
+    };
   }
 
   /* **כל אזהרה מוצגת, אחת אחרי השנייה, ולא הראשונה בלבד.** הגרסה הראשונה
@@ -993,10 +1298,17 @@
      טעות בשם החודש; הוא נשאל על הראשון, תיקן, והטופס נשלח מיד - והשני עבר
      עם „ן חשבן" בלי שנשאל עליו. אזהרה שלא הוצגה גרועה מאזהרה מעייפת.
 
-     אישור = לתקן (או לשלוח כך, כשאין תיקון) וממשיכים לאזהרה הבאה · ביטול =
-     חוזרים לשדה והוא מקבל פוקוס. **אין מסלול שבו השליחה נחסמת.** */
+     28.10.2026: השאלה כבר אינה חלון confirm אלא הודעה כתובה ליד התאריך עם שני
+     כפתורים, „לתקן" / „להשאיר כך" (`dateGate.ask = inlineAsk`). ברירת המחדל
+     נשארת confirm רק כדי שהגייט יעבוד גם לבדו (tests/test_neshama_form_gate_*).
+     תשובה true = לתקן (או להשאיר, כשאין תיקון) · "keep" = להשאיר כך · false =
+     חוזרים לשדה והוא מקבל מיקוד. **אין מסלול שבו השליחה נחסמת.** */
   function dateGate(wrap, onReady) {
     var NL = String.fromCharCode(10), fixedAny = false, seen = {}, rounds = 0;
+    var ask = dateGate.ask || function (w, head, cb) {
+      cb(window.confirm(head + (w.fix ? "אישור - לתקן ולהמשיך." : "אישור - להשאיר כפי שכתבתי.") +
+                        NL + "ביטול - לחזור ולערוך."));
+    };
 
     function step() {
       // נאסף מחדש בכל סבב, כי תיקון משנה את הטקסט בשדה ולכן גם את האזהרות.
@@ -1009,61 +1321,348 @@
 
       var w = list[0];
       var head = "בתאריך הפטירה של " + w.who + ":" + NL + NL + w.msg + NL + NL;
-      if (w.fix) {
-        if (window.confirm(head + "אישור - לתקן ולהמשיך." + NL + "ביטול - לחזור ולערוך.")) {
+      ask(w, head, function (answer) {
+        if (answer === true && w.fix) {
           w.input.value = w.fix;
           fixedAny = true;
           return step();
         }
-      } else if (window.confirm(head + "אישור - להשאיר כפי שכתבתי." + NL +
-                                "ביטול - לחזור ולערוך.")) {
-        // „להשאיר כך" נזכר, אחרת אותה אזהרה תחזור בסבב הבא ותיצור לופ.
-        seen[w.who + "|" + w.input.value] = 1;
-        return step();
-      }
-      w.input.focus();
-      if (w.input.select) w.input.select();
+        if (answer) {
+          // „להשאיר כך" נזכר, אחרת אותה אזהרה תחזור בסבב הבא ותיצור לופ.
+          seen[w.who + "|" + w.input.value] = 1;
+          return step();
+        }
+        w.input.focus();
+        if (w.input.select) w.input.select();
+      });
     }
 
     step();
   }
 
+  /* ---------- כרטיסים: מצב, ציור ואירועים ---------- */
+  var namesCards = [], namesActive = 0, editCards = [], editActive = -1, gateCtx = "names";
+  var currentView = "intro", detMode = "submit";
+  function cardsOf(ctx) { return ctx === "edit" ? editCards : namesCards; }
+  function activeOf(ctx) { return ctx === "edit" ? editActive : namesActive; }
+  function setActive(ctx, i) { if (ctx === "edit") editActive = i; else namesActive = i; }
+  function boxOf(ctx) { return ctx === "edit" ? $("edit-niftarim") : $("niftarim"); }
+  function ctxOf(s) { return editCards.indexOf(s) >= 0 ? "edit" : "names"; }
+
+  function renderCards(ctx) {
+    var list = cardsOf(ctx), act = activeOf(ctx), h = "", i;
+    for (i = 0; i < list.length; i++)
+      h += i === act ? cardHtml(list[i], i, ctx, list.length) : summaryHtml(list[i], i, ctx);
+    boxOf(ctx).innerHTML = h;
+    if (ctx === "edit") {
+      $("edit-empty").style.display = list.length ? "none" : "";
+      $("edit-submit").textContent = list.length ? "שליחת התיקון" : "אישור מחיקת כל השמות";
+    }
+  }
+  function activeEl(ctx) { return boxOf(ctx).querySelector(".nf-card"); }
+
+  function focusField(s, field) {
+    var ctx = ctxOf(s), el = activeEl(ctx);
+    if (!el) return;
+    var t = el.querySelector('[data-k="' + field + '"]') || el.querySelector('[data-f="' + field + '"]') ||
+            el.querySelector('[data-q="' + field + '"] .nf-in, [data-q="' + field + '"] button');
+    if (!t) return;
+    try { t.scrollIntoView({ block: "center" }); } catch (e) { t.scrollIntoView(); }
+    try { t.focus({ preventScroll: true }); } catch (e) { t.focus(); }
+  }
+
+  function showCardError(ctx, s, field, text) {
+    var list = cardsOf(ctx), i = list.indexOf(s);
+    if (ctx === "names" && currentView !== "names") show("names");
+    if (i < 0) i = 0;
+    setActive(ctx, i);
+    renderCards(ctx);
+    var el = activeEl(ctx);
+    if (!el) return;
+    var qf = { hd: "date", hm: "date", cd: "date", cm: "date" }[field] || field;
+    var er = el.querySelector('[data-err="' + qf + '"]');
+    var t = el.querySelector('[data-k="' + field + '"]') || el.querySelector('[data-f="' + field + '"]');
+    showErrAt(er, t, text);
+  }
+
+  function updatePreview(cardEl, s) {
+    var pv = cardEl.querySelector(".pv");
+    if (pv) pv.textContent = previewName(s);
+  }
+
+  function rerenderKeep(ctx, sel) {
+    renderCards(ctx);
+    var el = activeEl(ctx), t = el && sel ? el.querySelector(sel) : null;
+    if (t) { try { t.focus({ preventScroll: true }); } catch (e) { t.focus(); } }
+  }
+
+  function setYear(s, mode, val) {
+    if (s.cal === "civ") { s.cyMode = mode; s.cy = val; } else { s.hyMode = mode; s.hy = val; }
+    s.ypOpen = false;
+  }
+
+  function wireCards(ctx) {
+    var box = boxOf(ctx);
+    function cardOf(el) {
+      var c = el.closest ? el.closest("[data-i]") : null;
+      return c ? { el: c, i: +c.getAttribute("data-i"), s: cardsOf(ctx)[+c.getAttribute("data-i")] } : null;
+    }
+    function onField(e, isChange) {
+      var el = e.target, k = el.getAttribute && el.getAttribute("data-k");
+      if (!k) return;
+      var c = cardOf(el);
+      if (!c || !c.s) return;
+      var v = el.value;
+      if (k === "hd" || k === "cd" || k === "cm") v = parseInt(v, 10) || 0;
+      c.s[k] = v;
+      if (k === "rel") c.s.textDirty = true;
+      clearQ(el.closest(".nf-q"));
+      if (el.tagName === "SELECT") { if (isChange) rerenderKeep(ctx, '[data-k="' + k + '"]'); }
+      else updatePreview(c.el, c.s);
+      saveDraft();
+    }
+    box.addEventListener("input", function (e) { onField(e, false); });
+    box.addEventListener("change", function (e) { onField(e, true); });
+    box.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && e.target.hasAttribute && e.target.hasAttribute("data-yt")) {
+        e.preventDefault();
+        var b = e.target.parentNode.querySelector('[data-act="ytype"]');
+        if (b) b.click();
+      }
+    });
+    box.addEventListener("click", function (e) {
+      var b = e.target.closest ? e.target.closest("[data-act]") : null;
+      if (!b) return;
+      var c = cardOf(b);
+      if (!c || !c.s) return;
+      var act = b.getAttribute("data-act"), v = b.getAttribute("data-v"), s = c.s, list = cardsOf(ctx);
+      var sel = '[data-act="' + act + '"]' + (v ? '[data-v="' + v + '"]' : "");
+      if (act === "open") return openCard(ctx, c.i);
+      if (act === "remove") return removeCard(ctx, c.i);
+      if (act === "gender") { s.gender = v; clearQ(b.closest(".nf-q")); }
+      if (act === "cal") {
+        if (s.cal === "text") prefillFromText(s, v);
+        s.cal = v; s.ypOpen = false; s.dateOk = "";
+      }
+      if (act === "year") { s.ypOpen = !s.ypOpen; if (s.ypOpen) sel = '[data-act="yfirst"]'; }
+      if (act === "yfirst") { setYear(s, "first", ""); sel = '[data-act="year"]'; }
+      if (act === "yunk") { setYear(s, "unknown", ""); sel = '[data-act="year"]'; }
+      if (act === "ypick") { setYear(s, "value", v); sel = '[data-act="year"]'; }
+      if (act === "ytype") {
+        var inp = c.el.querySelector("[data-yt]"), y = parseYearInput(s, inp ? inp.value : "");
+        if (!y) {
+          var ye = c.el.querySelector("[data-yerr]");
+          ye.textContent = s.cal === "civ" ? "כותבים שנה בארבע ספרות, למשל 1998."
+                                          : "לא זיהינו שנה עברית. כותבים למשל תשע" + G2 + "ח.";
+          ye.classList.add("on");
+          if (inp) inp.focus();
+          return;
+        }
+        setYear(s, "value", y); sel = '[data-act="year"]';
+      }
+      if (act === "tod") s.tod = v;
+      if (act === "cal" || act === "gender" || act.charAt(0) === "y" || act === "tod") {
+        rerenderKeep(ctx, sel);
+        saveDraft();
+      }
+    });
+  }
+
+  function openCard(ctx, i) {
+    var list = cardsOf(ctx), cur = activeOf(ctx);
+    if (ctx === "names" && cur >= 0 && cur !== i && list[cur] && cardEmpty(list[cur]) && list.length > 1) {
+      list.splice(cur, 1);
+      if (i > cur) i--;
+    }
+    if (ctx === "names" && currentView !== "names") show("names");
+    setActive(ctx, i);
+    renderCards(ctx);
+    var el = activeEl(ctx);
+    if (el) {
+      try { el.scrollIntoView({ block: "start" }); } catch (e) { el.scrollIntoView(); }
+      var n = el.querySelector('[data-k="name"]');
+      if (n) { try { n.focus({ preventScroll: true }); } catch (e2) { n.focus(); } }
+    }
+    saveDraft();
+  }
+
+  function removeCard(ctx, i) {
+    var list = cardsOf(ctx), s = list[i], act = activeOf(ctx);
+    if (ctx === "edit" && !window.confirm("למחוק את " + (fullName(soulOf(s)) || "השם") + " מהרשימה?")) return;
+    list.splice(i, 1);
+    if (ctx === "names" && !list.length) { list.push(newCard()); act = 0; }
+    else if (act === i) act = ctx === "names" ? list.length - 1 : -1;
+    else if (act > i) act--;
+    setActive(ctx, act);
+    renderCards(ctx);
+    saveDraft();
+  }
+
+  // ההודעה ליד התאריך, במקום חלון confirm. הכרטיס של אותו נפטר נפתח, והמסך גולל אליו.
+  function inlineAsk(w, head, cb) {
+    var ctx = gateCtx, list = cardsOf(ctx), i = list.indexOf(w.card);
+    if (ctx === "names" && currentView !== "names") show("names");
+    setActive(ctx, i < 0 ? 0 : i);
+    renderCards(ctx);
+    var el = activeEl(ctx), box = el ? el.querySelector("[data-gate]") : null;
+    if (!box) return cb("keep");
+    box.innerHTML = "<p><strong>" + esc(w.msg) + "</strong></p><div class=\"b\">" +
+      '<button type="button" class="nf-btn main" data-g="fix">' +
+      (w.fix ? "לתקן ל„" + esc(w.fix) + '"' : "לתקן") + "</button>" +
+      '<button type="button" class="nf-btn" data-g="keep">להשאיר כך</button></div>';
+    box.style.display = "block";
+    box.onclick = function (e) {
+      var b = e.target.closest ? e.target.closest("[data-g]") : null;
+      if (!b) return;
+      e.stopPropagation();
+      box.onclick = null;
+      box.style.display = "none";
+      box.innerHTML = "";
+      if (b.getAttribute("data-g") === "keep") {
+        w.card.dateOk = w.input.value;
+        saveDraft();
+        return cb("keep");
+      }
+      if (w.fix) { cb(true); renderCards(ctx); saveDraft(); return; }
+      cb(false);
+    };
+    var first = box.querySelector("button");
+    try { box.scrollIntoView({ block: "center" }); } catch (e) { box.scrollIntoView(); }
+    try { first.focus({ preventScroll: true }); } catch (e) { first.focus(); }
+  }
+  dateGate.ask = inlineAsk;
+
+  function runGate(ctx, list, onOk) {
+    gateCtx = ctx;
+    dateGate(list, function (fixed, got) {
+      if (got.error) return showCardError(ctx, got.card, got.field, got.error);
+      onOk(got);
+    });
+  }
+
+  // סוגרים את הכרטיס הפתוח: בדיקת חובה ליד השדה, ואז בדיקת התאריך שלו.
+  function finishActive(ctx, onOk) {
+    var list = cardsOf(ctx), a = activeOf(ctx), s = list[a];
+    if (a < 0 || !s) return onOk();
+    if (ctx === "names" && !s.orig && cardEmpty(s) && list.length > 1) {
+      list.splice(a, 1);
+      setActive(ctx, -1);
+      renderCards(ctx);
+      return onOk();
+    }
+    var bad = validate(s);
+    if (bad) return showCardError(ctx, s, bad.field, bad.msg);
+    runGate(ctx, [s], function () {
+      setActive(ctx, -1);
+      renderCards(ctx);
+      saveDraft();
+      onOk();
+    });
+  }
+
+  /* ---------- טיוטה ---------- */
+  // נשמרת בכל הקלדה ובכל בחירה, ומשוחזרת ברענון או בחזרה לדף. נמחקת אחרי שליחה מוצלחת.
+  function saveDraft() {
+    var any = namesCards.some(function (c) { return !cardEmpty(c); });
+    var mm = { name: $("name").value, phone: $("phone").value, email: $("email").value };
+    var typed = !me ? (mm.name || mm.phone || mm.email)
+                    : (mm.name !== me.name || mm.phone !== me.phone || mm.email !== me.email);
+    if (!any && !typed) { try { localStorage.removeItem(KEY_DRAFT); } catch (e) {} return; }
+    save(KEY_DRAFT, {
+      v: 1, ts: Date.now(),
+      view: currentView === "details" && detMode === "submit" ? "details" : "names",
+      active: namesActive,
+      cards: namesCards.map(function (c) {
+        var o = {}, k;
+        for (k in c) if (c.hasOwnProperty(k) && k !== "ypOpen") o[k] = c[k];
+        return o;
+      }),
+      me: mm
+    });
+  }
+  function clearDraft() { try { localStorage.removeItem(KEY_DRAFT); } catch (e) {} }
+
   /* ---------- מסך השמות ---------- */
-  var namesWrap = $("niftarim");
+  function refreshPrev() {
+    $("prev-on-names").innerHTML = saved.length
+      ? '<div class="note-box" style="margin:0 0 14px"><p>כבר מסרתם ' + saved.length +
+        (saved.length === 1 ? " שם" : " שמות") + ". הם שמורים אצלנו, ואין צורך למסור אותם שוב. " +
+        '<button type="button" class="nf-link" data-go="edit">שינוי השמות האלה</button></p></div>'
+      : "";
+    $("names-title").textContent = saved.length ? "שמות נוספים לעילוי נשמה" : "מסירת שם לעילוי נשמה";
+  }
 
   function prepNames() {
-    // מי שכבר מסר רואה קודם את מה שיש לו, ורק אחר כך את השדות הריקים.
-    // בלי זה הוא לא יודע אם השמות הישנים עדיין אצלנו.
-    $("prev-on-names").innerHTML = saved.length
-      ? '<h3 style="font-size:17px;color:var(--gold-deep);margin-bottom:0">' +
-        "השמות שכבר מסרת</h3>" + listHtml(saved) +
-        '<p style="margin:0 0 22px"><button type="button" class="btn btn-ghost" ' +
-        'data-go="edit">שינוי השמות האלה</button></p>' +
-        '<hr class="form-sep"><h3 style="font-size:17px;color:var(--gold-deep);' +
-        'margin-bottom:14px">שמות חדשים להוספה</h3>'
-      : "";
-    namesWrap.innerHTML = "";
-    namesWrap.appendChild(block());
-    renumber(namesWrap);
+    if (!namesCards.length) { namesCards = [newCard()]; namesActive = 0; }
+    refreshPrev();
+    renderCards("names");
     $("names-msg").className = "form-msg";
-    $("submit-btn").disabled = false;
-    $("submit-btn").textContent = "שליחת השמות";
-    var more = saved.length > 0;
-    $("names-step").textContent = more ? "" : "שלב 2 מתוך 2";
-    $("names-title").textContent = more ? "שמות נוספים" : "שמות הנפטרים";
   }
 
   $("add-niftar").addEventListener("click", function () {
-    if (namesWrap.querySelectorAll(".niftar").length >= MAX) return;
-    namesWrap.appendChild(block());
-    renumber(namesWrap);
+    finishActive("names", function () {
+      namesCards.push(newCard());
+      namesActive = namesCards.length - 1;
+      renderCards("names");
+      var el = activeEl("names");
+      if (el) {
+        try { el.scrollIntoView({ block: "start" }); } catch (e) { el.scrollIntoView(); }
+        var n = el.querySelector('[data-k="name"]');
+        if (n) { try { n.focus({ preventScroll: true }); } catch (e2) { n.focus(); } }
+      }
+      saveDraft();
+    });
   });
 
-  function send(payload, msgId, btn, onOk) {
-    btn.disabled = true;
-    var original = btn.textContent;
-    btn.textContent = "שולח...";
-    msg(msgId, "ok", "רגע אחד...");
+  $("names-next").addEventListener("click", function () {
+    finishActive("names", function () {
+      var got = collect(namesCards);
+      if (got.error) return showCardError("names", got.card, got.field, got.error);
+      runGate("names", namesCards, function () { detMode = "submit"; show("details"); });
+    });
+  });
+
+  /* ---------- מסך המוסר ---------- */
+  function renderDetNames() {
+    var h = "", i;
+    for (i = 0; i < namesCards.length; i++)
+      if (!cardEmpty(namesCards[i])) h += summaryHtml(namesCards[i], i, "names");
+    $("det-names").innerHTML = h;
+  }
+  $("det-names").addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest('[data-act="open"]') : null;
+    if (!b) return;
+    openCard("names", +b.closest("[data-i]").getAttribute("data-i"));
+  });
+
+  function prepDetails() {
+    var look = detMode === "lookup";
+    if (!look && !namesCards.some(function (c) { return !cardEmpty(c); })) return show("names");
+    $("det-step").style.display = look ? "none" : "";
+    $("det-title").textContent = look ? "שינוי שמות שמסרת" : "כמעט סיימנו";
+    $("det-names-wrap").style.display = look ? "none" : "";
+    $("det-lookup-lead").style.display = look ? "" : "none";
+    $("submit-btn").style.display = look ? "none" : "";
+    $("lookup-btn").style.display = look ? "" : "none";
+    $("det-back").textContent = look ? "חזרה" : "חזרה לשמות";
+    $("det-back").setAttribute("data-go", look ? "intro" : "names");
+    $("details-msg").className = "form-msg";
+    if (!look) renderDetNames();
+  }
+
+  ["name", "phone", "email"].forEach(function (id) {
+    $(id).addEventListener("input", function () { clearQ($(id).closest(".nf-q")); saveDraft(); });
+  });
+
+  // כשל רשת מול תשובת שרת הם שני דברים שונים, והבלבול ביניהם הוא מה שהסתיר
+  // את התקלה: `.catch` גורף הציג „משהו השתבש" גם ל-400 ולידציה, גם ל-502
+  // וגם לחסימת רשת, ולכן הנפגע לא יכול היה למסור שום דבר שימושי.
+  // דחייה של fetch = לא הגענו לשרת -> מנסים את הכתובת החלופית.
+  // תשובה עם קוד שגיאה = הגענו, והשרת אמר לא -> מדווחים את הקוד ולא חוזרים.
+  //
+  // **נוסח הדחייה של השרת מוצג כפי שהוא, כשהוא בעברית.** בדיקות ולידציה ותיקות
+  // מחזירות אנגלית, וזאת אין להציג, אז נופלים חזרה לקוד.
+  function send(payload, cb) {
     function post(url) {
       return fetch(url, {
         method: "POST",
@@ -1071,73 +1670,143 @@
         body: JSON.stringify(payload)
       });
     }
-
-    function fail(detail) {
-      btn.disabled = false;
-      btn.textContent = original;
-      msg(msgId, "err",
-        "משהו השתבש בשליחה" + (detail ? " (" + detail + ")" : "") + ". אפשר לנסות שוב, " +
-        "או לשלוח לנו את השמות בוואטסאפ למספר 052-8395189 ונטפל בזה ידנית.");
-    }
-
-    // כשל רשת מול תשובת שרת הם שני דברים שונים, והבלבול ביניהם הוא מה שהסתיר
-    // את התקלה: `.catch` גורף הציג „משהו השתבש" גם ל-400 ולידציה, גם ל-502
-    // וגם לחסימת רשת, ולכן הנפגע לא יכול היה למסור שום דבר שימושי.
-    // דחייה של fetch = לא הגענו לשרת -> מנסים את הכתובת החלופית.
-    // תשובה עם קוד שגיאה = הגענו, והשרת אמר לא -> מדווחים את הקוד ולא חוזרים.
-
-    // **נוסח הדחייה של השרת מוצג כפי שהוא, כשהוא בעברית.** השרת מחזיר נוסח
-    // עברי מלא על חריגה מהתקרות („אפשר למסור עד 5 שמות... ונשלחו 6"), ו„קוד
-    // 400" לבדו הוא כשל אטום בדיוק כמו החיתוך השקט שהוחלף בו - האדם אינו
-    // יודע מה לתקן, ולכן אינו מוסר. בדיקות ולידציה ותיקות מחזירות אנגלית,
-    // וזאת אין להציג, אז נופלים חזרה לקוד.
     function serverSaid(r) {
       return r.text().then(function (t) {
-        var msg = String(t || "").trim();
-        return /[\u0590-\u05FF]/.test(msg) ? msg : "קוד " + r.status;
+        var m = String(t || "").trim();
+        return /[֐-׿]/.test(m) ? m : "קוד " + r.status;
       }, function () { return "קוד " + r.status; });
     }
-
     post(ENDPOINT).then(function (r) {
-      if (r.ok) return onOk(true);
-      serverSaid(r).then(fail);
+      if (r.ok) return cb(null);
+      serverSaid(r).then(cb);
     }, function () {
       post(ENDPOINT_FALLBACK).then(function (r) {
-        if (r.ok) return onOk(true);
-        serverSaid(r).then(fail);
+        if (r.ok) return cb(null);
+        serverSaid(r).then(cb);
       }, function () {
-        fail("אין חיבור לשרת");
+        cb("אין חיבור לשרת");
       });
     });
   }
 
+  /* השרת מקבל עד MAX (5) נפטרים בבקשה, ודוחה בקול מעל זה. הטופס אינו מגביל
+     עוד את מספר השמות, ולכן לחיצה אחת שולחת אצוות של 5, אחת אחרי השנייה.
+     **מסירה רגילה בטוחה לפיצול** כי השרת ממזג לפי כתובת הדואר. **תיקון** מחליף
+     את כל הרשימה, ולכן רק האצווה הראשונה נשלחת עם kind: "correction" (מחליפה),
+     והבאות כמסירה רגילה (מצטברות) - והתוצאה בשרת זהה להחלפה מלאה. */
+  function sendBatches(base, isFix, msgId, btn, onDone) {
+    var all = base.niftarim || [], chunks = [], i;
+    for (i = 0; i < all.length; i += MAX) chunks.push(all.slice(i, i + MAX));
+    if (!chunks.length) chunks.push([]);
+    var k = 0, sent = [], original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "שולח...";
+    function finish(err) {
+      btn.disabled = false;
+      btn.textContent = original;
+      onDone(sent, err, chunks.length);
+    }
+    function next() {
+      if (k >= chunks.length) return finish(null);
+      msg(msgId, "ok", chunks.length > 1
+        ? "שולחים חלק " + (k + 1) + " מתוך " + chunks.length + "..." : "רגע אחד...");
+      var p = {}, key;
+      for (key in base) if (base.hasOwnProperty(key)) p[key] = base[key];
+      p.niftarim = chunks[k];
+      if (isFix && k > 0) delete p.kind;
+      send(p, function (err) {
+        if (err) return finish(err);
+        sent = sent.concat(chunks[k]);
+        k++;
+        next();
+      });
+    }
+    next();
+  }
+
+  function failText(detail, sentN, total) {
+    var head = sentN
+      ? sentN + " מתוך " + total + " השמות כבר נשלחו ונשמרו, והשאר עדיין לא נשלחו" +
+        (detail ? " (" + detail + ")" : "") + ". "
+      : "משהו השתבש בשליחה" + (detail ? " (" + detail + ")" : "") + ". ";
+    return head + "אפשר לנסות שוב, או לשלוח לנו את השמות בוואטסאפ למספר 052-8395189 ונטפל בזה ידנית.";
+  }
+
   $("submit-btn").addEventListener("click", function () {
-    var first = collect(namesWrap);
-    if (first.error) return msg("names-msg", "err", first.error);
-    dateGate(namesWrap, function (fixed, got) {
-    if (got.error) return msg("names-msg", "err", got.error);
-    send({
+    var btn = this;
+    if (!checkSender()) return;
+    var got = collect(namesCards);
+    if (got.error) return showCardError("names", got.card, got.field, got.error);
+    if (got.warn.length)
+      return runGate("names", namesCards, function () {
+        show("details");
+        msg("details-msg", "ok", "התאריכים נבדקו. אפשר ללחוץ שוב על „שליחת השמות\".");
+      });
+    var payload = {
       name: me.name, phone: me.phone, email: me.email,
-      note: $("note").value.trim(),
+      note: "",
       website: $("website").value,
       niftarim: got.list
-    }, "names-msg", $("submit-btn"), function () {
+    };
+    sendBatches(payload, false, "details-msg", btn, function (sent, err, parts) {
       // נשמר לפני שמציגים אישור. אישור בלי רשומה שמורה הוא בדיוק
       // התחושה של "השמות נעלמו" שהתקבלה בבדיקה הראשונה.
-      saved = saved.concat(got.list);
-      save(KEY_NAMES, saved);
-      $("note").value = "";
+      if (sent.length) {
+        saved = saved.concat(sent);
+        save(KEY_NAMES, saved);
+        var gone = got.cards.slice(0, sent.length);
+        namesCards = namesCards.filter(function (c) { return gone.indexOf(c) < 0; });
+      }
+      if (err) {
+        if (!namesCards.length) namesCards = [newCard()];
+        namesActive = -1;
+        renderDetNames();
+        saveDraft();
+        return msg("details-msg", "err", failText(err, sent.length, got.list.length));
+      }
+      clearDraft();
+      namesCards = [];
+      namesActive = 0;
+      $("details-msg").className = "form-msg";
       $("done-title").textContent = "השמות התקבלו";
       $("done-sub").textContent =
-        "שלחנו לכם אישור לדואר האלקטרוני, והשמות מועברים לאברכי הכולל. תזכו למצוות.";
-      renderInto($("done-list"), got.list);
-      var prev = saved.slice(0, saved.length - got.list.length);
+        "שלחנו לכם אישור לדואר האלקטרוני, והשמות מועברים לאברכי הכולל. תזכו למצוות." +
+        (parts > 1 ? " השמות נשלחו ב-" + parts + " חלקים, ולכן יגיעו אליכם " + parts +
+                     " מיילים של אישור." : "");
+      renderInto($("done-list"), sent);
+      var prev = saved.slice(0, saved.length - sent.length);
       $("done-prev").innerHTML = prev.length
         ? '<h3 style="font-size:17px;color:var(--gold-deep);margin:26px 0 0">' +
           "שמות שמסרת קודם</h3>" + listHtml(prev)
         : "";
       show("done");
+      refreshFromServer();
     });
+  });
+
+  // „שינוי שמות שמסרת" ממכשיר שאינו זוכר את השמות: שואלים את השרת לפי המייל.
+  $("lookup-btn").addEventListener("click", function () {
+    if (!checkSender()) return;
+    var btn = this, original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "בודקים...";
+    msg("details-msg", "ok", "רגע אחד...");
+    lookupNames(me.email, function (souls, err) {
+      btn.disabled = false;
+      btn.textContent = original;
+      if (err)
+        return msg("details-msg", "err", "לא הצלחנו לבדוק מול השרת (" + err +
+          "). אפשר לנסות שוב בעוד רגע. שמות שמסרתם בעבר לא ייפגעו מזה.");
+      // איחוד ולא החלפה. שמות שנמסרו לפני 22.9 קיימים רק באחסון המקומי.
+      var m = mergeFromServer(souls, saved, load(KEY_SYNCED, []));
+      saved = m.list;
+      save(KEY_NAMES, saved);
+      save(KEY_SYNCED, m.synced);
+      if (!saved.length)
+        return msg("details-msg", "err", "לא מצאנו שמות שנמסרו מהכתובת " + me.email +
+          ". אם מסרתם מכתובת אחרת, אפשר לתקן אותה למעלה ולנסות שוב.");
+      $("details-msg").className = "form-msg";
+      show("edit");
     });
   });
 
@@ -1166,51 +1835,59 @@
   }
 
   /* ---------- מסך התיקון ---------- */
-  var editWrap = $("edit-niftarim");
-
   function renderEdit() {
-    editWrap.innerHTML = "";
-    for (var i = 0; i < saved.length; i++) editWrap.appendChild(block(saved[i]));
-    renumber(editWrap);
+    editCards = saved.map(fromSoul);
+    editActive = -1;
+    renderCards("edit");
     $("edit-msg").className = "form-msg";
     $("edit-submit").disabled = false;
-    $("edit-submit").textContent = "שליחת התיקון";
   }
 
   $("edit-submit").addEventListener("click", function () {
-    var empty = !editWrap.querySelectorAll(".niftar").length;
-    var first = empty ? { list: [] } : collect(editWrap);
-    if (first.error) return msg("edit-msg", "err", first.error);
+    var btn = this;
+    if (!me) { detMode = "lookup"; return show("details"); }
+    var empty = !editCards.length;
+    var first = empty ? { list: [] } : collect(editCards);
+    if (first.error) return showCardError("edit", first.card, first.field, first.error);
     // רשימה ריקה היא בקשת הסרה מפורשת, ואין בה תאריכים לבדוק.
-    var gate = empty ? function (_, cb) { cb(false, { list: [] }); } : dateGate;
-    gate(editWrap, function (fixed, got) {
-    if (got.error) return msg("edit-msg", "err", got.error);
-    send({
-      kind: "correction",
-      name: me.name, phone: me.phone, email: me.email,
-      website: $("website").value,
-      niftarim: got.list
-    }, "edit-msg", $("edit-submit"), function () {
-      saved = got.list;
-      save(KEY_NAMES, saved);
-      $("done-title").textContent = empty ? "השמות הוסרו" : "התיקון נשלח";
-      $("done-sub").textContent = empty
-        ? "השמות הוסרו מהרשימה. שלחנו לכם אישור לדואר האלקטרוני, ואפשר למסור שמות מחדש בכל עת."
-        : "הרשימה המתוקנת אצלנו והיא מחליפה את הקודמת. שלחנו לכם אישור לדואר האלקטרוני.";
-      renderInto($("done-list"), saved);
-      $("done-prev").innerHTML = "";
-      show("done");
-    });
+    var gate = empty ? function (_, cb) { cb(false, { list: [] }); }
+                     : function (w, cb) { gateCtx = "edit"; dateGate(w, cb); };
+    gate(editCards, function (fixed, got) {
+      if (got.error) return showCardError("edit", got.card, got.field, got.error);
+      editActive = -1;
+      renderCards("edit");
+      sendBatches({
+        kind: "correction",
+        name: me.name, phone: me.phone, email: me.email,
+        website: $("website").value,
+        niftarim: got.list
+      }, true, "edit-msg", btn, function (sent, err) {
+        if (err) {
+          // האצווה הראשונה כבר החליפה את הרשימה בשרת; ניסיון חוזר שולח הכול
+          // מחדש, וזה בטוח: החלפה ואחריה מיזוג של אותם שמות אינם מכפילים.
+          if (sent.length) { saved = sent; save(KEY_NAMES, saved); }
+          return msg("edit-msg", "err", failText(err, sent.length, got.list.length));
+        }
+        saved = got.list;
+        save(KEY_NAMES, saved);
+        $("done-title").textContent = empty ? "השמות הוסרו" : "התיקון נשלח";
+        $("done-sub").textContent = empty
+          ? "השמות הוסרו מהרשימה. שלחנו לכם אישור לדואר האלקטרוני, ואפשר למסור שמות מחדש בכל עת."
+          : "הרשימה המתוקנת אצלנו והיא מחליפה את הקודמת. שלחנו לכם אישור לדואר האלקטרוני.";
+        renderInto($("done-list"), saved);
+        $("done-prev").innerHTML = "";
+        show("done");
+      });
     });
   });
-
-  refreshIntro();
 
   // רענון שקט מהשרת כשהמכשיר כבר מכיר את כתובת הדואר. בלי זה מסך הפתיחה
   // מציג את מה ש-localStorage זוכר כאילו הוא האמת, וזה נמדד 10.10.2026:
   // המכשיר הראה שני שמות בזמן ששבעים ומשהו שמות אחרים ישבו בשרת על אותה
   // כתובת. אין כאן שאלת פרטיות - זה אותו מכשיר שכבר מחזיק את הזהות.
-  if (me && me.email) {
+  // רץ בטעינה וגם אחרי מסירה מוצלחת - זה מה שנשאר מ„מסרתם שמות בעבר?", בשקט.
+  function refreshFromServer() {
+    if (!me || !me.email) return;
     lookupNames(me.email, function (souls, err) {
       // רשימה ריקה מהשרת היא תשובה ולא כשל: אם השרת הכיר שמות והם כולם
       // נמחקו ממכשיר אחר, דווקא כאן הם היו קמים לתחייה.
@@ -1222,10 +1899,9 @@
       if (m.list.map(soulKey).join("~") === saved.map(soulKey).join("~")) return;
       saved = m.list;
       save(KEY_NAMES, saved);
-      var on = document.querySelector(".view.on");
-      if (!on || on.id === "view-intro") refreshIntro();
-      if (on && on.id === "view-names") prepNames();
-      if (on && on.id === "view-list") renderList();
+      if (currentView === "intro") refreshIntro();
+      if (currentView === "names") refreshPrev();
+      if (currentView === "list") renderList();
     });
   }
 
@@ -1388,6 +2064,7 @@
     ]).then(function (res) {
       var fromForm = (res[0] && res[0].names) || [];
       var cfg = res[1] || {};
+      FY = cfg.firstYear || null;
       var all = ((cfg.names) || []).concat(fromForm);
       var weeks = cfg.weeks || [];
 
@@ -1410,6 +2087,39 @@
     });
   }
   loadPublic();
+
+  /* ---------- אתחול ---------- */
+  // רץ אחרון, אחרי ש-HEB_MONTHS ו-HEB_VAL כבר מוגדרים: הציור קורא ל-checkHebDate ול-hebKey.
+  wireCards("names");
+  wireCards("edit");
+  var draft = load(KEY_DRAFT, null), resume = "";
+  if (draft && draft.cards && draft.cards.length) {
+    namesCards = draft.cards.map(function (c) {
+      var s = newCard(), k;
+      for (k in c) if (c.hasOwnProperty(k)) s[k] = c[k];
+      s.ypOpen = false;
+      return s;
+    });
+    namesActive = typeof draft.active === "number" && draft.active < namesCards.length ? draft.active : 0;
+    // רענון או חזרה לדף ממשיכים מאותו מקום. טיוטה ישנה מחצי יום לא קופצת מעצמה,
+    // אבל נשמרת וחוזרת בלחיצה על „למסירת שם".
+    if (namesCards.some(function (c) { return !cardEmpty(c); }) &&
+        Date.now() - (draft.ts || 0) < 12 * 3600 * 1000)
+      resume = draft.view === "details" ? "details" : "names";
+  }
+  if (draft && draft.me)
+    ["name", "phone", "email"].forEach(function (k) { if (draft.me[k]) $(k).value = draft.me[k]; });
+
+  refreshIntro();
+
+  /* `?edit=1` - הכתובת שיוצאת במייל האישור ובהודעה ליעקב, כדי שתיקון שם
+     יהיה לחיצה אחת ולא חיפוש בדף. היא מובילה למסך הפרטים במצב „הצגת השמות
+     שמסרתי": הזיכרון המקומי לא קיים במכשיר אחר, ולכן השמות נשלפים מהשרת לפי
+     כתובת הדואר - בכל מכשיר. */
+  if (/[?&]edit=1\b/.test(window.location.search)) { detMode = "lookup"; show("details"); }
+  else if (resume) { detMode = "submit"; show(resume); }
+
+  refreshFromServer();
 })();
 </script>
 

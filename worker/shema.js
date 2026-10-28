@@ -209,36 +209,45 @@ async function verifyToken(token, secret) {
 // הוראה מפורשת של יעקב: "כשאתה לא בטוח שהמלל לא תקין, אתה מאפשר את זה".
 // כשל בקריאה (timeout/שגיאת רשת/שגיאת API) חייב לברור ל-OK תמיד - תקלה
 // אצל ספק ה-AI לעולם לא חוסמת פרסום.
+// המנוע הוא **Workers AI של קלאודפלייר**, ולא ספק חיצוני, וזו הכרעה של יעקב
+// מ-28.10.2026 („תחליף מנוע") אחרי שנמדד שהמנוע הקודם היה קריאה ל-API של
+// אנתרופיק. הנימוק אינו העדפת ספק אלא **הסרת כל נקודת כשל חיצונית**: הקישור
+// הוא binding מקומי של הוורקר, בלי מפתח API שיכול לפוג, להיגמר בקרדיט או
+// להיחסם, ולכן הסינון שורד גם כשקלוד סגור לגמרי. שתי החלופות שנבדקו באותו
+// יום **אינן זמינות בפועל**: ל-OpenAI אין קרדיט („You have no credits
+// remaining"), ו-Groq מחזיר 1010. המודל נבחר במדידה ולא לפי שם: אותן שבע
+// משאלות עברית, שתיים מהן פוגעניות, הורצו דרך שלושה מודלים -
+// llama-3.3-70b-fp8-fast החזיר 7/7 בשלוש הרצאות רצופות בלי פספוס וללא חסימה
+// לשווא, mistral-small-3.1-24b גם 7/7, ו-llama-3.1-8b החזיר פלט לא חוקי.
+const MODERATION_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+
 async function moderateWishes(env, texts) {
   const fallback = texts.map(() => "OK");
-  if (!env.ANTHROPIC_API_KEY || !texts.length) return fallback;
+  if (!env.AI || !texts.length) return fallback;
   try {
     const numbered = texts.map((t, i) => `${i + 1}. ${t}`).join("\n");
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 200,
-        temperature: 0,
-        system:
-          "אתה בודק תוכן קצר לפני פרסום בדף תפילה קהילתי. תפקידך היחיד הוא " +
-          "לזהות תוכן שהוא איום אלים ממשי, קללה בוטה, או הסתה - ותו לא. " +
-          "תוכן עצוב, כואב, מוזר, תמים, או כתוב בשגיאות - כל זה OK. " +
-          "כשיש לך ספק כלשהו, תמיד תבחר OK. תקבל רשימה ממוספרת של משפטים, " +
-          "ותחזיר אך ורק מערך JSON שטוח באורך זהה, כל איבר המילה 'OK' או " +
-          "'NEEDS_REVIEW', בלי שום טקסט נוסף לפני או אחרי.",
-        messages: [{ role: "user", content: numbered }],
-      }),
+    const out = await env.AI.run(MODERATION_MODEL, {
+      temperature: 0,
+      max_tokens: 200,
+      messages: [
+        {
+          role: "system",
+          content:
+            "אתה בודק תוכן קצר לפני פרסום בדף תפילה קהילתי. תפקידך היחיד הוא " +
+            "לזהות תוכן שהוא איום אלים ממשי, קללה בוטה, או הסתה - ותו לא. " +
+            "תוכן עצוב, כואב, מוזר, תמים, או כתוב בשגיאות - כל זה OK. " +
+            "כשיש לך ספק כלשהו, תמיד תבחר OK. תקבל רשימה ממוספרת של משפטים, " +
+            "ותחזיר אך ורק מערך JSON שטוח באורך זהה, כל איבר המילה 'OK' או " +
+            "'NEEDS_REVIEW', בלי שום טקסט נוסף לפני או אחרי.",
+        },
+        { role: "user", content: numbered },
+      ],
     });
-    if (!res.ok) return fallback;
-    const out = await res.json();
-    const text = out && out.content && out.content[0] && out.content[0].text;
-    if (!text) return fallback;
+    // התשובה חוזרת תחת `response`, ובחלק מהמודלים היא כבר מערך מפורק ולא
+    // מחרוזת - נמדד 28.10.2026, ולכן שני המקרים מטופלים במפורש.
+    let text = out && out.response;
+    if (Array.isArray(text)) text = JSON.stringify(text);
+    if (typeof text !== "string" || !text) return fallback;
     const match = text.match(/\[[\s\S]*\]/);
     const arr = JSON.parse(match ? match[0] : text);
     if (!Array.isArray(arr) || arr.length !== texts.length) return fallback;

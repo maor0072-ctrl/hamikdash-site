@@ -1,45 +1,6 @@
 {
- "generated": "2026-10-28T03:30",
+ "generated": "2026-10-29T03:30",
  "days": [
-  {
-   "starts_at": "2026-10-27T16:54+02:00",
-   "civil_day": "2026-10-28",
-   "hebrew_date": "י״ז חשוון תשפ״ז",
-   "weekday": "רביעי",
-   "title": "סגולות היום · הילולת צדיקים",
-   "wisdom": {
-    "text": "בְּכׇל עֵת אֹהֵב הָרֵעַ וְאָח לְצָרָה יִוָּלֵד",
-    "source": "משלי י״ז, י״ז",
-    "explanation": "חבר אמת נשאר בכל עת, ואח נולד בשביל יום קשה. זה זמן טוב להתקשר למי שזקוק לנו."
-   },
-   "tzadikim": [
-    {
-     "name": "רבי מנחם מנדל מקוסוב",
-     "one_liner": "מייסד חסידות קוסוב ואבי שושלת ויז'ניץ, בעל הספר „אהבת שלום”.",
-     "burial_place": "קוסוב"
-    },
-    {
-     "name": "הרב ראובן כץ",
-     "one_liner": "רבה של פתח תקווה למעלה משלושים שנה, בעל שו\"ת „דגל ראובן”.",
-     "burial_place": "בית הקברות סגולה, פתח תקווה"
-    },
-    {
-     "name": "רבי משולם זוסיא מטשרנוביל",
-     "one_liner": "האדמו\"ר הראשון משושלת טשרנוביל בארץ ישראל אחרי השואה.",
-     "burial_place": null
-    }
-   ],
-   "segula": "נוהגים לומר בכל יום את הפסוקים „עץ חיים היא למחזיקים בה... דרכיה דרכי נועם וכל נתיבותיה שלום\", וכתבו שהדבר מסוגל לאריכות ימים.",
-   "prayer": [],
-   "learning": {
-    "דף יומי": "בכורות מ׳",
-    "משנה יומית": "אהלות י״ג, ג׳-ד׳"
-   },
-   "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html",
-    "chok": "https://chok.reshimu.co.il/d/2026-10-28"
-   }
-  },
   {
    "starts_at": "2026-10-28T16:53+02:00",
    "civil_day": "2026-10-29",
@@ -70,8 +31,7 @@
     "משנה יומית": "אהלות י״ג, ה׳-ו׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html",
-    "chok": "https://chok.reshimu.co.il/d/2026-10-29"
+    "hilula_page": "https://hamikdash.co.il/hilula.html"
    }
   },
   {
@@ -99,8 +59,7 @@
     "משנה יומית": "אהלות י״ד, א׳-ב׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html",
-    "chok": "https://chok.reshimu.co.il/d/2026-10-30"
+    "hilula_page": "https://hamikdash.co.il/hilula.html"
    }
   },
   {
@@ -133,8 +92,7 @@
     "משנה יומית": "אהלות י״ד, ג׳-ד׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html",
-    "chok": "https://chok.reshimu.co.il/d/2026-10-31"
+    "hilula_page": "https://hamikdash.co.il/hilula.html"
    }
   },
   {
@@ -156,8 +114,7 @@
     "משנה יומית": "אהלות י״ד, ה׳-ו׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html",
-    "chok": "https://chok.reshimu.co.il/d/2026-11-01"
+    "hilula_page": "https://hamikdash.co.il/hilula.html"
    }
   },
   {
@@ -190,8 +147,7 @@
     "משנה יומית": "אהלות י״ד, ז׳ עד ט״ו, א׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html",
-    "chok": "https://chok.reshimu.co.il/d/2026-11-02"
+    "hilula_page": "https://hamikdash.co.il/hilula.html"
    }
   },
   {
@@ -213,8 +169,7 @@
     "משנה יומית": "אהלות ט״ו, ב׳-ג׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html",
-    "chok": "https://chok.reshimu.co.il/d/2026-11-03"
+    "hilula_page": "https://hamikdash.co.il/hilula.html"
    }
   },
   {
@@ -242,8 +197,7 @@
     "משנה יומית": "אהלות ט״ו, ד׳-ה׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html",
-    "chok": "https://chok.reshimu.co.il/d/2026-11-04"
+    "hilula_page": "https://hamikdash.co.il/hilula.html"
    }
   },
   {
@@ -265,8 +219,7 @@
     "משנה יומית": "אהלות ט״ו, ו׳-ז׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html",
-    "chok": "https://chok.reshimu.co.il/d/2026-11-05"
+    "hilula_page": "https://hamikdash.co.il/hilula.html"
    }
   },
   {
@@ -288,8 +241,7 @@
     "משנה יומית": "אהלות ט״ו, ח׳-ט׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html",
-    "chok": "https://chok.reshimu.co.il/d/2026-11-06"
+    "hilula_page": "https://hamikdash.co.il/hilula.html"
    }
   },
   {
@@ -322,8 +274,7 @@
     "משנה יומית": "אהלות ט״ו, י׳ עד ט״ז, א׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html",
-    "chok": "https://chok.reshimu.co.il/d/2026-11-07"
+    "hilula_page": "https://hamikdash.co.il/hilula.html"
    }
   },
   {
@@ -351,8 +302,7 @@
     "משנה יומית": "אהלות ט״ז, ב׳-ג׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html",
-    "chok": "https://chok.reshimu.co.il/d/2026-11-08"
+    "hilula_page": "https://hamikdash.co.il/hilula.html"
    }
   },
   {
@@ -376,8 +326,7 @@
     "משנה יומית": "אהלות ט״ז, ד׳-ה׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html",
-    "chok": "https://chok.reshimu.co.il/d/2026-11-09"
+    "hilula_page": "https://hamikdash.co.il/hilula.html"
    }
   },
   {
@@ -402,8 +351,32 @@
     "משנה יומית": "אהלות י״ז, א׳-ב׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html",
-    "chok": "https://chok.reshimu.co.il/d/2026-11-10"
+    "hilula_page": "https://hamikdash.co.il/hilula.html"
+   }
+  },
+  {
+   "starts_at": "2026-11-10T16:42+02:00",
+   "civil_day": "2026-11-11",
+   "hebrew_date": "א׳ כסלו תשפ״ז",
+   "weekday": "רביעי",
+   "title": "סגולות היום · הילולת צדיקים",
+   "wisdom": {
+    "text": "יִשְׁמַע חָכָם וְיוֹסֶף לֶקַח וְנָבוֹן תַּחְבֻּלוֹת יִקְנֶה",
+    "source": "משלי א׳, ה׳",
+    "explanation": "החכם תמיד מוכן לשמוע ולהוסיף ללמוד. כל יום הוא הזדמנות לקבל עוד משהו מאחרים."
+   },
+   "tzadikim": [],
+   "segula": "נוהגים לומר פרשת הקטורת בכוונה בבוקר ובערב, כפי שהיא בסידור, וכתבו שהיא מסוגלת לפרנסה.",
+   "prayer": [
+    "אין תחנון (ראש חודש)",
+    "תיקון חצות: תיקון לאה בלבד"
+   ],
+   "learning": {
+    "דף יומי": "בכורות נ״ד",
+    "משנה יומית": "אהלות י״ז, ג׳-ד׳"
+   },
+   "links": {
+    "hilula_page": "https://hamikdash.co.il/hilula.html"
    }
   }
  ]

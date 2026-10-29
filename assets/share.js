@@ -22,6 +22,8 @@
     ".shr{margin:26px auto 0;max-width:760px;padding:18px 20px;" +
     "border:1px solid #e6dfd1;border-radius:12px;background:#fdfbf6}" +
     "@media(max-width:860px){.shr{margin-inline:18px}}" +
+    // בתוך כרטיס הסיום הכרטיס כבר נותן ריפוד, ושוליים נוספים רק מצרים בטלפון.
+    ".form-card .shr{margin:22px 0 4px}" +
     ".shr-title{font-weight:700;color:#1c1a17;margin:0 0 4px;font-size:17px}" +
     ".shr-sub{color:#6b6459;margin:0 0 14px;font-size:15px;line-height:1.6}" +
     ".shr-row{display:flex;flex-wrap:wrap;gap:10px}" +
@@ -77,25 +79,26 @@
     var said = document.createElement("p");
     said.className = "shr-said";
 
-    // שיתוף מערכת - רק אם הדפדפן באמת תומך.
-    if (navigator.share) {
-      var nat = document.createElement("button");
-      nat.type = "button";
-      nat.className = "shr-btn shr-btn-main";
-      nat.appendChild(document.createTextNode("שיתוף"));
-      nat.addEventListener("click", function () {
-        navigator.share({ text: full }).catch(function () {});
-      });
-      row.appendChild(nat);
-    }
-
+    // וואטסאפ ראשון: שם יושב הקהל, וזה הכפתור שרוב המבקרים ילחצו.
     var wa = document.createElement("a");
     wa.className = "shr-btn shr-btn-wa";
     wa.href = "https://wa.me/?text=" + encodeURIComponent(full);
     wa.target = "_blank";
     wa.rel = "noopener";
-    wa.appendChild(document.createTextNode("וואטסאפ"));
+    wa.appendChild(document.createTextNode("שליחה בוואטסאפ"));
     row.appendChild(wa);
+
+    // שיתוף מערכת - רק אם הדפדפן באמת תומך.
+    if (navigator.share) {
+      var nat = document.createElement("button");
+      nat.type = "button";
+      nat.className = "shr-btn shr-btn-main";
+      nat.appendChild(document.createTextNode("שיתוף בדרך אחרת"));
+      nat.addEventListener("click", function () {
+        navigator.share({ text: full }).catch(function () {});
+      });
+      row.appendChild(nat);
+    }
 
     var cp = document.createElement("button");
     cp.type = "button";

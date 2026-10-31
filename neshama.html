@@ -587,7 +587,7 @@ textarea.nf-in{min-height:64px;resize:vertical}
     var d = String(p).replace(/[\s\-().]/g, "");
     return /^(\+?972|0)5\d{8}$/.test(d) || /^\+\d{9,15}$/.test(d);
   }
-  function validEmail(e) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e); }
+  function validEmail(e) { return /^[^@\s.]+(\.[^@\s.]+)*@[^@\s.]+(\.[^@\s.]+)*\.[A-Za-z]{2,}$/.test(e); }
 
   // שגיאה **ליד השדה החסר**, בנוסח שאומר מה חסר, והמסך גולל אליו ומעביר אליו
   // מיקוד. הודעה כללית בתחתית הטופס („חסרים פרטים") השאירה את האדם לחפש לבד.

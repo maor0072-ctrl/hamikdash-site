@@ -1012,7 +1012,7 @@ textarea.nf-in{min-height:64px;resize:vertical}
       q(pre + "family", "family", false, "שם משפחה של הנפטר", "יופיע בסוגריים ליד השם, גם ברשימה השבועית שבאתר.",
         '<input type="text" class="nf-in n-family" id="' + pre + 'family" data-k="family" maxlength="60" value="' +
         esc(s.family) + '">', exB("כהן")) +
-      q("", "gender", true, "נפטר או נפטרת", "",
+      q("", "gender", true, "נפטר או נפטרת (זכר או נקבה)", "",
         '<div class="nf-pick" role="group" aria-label="נפטר או נפטרת">' +
         pickBtn("gender", "m", "נפטר", s.gender === "m", ' data-f="gender"') +
         pickBtn("gender", "f", "נפטרת", s.gender === "f") + "</div>", exB("נפטר")) +

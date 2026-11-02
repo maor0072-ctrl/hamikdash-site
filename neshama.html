@@ -1007,7 +1007,7 @@ textarea.nf-in{min-height:64px;resize:vertical}
         '" data-act="remove">' + rm + "</button>" : "") + "</h3>" +
       '<div class="nf-cols"><span>מה שאתם ממלאים</span><span>דוגמה</span></div>' +
       q(pre + "name", "name", true, "השם הפרטי של הנפטר", "אם היו לו שני שמות, כותבים את שניהם. בלי שם משפחה.",
-        '<input type="text" class="nf-in n-name" id="' + pre + 'name" data-k="name" maxlength="120" value="' +
+        '<input type="text" class="nf-in n-name" placeholder="תרשמו כאן רק שם פרטי!" id="' + pre + 'name" data-k="name" maxlength="120" value="' +
         esc(s.name) + '">', exB("יעקב משה")) +
       q(pre + "family", "family", false, "שם משפחה של הנפטר", "יופיע בסוגריים ליד השם, גם ברשימה השבועית שבאתר.",
         '<input type="text" class="nf-in n-family" id="' + pre + 'family" data-k="family" maxlength="60" value="' +

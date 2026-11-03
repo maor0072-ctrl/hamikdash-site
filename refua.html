@@ -347,7 +347,14 @@
   // rem-based breakpoint follows browser text size. Detect a larger root font for stacking.
   const app=$('prayer-app');function fontSizeChanged(){app.classList.toggle('large-text',parseFloat(getComputedStyle(document.documentElement).fontSize)>18);}
   fontSizeChanged();window.addEventListener('resize',fontSizeChanged);
-  if(state.jobs){state.stage='details';const pending=state.jobs.reduce((sum,j)=>sum+j.entries.length,0);message=pending?format(TEXT.partial,{sent:state.received,pending}):TEXT.partialChanges;messageError=true;}render();
+  if(state.jobs){state.stage='details';const pending=state.jobs.reduce((sum,j)=>sum+j.entries.length,0);message=pending?format(TEXT.partial,{sent:state.received,pending}):TEXT.partialChanges;messageError=true;}
+  // קישור ישיר לסוג בקשה: refua.html?type=wishes או #wishes פותח את הטופס על „שאר בקשות", ו-refua על „רפואה שלמה".
+  if(!state.jobs){const want=(new URLSearchParams(location.search).get('type')||location.hash.replace('#','')).toLowerCase();
+    const preset={wishes:'bakasha',bakasha:'bakasha',refua:'refua'}[want];
+    if(preset){if(state.stage!=='names'||!state.items.length){const n=blank();n.type=preset;state.items.push(n);state.active=n.id;state.stage='names';}
+      else{const n=state.items.find(x=>x.id===state.active);if(n&&!n.type)n.type=preset;}
+      persist();render();app.scrollIntoView({block:'start'});return;}}
+  render();
 })();
 </script>
 <!-- BUILD-FORM-END -->

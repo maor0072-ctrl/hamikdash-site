@@ -1,39 +1,6 @@
 {
- "generated": "2026-11-02T03:30",
+ "generated": "2026-11-03T03:30",
  "days": [
-  {
-   "starts_at": "2026-11-01T16:49+02:00",
-   "civil_day": "2026-11-02",
-   "hebrew_date": "כ״ב חשוון תשפ״ז",
-   "weekday": "שני",
-   "title": "סגולות היום · הילולת צדיקים",
-   "wisdom": {
-    "text": "טוֹב עַיִן הוּא יְבֹרָךְ כִּי נָתַן מִלַּחְמוֹ לַדָּל",
-    "source": "משלי כ״ב, ט׳",
-    "explanation": "טוב עין הוא מי שרואה את הזולת ומשתף אותו בלחם שלו. נדיבות מתחילה במבט."
-   },
-   "tzadikim": [
-    {
-     "name": "רבי יששכר דב מבעלז",
-     "one_liner": "רב העיירה בעלז והאדמו״ר השלישי של חסידות בעלז.",
-     "burial_place": "בעלז"
-    },
-    {
-     "name": "הרב חיים יעקב מישקינסקי",
-     "one_liner": "רב ליטאי, רבן של קנישין וסוויסלוץ׳, שנספה בשואה.",
-     "burial_place": null
-    }
-   ],
-   "segula": "נוהגים לומר בכל יום את שירת „האזינו\", וכתבו שהיא שומרת מפני דעות רעות.",
-   "prayer": [],
-   "learning": {
-    "דף יומי": "בכורות מ״ה",
-    "משנה יומית": "אהלות י״ד, ז׳ עד ט״ו, א׳"
-   },
-   "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
-   }
-  },
   {
    "starts_at": "2026-11-02T16:48+02:00",
    "civil_day": "2026-11-03",
@@ -53,7 +20,9 @@
     "משנה יומית": "אהלות ט״ו, ב׳-ג׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://chok.reshimu.co.il/d/2026-11-03",
+    "chok_label": "📖 חוק לישראל להיום - עם פירוש לגמרא ולזוהר בשפה פשוטה"
    }
   },
   {
@@ -81,7 +50,9 @@
     "משנה יומית": "אהלות ט״ו, ד׳-ה׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://chok.reshimu.co.il/d/2026-11-04",
+    "chok_label": "📖 חוק לישראל להיום - עם פירוש לגמרא ולזוהר בשפה פשוטה"
    }
   },
   {
@@ -103,7 +74,9 @@
     "משנה יומית": "אהלות ט״ו, ו׳-ז׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://chok.reshimu.co.il/d/2026-11-05",
+    "chok_label": "📖 חוק לישראל להיום - עם פירוש לגמרא ולזוהר בשפה פשוטה"
    }
   },
   {
@@ -125,7 +98,9 @@
     "משנה יומית": "אהלות ט״ו, ח׳-ט׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://chok.reshimu.co.il/d/2026-11-06",
+    "chok_label": "📖 חוק לישראל להיום - עם פירוש לגמרא ולזוהר בשפה פשוטה"
    }
   },
   {
@@ -158,7 +133,9 @@
     "משנה יומית": "אהלות ט״ו, י׳ עד ט״ז, א׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://chok.reshimu.co.il/d/2026-11-07",
+    "chok_label": "📖 חוק לישראל להיום - עם פירוש לגמרא ולזוהר בשפה פשוטה"
    }
   },
   {
@@ -186,7 +163,9 @@
     "משנה יומית": "אהלות ט״ז, ב׳-ג׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://chok.reshimu.co.il/d/2026-11-08",
+    "chok_label": "📖 חוק לישראל להיום - עם פירוש לגמרא ולזוהר בשפה פשוטה"
    }
   },
   {
@@ -200,7 +179,13 @@
     "source": "משלי כ״ט, כ״ג",
     "explanation": "הגאווה משפילה את האדם, והענווה מביאה אליו כבוד. כדאי לרדוף אחרי האמת ולא אחרי הכבוד."
    },
-   "tzadikim": [],
+   "tzadikim": [
+    {
+     "name": "דוד שלמה רבינוביץ מקוברין",
+     "one_liner": ".",
+     "burial_place": null
+    }
+   ],
    "segula": "נוהגים לומר על ילד את הפסוק „ואני ברוב חסדך אבוא ביתך\", וכתבו שהוא מועיל נגד עין הרע.",
    "prayer": [
     "במנחה אין תחנון (מחר ראש חודש)"
@@ -210,7 +195,9 @@
     "משנה יומית": "אהלות ט״ז, ד׳-ה׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://chok.reshimu.co.il/d/2026-11-09",
+    "chok_label": "📖 חוק לישראל להיום - עם פירוש לגמרא ולזוהר בשפה פשוטה"
    }
   },
   {
@@ -235,7 +222,9 @@
     "משנה יומית": "אהלות י״ז, א׳-ב׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://chok.reshimu.co.il/d/2026-11-10",
+    "chok_label": "📖 חוק לישראל להיום - עם פירוש לגמרא ולזוהר בשפה פשוטה"
    }
   },
   {
@@ -260,7 +249,9 @@
     "משנה יומית": "אהלות י״ז, ג׳-ד׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://chok.reshimu.co.il/d/2026-11-11",
+    "chok_label": "📖 חוק לישראל להיום - עם פירוש לגמרא ולזוהר בשפה פשוטה"
    }
   },
   {
@@ -288,7 +279,9 @@
     "משנה יומית": "אהלות י״ז, ה׳ עד י״ח, א׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://chok.reshimu.co.il/d/2026-11-12",
+    "chok_label": "📖 חוק לישראל להיום - עם פירוש לגמרא ולזוהר בשפה פשוטה"
    }
   },
   {
@@ -310,7 +303,9 @@
     "משנה יומית": "אהלות י״ח, ב׳-ג׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://chok.reshimu.co.il/d/2026-11-13",
+    "chok_label": "📖 חוק לישראל להיום - עם פירוש לגמרא ולזוהר בשפה פשוטה"
    }
   },
   {
@@ -343,7 +338,9 @@
     "משנה יומית": "אהלות י״ח, ד׳-ה׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://chok.reshimu.co.il/d/2026-11-14",
+    "chok_label": "📖 חוק לישראל להיום - עם פירוש לגמרא ולזוהר בשפה פשוטה"
    }
   },
   {
@@ -376,7 +373,33 @@
     "משנה יומית": "אהלות י״ח, ו׳-ז׳"
    },
    "links": {
-    "hilula_page": "https://hamikdash.co.il/hilula.html"
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://chok.reshimu.co.il/d/2026-11-15",
+    "chok_label": "📖 חוק לישראל להיום - עם פירוש לגמרא ולזוהר בשפה פשוטה"
+   }
+  },
+  {
+   "starts_at": "2026-11-15T16:39+02:00",
+   "civil_day": "2026-11-16",
+   "hebrew_date": "ו׳ כסלו תשפ״ז",
+   "weekday": "שני",
+   "title": "סגולות היום · הילולת צדיקים",
+   "wisdom": {
+    "text": "נְצֹר בְּנִי מִצְוַת אָבִיךָ וְאַל תִּטֹּשׁ תּוֹרַת אִמֶּךָ",
+    "source": "משלי ו׳, כ׳",
+    "explanation": "שמור את מצוות אביך ואל תעזוב את תורת אמך. המסורת שקיבלנו מהבית היא שורש שמחזיק אותנו."
+   },
+   "tzadikim": [],
+   "segula": "נוהגים לומר בכל יום את מזמור קל\"א בתהילים („ה' לא גבה לבי\"), ומובא בשם האר\"י שהוא מסוגל למידת הענווה.",
+   "prayer": [],
+   "learning": {
+    "דף יומי": "בכורות נ״ט",
+    "משנה יומית": "אהלות י״ח, ח׳-ט׳"
+   },
+   "links": {
+    "hilula_page": "https://hamikdash.co.il/hilula.html",
+    "chok": "https://chok.reshimu.co.il/d/2026-11-16",
+    "chok_label": "📖 חוק לישראל להיום - עם פירוש לגמרא ולזוהר בשפה פשוטה"
    }
   }
  ]

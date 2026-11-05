@@ -14,7 +14,16 @@ export { CounterDO } from "./tehillim-counter-do.js";
 
 import { UNITS } from "./tehillim-units.js";
 import { inQuietWindow } from "./tehillim-quiet.js";
-import { selectItems, renderCatalog, cleanGroupUrl, pickGroup } from "./tehillim-catalog.js";
+import {
+  selectItems,
+  renderCatalog,
+  cleanGroupUrl,
+  pickGroup,
+  isIdle,
+  pickGeneral,
+  pickSuggest,
+  labelFor,
+} from "./tehillim-catalog.js";
 
 const ALLOWED = [
   "https://hamikdash.co.il",
@@ -27,6 +36,12 @@ const SITE = "https://hamikdash.co.il";
 const SHORT = "https://t.hamikdash.co.il";
 const FROM_ADDR = "info@hamikdash.co.il";
 const FROM_NAME = "אורות האמונה - אתר המקדש";
+
+// בסיס המונה: קריאה שנעשתה מחוץ לאתר (הכרעת יעקב ה3, 5.11.2026).
+// מ-24.9 עד 5.11.2026 (שישה שבועות) יעקב קרא שני ספרים בשבוע, ובני המשפחה
+// והחברים לפחות ספר בשבוע, לרפואת אברהם בן שרה: 18 ספרים, 2,700 פרקים.
+// נכנס ל-total ול-booksDone של /api/stats בלבד. today ו-month נשארים אמיתיים.
+const OFFLINE_BASE = { books: 18, chapters: 2700, asOf: "2026-11-05" };
 
 const DEFAULT_BUDGET_MS = 60 * 60 * 1000; // שעה. קבוע בפרוסה 1 (הכרעה א4).
 const UNIT_COUNT = UNITS.length;
@@ -226,18 +241,47 @@ async function catalogItems(env) {
   const reg = await doCall(counter(env), "catalog-list", { limit: 60 });
   const ids = reg && reg.ok ? reg.books.map((b) => b.id) : [];
   const all = [KLALI_ID].concat(ids.filter((id) => id !== KLALI_ID));
-  const rows = await Promise.all(
-    all.map(async (id) => {
+  const rows = await bookRows(env, all);
+  const now = Date.now();
+  const sticky = await generalSticky(env, rows, now);
+  return selectItems(rows, now, sticky);
+}
+
+// counts חי מכל ספר, במקביל. ספר אחד שנכשל לא מפיל את הרשימה.
+async function bookRows(env, ids) {
+  return Promise.all(
+    ids.map(async (id) => {
       try {
         const r = await doCall(book(env, id), "counts", {});
         r.id = id;
         return r;
       } catch (e) {
-        return null; // ספר אחד שנכשל לא מפיל את העמוד
+        return null;
       }
     })
   );
-  return selectItems(rows, Date.now());
+}
+
+// הספרים שכבר הפכו לכלליים, ורישום של מי שהתגלה עכשיו כרדום (הכרעה ה5).
+// כשל במונה אינו מפיל: נשארים עם הזיהוי החי בלבד.
+async function generalSticky(env, rows, now) {
+  let sticky = {};
+  try {
+    const g = await doCall(counter(env), "gen-list", {});
+    if (g && g.ok) sticky = g.general || {};
+  } catch (e) {
+    return sticky;
+  }
+  const fresh = rows.filter((r) => r && !sticky[r.id] && isIdle(r, now)).map((r) => r.id);
+  if (fresh.length) {
+    try {
+      await doCall(counter(env), "gen-mark", { ids: fresh });
+      for (const id of fresh) sticky[id] = now;
+    } catch (e) {
+      /* יירשם בפעם הבאה */
+    }
+  }
+  return sticky;
 }
 
 // ===== דואר =====
@@ -503,7 +547,36 @@ async function handleApi(request, url, env, origin) {
 
   if (parts[1] === "stats") {
     const s = await doCall(counter(env), "stats", {});
+    if (s && s.ok) {
+      // total ו-booksDone כוללים את בסיס הקריאה שמחוץ לאתר (OFFLINE_BASE).
+      // books נשאר מספר הספרים שנפתחו באתר, כפי שהיה.
+      s.total = Number(s.total || 0) + OFFLINE_BASE.chapters;
+      s.booksDone = Number(s.done || 0) + OFFLINE_BASE.books;
+      s.offline = OFFLINE_BASE;
+    }
     return json(s, 200, origin, { "Cache-Control": "public, max-age=30" });
+  }
+
+  // "לקרוא עכשיו" בעמוד הפתיחה (הכרעות ה2, ה5): הספר הוותיק ביותר מבין
+  // הספרים שהפכו לכלליים, ואם אין - הקריאה הכללית. רק ספרים שהפותח הסכים
+  // לפרסם בקטלוג נבחנים: ספר שלא פורסם לא נשלח לזרים.
+  if (parts[1] === "general" && request.method === "GET") {
+    const reg = await doCall(counter(env), "catalog-list", { limit: 100, oldest: true });
+    const ids = (reg && reg.ok ? reg.books.map((b) => b.id) : []).filter((id) => id !== KLALI_ID);
+    const rows = await bookRows(env, ids);
+    const now = Date.now();
+    const sticky = await generalSticky(env, rows, now);
+    const g = pickGeneral(rows, now, sticky);
+    if (g) {
+      const tok = await publicToken(g.id);
+      return json({ ok: true, url: SHORT + "/" + tok, token: tok, title: labelFor(g), idle: true }, 200, origin,
+        { "Cache-Control": "public, max-age=30" });
+    }
+    const r = await doCall(book(env, KLALI_ID), "reopen", { meta: KLALI_META });
+    if (!r || !r.ok) return fail("klali_failed", origin);
+    const tok = await publicToken(KLALI_ID);
+    return json({ ok: true, url: SHORT + "/" + tok, token: tok, title: KLALI_META.title, idle: false }, 200, origin,
+      { "Cache-Control": "public, max-age=30" });
   }
 
   if (parts[1] === "group" && request.method === "GET") {
@@ -561,6 +634,26 @@ async function handleApi(request, url, env, origin) {
       return json(s, 200, origin);
     }
 
+    // הפרק המוצע (הכרעה ה1). אינו תופס את הפרק ואינו נספר - רק take/read משנים מצב.
+    if (op === "suggest" && request.method === "GET") {
+      const s = await doCall(stub, "state", { readerKey: readerKey });
+      if (!s || !s.ok || (!s.createdAt && !(s.units && s.units.length))) {
+        return json({ ok: false, error: "no_book" }, 404, origin);
+      }
+      const left = s.counts ? s.counts.total - s.counts.read : 0;
+      const pick = s.status === "open" ? pickSuggest(s.units) : null;
+      if (!pick) return json({ ok: true, idx: null, done: true, left: left }, 200, origin);
+      const u = UNITS[pick.idx] || {};
+      return json({
+        ok: true,
+        idx: pick.idx,
+        done: false,
+        state: pick.state,
+        unit: { i: pick.idx, ch: u.ch, part: u.part, name: u.name, v: u.v, min: u.min },
+        left: left,
+      }, 200, origin);
+    }
+
     if (op === "take" && request.method === "POST") {
       const idxs = cleanIdxs(b.idxs);
       if (!idxs || !readerKey) return json({ ok: false, error: "bad_request" }, 400, origin);
@@ -594,6 +687,13 @@ async function handleApi(request, url, env, origin) {
       // כל ספר שנגמר נפתח מיד לסבב נוסף, ולא רק הקריאה הכללית (הכרעה 13, 10.10:
       // „ברגע שהוא נסגר לפתוח עוד אחד"). סבב נוסף שאין בו קוראים שבוע יורד מהקטלוג
       // מעצמו (tehillim-catalog.js), כך שסבבים ריקים אינם מציפים אותו.
+      if (r.ok && r.closed && r.read && r.read.length) {
+        try {
+          await doCall(counter(env), "book-done", {});
+        } catch (e) {
+          /* המונה אינו קריטי לסימון */
+        }
+      }
       if (r.ok && r.closed) {
         r.reopened = true;
         try {

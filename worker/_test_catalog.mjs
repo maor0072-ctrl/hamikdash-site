@@ -41,7 +41,11 @@ const items = selectItems([
   row({ id: "klali", kind: "klali", title: "הקריאה הכללית", createdAt: NOW - 400 * DAY }),
 ], NOW);
 const ids = items.map((i) => i.id);
-check("מסנן סגור/מלא/תפוס-כולו/ישן/לא-קיים", ids.join() === "klali,newer,open1,staleButRead", ids.join());
+// "stale" עמד 100 יום בלי קריאה: מאז הכרעה ה5 (5.11.2026) הוא ספר כללי ונשאר בקטלוג
+check("מסנן סגור/מלא/תפוס-כולו/לא-קיים; ספר רדום נשאר ככללי", ids.join() === "klali,newer,open1,stale,staleButRead", ids.join());
+check("הרדום מסומן general", items.find((i) => i.id === "stale").general === true && items.find((i) => i.id === "open1").general === false);
+const staleRound = selectItems([row({ id: "r2", cycle: 2, createdAt: NOW - 100 * DAY })], NOW);
+check("סבב שני ישן אינו כללי ויורד", staleRound.length === 0, JSON.stringify(staleRound));
 check("הקריאה הכללית ראשונה גם כשהיא הישנה ביותר ואינה נחשבת ישנה", ids[0] === "klali");
 
 // 4. תווית

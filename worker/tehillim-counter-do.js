@@ -117,6 +117,31 @@ export class CounterDO {
     return this.stats();
   }
 
+  // "books" סופר ספרים שנפתחו. "done" סופר ספרים שהושלמו - כל סבב שנגמר,
+  // גם של הקריאה הכללית. התחיל לספור ב-5.11.2026 (הכרעה ה3).
+  bumpDone() {
+    this.add("done", 1);
+    return this.stats();
+  }
+
+  // ספרים שהפכו לכלליים (הכרעה ה5). שורות gen:<bookId> בטבלת c הקיימת,
+  // כדי שלא יידרש שינוי סכמה. v = הזמן שבו זוהו כרדומים.
+  genList() {
+    const rows = this.sql.exec("SELECT k, v FROM c WHERE k LIKE 'gen:%'").toArray();
+    const out = {};
+    for (const r of rows) out[String(r.k).slice(4)] = Number(r.v);
+    return { ok: true, general: out };
+  }
+
+  genMark(ids) {
+    const now = Date.now();
+    for (const id of (ids || []).slice(0, 100)) {
+      if (!id) continue;
+      this.sql.exec("INSERT OR IGNORE INTO c (k, v) VALUES (?, ?)", "gen:" + String(id).slice(0, 24), now);
+    }
+    return { ok: true };
+  }
+
   // ---- הקטלוג הציבורי ----
   catalogSet(bookId, listed) {
     if (!bookId) return { ok: false, error: "bad_request" };
@@ -136,10 +161,14 @@ export class CounterDO {
   }
 
   // הרשומים, החדשים קודם. התקרה מגנה על העמוד: כל ספר הוא קריאה ל-DO.
-  catalogList(limit) {
+  // oldest - הוותיקים קודם (לבחירת הספר הכללי), אחרת החדשים קודם.
+  catalogList(limit, oldest) {
     const n = Math.max(1, Math.min(100, Number(limit) || 60));
     const rows = this.sql
-      .exec("SELECT bookId, addedAt FROM catalog WHERE listed = 1 ORDER BY addedAt DESC LIMIT ?", n)
+      .exec(
+        "SELECT bookId, addedAt FROM catalog WHERE listed = 1 ORDER BY addedAt " + (oldest ? "ASC" : "DESC") + " LIMIT ?",
+        n
+      )
       .toArray();
     return { ok: true, books: rows.map((r) => ({ id: r.bookId, addedAt: Number(r.addedAt) })) };
   }
@@ -152,6 +181,7 @@ export class CounterDO {
       month: this.get(k.month),
       total: this.get("total"),
       books: this.get("books"),
+      done: this.get("done"),
     };
   }
 
@@ -171,7 +201,10 @@ export class CounterDO {
     else if (op === "book") out = this.bumpBooks();
     else if (op === "catalog-set") out = this.catalogSet(body.bookId, body.listed);
     else if (op === "catalog-get") out = this.catalogGet(body.bookId);
-    else if (op === "catalog-list") out = this.catalogList(body.limit);
+    else if (op === "catalog-list") out = this.catalogList(body.limit, body.oldest);
+    else if (op === "book-done") out = this.bumpDone();
+    else if (op === "gen-list") out = this.genList();
+    else if (op === "gen-mark") out = this.genMark(body.ids);
     else if (op === "person-upsert") out = this.personUpsert(body);
     else if (op === "person-bump") out = this.personBump(body.pkey, body.n);
     else if (op === "person-get") out = this.personGet(body.pkey);

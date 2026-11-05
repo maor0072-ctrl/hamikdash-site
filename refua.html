@@ -70,6 +70,7 @@
 .back-link{background:none;border:0;color:var(--ink-soft);font-family:inherit;font-size:16px;
   text-decoration:underline;cursor:pointer;padding:0;margin-top:18px}
 .more-info{margin-top:14px}.more-info>summary{display:inline-block;cursor:pointer;list-style:none}.more-info>summary::-webkit-details-marker{display:none}.more-info-body{margin-top:14px;text-align:right}.more-info-body h3{font-size:19px;margin:18px 0 6px}
+.more-info-lead{margin:16px 0 0;font-weight:500}.more-info-lead+.more-info{margin-top:6px}
 </style>
 </head>
 <body>
@@ -84,12 +85,12 @@
       <!-- nav:start -->
       <a href="/">בית</a>
       <a href="/about.html">אודות</a>
-      <details class="navdrop"><summary><a href="/tefilot/">שמע, רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details>
+      <details class="navdrop active"><summary><a href="/tefilot/">שמע רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details>
       <details class="navdrop"><summary><a href="/chagim/">חגים</a></summary><ul><li><a href="/chagim/yom-kippur/">יום כיפור</a></li><li><a href="/chagim/rosh-hashana/">ראש השנה</a></li><li><a href="/chagim/sukkot/">סוכות תשפ"ז</a></li><li><a href="/chagim/pesach/">פסח תשפ"ז</a></li><li><a href="/chagim/tzomot/">צומות ותעניות ציבור</a></li></ul></details>
       <details class="navdrop"><summary><a href="/torah.html">תוכן תורני</a></summary><ul><li><a href="/torah/bitachon-vehishtadlut.html">ביטחון והשתדלות</a></li><li><a href="/torah/tefila-shelo-nenata.html">תפילה שלא נענתה</a></li><li><a href="/torah/chinuch-yeladim.html">חינוך ילדים</a></li><li><a href="/torah/zugiyut-vekaas.html">זוגיות וכעס</a></li><li><a href="/torah/ahavat-chinam.html">אהבת חינם</a></li><li><a href="/torah/shabbat-vebayit.html">שבת ובית</a></li><li><a href="/hilula.html">סגולות היום · הילולת צדיקים</a></li><li><a href="https://chok.reshimu.co.il">חוק לישראל - הלימוד היומי</a></li><li><a href="https://chat.whatsapp.com/KGNs9XVb2PyKDY3ozkRuNo">הרשמה לוואטסאפ הסגולות וההילולות</a></li></ul></details>
       <a href="/videos/">שיעורים וסרטונים</a>
       <a href="/contact.html">יצירת קשר</a>
-      <a href="/donate.html">לתרומה</a>
+      <a href="/donate.html" class="nav-donate">לתרומה</a>
       <!-- nav:end -->
     </nav>
   </div>
@@ -98,10 +99,11 @@
 <div class="page-head">
   <div class="wrap">
     <!-- crumbs:start -->
-<nav class="crumbnav" aria-label="מיקום באתר"><a href="/">בית</a><span class="sep">&rsaquo;</span><details class="crumb"><summary><a href="/tefilot/">שמע, רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details><span class="sep">&rsaquo;</span><span class="here">רפואה ושאר משאלות</span></nav>
+<nav class="crumbnav" aria-label="מיקום באתר"><a href="/">בית</a><span class="sep">&rsaquo;</span><details class="crumb"><summary><a href="/tefilot/">שמע רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details><span class="sep">&rsaquo;</span><span class="here">רפואה ושאר משאלות</span></nav>
     <!-- crumbs:end -->
     <h1>רפואה ושאר משאלות</h1>
     <p>זה אחד הפרויקטים הגדולים שנעשו לרפואה ולישועה. אתם מוסרים כאן את שמות כל מי שזקוק לרפואה במשפחה ובין חבריכם. מסירת השמות בחינם.</p>
+    <p class="more-info-lead">כדאי לקרוא את ההסבר הנוסף:</p>
     <details class="more-info">
       <summary class="btn btn-ghost">הסבר נוסף</summary>
       <div class="more-info-body">
@@ -112,12 +114,12 @@
         <p><strong>דמיין לעצמך אלף איש מתפללים על בקשתך, יום יום! קוראים תהילים על זה! ואם המספר עולה לעשרת אלפים או יותר! זה כוח תפילה אדיר!</strong></p>
         <h3>מה נעשה למען הבקשה?</h3>
         <p>בעמותה שלנו, אורות האמונה - בני משה, יש כולל אברכים, תמיכה בנזקקים ועוד. השמות עומדים לפני האברכים, נאמרים בתפילות ובעת פתיחת ההיכל, והלימוד נעשה גם לרפואתם ולישועתם.</p>
-        <p>ולא רק הכולל: בפרויקט תהילים ישראל אומרים המוני אנשים את ספר התהילים כולו, שוב ושוב, ובפרויקט שמע ישראל יש שותפים שקמים בחצות הלילה, בעת רצון, ואומרים את השמות.</p>
+        <p>ולא רק הכולל: בפרויקט תהילים ישראל אומרים המוני אנשים את ספר התהילים כולו, שוב ושוב. ובפרויקט שמע ישראל, המוני יהודים מכל העולם מתאחדים בכל לילה, וקוראים קריאת שמע, <strong>למען אחדות ישראל!</strong> ומבקשים שכל משאלות לבם של כל השותפים בפרויקט יתגשמו לטובה! תפילת רבים, שחוזרת יום יום!</p>
         <h3>מי שנותן הוראת קבע</h3>
         <p>השמות שהוא מוסר, בלי נדר, <strong>מוזכרים באופן פרטני</strong> בתפילה.</p>
         <p>כמו כן, אנחנו מבקשים מכל מי ששותף בפרויקט הזה לכוון שכל תפילה ופרק תהילים שהוא אומר יעמדו גם לזכות כל השמות שרשומים כאן. כך כל אדם נוסף שמצטרף מגדיל את התפילה לכולם.</p>
         <p>וכשתבוא הבשורה הטובה, הודיעו לנו. אנחנו רוצים לדעת.</p>
-        <p>מלאו את השמות, והעבירו את הקישור לדף הזה לכל מי שאתם אוהבים.</p>
+        <p>מלאו את השמות והבקשות, והעבירו את הקישור לאתר הזה לכל מי שאתם אוהבים. הקישור לשיתוף עם חברים נמצא בסוף הדף הזה.</p>
       </div>
     </details>
   </div>
@@ -126,7 +128,6 @@
 <!-- topics:start -->
 <div class="topic-nav-wrap"><div class="wrap">
   <nav class="topic-nav" aria-label="נושאים בעמוד זה">
-    <a class="topic-pill" href="/tefilot/">כל הפרויקטים</a>
     <a class="topic-pill" href="/neshama.html">עילוי נשמה</a>
     <span class="topic-pill is-current" aria-current="page">רפואה ושאר משאלות</span>
     <a class="topic-pill" href="/shema.html">שמע ישראל</a>
@@ -179,7 +180,7 @@
     gender:'בן או בת (זכר או נקבה)', genderHint:'כך זה ייאמר בתפילה.', son:'בן', daughter:'בת',
     parentLabel:'שם האם', parentHint:'רק השם הפרטי של האם, למשל "רבקה".', parentLabelFather:'שם האב', parentHintFather:'רק השם הפרטי של האב, למשל "אברהם".', toFather:'לא יודעים את שם האם? אפשר שם האב', toMother:'חזרה לשם האם', sampleFather:'אברהם',
     type:'על מה מתפללים', refua:'רפואה שלמה ובריאות איתנה', refuaShort:'רפואה שלמה', bakasha:'שאר בקשות',
-    request:'הבקשה', privacy:'ברשימה הגלויה מופיע השם בלבד.',
+    request:'הבקשה', privacy:'ברשימה הגלויה מופיעים השם והבקשה.',
     quick:['זיווג','שלום בית','פרנסה','זרע של קיימא','הצלחה במשפט','מכירת דירה','הצלחה בלימודים','ישועה'],
     more:'פרטים נוספים - לא חובה', relation:'הקרבה אליכם', choose:'בחרו',
     relations:['אב','אם','בעל','אישה','בן','בת','אח','אחות','סב','סבתא','דוד','דודה','קרוב משפחה','קרובת משפחה','חבר','חברה','רב','אחר'], self:'עצמי', fallbackRelation:'אחר',
@@ -334,8 +335,10 @@
     if(!box.isConnected)return;
     KINDS.forEach((kind,i)=>{const el=$('public-'+kind);if(!el)return;const r=results[i];
       if(r.status==='rejected'){el.innerHTML='<p>'+esc(TEXT.publicFail)+'</p>';return;}
-      const seen=new Set(),names=[];r.value.forEach(n=>{const line=fullName({name:n.name,parent:n.parent,gender:n.gender});if(line&&!seen.has(line)){seen.add(line);names.push(line);}});
-      el.innerHTML=names.length?'<ul class="done-list">'+names.map(n=>'<li>'+esc(n)+'</li>').join('')+'</ul>':'<p>'+esc(TEXT.publicEmpty)+'</p>';});
+      /* החדשים ראשונים: הרשימה בשרת נשמרת בסדר המסירה (כל מסירה נוספת לסוף), ולכן היא מתהפכת כאן.
+         הבקשה מוצגת מתחת לשם, כדי שידעו על מה מתפללים (הכרעת יעקב, 5.11.2026). */
+      const seen=new Set(),names=[];r.value.slice().reverse().forEach(n=>{const line=fullName({name:n.name,parent:n.parent,gender:n.gender});const req=String(n.request||'').trim();const key=line+'|'+req;if(line&&!seen.has(key)){seen.add(key);names.push({line,req});}});
+      el.innerHTML=names.length?'<ul class="done-list">'+names.map(n=>'<li>'+esc(n.line)+(n.req?'<span class="meta">'+esc(n.req)+'</span>':'')+'</li>').join('')+'</ul>':'<p>'+esc(TEXT.publicEmpty)+'</p>';});
   }
   $('app-content').addEventListener('input',e=>{if(busy||state.jobs)return;const key=e.target.dataset.field;if(!key)return;
     if(state.stage==='details')state.me[key==='meName'?'name':key]=e.target.value;
@@ -376,6 +379,10 @@
 })();
 </script>
 <!-- BUILD-FORM-END -->
+<section class="share-end" style="padding:0 0 40px">
+  <div class="shr" data-share-text="מצאתי אתר מדהים של הרב יעקב מאור: מוסרים שם ובקשה - לרפואה, לזיווג, לפרנסה ולכל ישועה - וכולם מתפללים על כולם. היכנסו ותנו שמות. זה מדהים. הפרטים באתר."></div>
+</section>
+
 <div class="band">
   <h2>מה שמחזיק את הכולל</h2>
   <p>אברכים שיושבים ולומדים כל יום נשענים על אנשים שנותנים בקביעות. כל שקל הולך ממש לקודש הקודשים.</p>

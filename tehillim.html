@@ -125,12 +125,12 @@
       <!-- nav:start -->
       <a href="/">בית</a>
       <a href="/about.html">אודות</a>
-      <details class="navdrop"><summary><a href="/tefilot/">שמע, רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details>
+      <details class="navdrop active"><summary><a href="/tefilot/">שמע רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details>
       <details class="navdrop"><summary><a href="/chagim/">חגים</a></summary><ul><li><a href="/chagim/yom-kippur/">יום כיפור</a></li><li><a href="/chagim/rosh-hashana/">ראש השנה</a></li><li><a href="/chagim/sukkot/">סוכות תשפ"ז</a></li><li><a href="/chagim/pesach/">פסח תשפ"ז</a></li><li><a href="/chagim/tzomot/">צומות ותעניות ציבור</a></li></ul></details>
       <details class="navdrop"><summary><a href="/torah.html">תוכן תורני</a></summary><ul><li><a href="/torah/bitachon-vehishtadlut.html">ביטחון והשתדלות</a></li><li><a href="/torah/tefila-shelo-nenata.html">תפילה שלא נענתה</a></li><li><a href="/torah/chinuch-yeladim.html">חינוך ילדים</a></li><li><a href="/torah/zugiyut-vekaas.html">זוגיות וכעס</a></li><li><a href="/torah/ahavat-chinam.html">אהבת חינם</a></li><li><a href="/torah/shabbat-vebayit.html">שבת ובית</a></li><li><a href="/hilula.html">סגולות היום · הילולת צדיקים</a></li><li><a href="https://chok.reshimu.co.il">חוק לישראל - הלימוד היומי</a></li><li><a href="https://chat.whatsapp.com/KGNs9XVb2PyKDY3ozkRuNo">הרשמה לוואטסאפ הסגולות וההילולות</a></li></ul></details>
       <a href="/videos/">שיעורים וסרטונים</a>
       <a href="/contact.html">יצירת קשר</a>
-      <a href="/donate.html">לתרומה</a>
+      <a href="/donate.html" class="nav-donate">לתרומה</a>
       <!-- nav:end -->
     </nav>
   </div>
@@ -139,7 +139,7 @@
 <div class="page-head">
   <div class="wrap">
     <!-- crumbs:start -->
-<nav class="crumbnav" aria-label="מיקום באתר"><a href="/">בית</a><span class="sep">&rsaquo;</span><details class="crumb"><summary><a href="/tefilot/">שמע, רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details><span class="sep">&rsaquo;</span><details class="crumb"><summary class="here">תהילים ישראל</summary><ul><li><a href="/tehillim/book.html">ספר תהילים</a></li><li><a href="/tehillim/sfarim">ספרים פתוחים</a></li></ul></details></nav>
+<nav class="crumbnav" aria-label="מיקום באתר"><a href="/">בית</a><span class="sep">&rsaquo;</span><details class="crumb"><summary><a href="/tefilot/">שמע רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details><span class="sep">&rsaquo;</span><details class="crumb"><summary class="here">תהילים ישראל</summary><ul><li><a href="/tehillim/book.html">ספר תהילים</a></li><li><a href="/tehillim/sfarim">ספרים פתוחים</a></li></ul></details></nav>
     <!-- crumbs:end -->
     <h1>תהילים ישראל</h1>
     <p>פותחים ספר תהילים לרפואת אדם, שולחים קישור אחד לקבוצה, וכל אחד לוקח פרקים וקורא.
@@ -391,6 +391,8 @@
 
   <p><strong>השעון עוצר בשבת ובחג.</strong> מי שתפס פרק בערב שבת וקרא אותו בשבת אינו יכול
   לסמן, ולכן פרקים אינם פוקעים בתוך השבת. השעון ממשיך לרוץ רק בצאת השבת.</p>
+
+  <div class="shr" data-share-text="מצאתי אתר מדהים של הרב יעקב מאור: גומרים יחד ספר תהילים שלם, כל אחד לוקח כמה פרקים, והספר נסגר שוב ושוב. היכנסו והצטרפו. זה מדהים. הפרטים באתר."></div>
 </section>
 
 <footer class="site-footer">
@@ -865,6 +867,7 @@
   if (location.hash === "#today") openToday();
 })();
 </script>
+<script src="/assets/share.js" defer></script>
 <!-- Cloudflare Web Analytics - מדידת תנועה ללא עוגיות וללא איסוף פרטים אישיים -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "7ea7cdf64b4545b1a46d3efbb450f49b"}'></script>
 </body>

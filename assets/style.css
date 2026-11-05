@@ -347,13 +347,41 @@ section.tight { padding: 40px 0; }
   color:var(--ink,#2c2a26); font-weight:500; }
 .nav details.navdrop>ul a:hover{ background:var(--cream-warm,#f7f1e4);
   text-decoration:none; }
-/* בטלפון הרשימה נפרשת לרוחב התפריט כולו ולא לרוחב הפריט, אחרת היא נחתכת
-   בקצה המסך. הפריט עצמו נשאר inline כדי שהתפריט הסגור לא יתפח לגובה. */
+/* הפריט הפעיל - המדור שהדף הנוכחי יושב בו - מודגש וגדול מעט (יעקב, 5.11.2026) */
+.nav a.active, .nav details.navdrop.active>summary,
+.nav details.navdrop.active>summary>a{ font-weight:700; font-size:17px; }
+
+/* כפתור התרומה: בראש הכותרת, משמאל לשם העמותה (יעקב, 5.11.2026) */
+.header-inner{ position:relative; }
+.nav a.nav-donate{ display:inline-block; padding:6px 16px; border-radius:999px;
+  border:1.5px solid var(--gold,#c9ab77); background:var(--white,#fff);
+  color:var(--gold-deep,#9a7b3f); font-weight:700; line-height:1.3; white-space:nowrap; }
+.nav a.nav-donate:hover{ background:var(--cream-warm,#f7f1e4); text-decoration:none; }
+.nav a.nav-donate.active{ background:var(--gold,#c9ab77); color:#fff; font-size:16px; }
+
+/* כותרת דחוסה בטלפון: לפני כן תפסה כמעט רבע מסך (יעקב, 5.11.2026).
+   הכפתור מוצמד לפינה השמאלית העליונה, בשורה של שם העמותה. */
+@media(max-width:860px){
+  .header-inner{ padding:7px 14px 6px; gap:3px; }
+  .brand{ line-height:1.2; padding-left:92px; }
+  .brand-name{ font-size:17px; }
+  .brand-sub{ font-size:12px; }
+  .nav{ gap:0 13px; line-height:1.35; }
+  .nav a, .nav details.navdrop>summary{ font-size:15px; }
+  .nav a.active, .nav details.navdrop.active>summary,
+  .nav details.navdrop.active>summary>a{ font-size:16px; }
+  .nav a.nav-donate{ position:absolute; top:9px; left:14px;
+    padding:4px 13px; font-size:15px; }
+}
+/* בטלפון הרשימה נפרשת לרוחב הכותרת כולה ולא לרוחב הפריט, אחרת היא נחתכת
+   בקצה המסך. הפריט עצמו נשאר inline כדי שהתפריט הסגור לא יתפח לגובה.
+   התפריט עצמו נשאר static, כדי שכפתור התרומה ייתלה בכותרת ולא בתפריט. */
 @media(max-width:560px){
-  .nav{ position:relative; }
+  .nav{ position:static; }
   .nav details.navdrop{ position:static; }
-  .nav details.navdrop>ul{ inset-inline:0; width:auto; min-width:0; top:100%;
-    margin-top:6px; }
+  .nav details.navdrop>ul{ inset-inline:8px; width:auto; min-width:0; top:100%;
+    margin-top:0; max-height:70vh; overflow-y:auto; }
+  .nav details.navdrop>ul a{ white-space:normal; }
 }
 
 .topic-nav-wrap{ border-bottom:1px solid var(--line,#e5ddcd);

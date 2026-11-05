@@ -167,6 +167,7 @@ textarea.nf-in{min-height:64px;resize:vertical}
 .nf-card,.nf-q,.nf-gate,.nf-done{scroll-margin-top:110px}
 @media(max-width:640px){.nf-card,.nf-q,.nf-gate,.nf-done{scroll-margin-top:200px}}
 .more-info{margin-top:14px}.more-info>summary{display:inline-block;cursor:pointer;list-style:none}.more-info>summary::-webkit-details-marker{display:none}.more-info-body{margin-top:14px;text-align:right}.more-info-body h3{font-size:19px;margin:18px 0 6px}
+.more-info-lead{margin:16px 0 0;font-weight:500}.more-info-lead+.more-info{margin-top:6px}
 </style>
 </head>
 <body>
@@ -181,12 +182,12 @@ textarea.nf-in{min-height:64px;resize:vertical}
       <!-- nav:start -->
       <a href="/">בית</a>
       <a href="/about.html">אודות</a>
-      <details class="navdrop"><summary><a href="/tefilot/">שמע, רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details>
+      <details class="navdrop active"><summary><a href="/tefilot/">שמע רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details>
       <details class="navdrop"><summary><a href="/chagim/">חגים</a></summary><ul><li><a href="/chagim/yom-kippur/">יום כיפור</a></li><li><a href="/chagim/rosh-hashana/">ראש השנה</a></li><li><a href="/chagim/sukkot/">סוכות תשפ"ז</a></li><li><a href="/chagim/pesach/">פסח תשפ"ז</a></li><li><a href="/chagim/tzomot/">צומות ותעניות ציבור</a></li></ul></details>
       <details class="navdrop"><summary><a href="/torah.html">תוכן תורני</a></summary><ul><li><a href="/torah/bitachon-vehishtadlut.html">ביטחון והשתדלות</a></li><li><a href="/torah/tefila-shelo-nenata.html">תפילה שלא נענתה</a></li><li><a href="/torah/chinuch-yeladim.html">חינוך ילדים</a></li><li><a href="/torah/zugiyut-vekaas.html">זוגיות וכעס</a></li><li><a href="/torah/ahavat-chinam.html">אהבת חינם</a></li><li><a href="/torah/shabbat-vebayit.html">שבת ובית</a></li><li><a href="/hilula.html">סגולות היום · הילולת צדיקים</a></li><li><a href="https://chok.reshimu.co.il">חוק לישראל - הלימוד היומי</a></li><li><a href="https://chat.whatsapp.com/KGNs9XVb2PyKDY3ozkRuNo">הרשמה לוואטסאפ הסגולות וההילולות</a></li></ul></details>
       <a href="/videos/">שיעורים וסרטונים</a>
       <a href="/contact.html">יצירת קשר</a>
-      <a href="/donate.html">לתרומה</a>
+      <a href="/donate.html" class="nav-donate">לתרומה</a>
       <!-- nav:end -->
     </nav>
   </div>
@@ -195,10 +196,11 @@ textarea.nf-in{min-height:64px;resize:vertical}
 <div class="page-head">
   <div class="wrap">
     <!-- crumbs:start -->
-<nav class="crumbnav" aria-label="מיקום באתר"><a href="/">בית</a><span class="sep">&rsaquo;</span><details class="crumb"><summary><a href="/tefilot/">שמע, רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details><span class="sep">&rsaquo;</span><span class="here">עילוי נשמה</span></nav>
+<nav class="crumbnav" aria-label="מיקום באתר"><a href="/">בית</a><span class="sep">&rsaquo;</span><details class="crumb"><summary><a href="/tefilot/">שמע רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details><span class="sep">&rsaquo;</span><span class="here">עילוי נשמה</span></nav>
     <!-- crumbs:end -->
     <h1>עילוי נשמה</h1>
     <p>זה אחד הפרויקטים הגדולים שנעשו לעילוי נשמה. אתם מוסרים כאן את שמות כל הנפטרים של המשפחה, ומרגע זה ואילך מתחיל עילוי נשמה בדרגה הגבוהה ביותר, שלא רבים זוכים לה. מסירת השמות בחינם.</p>
+    <p class="more-info-lead">כדאי לקרוא את ההסבר הנוסף:</p>
     <details class="more-info">
       <summary class="btn btn-ghost">הסבר נוסף</summary>
       <div class="more-info-body">
@@ -206,7 +208,7 @@ textarea.nf-in{min-height:64px;resize:vertical}
         <p>בשבוע שבו חל היארצייט, בתוך האתר יש חלון פתוח, שבו רואים את כל השמות שעליהם עושים עילוי נשמה בשבוע הזה.</p>
         <h3>מה נעשה לעילוי הנשמה?</h3>
         <p>בעמותה שלנו, אורות האמונה - בני משה, יש כולל אברכים, תמיכה בנזקקים ועוד. כל המצוות שנעשות כאן נזקפות לעילוי נשמת הנפטרים שבאתר.</p>
-        <p>לאורך השנה יש מספר רב של סיומי מסכת, סיום ש"ס או סיום משניות, וכל זה נזקף לעילוי נשמת הנפטרים.</p>
+        <p>לאורך השנה יש: לימוד יומי של אברכים, שיעורים של הרבנים שלנו בציבור, מספר רב של סיומי מסכת, סיום ש"ס אחד לפחות בכל שנה, סיומי זוהר, סיומי משניות ועוד. כל זה נזקף לעילוי נשמת הנפטרים.</p>
         <h3>מי שנותן הוראת קבע</h3>
         <p>שמות הנפטרים שהוא מסר <strong>מוזכרים באופן פרטני (קוראים את שמו ושם הורה)</strong> בכל עילוי נשמה שנעשה. וכן יכוונו על הנפטר בכל הקדישים, ויעשו לו אשכבה עם הזכרת שמו, בלי נדר, בכל יום אחרי התפילה, וכן בשבתות ובחגים בעלייה לתורה.</p>
         <p>כמו כן, אנחנו מבקשים מכל מי ששותף בפרויקט הזה, שכל מה שהוא עושה יכוון שיהיה נזקף לעילוי נשמת כל הנפטרים שרשומים כאן. בכך, כל אדם נוסף שמצטרף לפרויקט הנפלא הזה מגדיל את עילוי הנשמה לכל הנפטרים.</p>
@@ -219,7 +221,6 @@ textarea.nf-in{min-height:64px;resize:vertical}
 <!-- topics:start -->
 <div class="topic-nav-wrap"><div class="wrap">
   <nav class="topic-nav" aria-label="נושאים בעמוד זה">
-    <a class="topic-pill" href="/tefilot/">כל הפרויקטים</a>
     <span class="topic-pill is-current" aria-current="page">עילוי נשמה</span>
     <a class="topic-pill" href="/refua.html">רפואה ושאר משאלות</a>
     <a class="topic-pill" href="/shema.html">שמע ישראל</a>
@@ -284,7 +285,7 @@ textarea.nf-in{min-height:64px;resize:vertical}
     <p>כל שם נוסף שנמסר מצרף עוד אנשים שפועלים לעילוי הנשמות, ולכן שווה להעביר את הדף הזה למשפחה, לחברים ולשכנים. השמות שהם ימסרו והשמות שלכם נמצאים באותה רשימה, ואותם אברכים לומדים עבור כולם.</p>
 
   </div>
-  <div class="shr" data-share-text="מצאתי אתר מדהים של הרב יעקב מאור, לעילוי נשמה. היכנסו ותנו שמות. זה מדהים. הפרטים באתר."></div>
+  <div class="shr" data-share-text="מצאתי אתר מדהים של הרב יעקב מאור: מוסרים שמות של קרובים שנפטרו, ואברכי הכולל לומדים ומתפללים לעילוי נשמתם, בכל שנה בשבוע היארצייט. היכנסו ותנו שמות של יקיריכם. זה מדהים. הפרטים באתר."></div>
 </section>
 
 <!-- ============ מסך 2: שמות הנפטרים (שלב 1 מתוך 2) ============ -->
@@ -370,7 +371,7 @@ textarea.nf-in{min-height:64px;resize:vertical}
       <p id="done-sub">שלחנו לכם אישור לדואר האלקטרוני, והשמות מועברים לאברכי הכולל. תזכו למצוות.</p>
       <ul class="done-list" id="done-list"></ul>
       <div id="done-prev"></div>
-      <div class="shr" data-share-title="הזמינו גם את החברים לזכות" data-share-sub="שלחו לחברים ולמשפחה הזמנה למסור גם הם שמות לעילוי נשמת יקיריהם. אותם אברכים לומדים עבור כולם." data-share-text="מצאתי אתר מדהים של הרב יעקב מאור, לעילוי נשמה. היכנסו ותנו שמות. זה מדהים. הפרטים באתר."></div>
+      <div class="shr" data-share-title="הזמינו גם את החברים לזכות" data-share-sub="שלחו לחברים ולמשפחה הזמנה למסור גם הם שמות לעילוי נשמת יקיריהם. אותם אברכים לומדים עבור כולם." data-share-text="מצאתי אתר מדהים של הרב יעקב מאור: מוסרים שמות של קרובים שנפטרו, ואברכי הכולל לומדים ומתפללים לעילוי נשמתם, בכל שנה בשבוע היארצייט. היכנסו ותנו שמות של יקיריכם. זה מדהים. הפרטים באתר."></div>
       <div class="actions">
         <button type="button" class="btn" data-go="names">הוספת שמות נוספים</button>
         <button type="button" class="btn btn-ghost" data-go="edit">שינוי שמות שמסרת</button>

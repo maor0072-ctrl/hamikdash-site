@@ -2041,19 +2041,34 @@ textarea.nf-in{min-height:64px;resize:vertical}
             kb = hebKey(typeof b === "object" ? b.date : "");
         return ka[0] - kb[0] || ka[1] - kb[1];
       });
-      // מסירה כפולה של אותו שם לא צריכה להופיע פעמיים ברשימה פומבית
-      var seen = {}, uniq = [];
+      // כל שם מופיע ברשימה הפומבית פעם אחת בלבד (הוראת יעקב 5.11.2026).
+      // המפתח הוא השם ושם ההורה אחרי נרמול רווחים וגרש, בלי שם המשפחה ובלי
+      // התאריך: אותו נפטר שנמסר פעמיים, בכתיב תאריך אחר או עם שם משפחה,
+      // הוא עדיין אותו שם. מחליף את „showTwice" הקודם, שהציג פעמיים שם של
+      // שני מוסרים עד הכרעה - זו ההכרעה. הרשומות השמורות לא נמחקות.
+      function normKey(n) {
+        var s = typeof n === "string" ? n
+          : fullName({ name: n.name, parent: n.parent, gender: n.gender });
+        return s.replace(/[׳’‘`']/g, "'")
+                .replace(/[״“”]/g, '"')
+                .replace(/\s+/g, " ").trim();
+      }
+      var byKey = {}, uniq = [];
       list.forEach(function (n) {
-        var key = typeof n === "string" ? n : fullName(n);
-        if (seen[key]) return;
-        seen[key] = 1;
+        var k = normKey(n);
+        var hasFam = typeof n === "object" && String(n.family || "").trim();
+        if (byKey[k]) {
+          // עדיפות לרשומה שנושאת שם משפחה - היא המלאה יותר.
+          if (hasFam && !byKey[k].fam) {
+            byKey[k].row.line = fullName(n);
+            byKey[k].fam = true;
+          }
+          return;
+        }
         var date = (typeof n === "object" && n.date) || "";
-        var row = { line: key, date: date, firstYear: isFirstYear(n, fy) };
+        var row = { line: typeof n === "string" ? n : fullName(n), date: date, firstYear: isFirstYear(n, fy) };
+        byKey[k] = { row: row, fam: !!hasFam };
         uniq.push(row);
-        // שני מוסרים שונים שמסרו את אותו נפטר - שניהם ביקשו, ושניהם
-        // רואים את הרשימה. השם מופיע פעמיים עד שיעקב מכריע למזג.
-        if (twice && twice.indexOf(key + "|" + String(date).trim()) >= 0)
-          uniq.push({ line: row.line, date: row.date, firstYear: row.firstYear });
       });
       box.innerHTML =
         (block && block.week

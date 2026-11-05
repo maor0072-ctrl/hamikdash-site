@@ -155,8 +155,16 @@
     var boxes = document.querySelectorAll(".shr");
     if (!boxes.length) return;
     css();
-    for (var i = 0; i < boxes.length; i++) build(boxes[i]);
+    for (var i = 0; i < boxes.length; i++) window.shrBuild(boxes[i]);
   }
+
+  // לקופסה שנוצרת אחרי טעינת הדף (מסך הסיום בטופס הרפואה): הדף קורא לזה בעצמו.
+  window.shrBuild = function (box) {
+    if (!box || box.getAttribute("data-shr-built")) return;
+    css();
+    build(box);
+    box.setAttribute("data-shr-built", "1");
+  };
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);

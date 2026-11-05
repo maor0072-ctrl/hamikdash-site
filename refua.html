@@ -152,7 +152,7 @@
 .prayer-app textarea{resize:vertical;min-height:7em}.prayer-app .example{padding:8px;border:1px dashed var(--gold);background:var(--cream-warm);border-radius:8px;overflow-wrap:break-word;word-break:normal;font-size:15px;line-height:1.35;align-self:start}
 .prayer-app .example small{display:block;color:var(--gold-deep)}.prayer-app .example b{font-weight:500}.prayer-app .public-box{border:1px solid var(--line);background:var(--white);border-radius:10px;padding:14px 16px;margin:12px 0}.prayer-app .public-box h3{font-size:18px;color:var(--gold-deep);margin:0 0 8px}.prayer-app .example b.ltr{display:block;text-align:right;white-space:nowrap;font-size:12.5px;letter-spacing:-.2px}.prayer-app .segments{display:flex;gap:8px;flex-wrap:wrap}
 .prayer-app .choice{position:relative;flex:1;min-width:0;margin:0}.prayer-app .choice input{position:absolute;width:1px;height:1px;opacity:0}
-.prayer-app .choice span{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:10px 8px;border:2px solid var(--line);border-radius:8px;background:var(--cream);cursor:pointer;overflow-wrap:anywhere}
+.prayer-app .choice span{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:10px 8px;border:2px solid var(--line);border-radius:8px;background:var(--cream);cursor:pointer;overflow-wrap:anywhere}
 .prayer-app .choice input:checked+span{background:var(--gold-deep);color:#fff;border-color:var(--gold-deep)}.prayer-app .choice input:focus-visible+span{outline:3px solid var(--gold);outline-offset:3px}
 .prayer-app input:focus-visible,.prayer-app textarea:focus-visible,.prayer-app select:focus-visible,.prayer-app button:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 .prayer-app .active-card{border:2px solid var(--gold);border-radius:12px;padding:18px;margin:16px 0;background:var(--white)}
@@ -166,6 +166,8 @@
 @media(min-width:760px){.prayer-app .pair{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 @media(max-width:320px){.prayer-app .pair{grid-template-columns:minmax(0,1fr)}.prayer-app .form-card{padding:16px 12px}}
 .prayer-app.large-text .pair{grid-template-columns:minmax(0,1fr)}
+.prayer-app .choice-sub{display:block;font-size:.8rem;font-weight:400;margin-top:2px;opacity:.85}
+.prayer-app .done-more{margin:18px 0}.prayer-app .done-more h3{font-size:19px;margin:18px 0 6px;color:var(--gold-deep)}
 </style>
 <script>
 (function () {
@@ -179,7 +181,7 @@
     name:'השם', nameHint:'השם הפרטי, כפי שקוראים לו בתפילה. אם יש שני שמות - את שניהם.',
     gender:'בן או בת (זכר או נקבה)', genderHint:'כך זה ייאמר בתפילה.', son:'בן', daughter:'בת',
     parentLabel:'שם האם', parentHint:'רק השם הפרטי של האם, למשל "רבקה".', parentLabelFather:'שם האב', parentHintFather:'רק השם הפרטי של האב, למשל "אברהם".', toFather:'לא יודעים את שם האם? אפשר שם האב', toMother:'חזרה לשם האם', sampleFather:'אברהם',
-    type:'על מה מתפללים', refua:'רפואה שלמה ובריאות איתנה', refuaShort:'רפואה שלמה', bakasha:'שאר בקשות',
+    type:'על מה מתפללים', typeLabel:'בחרו על מה מתפללים:', refua:'רפואה שלמה', refuaSub:'ובריאות איתנה', bakashaSub:'דוגמה: זיווג.', refuaShort:'רפואה שלמה', bakasha:'שאר בקשות',
     request:'הבקשה', privacy:'ברשימה הגלויה מופיעים השם והבקשה.',
     quick:['זיווג','שלום בית','פרנסה','זרע של קיימא','הצלחה במשפט','מכירת דירה','הצלחה בלימודים','ישועה'],
     more:'פרטים נוספים - לא חובה', relation:'הקרבה אליכם', choose:'בחרו',
@@ -189,7 +191,7 @@
     add:'שמירת השם והוספת שם נוסף', next:'המשך לפרטים שלכם', fix:'תיקון', remove:'הסרה',
     me:'הפרטים שלכם', meHint:'שם מלא, טלפון נייד ומייל נדרשים לשליחה.', meName:'שם מלא', phone:'טלפון נייד',email:'מייל',
     back:'חזרה לשמות', home:'חזרה', send:'שליחה', retry:'לנסות שוב', sending:'השמות נשלחים...',
-    received:'השמות התקבלו', corrected:'השינויים התקבלו', newNames:'מסירת שמות נוספים',
+    received:'השמות התקבלו', receivedText:'מעכשיו ואילך, התפילות של כל השותפים בפרויקט יהיו גם למילוי המשאלות שמסרתם. וזאת בנוסף לתפילות של הלומדים בכולל שלנו, לזכות הלימוד ולזכות זיכוי הרבים.', yourNames:'השמות שמסרתם:', corrected:'השינויים התקבלו', newNames:'מסירת שמות נוספים',
     empty:'לא נשארו שמות. שליחת השינוי תסיר את השמות מהרשימה.', noNames:'נא למלא לפחות שם אחד.',
     missing:'חסר {field} בשם {n}', ordinals:['הראשון','השני','השלישי','הרביעי','החמישי','השישי','השביעי','השמיני'], ordinalOther:'מספר {n}',
     tooLong:'{field} ארוך מדי. אפשר לכתוב עד {max} תווים, ללא חיתוך.',
@@ -233,17 +235,23 @@
   function inputRow(key,label,value,sample,options={}){const id='field-'+key;
     return '<div class="q"><label for="'+id+'">'+esc(label)+(options.required===false?'':esc(TEXT.required))+'</label>'+(options.hint?'<p class="hint">'+esc(options.hint)+'</p>':'')+
       '<div class="pair"><div><input id="'+id+'" data-field="'+key+'" type="'+(options.type||'text')+'" value="'+esc(value)+'" '+(options.autocomplete?'autocomplete="'+options.autocomplete+'" ':'')+(options.dir?'dir="ltr" ':'')+(options.placeholder?'placeholder="'+esc(options.placeholder)+'" ':'')+'aria-describedby="error-'+key+'" '+(options.readonly?'readonly ':'')+'><div class="field-error" id="error-'+key+'" aria-live="polite"></div></div>'+example(sample)+'</div></div>';}
-  function radios(key,label,hint,choices,value,sample){return '<fieldset class="q"><legend>'+esc(label+TEXT.required)+'</legend>'+(hint?'<p class="hint">'+esc(hint)+'</p>':'')+'<div class="pair"><div><div class="segments">'+choices.map(([v,t])=>'<label class="choice"><input id="field-'+key+'-'+v+'" type="radio" name="'+key+'" data-field="'+key+'" value="'+v+'" '+(v===value?'checked ':'')+'aria-describedby="error-'+key+'"><span>'+esc(t)+'</span></label>').join('')+'</div><div class="field-error" id="error-'+key+'" aria-live="polite"></div></div>'+example(sample)+'</div></fieldset>';}
+  function radios(key,label,hint,choices,value,sample){return '<fieldset class="q"><legend>'+esc(label+TEXT.required)+'</legend>'+(hint?'<p class="hint">'+esc(hint)+'</p>':'')+'<div class="pair"><div><div class="segments">'+choices.map(([v,t,sub])=>'<label class="choice"><input id="field-'+key+'-'+v+'" type="radio" name="'+key+'" data-field="'+key+'" value="'+v+'" '+(v===value?'checked ':'')+'aria-describedby="error-'+key+'"><span>'+esc(t)+(sub?'<small class="choice-sub">'+esc(sub)+'</small>':'')+'</span></label>').join('')+'</div><div class="field-error" id="error-'+key+'" aria-live="polite"></div></div>'+example(sample)+'</div></fieldset>';}
   function summary(items,editable=true){return items.map(n=>'<div class="summary-row"><span>'+esc(TEXT.check+fullName(n)+TEXT.separator+(n.type==='refua'?TEXT.refuaShort:n.request||TEXT.bakasha))+'</span>'+(editable?'<span class="row-actions"><button type="button" class="text-button" data-action="fix" data-id="'+esc(n.id)+'">'+esc(TEXT.fix)+'</button><button type="button" class="text-button" data-action="remove" data-id="'+esc(n.id)+'">'+esc(TEXT.remove)+'</button></span>':'')+'</div>').join('');}
   function activeCard(n){const index=state.items.findIndex(x=>x.id===n.id)+1;
     const relations=(n.type==='bakasha'?[TEXT.self]:[]).concat(TEXT.relations);
     return '<div class="active-card"><div class="summary-row"><h3>'+esc(format(TEXT.nameTitle,{n:index}))+'</h3><button type="button" class="text-button" data-action="remove" data-id="'+esc(n.id)+'">'+esc(TEXT.remove)+'</button></div>'+inputRow('name',TEXT.name,n.name,TEXT.examples.name,{hint:TEXT.nameHint,placeholder:'רק שם פרטי!'})+
       radios('gender',TEXT.gender,TEXT.genderHint,[['m',TEXT.son],['f',TEXT.daughter]],n.gender,TEXT.examples.gender)+
-      inputRow('parent',n.parentKind==='father'?TEXT.parentLabelFather:TEXT.parentLabel,n.parent,n.parentKind==='father'?TEXT.sampleFather:TEXT.examples.parent,{hint:n.parentKind==='father'?TEXT.parentHintFather:TEXT.parentHint})+'<p class="hint"><button type="button" class="text-button" data-action="parentkind">'+esc(n.parentKind==='father'?TEXT.toMother:TEXT.toFather)+'</button></p>'+
-      radios('type',TEXT.type,'',[['refua',TEXT.refua],['bakasha',TEXT.bakasha]],n.type,TEXT.examples.type)+
+      inputRow('parent',n.parentKind==='father'?TEXT.parentLabelFather:TEXT.parentLabel,n.parent,n.parentKind==='father'?TEXT.sampleFather:TEXT.examples.parent,{hint:n.parentKind==='father'?TEXT.parentHintFather:TEXT.parentHint,placeholder:'רק שם פרטי!'})+'<p class="hint"><button type="button" class="text-button" data-action="parentkind">'+esc(n.parentKind==='father'?TEXT.toMother:TEXT.toFather)+'</button></p>'+
+      radios('type',TEXT.typeLabel,'',[['refua',TEXT.refua,TEXT.refuaSub],['bakasha',TEXT.bakasha,TEXT.bakashaSub]],n.type,TEXT.examples.type)+
       '<div id="request-block" '+(n.type!=='bakasha'?'hidden':'')+'><div class="q"><label for="field-request">'+esc(TEXT.request+TEXT.required)+'</label><p class="privacy">'+esc(TEXT.privacy)+'</p><div class="quick">'+TEXT.quick.map((t,i)=>'<button type="button" data-action="quick" data-index="'+i+'">'+esc(t)+'</button>').join('')+'</div><div class="pair"><div><textarea id="field-request" data-field="request" rows="4" aria-describedby="request-count error-request">'+esc(n.request)+'</textarea><div id="request-count" class="counter"></div><div id="error-request" class="field-error" aria-live="polite"></div></div>'+example(TEXT.examples.request)+'</div></div></div>'+
       '<details id="extra-details"><summary>'+esc(TEXT.more)+'</summary><div class="q"><label for="field-relation">'+esc(TEXT.relation)+'</label><div class="pair"><div><select id="field-relation" data-field="relation" aria-describedby="error-relation"><option value="">'+esc(TEXT.choose)+'</option>'+relations.map(r=>'<option '+(r===n.relation?'selected ':'')+'value="'+esc(r)+'">'+esc(r)+'</option>').join('')+'</select><div id="error-relation" class="field-error"></div></div>'+example(TEXT.examples.relation)+'</div></div></details>'+
       '<div class="preview">'+esc(TEXT.preview)+'<strong id="prayer-preview" aria-live="polite"></strong></div></div>';}
+  function publicBlock(){return '<h2>'+esc(TEXT.publicTitle)+'</h2><div id="public-names" aria-live="polite"><div class="public-box"><h3>'+esc(TEXT.publicTitleRefua)+'</h3><div id="public-refua">'+esc(TEXT.loading)+'</div></div><div class="public-box"><h3>'+esc(TEXT.publicTitleBakasha)+'</h3><div id="public-bakasha">'+esc(TEXT.loading)+'</div></div></div>';}
+  /* מסך הסיום (הוראת יעקב 5.11.2026), בסדר הזה: כותרת, פסקת השותפים, הקטע „מי שנותן הוראת קבע" עד סוף ההסבר הנוסף
+     (משוכפל מתוך details.more-info בדף, כדי ששני המקומות לא ייפרדו), שיתוף, ורשימת השמות - החדשים ראשונים. */
+  function moreInfoTail(){const body=document.querySelector('.more-info .more-info-body');if(!body)return '';let on=false,out='';
+    Array.from(body.children).forEach(el=>{if(!on&&el.tagName==='H3'&&el.textContent.trim().indexOf('מי שנותן הוראת קבע')===0)on=true;if(on)out+=el.outerHTML;});return out;}
+  function shareBox(){const src=document.querySelector('.share-end .shr');return '<div class="shr" id="done-share" data-share-text="'+esc(src?src.getAttribute('data-share-text'):'')+'"></div>';}
   function mixedOwners(){return cache.refua.names.length&&cache.bakasha.names.length&&String(cache.refua.me?.email||'').toLowerCase()!==String(cache.bakasha.me?.email||'').toLowerCase();}
   function render(){const root=$('app-content');let html='';
     if(state.stage==='intro'){
@@ -252,7 +260,7 @@
       if(!pendingDraft&&KINDS.some(k=>cache[k].names.length)){if(mixedOwners())html+=button('edit-refua',TEXT.editRefua,'',true)+button('edit-bakasha',TEXT.editBakasha,'',true);else html+=button('edit',TEXT.edit,'',true);}
       html+='</div>'+(mixedOwners()?'<p>'+esc(TEXT.splitOwners)+'</p>':'');
       if(KINDS.some(k=>cache[k].names.length))html+='<h3>'+esc(TEXT.saved)+'</h3>'+summary(KINDS.flatMap(k=>cache[k].names.map(n=>({...n,type:k}))),false);
-      html+='<h2>'+esc(TEXT.publicTitle)+'</h2><div id="public-names" aria-live="polite"><div class="public-box"><h3>'+esc(TEXT.publicTitleRefua)+'</h3><div id="public-refua">'+esc(TEXT.loading)+'</div></div><div class="public-box"><h3>'+esc(TEXT.publicTitleBakasha)+'</h3><div id="public-bakasha">'+esc(TEXT.loading)+'</div></div></div>';
+      html+=publicBlock();
     }else if(state.stage==='names'){
       html='<p class="step-mark">'+esc(TEXT.stepNames)+'</p><h2>'+esc(TEXT.title)+'</h2>'+summary(state.items.filter(n=>n.id!==state.active));
       const n=state.items.find(n=>n.id===state.active);if(n)html+=activeCard(n);
@@ -263,9 +271,11 @@
       if(!state.items.length&&state.mode==='edit')html+='<p>'+esc(TEXT.empty)+'</p>';
       html+=inputRow('meName',TEXT.meName,state.me.name,TEXT.examples.meName,{autocomplete:'name',readonly:!!state.jobs})+inputRow('phone',TEXT.phone,state.me.phone,TEXT.examples.phone,{type:'tel',autocomplete:'tel',dir:true,readonly:!!state.jobs})+inputRow('email',TEXT.email,state.me.email,TEXT.examples.email,{type:'email',autocomplete:'email',dir:true,readonly:!!state.jobs||state.mode==='edit'})+
         '<div class="hp" aria-hidden="true"><label for="website">'+esc(TEXT.honeypot)+'</label><input id="website" type="text" tabindex="-1" autocomplete="off"></div><div class="actions">'+button('send',state.jobs?TEXT.retry:TEXT.send,'id="send-button"')+(!state.jobs?button('back',TEXT.back,'',true):'')+'</div>';
-    }else html='<h2>'+esc(state.mode==='edit'?TEXT.corrected:TEXT.received)+'</h2>'+summary(state.done||[],false)+'<div class="actions">'+button('another',TEXT.newNames)+(mixedOwners()?button('edit-refua',TEXT.editRefua,'',true)+button('edit-bakasha',TEXT.editBakasha,'',true):button('edit',TEXT.edit,'',true))+'</div>';
+    }else html='<h2>'+esc(state.mode==='edit'?TEXT.corrected:TEXT.received)+'</h2><p>'+esc(TEXT.receivedText)+'</p><div class="done-more">'+moreInfoTail()+'</div>'+shareBox()+publicBlock()+((state.done||[]).length?'<h3>'+esc(TEXT.yourNames)+'</h3>'+summary(state.done,false):'')+'<div class="actions">'+button('another',TEXT.newNames)+(mixedOwners()?button('edit-refua',TEXT.editRefua,'',true)+button('edit-bakasha',TEXT.editBakasha,'',true):button('edit',TEXT.edit,'',true))+'</div>';
     root.innerHTML=html;updateLive();notify(message,messageError);
-    if(state.stage==='intro')loadPublic();
+    if(state.stage==='intro'||state.stage==='done')loadPublic();
+    const endShare=document.querySelector('.share-end');if(endShare)endShare.hidden=state.stage==='done';
+    const ds=$('done-share');if(ds){if(window.shrBuild)window.shrBuild(ds);else document.addEventListener('DOMContentLoaded',()=>{if(window.shrBuild&&ds.isConnected&&!ds.children.length)window.shrBuild(ds);});}
   }
   function updateLive(){const n=state.items.find(x=>x.id===state.active);if(!n)return;
     if($('prayer-preview'))$('prayer-preview').textContent=fullName(n,true);
@@ -428,7 +438,7 @@
 </footer>
 
 
-<script src="/assets/share.js" defer></script>
+<script src="/assets/share.js?v=20261105" defer></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "7ea7cdf64b4545b1a46d3efbb450f49b"}'></script>
 </body>
 </html>

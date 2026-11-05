@@ -2146,7 +2146,19 @@ textarea.nf-in{min-height:64px;resize:vertical}
      יהיה לחיצה אחת ולא חיפוש בדף. היא מובילה למסך הפרטים במצב „הצגת השמות
      שמסרתי": הזיכרון המקומי לא קיים במכשיר אחר, ולכן השמות נשלפים מהשרת לפי
      כתובת הדואר - בכל מכשיר. */
-  if (/[?&]edit=1\b/.test(window.location.search)) { detMode = "lookup"; show("details"); }
+  /* `?prefill=1&name=&parent=&gender=` - הקישור ממייל התנחומים של רשימת הרפואה (5.11.2026):
+     השם ושם ההורה כבר ממולאים בכרטיס, ונשאר להשלים תאריך פטירה ושאר הפרטים. */
+  var pq = new URLSearchParams(window.location.search);
+  if (pq.get("prefill") === "1" && pq.get("name")) {
+    var pc = newCard(), pg = pq.get("gender");
+    pc.name = String(pq.get("name")).slice(0, 120);
+    pc.parent = String(pq.get("parent") || "").slice(0, 120);
+    pc.gender = pg === "m" || pg === "f" ? pg : "";
+    namesCards = [pc]; namesActive = 0;
+    try { history.replaceState(null, "", window.location.pathname); } catch (e) {}
+    detMode = "submit"; show("names");
+  }
+  else if (/[?&]edit=1\b/.test(window.location.search)) { detMode = "lookup"; show("details"); }
   else if (resume) { detMode = "submit"; show(resume); }
 
   refreshFromServer();

@@ -205,7 +205,7 @@
     count:'{n} מתוך {max}', storage:'לא ניתן לשמור במכשיר. כדאי להשאיר את הדף פתוח עד השליחה.',
     partial:'{sent} שמות נשלחו, {pending} עדיין ממתינים - לנסות שוב.', partialChanges:'חלק מהשינויים עדיין ממתינים - לנסות שוב.',
     code:' קוד שגיאה: {code}.', network:' אין חיבור לשרת.', locked:'הפרטים נשמרו לשליחה החוזרת. השמות שכבר התקבלו לא יישלחו שוב.',
-    unchanged:'לא נעשו שינויים בשמות.', editOtherDevice:'במכשיר הזה לא נשמרו שמות שמסרתם. כדי לשנות אותם, פתחו את הקישור במכשיר שממנו נמסרו השמות.', identity:'בתיקון יש להשתמש באותו מייל שבו נמסרו השמות.',
+    unchanged:'לא נעשו שינויים בשמות.', loadingMine:'טוען את השמות שמסרתם...', mineEmpty:'אין כרגע שמות פעילים שמסרתם. אפשר למסור שמות חדשים.', mineFail:'לא הצלחנו לטעון את השמות מהקישור. אפשר לנסות שוב מאוחר יותר, או לתקן מהמכשיר שממנו נמסרו השמות.', editOtherDevice:'במכשיר הזה לא נשמרו שמות שמסרתם. כדי לשנות אותם, פתחו את הקישור במכשיר שממנו נמסרו השמות.', identity:'בתיקון יש להשתמש באותו מייל שבו נמסרו השמות.',
     splitOwners:'השמות נשמרו עם פרטי מוסר שונים. אפשר לתקן כל רשימה בנפרד.',
     publicTitle:'השמות שעומדים לתפילה:', publicTitleRefua:'שמות לרפואה שלמה', publicTitleBakasha:'שמות לשאר בקשות', loading:'טוען...', publicEmpty:'אין כרגע שמות ברשימה.',
     publicFail:'לא ניתן לטעון את רשימת השמות כעת.', publicPartial:'חלק מרשימת השמות אינו זמין כעת.',
@@ -404,6 +404,19 @@
   const app=$('prayer-app');function fontSizeChanged(){app.classList.toggle('large-text',parseFloat(getComputedStyle(document.documentElement).fontSize)>18);}
   fontSizeChanged();window.addEventListener('resize',fontSizeChanged);
   if(state.jobs){state.stage='details';const pending=state.jobs.reduce((sum,j)=>sum+j.entries.length,0);message=pending?format(TEXT.partial,{sent:state.received,pending}):TEXT.partialChanges;messageError=true;}
+  /* קישור העריכה האישי מהמייל (5.11.2026): ?edit=refua|bakasha&o=&s= - השמות נשלפים מהשרת לפי
+     קישור חתום, ולכן העריכה עובדת מכל מכשיר. הפרמטרים נמחקים מהכתובת מיד, כדי שלא יעברו הלאה בשיתוף. */
+  {const qp=new URLSearchParams(location.search),ek=qp.get('edit');
+    if(!state.jobs&&(ek==='refua'||ek==='bakasha')&&qp.get('o')&&qp.get('s')){
+      try{history.replaceState(null,'',location.pathname);}catch(e){}
+      message=TEXT.loadingMine;messageError=false;render();
+      apiFetch(ek,'/mine?o='+encodeURIComponent(qp.get('o'))+'&s='+encodeURIComponent(qp.get('s')),{cache:'no-store'})
+        .then(r=>{if(!r.ok)throw new Error(String(r.status));return r.json();})
+        .then(d=>{cache[ek]={me:d.me||null,names:Array.isArray(d.names)?d.names:[]};write(API[ek].names,cache[ek].names);write(API[ek].me,cache[ek].me);
+          if(!cache[ek].names.length){message=TEXT.mineEmpty;messageError=false;render();return;}
+          message='';startEdit([ek]);app.scrollIntoView({block:'start'});})
+        .catch(()=>{message=TEXT.mineFail;messageError=true;render();});
+      return;}}
   /* ?edit=1 - הקישור „לשינוי השמות שמסרתם" שבמייל האישור (5.11.2026). העריכה נשענת על הזיכרון המקומי,
      ולכן במכשיר אחר אין מה לפתוח, והדף אומר את זה במקום לשתוק. */
   if(!state.jobs&&/[?&]edit=1(?:&|$)/.test(location.search)){

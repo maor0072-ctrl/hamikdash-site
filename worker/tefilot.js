@@ -1,3 +1,4 @@
+import { makeRenewal } from "./renewal.js";
 // hamikdash-tefilot - צד השרת של דף „תפילות ושירותים" ב-hamikdash.co.il.
 //
 // זה **שירות ולא דף צומת**, בהכרעת יעקב מ-12.10.2026 שהפכה את ההמלצה: הדף
@@ -275,7 +276,9 @@ function ownerNoticeHtml(req, bakashot, isFix, isEmpty) {
   );
 }
 
-function thanksHtml(name, bakashot, isFix, isEmpty, removeUrl) {
+function thanksHtml(name, bakashot, isFix, isEmpty, removeUrl, editUrl) {
+  // קישור העריכה האישי פותח את השמות מהשרת בכל מכשיר; ?edit=1 הוא גיבוי למכשיר המקורי.
+  const EDIT = editUrl || EDIT_PAGE;
   const list = bakashot
     .map((n) => `<li style="margin:4px 0">${esc(fullName(n))}` +
       (n.note ? `<br><span style="font-size:14px;color:#4a453e">הערה: ${esc(n.note)}</span>` : "") + `</li>`)
@@ -294,7 +297,7 @@ function thanksHtml(name, bakashot, isFix, isEmpty, removeUrl) {
     h("אם הפרטים לא מדויקים.") +
     // תיקון נעשה באתר בידי המוסר עצמו, לא בתשובה למייל (הוראת יעקב 5.11.2026).
     `<p>אפשר לתקן את השמות בעצמכם, באתר, בכל עת:</p>` +
-    emailButton(EDIT_PAGE, "לשינוי השמות שמסרתם");
+    emailButton(EDIT, "לשינוי השמות שמסרתם");
 
   const removeLine = removeUrl && !isEmpty
     ? `<p style="font-size:14px;color:#4a453e">להסרת השמות מהרשימה, ` +
@@ -316,7 +319,7 @@ function thanksHtml(name, bakashot, isFix, isEmpty, removeUrl) {
     explain +
     (isFix
       ? `<p>אם משהו בפרטים לא מדויק, אפשר לתקן בעצמכם באתר: ` +
-        `<a href="${EDIT_PAGE}" style="color:#8a6a1f">לשינוי השמות שמסרתם</a>.</p>`
+        `<a href="${EDIT}" style="color:#8a6a1f">לשינוי השמות שמסרתם</a>.</p>`
       : "") +
     `<hr style="border:0;border-top:1px solid #e5ddd0;margin:28px 0">` +
     `<p>מה שמחזיק את הכולל הוא אנשים שנותנים בקביעות. אם רצונך לקחת חלק, כל סכום עוזר, ` +
@@ -448,13 +451,28 @@ function removePage(title, body) {
   );
 }
 
+// קישור עריכה אישי ומייל החידוש החודשי - worker/renewal.js (5.11.2026).
+const RENEW = makeRenewal({
+  kind: "bakasha", field: "bakashot", kvName: "TEFILOT", secretName: "TEFILOT_TOKEN_SECRET",
+  self: SELF, publicKey: KV_KEY, sendMail, fullName, ownerTo: TO,
+  replyTo: REPLY_TO_OWNER, donate: DONATE, keva: KEVA,
+});
+
 export default {
+  // קרון כל שעה: מייל החידוש החודשי. השליחה כבויה עד שיעקב מאשר את הנוסח
+  // (cfg:renewal-send ב-KV), ועד אז הריצה רק רושמת ב-renewal-dry-latest.
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(RENEW.scheduled(env));
+  },
+
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
     const headers = cors(origin);
     const url = new URL(request.url);
 
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
+    const renewed = await RENEW.handle(request, env, url, headers);
+    if (renewed) return renewed;
 
     if (request.method === "GET") {
       // GET /?list=public - הרשימה שכל המבקרים רואים.
@@ -483,6 +501,8 @@ export default {
         const before = await readPublic(env);
         const kept = before.filter((e) => e.owner !== o);
         if (kept.length !== before.length) await env.TEFILOT.put(KV_KEY, JSON.stringify(kept));
+        // גם הרשומה הפרטית מתרוקנת, אחרת מייל החידוש היה שואל על שמות שכבר הוסרו.
+        await RENEW.clearSubmitter(env, o);
         await sendMail(env, {
           to: TO, replyTo: REPLY_TO_OWNER,
           subject: "הסרה מרשימת הרפואה (קישור מהמייל)",
@@ -603,7 +623,8 @@ export default {
       replyTo: REPLY_TO_OWNER,
       subject: isEmpty ? "השמות הוסרו מרשימת הרפואה"
              : isFix ? "הרשימה עודכנה" : "קיבלנו את השמות לרפואה",
-      html: rtlEmail(thanksHtml(req.name, bakashot, isFix, isEmpty, await removeUrlFor(env, ownerKey))),
+      html: rtlEmail(thanksHtml(req.name, bakashot, isFix, isEmpty, await removeUrlFor(env, ownerKey),
+        await RENEW.editUrlFor(env, ownerKey))),
     });
 
     return new Response("ok", { status: 200, headers });

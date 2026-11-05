@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>רפואה ושאר משאלות | אורות האמונה - בני משה</title>
-<meta name="description" content="מסירת שם של חולה ללימוד ולתפילה בכולל אורות האמונה. אברכים לומדים ומתפללים, והשם עומד ברשימה הגלויה כל עוד הוא נחוץ.">
+<meta name="description" content="מסירת שם של חולה ללימוד ולתפילה בכולל אורות האמונה. אברכים לומדים ומתפללים, והשם עומד ברשימה הגלויה.">
 <meta property="og:title" content="רפואה ושאר משאלות | אורות האמונה - בני משה">
 <meta property="og:description" content="מסרו שם של חולה, והאברכים ילמדו ויתפללו לרפואתו.">
 <meta property="og:type" content="website">
@@ -205,7 +205,7 @@
     count:'{n} מתוך {max}', storage:'לא ניתן לשמור במכשיר. כדאי להשאיר את הדף פתוח עד השליחה.',
     partial:'{sent} שמות נשלחו, {pending} עדיין ממתינים - לנסות שוב.', partialChanges:'חלק מהשינויים עדיין ממתינים - לנסות שוב.',
     code:' קוד שגיאה: {code}.', network:' אין חיבור לשרת.', locked:'הפרטים נשמרו לשליחה החוזרת. השמות שכבר התקבלו לא יישלחו שוב.',
-    unchanged:'לא נעשו שינויים בשמות.', identity:'בתיקון יש להשתמש באותו מייל שבו נמסרו השמות.',
+    unchanged:'לא נעשו שינויים בשמות.', editOtherDevice:'במכשיר הזה לא נשמרו שמות שמסרתם. כדי לשנות אותם, פתחו את הקישור במכשיר שממנו נמסרו השמות.', identity:'בתיקון יש להשתמש באותו מייל שבו נמסרו השמות.',
     splitOwners:'השמות נשמרו עם פרטי מוסר שונים. אפשר לתקן כל רשימה בנפרד.',
     publicTitle:'השמות שעומדים לתפילה:', publicTitleRefua:'שמות לרפואה שלמה', publicTitleBakasha:'שמות לשאר בקשות', loading:'טוען...', publicEmpty:'אין כרגע שמות ברשימה.',
     publicFail:'לא ניתן לטעון את רשימת השמות כעת.', publicPartial:'חלק מרשימת השמות אינו זמין כעת.',
@@ -404,6 +404,11 @@
   const app=$('prayer-app');function fontSizeChanged(){app.classList.toggle('large-text',parseFloat(getComputedStyle(document.documentElement).fontSize)>18);}
   fontSizeChanged();window.addEventListener('resize',fontSizeChanged);
   if(state.jobs){state.stage='details';const pending=state.jobs.reduce((sum,j)=>sum+j.entries.length,0);message=pending?format(TEXT.partial,{sent:state.received,pending}):TEXT.partialChanges;messageError=true;}
+  /* ?edit=1 - הקישור „לשינוי השמות שמסרתם" שבמייל האישור (5.11.2026). העריכה נשענת על הזיכרון המקומי,
+     ולכן במכשיר אחר אין מה לפתוח, והדף אומר את זה במקום לשתוק. */
+  if(!state.jobs&&/[?&]edit=1(?:&|$)/.test(location.search)){
+    if(KINDS.some(k=>cache[k].names.length)){if(!mixedOwners()){startEdit(KINDS);app.scrollIntoView({block:'start'});return;}}
+    else{message=TEXT.editOtherDevice;messageError=false;}}
   // קישור ישיר לסוג בקשה: refua.html?type=wishes או #wishes פותח את הטופס על „שאר בקשות", ו-refua על „רפואה שלמה".
   if(!state.jobs){const want=(new URLSearchParams(location.search).get('type')||location.hash.replace('#','')).toLowerCase();
     const preset={wishes:'bakasha',bakasha:'bakasha',refua:'refua'}[want];

@@ -191,6 +191,9 @@ function rtlEmail(inner) {
 const TEHILLIM_BOOK = "https://t.hamikdash.co.il/klali";
 const SHARE_PAGE = "https://hamikdash.co.il/refua.html";
 const DONATE_PAGE = "https://hamikdash.co.il/donate.html";
+// מצב „שינוי שמות שמסרת" בדף. אין קישור עריכה חתום בשרת: העריכה נשענת על
+// הזיכרון המקומי של המכשיר שממנו נמסרו השמות, והדף אומר זאת למי שפותח ממכשיר אחר.
+const EDIT_PAGE = "https://hamikdash.co.il/refua.html?edit=1";
 function emailButton(href, text) {
   return `<p><a href="${href}" style="background:#b08434;color:#fff;text-decoration:none;` +
     `padding:12px 24px;border-radius:8px;display:inline-block;font-weight:bold">${text}</a></p>`;
@@ -285,20 +288,17 @@ function thanksHtml(name, bakashot, isFix, isEmpty, removeUrl) {
   // הסעיפים שהיו כאן ואינם בדף. מי שתיקן או הסיר כבר קיבל את כל זה.
   const explain = isFix || isEmpty ? "" :
     moreInfoEmail() +
-    h("זה נשאר ברשימה, ולא פג בשבוע.") +
-    `<p>אין כאן תאריך שפג ואין צורך למסור שוב. השם נשאר ברשימה כל עוד הוא ` +
-    `נחוץ, ואתם מחליטים מתי להוציא אותו.</p>` +
     h("וכשתבוא הבשורה הטובה.") +
-    `<p>הודיעו לנו - בלחיצה אחת על הקישור שבתחתית המייל הזה, או בתשובה למייל. ` +
+    `<p>הודיעו לנו - בלחיצה אחת על הקישור שבתחתית המייל הזה. ` +
     `אנחנו רוצים לדעת, ורשימה מעודכנת היא גם תפילה מכוונת יותר.</p>` +
     h("אם הפרטים לא מדויקים.") +
-    `<p>אם השם הכתוב אינו השם שקוראים בו, או שנפלה טעות באחד הפרטים, אפשר ` +
-    `להשיב למייל הזה ונתקן, ואפשר לשנות בכל עת דרך האתר. שם שנמסר עם פרט ` +
-    `חסר עדיף פי כמה על שם שלא נמסר.</p>`;
+    // תיקון נעשה באתר בידי המוסר עצמו, לא בתשובה למייל (הוראת יעקב 5.11.2026).
+    `<p>אפשר לתקן את השמות בעצמכם, באתר, בכל עת:</p>` +
+    emailButton(EDIT_PAGE, "לשינוי השמות שמסרתם");
 
   const removeLine = removeUrl && !isEmpty
-    ? `<p style="font-size:14px;color:#4a453e">התקבלה הבקשה ברוך השם, או שאין צורך יותר? ` +
-      `<a href="${removeUrl}" style="color:#8a6a1f">להסרת השמות מהרשימה בלחיצה אחת</a>.</p>`
+    ? `<p style="font-size:14px;color:#4a453e">להסרת השמות מהרשימה, ` +
+      `<a href="${removeUrl}" style="color:#8a6a1f">לחצו כאן</a>.</p>`
     : "";
 
   return (
@@ -314,8 +314,9 @@ function thanksHtml(name, bakashot, isFix, isEmpty, removeUrl) {
       `<ul style="background:#f3ece0;border-right:4px solid #b08434;padding:14px 24px 14px 18px;` +
       `border-radius:8px;list-style:none;margin:20px 0">${list}</ul>`) +
     explain +
-    (isFix || isEmpty
-      ? `<p>אם משהו בפרטים לא מדויק, אפשר פשוט להשיב למייל הזה ונתקן.</p>`
+    (isFix
+      ? `<p>אם משהו בפרטים לא מדויק, אפשר לתקן בעצמכם באתר: ` +
+        `<a href="${EDIT_PAGE}" style="color:#8a6a1f">לשינוי השמות שמסרתם</a>.</p>`
       : "") +
     `<hr style="border:0;border-top:1px solid #e5ddd0;margin:28px 0">` +
     `<p>מה שמחזיק את הכולל הוא אנשים שנותנים בקביעות. אם רצונך לקחת חלק, כל סכום עוזר, ` +

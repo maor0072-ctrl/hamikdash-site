@@ -117,6 +117,9 @@
         <p>ולא רק הכולל: בפרויקט תהילים ישראל אומרים המוני אנשים את ספר התהילים כולו, שוב ושוב. ובפרויקט שמע ישראל, המוני יהודים מכל העולם מתאחדים בכל לילה, וקוראים קריאת שמע, <strong>למען אחדות ישראל!</strong> ומבקשים שכל משאלות לבם של כל השותפים בפרויקט יתגשמו לטובה! תפילת רבים, שחוזרת יום יום!</p>
         <h3>מי שנותן הוראת קבע</h3>
         <p>השמות שהוא מוסר, בלי נדר, <strong>מוזכרים באופן פרטני</strong> בתפילה.</p>
+        <h3>מי שתורם תרומה חד פעמית</h3>
+        <p>השמות שהוא מסר, בלי נדר, <strong>מוזכרים באופן פרטני</strong> בתפילה במשך השבוע הזה והשבוע שלאחר מכן.</p>
+        <p><a class="btn" href="https://t.hamikdash.co.il/klali">לפתוח ספר תהילים להתפלל על השמות שנמסרו</a></p>
         <p>כמו כן, אנחנו מבקשים מכל מי ששותף בפרויקט הזה לכוון שכל תפילה ופרק תהילים שהוא אומר יעמדו גם לזכות כל השמות שרשומים כאן. כך כל אדם נוסף שמצטרף מגדיל את התפילה לכולם.</p>
         <p>וכשתבוא הבשורה הטובה, הודיעו לנו. אנחנו רוצים לדעת.</p>
         <p>מלאו את השמות והבקשות, והעבירו את הקישור לאתר הזה לכל מי שאתם אוהבים. הקישור לשיתוף עם חברים נמצא בסוף הדף הזה.</p>
@@ -187,7 +190,7 @@
     type:'על מה מתפללים', typeLabel:'בחרו על מה מתפללים:', refua:'רפואה שלמה', refuaSub:'ובריאות איתנה', bakashaSub:'דוגמה: זיווג.', refuaShort:'רפואה שלמה', bakasha:'שאר בקשות',
     request:'הבקשה', privacy:'ברשימה הגלויה מופיעים השם והבקשה.',
     quick:['זיווג','שלום בית','פרנסה','זרע של קיימא','הצלחה במשפט','מכירת דירה','הצלחה בלימודים','ישועה'],
-    more:'פרטים נוספים - לא חובה', relation:'הקרבה אליכם', choose:'בחרו',
+    more:'פרטים נוספים - לא חובה', note:'הערות', noteHint:'ההערה יכולה לשמש, למשל, כדי להזכיר לכם על מי להתפלל.', relation:'הקרבה אליכם', choose:'בחרו',
     relations:['אב','אם','בעל','אישה','בן','בת','אח','אחות','סב','סבתא','דוד','דודה','קרוב משפחה','קרובת משפחה','חבר','חברה','רב','אחר'], self:'עצמי', fallbackRelation:'אחר',
     example:'דוגמה', examples:{name:'משה חיים',gender:'בן',parent:'רבקה',type:'רפואה שלמה',request:'להצלחה בלימודים',relation:'אבא',meName:'דוד לוי',phone:'050-1234567',email:'dl@gmail.com'},
     preview:'כך יוזכר בתפילה:', missingName:'[השם?]', missingGender:'[בן או בת?]', missingParent:'[שם ההורה?]',
@@ -213,7 +216,7 @@
     refua:{url:'https://refua.hamikdash.co.il',backup:'https://hamikdash-refua.maor0072.workers.dev',field:'cholim',names:'hamikdash_refua_names',me:'hamikdash_refua_me'},
     bakasha:{url:'https://tefilot.hamikdash.co.il',backup:'https://hamikdash-tefilot.maor0072.workers.dev',field:'bakashot',names:'hamikdash_tefilot_names',me:'hamikdash_tefilot_me'}
   };
-  const DRAFT='hamikdash_refua_combined_draft_v1', MAX_REQUEST=1500, KINDS=['refua','bakasha'];
+  const DRAFT='hamikdash_refua_combined_draft_v1', MAX_REQUEST=1500, MAX_NOTE=500, KINDS=['refua','bakasha'];
   const $=id=>document.getElementById(id), esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const format=(s,values)=>s.replace(/\{(\w+)\}/g,(_,k)=>String(values[k]??''));
   let storageFailed=false, busy=false, message='', messageError=false;
@@ -221,7 +224,7 @@
   function read(key,fallback){try{const v=JSON.parse(localStorage.getItem(key));return v??fallback;}catch(e){storageWarning();return fallback;}}
   function write(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch(e){storageWarning();}}
   const uid=()=>globalThis.crypto?.randomUUID?.() || Date.now().toString(36)+Math.random().toString(36).slice(2);
-  function blank(){return {id:uid(),name:'',parent:'',gender:'',relation:'',type:'',request:''};}
+  function blank(){return {id:uid(),name:'',parent:'',gender:'',relation:'',type:'',request:'',note:''};}
   const cache={};
   KINDS.forEach(kind=>{const a=API[kind],list=read(a.names,[]);cache[kind]={me:read(a.me,null),names:Array.isArray(list)?list:[]};});
   const initial=()=>({version:1,mode:'new',stage:'intro',items:[],active:null,me:{...(cache.refua.me||cache.bakasha.me||{name:'',phone:'',email:''})},baseline:null,scope:KINDS,jobs:null,received:0});
@@ -232,7 +235,7 @@
   function fullName(n,preview=false){const name=String(n.name||'').trim(),parent=String(n.parent||'').trim();
     if(/^(בן|בת|ב"ר|בר)\s/.test(parent))return [name,parent].filter(Boolean).join(' ');
     return [name||(preview?TEXT.missingName:''),n.gender==='m'?TEXT.son:n.gender==='f'?TEXT.daughter:preview?TEXT.missingGender:'',parent||(preview?TEXT.missingParent:'')].filter(Boolean).join(' ');}
-  function wire(n){const out={name:n.name.trim(),parent:n.parent.trim(),relation:(n.relation||'').trim()||TEXT.fallbackRelation,gender:n.gender};if(n.type==='bakasha')out.request=(n.request||'').trim();return out;}
+  function wire(n){const out={name:n.name.trim(),parent:n.parent.trim(),relation:(n.relation||'').trim()||TEXT.fallbackRelation,gender:n.gender};if(n.type==='bakasha')out.request=(n.request||'').trim();const note=(n.note||'').trim();if(note)out.note=note;return out;}
   function example(value){var ltr=/^[ -~]+$/.test(String(value));return '<div class="example"><small>'+esc(TEXT.example)+'</small><b'+(ltr?' dir="ltr" class="ltr"':'')+'>'+esc(value)+'</b></div>';}
   function button(action,text,extra='',ghost=false){return '<button type="button" class="btn'+(ghost?' btn-ghost':'')+'" data-action="'+action+'" '+extra+'>'+esc(text)+'</button>';}
   function inputRow(key,label,value,sample,options={}){const id='field-'+key;
@@ -247,7 +250,9 @@
       inputRow('parent',n.parentKind==='father'?TEXT.parentLabelFather:TEXT.parentLabel,n.parent,n.parentKind==='father'?TEXT.sampleFather:TEXT.examples.parent,{hint:n.parentKind==='father'?TEXT.parentHintFather:TEXT.parentHint,placeholder:'רק שם פרטי!'})+'<p class="hint"><button type="button" class="text-button" data-action="parentkind">'+esc(n.parentKind==='father'?TEXT.toMother:TEXT.toFather)+'</button></p>'+
       radios('type',TEXT.typeLabel,'',[['refua',TEXT.refua,TEXT.refuaSub],['bakasha',TEXT.bakasha,TEXT.bakashaSub]],n.type,null)+
       '<div id="request-block" '+(n.type!=='bakasha'?'hidden':'')+'><div class="q"><label for="field-request">'+esc(TEXT.request+TEXT.required)+'</label><p class="privacy">'+esc(TEXT.privacy)+'</p><div class="quick">'+TEXT.quick.map((t,i)=>'<button type="button" data-action="quick" data-index="'+i+'">'+esc(t)+'</button>').join('')+'</div><div class="pair"><div><textarea id="field-request" data-field="request" rows="4" aria-describedby="request-count error-request">'+esc(n.request)+'</textarea><div id="request-count" class="counter"></div><div id="error-request" class="field-error" aria-live="polite"></div></div>'+example(TEXT.examples.request)+'</div></div></div>'+
-      '<details id="extra-details"><summary>'+esc(TEXT.more)+'</summary><div class="q"><label for="field-relation">'+esc(TEXT.relation)+'</label><div class="pair"><div><select id="field-relation" data-field="relation" aria-describedby="error-relation"><option value="">'+esc(TEXT.choose)+'</option>'+relations.map(r=>'<option '+(r===n.relation?'selected ':'')+'value="'+esc(r)+'">'+esc(r)+'</option>').join('')+'</select><div id="error-relation" class="field-error"></div></div>'+example(TEXT.examples.relation)+'</div></div></details>'+
+      '<details id="extra-details"><summary>'+esc(TEXT.more)+'</summary><div class="q"><label for="field-relation">'+esc(TEXT.relation)+'</label><div class="pair"><div><select id="field-relation" data-field="relation" aria-describedby="error-relation"><option value="">'+esc(TEXT.choose)+'</option>'+relations.map(r=>'<option '+(r===n.relation?'selected ':'')+'value="'+esc(r)+'">'+esc(r)+'</option>').join('')+'</select><div id="error-relation" class="field-error"></div></div>'+example(TEXT.examples.relation)+'</div></div>'+
+      /* הערה פרטית למוסר (5.11.2026): נשמרת אצלנו ובמיילים, ולא מוצגת ברשימה הגלויה. */
+      '<div class="q"><label for="field-note">'+esc(TEXT.note)+'</label><p class="hint">'+esc(TEXT.noteHint)+'</p><textarea id="field-note" data-field="note" rows="3" style="min-height:4.5em" aria-describedby="error-note">'+esc(n.note||'')+'</textarea><div id="error-note" class="field-error" aria-live="polite"></div></div></details>'+
       '<div class="preview">'+esc(TEXT.preview)+'<strong id="prayer-preview" aria-live="polite"></strong></div></div>';}
   function publicBlock(withTitle=true){return (withTitle?'<h2>'+esc(TEXT.publicTitle)+'</h2>':'')+'<div id="public-names" aria-live="polite"><div class="public-box"><h3>'+esc(TEXT.publicTitleRefua)+'</h3><div id="public-refua">'+esc(TEXT.loading)+'</div></div><div class="public-box"><h3>'+esc(TEXT.publicTitleBakasha)+'</h3><div id="public-bakasha">'+esc(TEXT.loading)+'</div></div></div>';}
   /* מסך הסיום (הוראת יעקב 5.11.2026), בסדר הזה: כותרת, פסקת השותפים, הקטע „מי שנותן הוראת קבע" עד סוף ההסבר הנוסף
@@ -289,16 +294,16 @@
     if(el){el.setAttribute('aria-invalid','true');el.closest('details')?.setAttribute('open','');el.scrollIntoView({block:'center',behavior:'smooth'});el.focus({preventScroll:true});}return false;}
   function validateItem(n,index){const ordinal=TEXT.ordinals[index]||format(TEXT.ordinalOther,{n:index+1});
     const fields=[['name',TEXT.name,120],['gender',TEXT.gender,0],['parent',TEXT.parentLabel+' או האב',120],['type',TEXT.type,0]];
-    if(n.type==='bakasha')fields.push(['request',TEXT.request,MAX_REQUEST]);fields.push(['relation',TEXT.relation,80]);
+    if(n.type==='bakasha')fields.push(['request',TEXT.request,MAX_REQUEST]);fields.push(['relation',TEXT.relation,80]);fields.push(['note','שדה ההערות',MAX_NOTE]);
     for(const [key,label,max] of fields){const value=String(n[key]||'').trim();let error='';
-      if(key!=='relation'&&!value)error=format(TEXT.missing,{field:label,n:ordinal});else if(max&&String(n[key]||'').length>max)error=format(TEXT.tooLong,{field:label,max});
+      if(key!=='relation'&&key!=='note'&&!value)error=format(TEXT.missing,{field:label,n:ordinal});else if(max&&String(n[key]||'').length>max)error=format(TEXT.tooLong,{field:label,max});
       if(error){state.active=n.id;state.stage='names';render();return focusField(key,error);}}
     return true;
   }
   function currentValid(){const i=state.items.findIndex(x=>x.id===state.active);return i<0||validateItem(state.items[i],i);}
   /* כרטיס ריק לגמרי (בדרך כלל זה שנפתח אחרי „שמירת השם והוספת שם נוסף") נזרק בשקט לפני המעבר לפרטים,
      במקום לעצור על שדה חסר. כרטיס שמולא בו משהו עדיין נבדק כרגיל. */
-  function dropEmpty(){const empty=n=>['name','parent','gender','type','request','relation'].every(k=>!String(n[k]||'').trim());
+  function dropEmpty(){const empty=n=>['name','parent','gender','type','request','relation','note'].every(k=>!String(n[k]||'').trim());
     if(!state.items.some(empty))return;state.items=state.items.filter(n=>!empty(n));if(!state.items.some(n=>n.id===state.active))state.active=null;persist();}
   function allValid(){dropEmpty();if(!state.items.length&&state.mode!=='edit'){notify(TEXT.noNames,true);return false;}for(let i=0;i<state.items.length;i++)if(!validateItem(state.items[i],i))return false;return true;}
   function validateMe(){const labels={meName:TEXT.meName,phone:TEXT.phone,email:TEXT.email};for(const k of Object.keys(labels)){const value=String(state.me[k==='meName'?'name':k]||'').trim();if(!value)return focusField(k,format(TEXT.meMissing,{field:labels[k]}));}

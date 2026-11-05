@@ -50,8 +50,8 @@ const MAX_CHOLIM = 5; // תקרה שפויה; מעבר לזה זו כנראה ה
 // שאינו השם שנמסר, ומוחק בשקט את השמות שמעל התקרה - בדיוק הבאג שתוקן
 // ב-worker/neshama.js. הטופס עצמו מגביל גם את המספר וגם את האורך, ולכן מי
 // שמגיע לכאן הוא הזנה אוטומטית או עקיפה, ושם חיתוך שקט הוא הנזק הגדול.
-const FIELD_MAX = { name: 120, parent: 120, relation: 80 };
-const FIELD_LABEL = { name: "השם", parent: "שם ההורה", relation: "הקרבה" };
+const FIELD_MAX = { name: 120, parent: 120, relation: 80, note: 500 };
+const FIELD_LABEL = { name: "השם", parent: "שם ההורה", relation: "הקרבה", note: "שדה ההערות" };
 
 function cors(origin) {
   const allow = ALLOWED.includes(origin) ? origin : ALLOWED[0];
@@ -162,6 +162,68 @@ async function sendViaGmail(env, raw) {
 
 // "שרה" + "רבקה" הוא לא "שרה רבקה" אלא "שרה בת רבקה".
 // המגדר הוא **שדה חובה מפורש** ולא נגזר מהקרבה, וההורה הוא האם או האב לבחירת המוסר.
+// ---------- מייל עברי: כיוון מוצהר ובידוד לטיני (כלל 28, יעקב 16.10.2026) ----------
+// dir="rtl" על html, על body ועל כל בלוק (ג'ימייל מפשיט מעטפות), וכל רצף לטיני
+// בטקסט נעטף ב-<span dir="ltr"> כדי שכתובת או קישור באמצע משפט עברי לא יתהפכו.
+// ישויות HTML (&amp;) מדולגות, ותגיות עצמן לא נוגעים בהן.
+function isolateLatin(html) {
+  return html.split(/(<[^>]+>)/).map((part) => {
+    if (part.charAt(0) === "<") return part;
+    return part.replace(/&[#\w]+;|[A-Za-z][\w.@:\/?=&%#+~-]*(?: +[A-Za-z][\w.@:\/?=&%#+~-]*)*/g,
+      (m) => (m.charAt(0) === "&" && m.endsWith(";") ? m : `<span dir="ltr">${m}</span>`));
+  }).join("");
+}
+function rtlEmail(inner) {
+  const body = isolateLatin(inner).replace(
+    /<(p|ul|ol|li|table|tr|td|div|h[1-6])(?![^>]*\bdir=)(?=[\s>])/g, '<$1 dir="rtl"');
+  return `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="utf-8"></head>` +
+    `<body dir="rtl" style="direction:rtl;text-align:right">${body}</body></html>`;
+}
+
+// ההסבר הנוסף מהדף, בנוסח למי שכבר מסר (הוראת יעקב 5.11.2026). משותף לשני
+// הוורקרים (refua.js ו-tefilot.js) - טופס אחד שולח לשניהם, ותיקון כאן חייב
+// להיעשות בשני הקבצים.
+const TEHILLIM_BOOK = "https://t.hamikdash.co.il/klali";
+const SHARE_PAGE = "https://hamikdash.co.il/refua.html";
+const DONATE_PAGE = "https://hamikdash.co.il/donate.html";
+function emailButton(href, text) {
+  return `<p><a href="${href}" style="background:#b08434;color:#fff;text-decoration:none;` +
+    `padding:12px 24px;border-radius:8px;display:inline-block;font-weight:bold">${text}</a></p>`;
+}
+function moreInfoEmail() {
+  const h = (t) => `<p style="margin:22px 0 6px"><b>${t}</b></p>`;
+  return (
+    `<p>מסרתם כאן את השמות ואת הבקשות, מה שאתם מאחלים לכל אחד מהם. יש כאן חלוקה ` +
+    `לתפילות לרפואה, ותפילות לשאר משאלות: זיווג, זרע של קיימא, נחת מהילדים, פרנסה, ` +
+    `שלום בית, הצלחה במבחן, הצלחה במשפט, חזרה בתשובה ועוד.</p>` +
+    `<p>השמות והבקשות מוצגים באתר, <strong>וכולם מתפללים על כולם</strong>. ואז זוכים ` +
+    `ש„כל המתפלל על חברו והוא צריך לאותו דבר, נענה תחילה”. לכן ככל שיצטרפו עוד ` +
+    `אנשים לפרויקט, כוח התפילה עולה.</p>` +
+    `<p><strong>דמיין לעצמך אלף איש מתפללים על בקשתך, יום יום! קוראים תהילים על זה! ` +
+    `ואם המספר עולה לעשרת אלפים או יותר! זה כוח תפילה אדיר!</strong></p>` +
+    h("מה נעשה למען הבקשה?") +
+    `<p>בעמותה שלנו, אורות האמונה - בני משה, יש כולל אברכים, תמיכה בנזקקים ועוד. ` +
+    `השמות עומדים לפני האברכים, נאמרים בתפילות ובעת פתיחת ההיכל, והלימוד נעשה גם ` +
+    `לרפואתם ולישועתם.</p>` +
+    `<p>ולא רק הכולל: בפרויקט תהילים ישראל אומרים המוני אנשים את ספר התהילים כולו, ` +
+    `שוב ושוב. ובפרויקט שמע ישראל, המוני יהודים מכל העולם מתאחדים בכל לילה, וקוראים ` +
+    `קריאת שמע, <strong>למען אחדות ישראל!</strong> ומבקשים שכל משאלות לבם של כל ` +
+    `השותפים בפרויקט יתגשמו לטובה! תפילת רבים, שחוזרת יום יום!</p>` +
+    h("מי שנותן הוראת קבע") +
+    `<p>השמות שהוא מוסר, בלי נדר, <strong>מוזכרים באופן פרטני</strong> בתפילה.</p>` +
+    h("מי שתורם תרומה חד פעמית") +
+    `<p>השמות שהוא מסר, בלי נדר, <strong>מוזכרים באופן פרטני</strong> בתפילה במשך ` +
+    `השבוע הזה והשבוע שלאחר מכן.</p>` +
+    emailButton(TEHILLIM_BOOK, "לפתוח ספר תהילים להתפלל על השמות שנמסרו") +
+    `<p>כמו כן, אנחנו מבקשים מכל מי ששותף בפרויקט הזה לכוון שכל תפילה ופרק תהילים ` +
+    `שהוא אומר יעמדו גם לזכות כל השמות שרשומים כאן. כך כל אדם נוסף שמצטרף מגדיל את ` +
+    `התפילה לכולם.</p>` +
+    h("שתפו את מי שאתם אוהבים") +
+    `<p>העבירו את הקישור לאתר לכל מי שאתם אוהבים, כדי שגם הם ימסרו שמות ויצטרפו ` +
+    `לתפילה: <a href="${SHARE_PAGE}" style="color:#8a6a1f">${SHARE_PAGE}</a></p>`
+  );
+}
+
 function fullName(n) {
   const parent = String(n.parent || "").trim();
   const name = String(n.name || "").trim();
@@ -180,6 +242,7 @@ function choleBlock(n, i) {
     row("השם", n.name) +
     row("שם האם או האב", n.parent) +
     row("קרבה למבקש", n.relation) +
+    row("הערות", n.note) +
     row("מין", n.gender === "f" ? "נקבה" : n.gender === "m" ? "זכר" : "לא צוין") +
     `</table>`
   );
@@ -205,37 +268,27 @@ function ownerNoticeHtml(req, cholim, isFix, isEmpty) {
 
 function thanksHtml(name, cholim, isFix, isEmpty, removeUrl) {
   const list = cholim
-    .map((n) => `<li style="margin:4px 0">${esc(fullName(n))}</li>`)
+    .map((n) => `<li style="margin:4px 0">${esc(fullName(n))}` +
+      (n.note ? `<br><span style="font-size:14px;color:#4a453e">הערה: ${esc(n.note)}</span>` : "") + `</li>`)
     .join("");
   const h = (t) => `<p style="margin:22px 0 6px"><b>${t}</b></p>`;
 
   // ההסברים המלאים נשלחים **רק במסירה ראשונה**. מי שתיקן שם או הסיר שמות
   // כבר קיבל אותם, ולחזור עליהם בכל תיקון זה להציף אדם שעשה פעולה קטנה.
+  // מסירה ראשונה: ההסבר הנוסף מהדף בנוסח למי שכבר מסר (5.11.2026), ואחריו
+  // הסעיפים שהיו כאן ואינם בדף. מי שתיקן או הסיר כבר קיבל את כל זה.
   const explain = isFix || isEmpty ? "" :
-    h("מה נעשה בפועל.") +
-    `<p>בכולל שלנו יושבים אברכים ולומדים כל יום. השמות שנמסרו נמצאים לפני ` +
-    `האברכים, נאמרים בתפילות ובעת פתיחת ההיכל, והלימוד נעשה גם לרפואתם. ` +
-    `השם מופיע גם ברשימה הגלויה שבאתר, כדי שכל מי שנכנס יוכל לומר עליו מילה ` +
-    `או פרק תהילים.</p>` +
-
+    moreInfoEmail() +
     h("זה נשאר ברשימה, ולא פג בשבוע.") +
     `<p>אין כאן תאריך שפג ואין צורך למסור שוב. השם נשאר ברשימה כל עוד הוא ` +
     `נחוץ, ואתם מחליטים מתי להוציא אותו.</p>` +
-
-    h("וכשתבוא הרפואה.") +
-    `<p>ברגע שתגיע הבשורה הטובה, בבקשה הודיעו לנו - בלחיצה אחת על הקישור ` +
-    `שבתחתית המייל הזה, או בתשובה למייל. אנחנו רוצים לדעת, ורשימה מעודכנת ` +
-    `היא גם תפילה מכוונת יותר.</p>` +
-
+    h("וכשתבוא הבשורה הטובה.") +
+    `<p>הודיעו לנו - בלחיצה אחת על הקישור שבתחתית המייל הזה, או בתשובה למייל. ` +
+    `אנחנו רוצים לדעת, ורשימה מעודכנת היא גם תפילה מכוונת יותר.</p>` +
     h("אם הפרטים לא מדויקים.") +
     `<p>אם השם הכתוב אינו השם שקוראים בו, או שנפלה טעות באחד הפרטים, אפשר ` +
     `להשיב למייל הזה ונתקן, ואפשר לשנות בכל עת דרך האתר. שם שנמסר עם פרט ` +
-    `חסר עדיף פי כמה על שם שלא נמסר.</p>` +
-
-    h("וזה חלק ממשהו גדול יותר.") +
-    `<p>השמות לרפואה הם חלק מפרויקט "שמע רפא ומשאלות" - אמירת שמע ישראל ` +
-    `בחצות, שמות לברכה ולרפואה, בקשת משאלות וחלוקת ספר התהילים. כל מה שנעשה ` +
-    `שם, לרבות קריאת התהילים, נזקף גם לרפואת החולים שברשימה.</p>`;
+    `חסר עדיף פי כמה על שם שלא נמסר.</p>`;
 
   const removeLine = removeUrl && !isEmpty
     ? `<p style="font-size:14px;color:#4a453e">הבריא ברוך השם, או שאין צורך יותר? ` +
@@ -261,9 +314,7 @@ function thanksHtml(name, cholim, isFix, isEmpty, removeUrl) {
     `<hr style="border:0;border-top:1px solid #e5ddd0;margin:28px 0">` +
     `<p>מה שמחזיק את הכולל הוא אנשים שנותנים בקביעות. אם רצונך לקחת חלק, כל סכום עוזר, ` +
     `וכל שקל הולך ממש לקודש הקודשים.</p>` +
-    `<p><a href="${KEVA}" style="background:#b08434;color:#fff;text-decoration:none;` +
-    `padding:12px 24px;border-radius:8px;display:inline-block;font-weight:bold">` +
-    `לתרומה חד פעמית או להוראת קבע</a></p>` +
+    emailButton(DONATE_PAGE, "לתרומה חד פעמית או להוראת קבע") +
     `<p style="margin-top:28px">שתזכו לבשורות טובות, ולרפואה שלמה במהרה.</p>` +
     `<p>באהבה,<br>יעקב מאור<br>0528395189</p>` +
     removeLine +
@@ -474,6 +525,9 @@ export default {
         name: String((n && n.name) || "").trim(),
         parent: String((n && n.parent) || "").trim(),
         relation: String((n && n.relation) || "").trim(),
+        // הערה פרטית למוסר (5.11.2026): נשמרת ברשומה הפרטית ונשלחת בשני המיילים,
+        // ו-publicEntry אינו מחזיר אותה - לעולם לא ברשימה הגלויה.
+        note: String((n && n.note) || "").trim(),
         gender: (n && n.gender) === "f" ? "f" : (n && n.gender) === "m" ? "m" : "",
       }))
       .filter((n) => n.name);
@@ -520,7 +574,7 @@ export default {
       replyTo: req.email,
       subject: (isEmpty ? "הסרה מרשימת הרפואה: " : isFix ? "תיקון רשימת רפואה: " : "שמות לרפואה: ") +
         `${req.name}${isEmpty ? "" : " (" + cholim.length + ")"}`,
-      html: ownerNoticeHtml(req, cholim, isFix, isEmpty),
+      html: rtlEmail(ownerNoticeHtml(req, cholim, isFix, isEmpty)),
     });
     if (!okNotice) return new Response("send failed", { status: 502, headers });
 
@@ -540,7 +594,7 @@ export default {
       replyTo: REPLY_TO_OWNER,
       subject: isEmpty ? "השמות הוסרו מרשימת הרפואה"
              : isFix ? "הרשימה עודכנה" : "קיבלנו את השמות לרפואה",
-      html: thanksHtml(req.name, cholim, isFix, isEmpty, await removeUrlFor(env, ownerKey)),
+      html: rtlEmail(thanksHtml(req.name, cholim, isFix, isEmpty, await removeUrlFor(env, ownerKey))),
     });
 
     return new Response("ok", { status: 200, headers });

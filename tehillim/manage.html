@@ -50,6 +50,13 @@ table.roster td.n{font-variant-numeric:tabular-nums}
 #qr-wrap img{border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px}
 .spinner{text-align:center;padding:60px 20px;color:var(--ink-soft)}
 .hidden{display:none}
+.top-ctas{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 10px}
+.big-btn{width:100%;min-height:54px;font-family:inherit;font-weight:800;font-size:18px;cursor:pointer;
+  text-align:center;text-decoration:none;padding:12px 16px}
+.big-btn.btn-ghost{border:2px solid var(--gold);background:var(--white);color:var(--gold-deep)}
+.guide{margin:0 0 18px;padding:12px 14px;border-radius:8px;background:var(--cream-warm);
+  border-right:4px solid var(--gold);font-weight:700}
+@media(max-width:560px){.top-ctas{grid-template-columns:1fr}}
 </style>
 <meta property="og:image" content="https://hamikdash.co.il/assets/og/tehillim.png">
 <meta property="og:image:width" content="1200">
@@ -88,33 +95,40 @@ table.roster td.n{font-variant-numeric:tabular-nums}
 <div id="app" class="hidden" style="padding:30px 20px 60px">
 
   <div class="card">
-    <p class="tiny" style="margin:0">מסך ניהול</p>
+    <p class="tiny" style="margin:0">ניהול הספר שלכם</p>
     <!-- crumbs:start -->
 <nav class="crumbnav" aria-label="מיקום באתר"><a href="/">בית</a><span class="sep">&rsaquo;</span><details class="crumb"><summary><a href="/tefilot/">שמע רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details><span class="sep">&rsaquo;</span><details class="crumb"><summary><a href="/tehillim.html">תהילים ישראל</a></summary><ul><li><a href="/tehillim/book.html">ספר תהילים</a></li><li><a href="/tehillim/sfarim">ספרים פתוחים</a></li></ul></details><span class="sep">&rsaquo;</span><span class="here">ניהול ספר תהילים</span></nav>
     <!-- crumbs:end -->
     <h1 style="font-size:26px;margin:2px 0 4px" id="bk-for"></h1>
-    <p class="tiny" id="bk-meta" style="margin:0 0 18px"></p>
+    <p class="tiny" id="bk-meta" style="margin:0 0 8px"></p>
+    <p style="margin:0 0 14px">כאן אפשר להזמין קוראים ולעקוב אחר השלמת הספר.</p>
+
+    <!-- הנספח: ההעתקה לקבוצה היא הכפתור הראשון במסך, ולצדה כניסה לספר בלחיצה -->
+    <div class="top-ctas">
+      <button type="button" class="btn btn-lg big-btn" id="copy-wa-top">העתקת הזמנה לקבוצה</button>
+      <a class="btn btn-lg btn-ghost big-btn" id="open-book" href="#" target="_blank" rel="noopener">לפתיחת הספר לקריאה</a>
+    </div>
+    <p id="guide" class="guide"></p>
 
     <div class="prog-bar"><i class="read" id="pb-read"></i><i class="taken" id="pb-taken"></i></div>
     <div class="stat-row">
       <div class="cell"><div class="num" id="s-read">0</div><div class="lbl">נקראו</div></div>
-      <div class="cell"><div class="num" id="s-taken">0</div><div class="lbl">נלקחו</div></div>
-      <div class="cell"><div class="num" id="s-free">0</div><div class="lbl">פנויים</div></div>
+      <div class="cell"><div class="num" id="s-taken">0</div><div class="lbl">נבחרו וטרם סומנו</div></div>
+      <div class="cell"><div class="num" id="s-free">0</div><div class="lbl">טרם נקראו</div></div>
     </div>
     <p class="tiny" style="text-align:center;margin:0">המספרים בפרקים, מתוך 150.
     פרק קי״ט מחולק ל-22 חלקים לפי האותיות, והוא נספר כפרק אחד.</p>
   </div>
 
   <div class="card">
-    <h2 style="margin-top:0;font-size:20px">הקישור להפצה</h2>
+    <h2 style="margin-top:0;font-size:20px">קישור הספר</h2>
     <div class="link-box">
       <input type="text" id="pub-link" readonly>
       <button type="button" class="copy-btn" id="copy-link">העתקה</button>
     </div>
 
-    <h3 style="font-size:17px;margin:24px 0 8px">העתקת עדכון לקבוצה</h3>
-    <p class="tiny" style="margin:0 0 6px">הודעה טרייה עם המספרים של הרגע הזה. טקסט בלבד -
-    בלי תמונה ובלי רשימת פרקים.</p>
+    <h3 style="font-size:17px;margin:24px 0 8px">ההודעה שתועתק לקבוצה</h3>
+    <p class="tiny" style="margin:0 0 6px">ההודעה מתעדכנת לפי המספרים של הרגע הזה. טקסט בלבד, בלי תמונה ובלי רשימת פרקים.</p>
     <div class="wa-preview" id="wa-text"></div>
     <button type="button" class="copy-btn" id="copy-wa">העתקת ההודעה</button>
 
@@ -124,12 +138,12 @@ table.roster td.n{font-variant-numeric:tabular-nums}
   </div>
 
   <div class="card">
-    <h2 style="margin-top:0;font-size:20px">מי בספר</h2>
+    <h2 style="margin-top:0;font-size:20px">הקוראים שהצטרפו</h2>
     <div id="roster-wrap"></div>
   </div>
 
   <div class="card">
-    <h2 style="margin-top:0;font-size:20px">הארכת תאריך היעד</h2>
+    <h2 style="margin-top:0;font-size:20px">מתי תרצו להשלים את הספר?</h2>
     <div class="field">
       <label for="target">תאריך יעד חדש</label>
       <input type="date" id="target">
@@ -152,10 +166,7 @@ table.roster td.n{font-variant-numeric:tabular-nums}
 
   <div class="card">
     <h2 style="margin-top:0;font-size:20px">לחלק את הנותרים</h2>
-    <p>זה הכפתור שסוגר ספר שנתקע. כל הפרקים שנשארו פנויים יתחלקו במנות שוות בין מי שכבר
-    נמצא בספר, ולכל אחד יינתן יממה שלמה לקרוא אותם.</p>
-    <p class="tiny">אחרי החלוקה אין פרקים פנויים, ומי שייכנס לקישור יראה ספר מלא.
-    אפשר להעתיק הודעה לקבוצה ולבקש מכולם להשלים.</p>
+    <p>אפשר לחלק את הפרקים בין הקוראים שכבר הצטרפו. החלוקה אינה מסמנת שהפרקים נקראו ואינה נועלת אותם בפני אחרים. לאחר החלוקה כדאי לשלוח עדכון לקבוצה.</p>
     <div class="actions">
       <button type="button" class="btn btn-lg" id="dist-btn">לחלק את הנותרים</button>
     </div>
@@ -279,20 +290,46 @@ table.roster td.n{font-variant-numeric:tabular-nums}
     document.body.removeChild(ta);
   }
 
+  // המסר הקבוע של יעקב (5.11.2026) - נכנס לכל נוסח הפצה, מילה במילה.
+  // הכוכביות הן הדגשה של וואטסאפ ונשארות בטקסט שמועתק. אותו נוסח גם ב-tehillim.html.
+  var SHARE_FOOTER = "*האתר שלנו נקי מפרסומות!* האתר נבנה על ידי הרב יעקב מאור, לזיכוי הרבים, כחלק מפרויקט ענק שכולל את הפרויקטים: עילוי נשמות, שמע רפא ומשאלות. *כל התפילות של האנשים בפרויקטים הנ\"ל הן גם למען מי שאתם קוראים תהילים בעבורו!* כשאתם קוראים תהילים, תכוונו גם על השמות ששם.";
+
+  // ההודעה לפי מצב הספר, לפי הנספח: לפני קריאה - הזמנה, בזמן התקדמות - עדכון, בסיום - תודה.
+  // כולן נושאות שם, שם הורה ועל מה מתפללים (TH_LEAD דרך forWhom), ואחריהן המסר הקבוע.
   function waText() {
     var ch = chapterStats();
-    var taken = ch.taken + ch.read;
-    return "פתחנו ספר תהילים " + forWhom(STATE) + ".\n\n" +
-      "נלקחו " + taken + " פרקים מתוך 150. נשארו " + ch.free + " פרקים פנויים.\n" +
-      "פרק לוקח בדרך כלל דקה עד שלוש, ומי שקורא מהר יסיים בפחות.\n\n" +
-      "להצטרפות ולבחירת פרקים:\n" + STATE.publicUrl;
+    var who = forWhom(STATE);
+    var body;
+    if (bookDone()) {
+      body = "ישר כוח לכל המשתתפים! השלמנו יחד ספר תהילים " + who + ". תודה על הקריאה ועל התפילות.";
+    } else if (ch.read === 0) {
+      body = "קוראים יחד תהילים " + who + ". גם פרק אחד יעזור לנו להשלים את הספר. " +
+        "נקראו 0 מתוך 150 פרקים. לקריאה ולהצטרפות: " + STATE.publicUrl;
+    } else {
+      body = "ממשיכים לקרוא תהילים " + who + ". נקראו " + ch.read + " מתוך 150 פרקים, עוד " +
+        (150 - ch.read) + " פרקים להשלמת הספר. גם פרק אחד יעזור. " + STATE.publicUrl;
+    }
+    return body + "\n\n" + SHARE_FOOTER;
+  }
+
+  // ההנחיה לפי מצב, מהנספח. ספר שהושלם נפתח מעצמו לסבב נוסף (הכרעה 13) - שם מוצג
+  // שהספר הושלם כל עוד הסבב החדש עוד לא התחיל.
+  function bookDone() {
+    return STATE.status === "closed" || (Number(STATE.cycle || 0) > 1 && chapterStats().read === 0);
+  }
+
+  function guideText() {
+    var ch = chapterStats();
+    if (bookDone()) return "הספר הושלם. אפשר לשלוח לקבוצה הודעת תודה.";
+    if (ch.read === 0) return "עדיין לא סומן פרק כנקרא. אפשר להעתיק הזמנה ולשלוח למשפחה ולחברים.";
+    return "נקראו " + ch.read + " מתוך 150 פרקים. תודה לכל המשתתפים.";
   }
 
   function paint() {
     $("bk-for").textContent = forWhom(STATE);
     var m = [];
     if (STATE.openerName) m.push("נפתח על ידי " + STATE.openerName);
-    if (STATE.targetDate) m.push("תאריך יעד: " + fmtDate(STATE.targetDate));
+    if (STATE.targetDate) m.push("מבקשים להשלים עד " + fmtDate(STATE.targetDate));
     if (STATE.status === "closed") m.push("הספר הושלם");
     $("bk-meta").textContent = m.join(" · ");
 
@@ -305,11 +342,15 @@ table.roster td.n{font-variant-numeric:tabular-nums}
 
     $("pub-link").value = STATE.publicUrl || "";
     $("wa-text").textContent = waText();
+    $("guide").textContent = guideText();
+    $("open-book").href = STATE.publicUrl || "#";
+    $("copy-wa-top").textContent = bookDone() ? "העתקת הודעת תודה לקבוצה"
+      : (chapterStats().read === 0 ? "העתקת הזמנה לקבוצה" : "העתקת עדכון לקבוצה");
     if (STATE.targetDate) $("target").value = STATE.targetDate;
 
     var r = STATE.roster || [];
     if (!r.length) {
-      $("roster-wrap").innerHTML = "<p class='tiny'>עדיין לא נכנס אף אחד. שלחו את הקישור.</p>";
+      $("roster-wrap").innerHTML = "<p class='tiny'>עדיין אין קוראים ברשימה. אפשר לשלוח את קישור הספר ולהזמין להשתתף.</p>";
     } else {
       var h = "<table class='roster'><tr><th>שם</th><th>קרא</th><th>מחזיק עכשיו</th></tr>";
       r.forEach(function (x) {
@@ -344,6 +385,7 @@ table.roster td.n{font-variant-numeric:tabular-nums}
 
   $("copy-link").addEventListener("click", function () { copyText($("pub-link").value, this); });
   $("copy-wa").addEventListener("click", function () { copyText(waText(), this); });
+  $("copy-wa-top").addEventListener("click", function () { copyText(waText(), this); });
 
   function paintListing() {
     var on = STATE && STATE.listed;
@@ -404,11 +446,11 @@ table.roster td.n{font-variant-numeric:tabular-nums}
         if (d && d.ok && d.assigned) {
           el.className = "form-msg ok";
           el.textContent = "חולקו " + d.assigned + " חלקים בין " + d.readers +
-            " קוראים. כדאי להעתיק עדכון לקבוצה ולבקש מכולם להשלים.";
+            " קוראים. כדאי לשלוח עדכון לקבוצה.";
           load();
         } else if (d && d.error === "no_readers") {
           el.className = "form-msg err";
-          el.textContent = "עדיין לא נכנס אף אחד לספר, ולכן אין בין מי לחלק.";
+          el.textContent = "עדיין אין קוראים ברשימה, ולכן אין בין מי לחלק. אפשר לשלוח את קישור הספר ולהזמין להשתתף.";
         } else if (d && d.error === "nothing_free") {
           el.className = "form-msg ok";
           el.textContent = "אין פרקים פנויים לחלוקה - הכל כבר נלקח.";

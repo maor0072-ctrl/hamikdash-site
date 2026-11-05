@@ -53,12 +53,37 @@
 .view.on{display:block}
 .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
 
+/* ---------- המסך הראשון: כותרת ושני כפתורים, מעל הקפל גם ברוחב 390 (הכרעה ה2) ---------- */
+.th-hero{padding:26px 0 24px}
+.th-hero .eyebrow{display:block;font-size:15px;font-weight:700;color:var(--gold-deep);margin-bottom:2px}
+.th-hero h1{margin-bottom:8px}
+.th-hero .sub{font-size:18px;line-height:1.6;margin:0}
+.hero-ctas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px;max-width:760px}
+.hero-ctas .cta{display:flex;flex-direction:column;gap:6px}
+.hero-btn{width:100%;min-height:56px;font-size:19px;font-weight:800;padding:12px 18px;cursor:pointer;
+  font-family:inherit;border:0}
+.hero-btn.btn-ghost{border:2px solid var(--gold);background:var(--white);color:var(--gold-deep)}
+.hero-btn[aria-busy="true"]{opacity:.65}
+.cta-s{font-size:14px;color:var(--ink-soft);line-height:1.5}
+body.th-inner .hero-ctas,body.th-inner .th-hero .sub,body.th-inner #counter{display:none}
+@media(max-width:640px){
+  .th-hero{padding:14px 0 18px}
+  .th-hero h1{font-size:29px;margin-bottom:6px}
+  .th-hero .sub{font-size:16px}
+  .hero-ctas{grid-template-columns:1fr;gap:12px;margin-top:14px}
+  .hero-btn{min-height:54px}
+}
+
 /* ---------- המונה הגלובלי ---------- */
 .counter-strip{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
   box-shadow:var(--shadow);padding:22px 20px;margin:0 auto 32px;max-width:760px;
-  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
-.counter-strip .cell{padding:4px 6px}
-.counter-strip .cell + .cell{border-right:1px solid var(--line)}
+  display:flex;gap:8px;text-align:center}
+.counter-strip[hidden],.counter-strip .cell[hidden]{display:none}
+.counter-strip .cell{padding:4px 6px;flex:1 1 0;min-width:0}
+.counter-strip .cell:not([hidden]) ~ .cell:not([hidden]){border-right:1px solid var(--line)}
+.door.soft.bigger{cursor:default}
+.door.soft.bigger:hover{transform:none}
+.door.soft.bigger .t{font-size:19px}
 .counter-strip .num{font-size:30px;font-weight:800;color:var(--gold-deep);line-height:1.25;
   font-variant-numeric:tabular-nums}
 .counter-strip .lbl{font-size:14px;color:var(--ink-soft);margin-top:2px}
@@ -111,6 +136,8 @@
 #qr-wrap{text-align:center;margin:18px 0 6px}
 #qr-wrap img,#qr-wrap canvas{border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px}
 .tiny{font-size:14px;color:var(--ink-soft)}
+.done-ctas{display:grid;gap:12px;margin:18px 0 4px}
+.done-ctas .hero-btn{text-align:center;text-decoration:none}
 </style>
 </head>
 <body>
@@ -136,14 +163,24 @@
   </div>
 </header>
 
-<div class="page-head">
+<div class="page-head th-hero">
   <div class="wrap">
     <!-- crumbs:start -->
 <nav class="crumbnav" aria-label="מיקום באתר"><a href="/">בית</a><span class="sep">&rsaquo;</span><details class="crumb"><summary><a href="/tefilot/">שמע רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details><span class="sep">&rsaquo;</span><details class="crumb"><summary class="here">תהילים ישראל</summary><ul><li><a href="/tehillim/book.html">ספר תהילים</a></li><li><a href="/tehillim/sfarim">ספרים פתוחים</a></li></ul></details></nav>
     <!-- crumbs:end -->
-    <h1>תהילים ישראל</h1>
-    <p>פותחים ספר תהילים לרפואת אדם, שולחים קישור אחד לקבוצה, וכל אחד לוקח פרקים וקורא.
-    אף אחד לא מנהל רשימה ביד, ואף פרק לא נשכח באמצע.</p>
+    <span class="eyebrow">תהילים ישראל</span>
+    <h1>קוראים תהילים יחד</h1>
+    <p class="sub">כל אחד קורא פרק, ויחד משלימים ספר תהילים. אפשר לקרוא מיד או לפתוח ספר עבור אדם יקר.</p>
+    <div class="hero-ctas">
+      <div class="cta">
+        <button type="button" class="btn btn-lg hero-btn" id="read-now">לקרוא עכשיו</button>
+        <span class="cta-s">מצטרפים לספר הכללי, שפתוח תמיד. אין צורך למסור פרטים.</span>
+      </div>
+      <div class="cta">
+        <button type="button" class="btn btn-lg btn-ghost hero-btn" data-go="form">לפתוח ספר עבור מישהו</button>
+        <span class="cta-s">כותבים עבור מי מתפללים, מקבלים קישור ושולחים למשפחה ולחברים.</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -159,25 +196,26 @@
 
 <section class="wrap" style="padding-top:34px;padding-bottom:10px">
 
-  <div class="counter-strip" id="counter" aria-live="polite">
-    <div class="cell"><div class="num" id="c-today">-</div><div class="lbl">פרקים נקראו היום</div></div>
-    <div class="cell"><div class="num" id="c-month">-</div><div class="lbl">החודש</div></div>
-    <div class="cell"><div class="num" id="c-total">-</div><div class="lbl">מאז ההתחלה</div></div>
+  <!-- המונים (הכרעה ה3): מוסתרים עד שהמספרים הגיעו, ו„היום" ו„החודש" לא מוצגים כשהם 0 -->
+  <div class="counter-strip" id="counter" aria-live="polite" hidden>
+    <div class="cell" id="cell-today" hidden><div class="num" id="c-today"></div><div class="lbl">פרקים נקראו היום</div></div>
+    <div class="cell" id="cell-month" hidden><div class="num" id="c-month"></div><div class="lbl">פרקים נקראו החודש</div></div>
+    <div class="cell"><div class="num" id="c-total"></div><div class="lbl">פרקים שנקראו מאז ההתחלה</div></div>
+    <div class="cell"><div class="num" id="c-books"></div><div class="lbl">ספרים שהושלמו</div></div>
   </div>
 
-  <!-- ============ מסך 1: בשביל מי אתה כאן ============ -->
+  <!-- ============ מסך 1: מה עוד אפשר לעשות כאן ============ -->
   <div class="view on" id="view-home">
     <div class="doors">
       <button type="button" class="door" id="door-today">
-        <span class="t">התהילים של היום</span>
-        <span class="s" id="door-today-s">פרקי התהילים של היום לפי החלוקה החודשית. לחיצה אחת והם פתוחים לקריאה.</span>
+        <span class="t">תהילים להיום</span>
+        <span class="s" id="door-today-s">פרקי היום, לפי החלוקה החודשית.</span>
       </button>
 
-      <button type="button" class="door" data-go="form">
-        <span class="t">לפתוח ספר תהילים</span>
-        <span class="s">לרפואה, לישועה, להצלחה, לזיווג או לשמירה. מקבלים קישור אחד ושולחים אותו
-        לכל מי שרוצים.</span>
-      </button>
+      <a class="door" href="/tehillim/sfarim">
+        <span class="t">להצטרף לספר פתוח</span>
+        <span class="s">בוחרים עבור מי לקרוא ומצטרפים להשלמת הספר.</span>
+      </a>
 
       <button type="button" class="door" id="door-klali">
         <span class="t">להצטרף לקריאה הכללית</span>
@@ -185,17 +223,11 @@
         והפועלים למען עם ישראל בכל מקום. לוקחים פרק וקוראים, מתי שרוצים.</span>
       </button>
 
-      <a class="door soft" href="/tehillim/sfarim">
-        <span class="t">ספרים פתוחים שאפשר להצטרף אליהם</span>
-        <span class="s">ספרי תהילים שנפתחו לרפואה ולעילוי נשמה ועדיין מחכים לקוראים. בוחרים
-        ספר, לוקחים פרק וקוראים.</span>
-      </a>
-
-      <a class="door soft" href="/shema.html">
-        <span class="t">להצטרפות לקהילת שמע רפא ומשאלות</span>
-        <span class="s">קהילה שכל חבריה מתפללים זה על זה כל הזמן - על רפואה, על משאלות הלב,
-        ועל עילוי נשמות יקריהם.</span>
-      </a>
+      <div class="door soft bigger">
+        <span class="t">יש כאן משהו גדול יותר</span>
+        <span class="s">קהילה שמתפללת זה על זה, לרפואה, למשאלות הלב ולעילוי נשמות היקרים לנו.</span>
+        <a class="btn" href="/shema.html" style="margin-top:12px">להכיר את קהילת שמע רפא ומשאלות</a>
+      </div>
     </div>
   </div>
 
@@ -203,7 +235,7 @@
   <!-- ============ מסך: התהילים של היום (הכרעות 16, 23) ============ -->
   <div class="view" id="view-today">
     <div class="form-card">
-      <h2 style="margin-top:0">התהילים של היום</h2>
+      <h2 style="margin-top:0">תהילים להיום</h2>
       <p class="tiny" id="today-sub"></p>
       <div class="today-mode" role="group" aria-label="סוג החלוקה">
         <button type="button" class="topic-btn" data-mode="month" aria-pressed="true">חלוקה חודשית</button>
@@ -229,7 +261,8 @@
   <!-- ============ מסך 2: טופס פתיחת ספר ============ -->
   <div class="view" id="view-form">
     <div class="form-card">
-      <h2 style="margin-top:0">פתיחת ספר תהילים</h2>
+      <h2 style="margin-top:0">פתיחת ספר תהילים משותף</h2>
+      <p class="tiny" style="font-size:16px;margin:0 0 6px">ממלאים עבור מי מתפללים. בסיום תקבלו קישור שאפשר לשלוח בוואטסאפ.</p>
 
       <form id="book-form" novalidate>
         <div class="field hp" aria-hidden="true">
@@ -237,17 +270,17 @@
           <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
         </div>
 
-        <h3 style="font-size:17px;margin:18px 0 12px">עבור מי</h3>
+        <h3 style="font-size:17px;margin:18px 0 12px">עבור מי מתפללים?</h3>
 
         <div class="row-2">
           <div class="field">
-            <label for="patientName">שם פרטי *</label>
-            <input type="text" id="patientName" autocomplete="off" placeholder="רק שם פרטי!" required>
+            <label for="patientName">שם פרטי של מי שמתפללים עבורו *</label>
+            <input type="text" id="patientName" autocomplete="off" placeholder="למשל: שרה" required>
           </div>
           <div class="field">
-            <label for="motherName">שם ההורה *</label>
+            <label for="motherName">שם האב או האם *</label>
             <input type="text" id="motherName" autocomplete="off" required>
-            <span class="hint">אב או אם, כמנהגכם</span>
+            <span class="hint">אב או אם, כמנהגכם.</span>
           </div>
         </div>
 
@@ -270,9 +303,9 @@
         </div>
 
         <div class="field">
-          <label for="targetDate">תאריך יעד</label>
+          <label for="targetDate">מתי תרצו להשלים את הספר?</label>
           <input type="date" id="targetDate">
-          <span class="hint">מתי הייתם רוצים שהספר יושלם</span>
+          <span class="hint">אפשר להשאיר ריק.</span>
         </div>
 
         <div class="field" id="intent-other-wrap" style="display:none">
@@ -281,7 +314,7 @@
         </div>
 
         <hr class="form-sep">
-        <h3 style="font-size:17px;margin:0 0 12px">הפרטים שלכם</h3>
+        <h3 style="font-size:17px;margin:0 0 12px">פרטי פותח הספר</h3>
 
         <div class="row-2">
           <div class="field">
@@ -296,9 +329,9 @@
 
         <div class="row-2">
           <div class="field">
-            <label for="openerEmail">מייל *</label>
+            <label for="openerEmail">כתובת מייל לקבלת קישור הניהול *</label>
             <input type="email" id="openerEmail" autocomplete="email" inputmode="email" required>
-            <span class="hint">לשם נשלח קישור הניהול של הספר - שמרו עליו</span>
+            <span class="hint">נשלח לכאן את הקישור לניהול הספר. כדאי לבדוק שהכתובת נכונה.</span>
           </div>
           <div class="field">
             <label for="openerRelation">הקרבה</label>
@@ -321,7 +354,7 @@
         </div>
 
         <div class="actions">
-          <button type="submit" class="btn btn-lg" id="submit-btn">לפתוח את הספר</button>
+          <button type="submit" class="btn btn-lg" id="submit-btn">לפתוח ספר ולקבל קישור</button>
           <button type="button" class="btn btn-ghost" data-go="home">חזרה</button>
         </div>
 
@@ -336,19 +369,21 @@
       <h2 style="margin-top:0">הספר נפתח</h2>
       <p id="done-for" style="font-size:19px;font-weight:700"></p>
 
-      <div class="note-box" style="margin-top:18px">
-        <p><strong>הקישור להפצה</strong> - זה מה ששולחים לקבוצות. כל מי שייכנס יראה מה נשאר
-        ויוכל לבחור פרקים.</p>
+      <!-- הנספח: ההעתקה לוואטסאפ היא הכפתור הראשון והבולט, ואחריו הכניסה לספר -->
+      <div class="done-ctas">
+        <button type="button" class="btn btn-lg hero-btn" id="copy-wa">העתקת הזמנה לוואטסאפ</button>
+        <a class="btn btn-lg btn-ghost hero-btn" id="go-book" href="#">להיכנס לספר ולקרוא</a>
       </div>
 
+      <h3 style="font-size:17px;margin:22px 0 8px">ההזמנה שתועתק</h3>
+      <div class="wa-preview" id="wa-text"></div>
+
+      <h3 style="font-size:17px;margin:22px 0 4px">קישור הספר</h3>
+      <p class="tiny" style="margin:0">כל מי שייכנס יגיע ישר לפרק מוכן לקריאה.</p>
       <div class="link-box">
         <input type="text" id="pub-link" readonly>
         <button type="button" class="copy-btn" data-copy="pub-link">העתקה</button>
       </div>
-
-      <h3 style="font-size:17px;margin:26px 0 8px">הודעה מוכנה לוואטסאפ</h3>
-      <div class="wa-preview" id="wa-text"></div>
-      <button type="button" class="copy-btn" id="copy-wa">העתקת ההודעה</button>
 
       <div class="charity" id="charity-done"></div>
 
@@ -359,8 +394,8 @@
       <hr class="form-sep">
 
       <div class="note-box" style="background:#fdf6e8">
-        <p><strong>הקישור לניהול - שמרו אותו לעצמכם.</strong> דרכו אפשר לראות מי לקח מה,
-        להאריך את תאריך היעד, ולחלק את הפרקים שנשארו בין מי שכבר בספר.
+        <p><strong>קישור הניהול - שמרו אותו לעצמכם.</strong> דרכו אפשר לעקוב אחר השלמת הספר,
+        לשלוח עדכון לקבוצה, לשנות את תאריך היעד ולחלק את הפרקים שנשארו בין הקוראים שהצטרפו.
         שלחנו אותו גם למייל שהשארתם.</p>
       </div>
 
@@ -370,7 +405,6 @@
       </div>
 
       <div class="actions">
-        <a class="btn btn-lg" id="go-book" href="#">לפתוח את הספר</a>
         <a class="btn btn-ghost" id="grp-done" href="#" style="display:none">להצטרפות לקבוצת הוואטסאפ של תהילים ישראל</a>
       </div>
     </div>
@@ -382,7 +416,7 @@
   <h2>איך זה עובד</h2>
   <p>פותחים ספר בשביל מישהו, ומקבלים קישור אחד. שולחים אותו לקבוצת וואטסאפ, למשפחה, לכל מי
   שרוצים. כל מי שנכנס רואה מצב חי של הספר: אילו פרקים כבר נלקחו ואילו עדיין פנויים. הוא בוחר
-  פרקים, קורא אותם על המסך, ומסמן „קראתי". הפרק הופך לאפור אצל כולם באותו רגע.</p>
+  פרקים, קורא אותם על המסך, ומסמן „כבר קראתי". הפרק מסומן כנקרא אצל כולם באותו רגע.</p>
 
   <p><strong>מה שעוצר ספר תהילים זה לא מי שלא קרא, אלא פרקים שנתפסו ונשכחו.</strong> לכן מרגע
   הבחירה יש שעה אחת לקרוא ולסמן, ואם עברה השעה בלי סימון, הפרק חוזר לרשימה ומישהו אחר יכול
@@ -449,8 +483,34 @@
     var vs = document.querySelectorAll(".view");
     for (var i = 0; i < vs.length; i++) vs[i].classList.remove("on");
     $("view-" + name).classList.add("on");
+    // מחוץ למסך הראשון הכפתורים והמונים מתקפלים, כדי שהטופס או הקישור יהיו מול העיניים
+    document.body.classList.toggle("th-inner", name !== "home");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
+
+  // ---------- „לקרוא עכשיו" (הכרעות ה2, ה5) ----------
+  // השרת מחזיר את הספר שאליו נשלחים עכשיו: ספר שעמד שבועיים בלי קריאה, ואם אין - הכללי.
+  // הכניסה עצמה אינה תופסת פרק ואינה נספרת. בכל כשל - לספר הכללי הקבוע.
+  var GENERAL_FALLBACK = "https://t.hamikdash.co.il/klali";
+  $("read-now").addEventListener("click", function () {
+    var btn = this;
+    btn.setAttribute("aria-busy", "true");
+    btn.textContent = "פותח את הספר...";
+    var gone = false;
+    var go = function (url) { if (gone) return; gone = true; location.href = url; };
+    var timer = setTimeout(function () { go(GENERAL_FALLBACK); }, 6000);
+    fetch(API + "/api/general").then(function (r) { return r.json(); }).then(function (d) {
+      clearTimeout(timer);
+      var ok = d && d.ok && typeof d.url === "string" && /^https:\/\/t\.hamikdash\.co\.il\//.test(d.url);
+      go(ok ? d.url : GENERAL_FALLBACK);
+    }).catch(function () { clearTimeout(timer); go(GENERAL_FALLBACK); });
+  });
+  // חזרה בכפתור „אחורה" מהספר משחזרת את הדף מהמטמון עם הכפתור במצב טעינה
+  window.addEventListener("pageshow", function () {
+    var b = $("read-now");
+    b.removeAttribute("aria-busy");
+    b.textContent = "לקרוא עכשיו";
+  });
 
   document.addEventListener("click", function (e) {
     var t = e.target.closest ? e.target.closest("[data-go]") : null;
@@ -497,12 +557,19 @@
   // ---------- המונה ----------
   function num(n) { return Number(n || 0).toLocaleString("he-IL"); }
 
+  // הכרעה ה3: מציגים רק מספר שגדל. „היום" ו„החודש" חוזרים מעצמם כשיש בהם קריאה.
+  // total כולל את הפרקים שנקראו מחוץ לאתר, ו-booksDone את הספרים (ראו OFFLINE_BASE בוורקר).
   function loadCounter() {
     fetch(API + "/api/stats").then(function (r) { return r.json(); }).then(function (d) {
-      if (!d || !d.ok) return;
+      if (!d || !d.ok || !(d.total > 0)) return;
       $("c-today").textContent = num(d.today);
       $("c-month").textContent = num(d.month);
       $("c-total").textContent = num(d.total);
+      $("c-books").textContent = num(d.booksDone);
+      $("cell-today").hidden = !(d.today > 0);
+      $("cell-month").hidden = !(d.month > 0);
+      $("c-books").parentNode.hidden = !(d.booksDone > 0);
+      $("counter").hidden = false;
     }).catch(function () { /* המונה אינו חוסם כלום */ });
   }
   loadCounter();
@@ -514,7 +581,7 @@
     var m = $("motherName").value.trim();
     var g = $("gender").value;
     $("name-preview").textContent = (n && m && g)
-      ? "יקרא בספר: " + n + (g === "f" ? " בת " : " בן ") + m
+      ? "כך יופיע השם: " + n + (g === "f" ? " בת " : " בן ") + m
       : "";
   }
   ["patientName", "motherName", "gender"].forEach(function (id) {
@@ -541,7 +608,8 @@
       var d = document.createElement("details");
       var sm = document.createElement("summary");
       sm.innerHTML = '<span class="t"></span><span class="s"></span>';
-      sm.querySelector(".t").textContent = g.t;
+      // הכותרת החמישית לפי הנספח; topics.js נוצר במחולל ואינו נערך ביד
+      sm.querySelector(".t").textContent = g.k === "g_klali" ? "בקשה אחרת" : g.t;
       sm.querySelector(".s").textContent = g.s;
       d.appendChild(sm);
       var opts = document.createElement("div");
@@ -552,7 +620,7 @@
     });
     var all = document.createElement("div");
     all.className = "all";
-    all.innerHTML = '<span class="lbl">או ישירות, כל הנושאים:</span>';
+    all.innerHTML = '<span class="lbl">אפשר גם לבחור כאן ישירות</span>';
     var opts = document.createElement("div");
     opts.className = "topic-opts";
     opts.style.padding = "0";
@@ -677,7 +745,7 @@
       $("today-mark").textContent = "קראתי - לסמן בקריאה הכללית";
       var mins = 0;
       list.forEach(function (u) { mins += u.min; });
-      $("today-sub").textContent = plan.label + " · כ-" + mins + " דקות קריאה, ומי שקורא מהר יסיים בפחות";
+      $("today-sub").textContent = plan.label + " · כ-" + mins + " דקות קריאה";
       return Promise.all(list.map(function (u) {
         return fetch(TEXT_BASE + "text/" + u.i + ".json").then(function (r) { return r.json(); });
       })).then(function (docs) {
@@ -727,8 +795,7 @@
     });
   });
   try {
-    $("door-today-s").textContent = "היום " + todayPlan("month").label.split(" - ")[0] +
-      ". פרקי התהילים של היום לפי החלוקה החודשית, לחיצה אחת והם פתוחים לקריאה.";
+    $("door-today-s").textContent = "פרקי " + todayPlan("month").label.split(" - ")[0] + ", לפי החלוקה החודשית.";
   } catch (e) { /* הדלת נשארת עם הנוסח הכללי */ }
 
   // ---------- הקריאה הכללית ----------
@@ -776,17 +843,17 @@
       return msg("הקישור לקבוצה צריך להיות קישור הצטרפות של וואטסאפ, שמתחיל ב-https://chat.whatsapp.com/", "err");
     }
 
-    if (!HEB.test(body.patientName)) return msg("השם הפרטי צריך להיכתב בעברית.", "err");
-    if (!HEB.test(body.motherName)) return msg("שם ההורה צריך להיכתב בעברית.", "err");
+    if (!HEB.test(body.patientName)) return msg("כתבו את השם הפרטי בעברית.", "err");
+    if (!HEB.test(body.motherName)) return msg("כתבו את שם האב או האם בעברית.", "err");
     if (!body.gender) return msg("בחרו זכר או נקבה.", "err");
     if (!body.intent) return msg("בחרו על מה מתפללים.", "err");
     if (body.intent === "other" && !body.intentOther) return msg("כתבו במילים שלכם על מה מתפללים.", "err");
     if (!body.openerName) return msg("חסר השם שלכם.", "err");
     if (!/^0\d{1,2}-?\d{7}$/.test(body.openerPhone.replace(/[\s()]/g, ""))) {
-      return msg("מספר הטלפון אינו תקין.", "err");
+      return msg("בדקו את מספר הטלפון, כולל הקידומת.", "err");
     }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.openerEmail)) {
-      return msg("כתובת המייל אינה תקינה. לשם נשלח קישור הניהול.", "err");
+      return msg("בדקו את כתובת המייל. קישור הניהול יישלח אליה.", "err");
     }
 
     var btn = $("submit-btn");
@@ -800,18 +867,21 @@
       body: JSON.stringify(body)
     }).then(function (r) { return r.json(); }).then(function (d) {
       btn.disabled = false;
-      btn.textContent = "לפתוח את הספר";
+      btn.textContent = "לפתוח ספר ולקבל קישור";
       if (d && d.error === "bad_group") return msg("הקישור לקבוצה אינו קישור הצטרפות של וואטסאפ.", "err");
-      if (!d || !d.ok) return msg("משהו השתבש בפתיחת הספר. נסו שוב.", "err");
+      if (!d || !d.ok) return msg("לא הצלחנו לפתוח את הספר. הפרטים נשארו בטופס ואפשר לנסות שוב.", "err");
       done(d, body);
     }).catch(function () {
       btn.disabled = false;
-      btn.textContent = "לפתוח את הספר";
-      msg("אין חיבור לשרת כרגע. נסו שוב בעוד רגע.", "err");
+      btn.textContent = "לפתוח ספר ולקבל קישור";
+      msg("לא הצלחנו לפתוח את הספר. הפרטים נשארו בטופס ואפשר לנסות שוב.", "err");
     });
   });
 
   // ---------- מסך ההצלחה ----------
+  // המסר הקבוע של יעקב (5.11.2026) - נכנס לכל נוסח הפצה, מילה במילה.
+  // הכוכביות הן הדגשה של וואטסאפ ונשארות בטקסט שמועתק. אותו נוסח גם ב-tehillim/manage.html.
+  var SHARE_FOOTER = "*האתר שלנו נקי מפרסומות!* האתר נבנה על ידי הרב יעקב מאור, לזיכוי הרבים, כחלק מפרויקט ענק שכולל את הפרויקטים: עילוי נשמות, שמע רפא ומשאלות. *כל התפילות של האנשים בפרויקטים הנ\"ל הן גם למען מי שאתם קוראים תהילים בעבורו!* כשאתם קוראים תהילים, תכוונו גם על השמות ששם.";
   function charity(el) {
     if (!el || !T || !T.charity) return;
     el.innerHTML = "<p></p><a target=\"_blank\" rel=\"noopener\"></a>";
@@ -832,11 +902,11 @@
     $("man-link").value = d.manageUrl;
     $("go-book").href = d.publicUrl;
 
-    // הודעת וואטסאפ - טקסט קצר בלבד. בלי תמונת רשת ובלי רשימת פרקים.
-    var wa = "פתחנו ספר תהילים " + lead + " " + forWhom + ".\n\n" +
-             "נלקחו 0 פרקים מתוך 150. נשארו 150 פרקים פנויים.\n" +
-             "פרק לוקח בדרך כלל דקה עד שלוש, ומי שקורא מהר יסיים בפחות.\n\n" +
-             "להצטרפות ולבחירת פרקים:\n" + d.publicUrl;
+    // הודעת ההפצה לפי הנספח (5.11), עם שם, שם הורה ועל מה מתפללים, ואחריה המסר הקבוע.
+    // טקסט בלבד, בלי תמונת רשת ובלי רשימת פרקים. ספר שנפתח הרגע: נקראו 0.
+    var wa = "קוראים יחד תהילים " + lead + " " + forWhom + ". גם פרק אחד יעזור לנו להשלים את הספר. " +
+             "נקראו 0 מתוך 150 פרקים. לקריאה ולהצטרפות: " + d.publicUrl +
+             "\n\n" + SHARE_FOOTER;
     $("wa-text").textContent = wa;
     $("copy-wa").onclick = function () { copyText(wa, this); };
 

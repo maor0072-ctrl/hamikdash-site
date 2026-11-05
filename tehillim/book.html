@@ -80,9 +80,8 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 .cellu.sel{background:#fff6e0;border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
 .cellu.mine{background:#e8f0fb;border-color:#7ba0d4}
 .cellu.mine .n{color:#2c4f80}
-.cellu.busy{background:#eeeae3;border-color:#ddd5c8;cursor:pointer;opacity:.85}
+.cellu.busy{cursor:pointer}
 .cellu.busy.sel{outline:3px solid var(--gold);opacity:1}
-.cellu.busy .n{color:#8d8579;font-weight:500}
 .cellu.done{background:#eeeae3;border-color:#ddd5c8;cursor:default}
 .cellu.done .n{color:#8d8579;font-weight:500;text-decoration:none}
 .cellu .v{position:absolute;top:3px;left:5px;font-size:11px;color:#6f8f6f}
@@ -144,7 +143,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   font-family:"Heebo",sans-serif;vertical-align:.15em}
 @media(max-width:520px){.verses{font-size:21px;line-height:2.05}.ch-title{font-size:25px}}
 .size-ctl{display:flex;gap:6px;align-items:center}
-.size-ctl button{font-family:inherit;font-size:16px;font-weight:700;width:34px;height:34px;
+.size-ctl button{font-family:inherit;font-size:16px;font-weight:700;width:44px;height:44px;
   border-radius:8px;border:1px solid var(--line);background:var(--white);cursor:pointer;
   color:var(--ink-soft);line-height:1}
 
@@ -181,6 +180,39 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 .invite h3{margin:0 0 8px;font-size:19px;color:var(--gold-deep)}
 .invite p{margin:0 0 12px;font-size:16px;line-height:1.75}
 
+/* ---------- השורה הרזה במקום תפריט האתר (הכרעה ה6) - לא דביקה ---------- */
+.slim{background:var(--white);border-bottom:1px solid var(--line)}
+.slim-in{max-width:900px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;
+  justify-content:space-between;gap:10px;flex-wrap:wrap}
+.slim a{font-size:15px}
+.slim .home{color:var(--ink);font-weight:700}
+.slim .back{display:inline-block;padding:8px 14px;border:1px solid var(--gold);border-radius:999px;
+  color:var(--gold-deep);font-weight:700;min-height:40px;line-height:22px}
+
+/* ---------- כרטיס „הפרק שלך" (הכרעה ה1) ---------- */
+.mych{padding-top:18px}
+.mych-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.mych-kicker{font-size:14px;font-weight:700;color:var(--ink-soft)}
+.mych-title{margin:2px 0 0;font-size:27px;font-weight:800;color:var(--gold-deep);
+  font-family:"Frank Ruhl Libre","Heebo",serif}
+.mych-min{font-size:15px;color:var(--ink-soft);margin-top:2px}
+.mych-other{display:inline-block;margin:10px 0 4px;font-size:16px;font-weight:700;
+  text-decoration:underline;padding:6px 0}
+.mych .verses{margin-top:14px}
+.mych .read-actions{margin-top:22px}
+.form-msg.ok{display:block;background:#eef6ec;border-right:4px solid #5f8f5a;color:#2f5a2b}
+.printed{max-width:900px;margin:0 auto 18px;padding:0 20px;font-size:17px;line-height:1.75;
+  text-align:center;color:var(--ink)}
+.printed a{font-weight:700;text-decoration:underline;white-space:nowrap}
+.how-short{font-size:17px;line-height:1.75;margin:0}
+details.how{margin-top:12px}
+details.how summary{cursor:pointer;font-weight:700;color:var(--gold-deep);padding:8px 0;font-size:16px}
+details.how .note-box{margin:8px 0 0}
+.cellu.busy{background:var(--white);border:1px dashed var(--gold);opacity:1}
+.cellu.busy .n{color:var(--ink);font-weight:700}
+.cellu .m.st{font-size:10px;line-height:1.2;color:var(--gold-deep);font-weight:700}
+.cellu.done .m.st{color:#6f8f6f}
+
 .spinner{text-align:center;padding:60px 20px;color:var(--ink-soft)}
 .charity{max-width:560px;margin:26px auto 0;padding:14px 16px;border-radius:10px;background:#f6efe2;border:1px solid #e3d9c8;text-align:center}
 .charity p{margin:0 0 8px}
@@ -189,26 +221,13 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 </head>
 <body>
 
-<header class="site-header">
-  <div class="header-inner">
-    <div class="brand">
-      <a href="https://hamikdash.co.il/"><span class="brand-name">אורות האמונה - בני משה</span></a>
-      <span class="brand-sub">בראשות הרב יעקב מאור</span>
-    </div>
-    <nav class="nav">
-      <!-- nav:start -->
-      <a href="/">בית</a>
-      <a href="/about.html">אודות</a>
-      <details class="navdrop active"><summary><a href="/tefilot/">שמע רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details>
-      <details class="navdrop"><summary><a href="/chagim/">חגים</a></summary><ul><li><a href="/chagim/yom-kippur/">יום כיפור</a></li><li><a href="/chagim/rosh-hashana/">ראש השנה</a></li><li><a href="/chagim/sukkot/">סוכות תשפ"ז</a></li><li><a href="/chagim/pesach/">פסח תשפ"ז</a></li><li><a href="/chagim/tzomot/">צומות ותעניות ציבור</a></li></ul></details>
-      <details class="navdrop"><summary><a href="/torah.html">תוכן תורני</a></summary><ul><li><a href="/torah/bitachon-vehishtadlut.html">ביטחון והשתדלות</a></li><li><a href="/torah/tefila-shelo-nenata.html">תפילה שלא נענתה</a></li><li><a href="/torah/chinuch-yeladim.html">חינוך ילדים</a></li><li><a href="/torah/zugiyut-vekaas.html">זוגיות וכעס</a></li><li><a href="/torah/ahavat-chinam.html">אהבת חינם</a></li><li><a href="/torah/shabbat-vebayit.html">שבת ובית</a></li><li><a href="/hilula.html">סגולות היום · הילולת צדיקים</a></li><li><a href="https://chok.reshimu.co.il">חוק לישראל - הלימוד היומי</a></li><li><a href="https://chat.whatsapp.com/KGNs9XVb2PyKDY3ozkRuNo">הרשמה לוואטסאפ הסגולות וההילולות</a></li></ul></details>
-      <a href="/videos/">שיעורים וסרטונים</a>
-      <a href="/contact.html">יצירת קשר</a>
-      <a href="/donate.html" class="nav-donate">לתרומה</a>
-      <!-- nav:end -->
-    </nav>
+<!-- שורה רזה במקום תפריט האתר (הכרעה ה6, 5.11.2026): מי שבא לקרוא אינו צריך את התפריט באמצע הקריאה -->
+<div class="slim">
+  <div class="slim-in">
+    <a class="home" href="https://hamikdash.co.il/">אורות האמונה - בני משה</a>
+    <a class="back" href="https://hamikdash.co.il/tehillim.html">חזרה לתהילים ישראל</a>
   </div>
-</header>
+</div>
 
 <div class="spinner" id="boot">טוען את הספר...</div>
 
@@ -216,9 +235,11 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 <div class="view" id="view-grid">
 
   <div class="book-head">
+    <div hidden>
     <!-- crumbs:start -->
 <nav class="crumbnav" aria-label="מיקום באתר"><a href="/">בית</a><span class="sep">&rsaquo;</span><details class="crumb"><summary><a href="/tefilot/">שמע רפא ומשאלות</a></summary><ul><li><a href="/neshama.html">עילוי נשמה</a></li><li><a href="/refua.html">רפואה ושאר משאלות</a></li><li><a href="/shema.html">שמע ישראל</a></li><li><a href="/tehillim.html">תהילים ישראל</a></li><li><a href="/pidyon-nefesh/">פדיון נפש</a></li></ul></details><span class="sep">&rsaquo;</span><details class="crumb"><summary><a href="/tehillim.html">תהילים ישראל</a></summary><ul><li><a href="/tehillim/book.html">ספר תהילים</a></li><li><a href="/tehillim/sfarim">ספרים פתוחים</a></li></ul></details><span class="sep">&rsaquo;</span><span class="here">ספר תהילים</span></nav>
     <!-- crumbs:end -->
+    </div>
     <h1 class="lead" id="bk-lead"></h1>
     <div class="for" id="bk-for"></div>
     <div class="meta" id="bk-meta"></div>
@@ -234,37 +255,68 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     </div>
   </div>
 
-  <div class="card">
-    <div class="note-box" style="margin:0">
-      <p style="font-size:18px;font-weight:800">איך זה עובד כאן</p>
-      <p>בוחרים פרק, קוראים אותו, ומסמנים „קראתי". מרגע הבחירה יש שעה אחת לקרוא ולסמן.</p>
-      <p>למה שעה? כי מה שעוצר ספר תהילים שנפתח לרפואת אדם זה לא מי שלא קרא, אלא פרקים שנתפסו
-      ונשכחו. פרק שתפוס ולא נקרא חוסם את כולם, והספר נתקע באמצע. לכן אם עברה שעה בלי סימון,
-      הפרק חוזר לרשימה ומישהו אחר יכול לקחת אותו ולקרוא.</p>
-      <p>ואם אחרי השעה תסמנו שקראתם את הפרק, הסימון שלכם נקלט כרגיל והפרק יוצא מהרשימה. שום דבר
-      לא הולך לאיבוד.</p>
-      <p>המטרה כאן היא לסיים כמה שיותר ספרי תהילים, כמה שיותר מהר. לכן פרק שמישהו לקח ועוד לא קרא
-      אינו נעול: אפשר לקחת אותו מיד ולקרוא, ומי שקורא ראשון - הפרק נספר כנקרא. קריאה כפולה אינה
-      בעיה; עדיף פעמיים מלחכות.</p>
-      <p>קראתם מתוך ספר מודפס? בוחרים את הפרקים, או רצף מפרק עד פרק, או ספר שלם מחמשת הספרים,
-      ולוחצים „סימנתי שקראתי". אין הגבלה על הכמות.</p>
+  <!-- הפרק שלך (הכרעה ה1): פרק מוכן לקריאה, בלי לבחור. ההצעה אינה תופסת ואינה נספרת - רק „קראתי" -->
+  <div class="card mych" id="mych" style="display:none">
+    <div class="form-msg" id="mych-ok" role="status" style="margin:0 0 14px"></div>
+    <div class="mych-top">
+      <div>
+        <div class="mych-kicker">הפרק שלך</div>
+        <h2 class="mych-title" id="mych-title"></h2>
+        <div class="mych-min" id="mych-min"></div>
+      </div>
+      <div class="size-ctl">
+        <button type="button" class="sz-down" aria-label="להקטין את האותיות">א-</button>
+        <button type="button" class="sz-up" aria-label="להגדיל את האותיות">א+</button>
+      </div>
     </div>
-    <p class="tiny" id="quiet-note" style="margin-top:14px;display:none">
-      השעון עוצר בשבת ובחג. פרק שנלקח לפני כניסת השבת לא יפקע בתוכה.
-    </p>
+    <a href="#choose" class="mych-other" id="mych-other">לבחור פרק אחר או כמה פרקים</a>
+    <p class="tiny" id="mych-note" style="margin:4px 0 0;display:none"></p>
+    <div class="verses" id="mych-verses"></div>
+    <div class="read-actions">
+      <button type="button" class="btn btn-lg" id="mych-next">קראתי, לפרק הבא</button>
+      <button type="button" class="btn btn-lg btn-soft" id="mych-end">קראתי, סיימתי</button>
+    </div>
+    <div class="form-msg" id="mych-msg" role="status"></div>
   </div>
 
-  <p class="invite-line">אפשר לבחור את הפרקים הקבועים שלך, או כל פרק ופרק אחר.
-  גם אם לא נסיים היום, כל מי שקורא משהו, זה נשמר.</p>
+  <!-- ספר שהושלם -->
+  <div class="card" id="mych-done" style="display:none;text-align:center">
+    <p style="font-size:20px;font-weight:800;margin:0 0 12px">הספר הושלם. ישר כוח לכל מי שהשתתף!</p>
+    <a class="btn btn-lg" id="mych-klali" href="https://t.hamikdash.co.il/klali">לקריאה בספר הכללי</a>
+  </div>
 
-  <div class="range" role="group" aria-label="בחירת רצף">
+  <!-- לקוראי ספר מודפס (הוראת יעקב 5.11.2026) -->
+  <p class="printed" id="printed">קראתם מספר תהילים מודפס? אפשר לסמן כאן את כל הפרקים שכבר קראתם - פרק אחד, או טווח של פרקים מפרק עד פרק. <a href="#range" id="printed-go">לסימון הפרקים שקראתם</a></p>
+
+  <div class="card">
+    <p class="how-short">בוחרים, קוראים ומסמנים קראתי. הבחירה נשמרת לשעה, וגם אחר כך אפשר לסמן. אפשר לקרוא גם פרק שמישהו אחר בחר.</p>
+    <p class="tiny" id="quiet-note" style="margin-top:10px;display:none">
+      השעון עוצר בשבת ובחג. פרק שנלקח לפני כניסת השבת לא יפקע בתוכה.
+    </p>
+    <!-- הנוסח המלא נשאר כפי שהוא (הכרעה ה4) - רק זז לחלונית שנפתחת -->
+    <details class="how">
+      <summary>איך זה עובד - הסבר מלא</summary>
+      <div class="note-box">
+        <p>בוחרים פרק, קוראים אותו, ומסמנים „קראתי". מרגע הבחירה יש שעה אחת לקרוא ולסמן.</p>
+        <p>למה שעה? כי מה שעוצר ספר תהילים שנפתח לרפואת אדם זה לא מי שלא קרא, אלא פרקים שנתפסו ונשכחו. פרק שתפוס ולא נקרא חוסם את כולם, והספר נתקע באמצע. לכן אם עברה שעה בלי סימון, הפרק חוזר לרשימה ומישהו אחר יכול לקחת אותו ולקרוא.</p>
+        <p>ואם אחרי השעה תסמנו שקראתם את הפרק, הסימון שלכם נקלט כרגיל והפרק יוצא מהרשימה. שום דבר לא הולך לאיבוד.</p>
+        <p>המטרה כאן היא לסיים כמה שיותר ספרי תהילים, כמה שיותר מהר. לכן פרק שמישהו לקח ועוד לא קרא אינו נעול: אפשר לקחת אותו מיד ולקרוא, ומי שקורא ראשון - הפרק נספר כנקרא. קריאה כפולה אינה בעיה; עדיף פעמיים מלחכות.</p>
+        <p>קראתם מתוך ספר מודפס? בוחרים את הפרקים, או רצף מפרק עד פרק, או ספר שלם מחמשת הספרים, ולוחצים „כבר קראתי". אין הגבלה על הכמות.</p>
+      </div>
+    </details>
+  </div>
+
+  <p class="invite-line" id="choose">אפשר לבחור את הפרקים הקבועים שלך, או כל פרק ופרק אחר. גם אם לא נסיים היום, כל מי שקורא משהו, זה נשמר.</p>
+
+  <div class="range" id="range" role="group" aria-label="בחירת רצף">
     <span>רצף מפרק</span>
     <input type="number" id="rg-from" min="1" max="150" inputmode="numeric" aria-label="פרק ראשון">
     <span>עד פרק</span>
     <input type="number" id="rg-to" min="1" max="150" inputmode="numeric" aria-label="פרק אחרון">
     <button type="button" id="rg-go">לבחור את הרצף</button>
   </div>
-  <p class="tiny" style="text-align:center;margin:0 0 10px" id="rg-msg"></p>
+  <p class="tiny" style="text-align:center;margin:0 0 4px">מי שכבר קרא: בוחרים פרק או רצף, ולוחצים „כבר קראתי" בסרגל שלמטה.</p>
+  <p class="tiny" style="text-align:center;margin:0 0 10px" id="rg-msg" role="status"></p>
 
   <div class="filters">
     <button type="button" class="on" data-f="all">הכל</button>
@@ -290,9 +342,9 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   <div class="tray-in">
     <div class="sum"><span id="tray-count"></span></div>
     <div class="btns">
-      <button type="button" class="clr" id="tray-clear">ביטול</button>
-      <button type="button" class="mark" id="tray-mark">סימנתי שקראתי</button>
-      <button type="button" class="go" id="tray-go">לקריאה לחצו כאן</button>
+      <button type="button" class="clr" id="tray-clear">ניקוי הבחירה</button>
+      <button type="button" class="mark" id="tray-mark">כבר קראתי</button>
+      <button type="button" class="go" id="tray-go">להתחיל לקרוא</button>
     </div>
   </div>
 </div>
@@ -300,12 +352,12 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 <!-- ============ מסך 2: מי קורא ============ -->
 <div class="view" id="view-who">
   <div class="card" style="margin-top:34px;max-width:640px">
-    <h2 style="margin-top:0">עוד רגע מתחילים</h2>
-    <p id="who-what" style="font-size:17px"></p>
+    <h2 style="margin-top:0">אפשר להתחיל בלי למסור פרטים</h2>
+    <button type="button" class="btn btn-lg" id="who-skip" style="width:100%">להמשיך בלי פרטים</button>
+    <p id="who-what" style="font-size:16px;margin:14px 0 0"></p>
 
     <form id="who-form" novalidate>
-      <p class="tiny" style="margin-top:0">שום שדה כאן אינו חובה, ואפשר לקרוא בלי להירשם. מי שנרשם
-      יהיה מעודכן במצב הפרקים שנקראו ובמידע נוסף, ויראה בכל מכשיר מה פתוח אצלו.</p>
+      <p class="tiny" style="margin-top:14px">מי שרוצה לשמור זיהוי גם במכשיר אחר יכול להוסיף טלפון או מייל. כל השדות לבחירתכם.</p>
       <div class="row-2">
         <div class="field">
           <label for="rname">שם פרטי</label>
@@ -327,7 +379,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
       </div>
 
       <div class="actions">
-        <button type="submit" class="btn btn-lg" id="who-go">לקריאה לחצו כאן</button>
+        <button type="submit" class="btn btn-lg" id="who-go">לשמור ולהתחיל לקרוא</button>
         <button type="button" class="btn btn-ghost" id="who-back">חזרה</button>
       </div>
       <div class="form-msg" id="who-msg" role="status"></div>
@@ -341,21 +393,22 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     <div class="read-top-in">
       <div class="read-step" id="r-step"></div>
       <div class="size-ctl">
-        <button type="button" id="sz-down" aria-label="להקטין">א-</button>
-        <button type="button" id="sz-up" aria-label="להגדיל">א+</button>
+        <button type="button" class="sz-down" aria-label="להקטין את האותיות">א-</button>
+        <button type="button" class="sz-up" aria-label="להגדיל את האותיות">א+</button>
       </div>
       <div class="clock" id="r-clock"></div>
     </div>
   </div>
 
   <div style="padding:0 20px 40px">
+    <p class="tiny" id="r-for" style="text-align:center;margin:0 0 4px"></p>
     <h2 class="ch-title" id="r-title"></h2>
     <div class="verses" id="r-verses"></div>
 
     <div class="read-actions">
-      <button type="button" class="btn btn-lg" id="r-done">סיימתי פרק זה. רוצה את הפרק הבא</button>
-      <button type="button" class="btn btn-lg btn-soft" id="r-stop">סיימתי פרק זה ולא ממשיך
-        <span>הפרקים שנשארו אצלי ישוחררו לאחרים</span></button>
+      <button type="button" class="btn btn-lg" id="r-done">קראתי, לפרק הבא</button>
+      <button type="button" class="btn btn-lg btn-soft" id="r-stop">קראתי, ואסיים כאן
+        <span>יתר הפרקים שבחרתם ישוחררו מהבחירה שלכם.</span></button>
       <button type="button" class="btn btn-ghost" id="r-later">לחזור לספר</button>
     </div>
     <div class="form-msg" id="r-msg" style="max-width:760px;margin:14px auto 0" role="status"></div>
@@ -367,11 +420,16 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   <div class="yasher">
     <div class="halo"><h2>ישר כוח!</h2></div>
     <p class="what" id="end-what"></p>
+    <p style="text-align:center;font-size:17px;margin:6px 0 0">הסימון נשמר. תודה שהצטרפתם לתפילה.</p>
     <p class="tiny" id="end-count" style="text-align:center"></p>
+    <div id="end-closed" style="display:none;margin-top:18px">
+      <p style="font-size:19px;font-weight:800;margin:0 0 10px">הספר הושלם. ישר כוח לכל מי שהשתתף!</p>
+      <a class="btn" id="end-klali" href="https://t.hamikdash.co.il/klali">לקריאה בספר הכללי</a>
+    </div>
 
     <div class="actions" style="justify-content:center;margin-top:30px">
-      <button type="button" class="btn btn-lg" id="end-more">לקחת עוד פרקים</button>
-      <button type="button" class="btn btn-ghost" id="end-back">לחזור לספר</button>
+      <button type="button" class="btn btn-lg" id="end-more">לקרוא עוד פרק</button>
+      <button type="button" class="btn btn-ghost" id="end-back">לראות את התקדמות הספר</button>
     </div>
 
     <div class="charity" id="charity-end"></div>
@@ -454,6 +512,8 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   var QPOS = 0;
   var DONE_NOW = [];     // מה שסומן במסלול הזה
   var RELEASED_NOW = 0;  // כמה פרקים שוחררו בסיום מוקדם
+  var CLOSED_NOW = false; // הסימון האחרון השלים את הספר
+  var CARD_IDX = null;   // הפרק המוצע בכרטיס „הפרק שלך"
   var FILTER = "all";
   var pollTimer = null, clockTimer = null;
 
@@ -570,12 +630,6 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     });
   }
 
-  function count(n, one, many, zero) {
-    if (!n) return zero;
-    if (n === 1) return "<strong>פרק אחד</strong> " + one;
-    return "<strong>" + n + "</strong> " + many;
-  }
-
   function paint() {
     if (!STATE) return;
     var byI = {};
@@ -589,15 +643,23 @@ body{padding-bottom:env(safe-area-inset-bottom)}
       b.disabled = false;
       var check = b.querySelector(".v");
       check.textContent = "";
+      var m = b.querySelector(".m");
+      m.className = "m";
+      m.textContent = UNITS[i].min + " דק׳";
 
       if (u.s === "read") {
         b.classList.add("done");
         b.disabled = true;
         check.textContent = "✓";
+        m.className = "m st";
+        m.textContent = "כבר נקרא";
       } else if (u.s === "taken" && u.mine) {
         b.classList.add("mine");
       } else if (u.s === "taken") {
+        // לא אפור: מותר לקחת אותו ולקרוא (הכרעה ה7) - והצבע לבדו לא מסביר את זה
         b.classList.add("busy");
+        m.className = "m st";
+        m.textContent = "קוראים גם אחרים";
         if (SEL.indexOf(i) !== -1) b.classList.add("sel");
       } else if (SEL.indexOf(i) !== -1) {
         b.classList.add("sel");
@@ -621,9 +683,14 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     });
 
     var ch = chapterStats();
-    $("p-read").innerHTML = count(ch.read, "נקרא", "פרקים נקראו", "עדיין לא נקרא פרק");
-    $("p-taken").innerHTML = count(ch.taken, "נלקח וממתין", "נלקחו וממתינים", "אין פרקים שממתינים");
-    $("p-free").innerHTML = count(ch.free, "פנוי", "פנויים", "אין פרקים פנויים");
+    $("p-read").innerHTML = "נקראו <strong>" + ch.read + "</strong> מתוך 150 פרקים";
+    $("p-taken").innerHTML = ch.taken
+      ? (ch.taken === 1 ? "<strong>פרק אחד</strong> נבחר וטרם סומן כנקרא"
+                        : "<strong>" + ch.taken + "</strong> פרקים נבחרו וטרם סומנו כנקראים")
+      : "";
+    var notRead = 150 - ch.read;
+    $("p-free").innerHTML = notRead === 1 ? "<strong>פרק אחד</strong> טרם נקרא"
+      : "<strong>" + notRead + "</strong> פרקים טרם נקראו";
     $("pb-read").style.width = (ch.read / 150 * 100) + "%";
     $("pb-taken").style.width = (ch.taken / 150 * 100) + "%";
 
@@ -700,26 +767,70 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     selectRange(f, t);
   });
 
+  // ---------- טופס הפרטים: פעם אחת, לפני הסימון הראשון (הכרעה ה7) ----------
+  // מי שכבר ענה עליו פעם - בשמירה או ב„להמשיך בלי פרטים" - לא נשאל שוב. הסימן
+  // הוא עצם קיומו של tehillim_me במכשיר, כמו שהטופס הקודם שמר אותו תמיד.
+  var ASKED_MEM = false;
+  var AFTER_WHO = null;
+  function askedBefore() {
+    if (ASKED_MEM) return true;
+    try { return localStorage.getItem("tehillim_me") !== null; } catch (e) { return false; }
+  }
+  // what: שורה שמזכירה מה עומדים לסמן. next: מה קורה אחרי הטופס (או מיד, אם כבר נשאל).
+  function gate(what, next) {
+    if (askedBefore()) { next(); return; }
+    AFTER_WHO = next;
+    $("who-what").textContent = what;
+    var n = readerName();
+    if (n) $("rname").value = n;
+    var me = loadMe();
+    if (me.last) $("rlast").value = me.last;
+    if (me.phone) $("rphone").value = me.phone;
+    if (me.email) $("rmail").value = me.email;
+    $("who-msg").className = "form-msg";
+    show("who");
+  }
+  function runAfterWho() {
+    var f = AFTER_WHO;
+    AFTER_WHO = null;
+    if (f) f();
+  }
+  // הודעת שגיאה: בטופס אם הוא פתוח, אחרת מעל הרשת
+  function say(text) {
+    if ($("view-who").classList.contains("on")) {
+      $("who-msg").className = "form-msg err";
+      $("who-msg").textContent = text;
+      return;
+    }
+    $("rg-msg").textContent = text;
+    $("rg-msg").scrollIntoView({ block: "center" });
+  }
+
   // סימון דיווחי בלי מסך הקריאה (הכרעות 2, 3, 4): מי שקרא מספר מודפס
   $("tray-mark").addEventListener("click", function () {
     if (!SEL.length) return;
     var n = SEL.length;
     if (!window.confirm("לסמן " + (n === 1 ? "פרק אחד" : n + " פרקים") + " כנקראים? זה מתאים למי שכבר קרא אותם, למשל מתוך ספר מודפס.")) return;
+    gate((n === 1 ? "מסמנים פרק אחד שכבר קראתם." : "מסמנים " + n + " פרקים שכבר קראתם."), markSel);
+  });
+  function markSel() {
+    if ($("view-who").classList.contains("on")) show("grid");
     var btn = $("tray-mark");
     btn.disabled = true;
     post("/read", { readerKey: RK, readerName: readerName(), idxs: SEL.slice() }).then(function (d) {
       btn.disabled = false;
-      if (!d || !d.ok) { $("rg-msg").textContent = "הסימון לא נקלט. נסו שוב בעוד רגע."; return; }
+      if (!d || !d.ok) { say("הסימון לא נקלט. נסו שוב בעוד רגע."); return; }
       var got = (d.read || []).length, already = (d.already || []).length;
-      $("rg-msg").textContent = "ישר כוח! " + got + (got === 1 ? " קטע סומן" : " קטעים סומנו") + " כנקראים" +
-        (already ? ", ו-" + already + " כבר היו נקראים לפני כן" : "") + ".";
+      say("ישר כוח! " + got + (got === 1 ? " קטע סומן" : " קטעים סומנו") + " כנקראים" +
+        (already ? ", ו-" + already + " כבר היו נקראים לפני כן" : "") + "." +
+        (d.closed ? " הספר הושלם. ישר כוח לכל מי שהשתתף!" : ""));
       SEL = [];
-      refresh();
+      refresh().then(loadSuggest);
     }).catch(function () {
       btn.disabled = false;
-      $("rg-msg").textContent = "אין חיבור לשרת כרגע. נסו שוב בעוד רגע.";
+      say("אין חיבור לשרת כרגע. נסו שוב בעוד רגע.");
     });
-  });
+  }
 
   function trayPaint() {
     var t = $("tray");
@@ -728,21 +839,14 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     var mins = 0;
     SEL.forEach(function (i) { mins += UNITS[i].min; });
     $("tray-count").innerHTML = (SEL.length === 1 ? "נבחר פרק אחד" : "נבחרו " + SEL.length + " פרקים") +
-      " <span>· כ-" + mins + (mins === 1 ? " דקת" : " דקות") + " קריאה, ומי שקורא מהר יסיים בפחות</span>";
+      " <span>· כ-" + mins + (mins === 1 ? " דקה" : " דקות") + "</span>";
   }
 
   $("tray-clear").addEventListener("click", function () { SEL = []; paint(); });
   $("tray-go").addEventListener("click", function () {
     if (!SEL.length) return;
     var names = SEL.map(function (i) { return UNITS[i].name; }).join(", ");
-    $("who-what").textContent = (SEL.length === 1 ? "בחרתם פרק אחד: " : "בחרתם " + SEL.length + " פרקים: ") + names;
-    var n = readerName();
-    if (n) $("rname").value = n;
-    var me = loadMe();
-    if (me.last) $("rlast").value = me.last;
-    if (me.phone) $("rphone").value = me.phone;
-    if (me.email) $("rmail").value = me.email;
-    show("who");
+    gate((SEL.length === 1 ? "בחרתם פרק אחד: " : "בחרתם " + SEL.length + " פרקים: ") + names, takeSel);
   });
 
   document.querySelectorAll(".filters button").forEach(function (b) {
@@ -754,8 +858,15 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     });
   });
 
-  // ---------- תפיסה ----------
-  $("who-back").addEventListener("click", function () { show("grid"); });
+  // ---------- הטופס ----------
+  $("who-back").addEventListener("click", function () { AFTER_WHO = null; show("grid"); });
+
+  $("who-skip").addEventListener("click", function () {
+    ASKED_MEM = true;
+    var me = loadMe();
+    saveMe({ first: me.first || readerName() || "", last: me.last || "", phone: me.phone || "", email: me.email || "" });
+    runAfterWho();
+  });
 
   $("who-form").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -779,22 +890,34 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     }
     readerName(name);
     saveMe(me);
+    ASKED_MEM = true;
     var btn = $("who-go");
     btn.disabled = true;
-    btn.textContent = "תופס את הפרקים...";
+    btn.textContent = "שומר...";
     $("who-msg").className = "form-msg";
-
     register(me).then(function () {
-      return post("/take", { readerKey: RK, readerName: name, idxs: SEL.slice() });
-    })
+      btn.disabled = false;
+      btn.textContent = "לשמור ולהתחיל לקרוא";
+      runAfterWho();
+    });
+  });
+
+  // ---------- תפיסה של הבחירה מהרשת ----------
+  function takeSel() {
+    var btn = $("view-who").classList.contains("on") ? $("who-go") : $("tray-go");
+    var label = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "תופס את הפרקים...";
+    post("/take", { readerKey: RK, readerName: readerName(), idxs: SEL.slice() })
       .then(function (d) {
         btn.disabled = false;
-        btn.textContent = "לקריאה לחצו כאן";
+        btn.textContent = label;
         if (d && d.ok) {
           QUEUE = d.taken.slice().sort(function (a, b) { return a - b; });
           QPOS = 0;
           DONE_NOW = [];
           RELEASED_NOW = 0;
+          CLOSED_NOW = false;
           SEL = [];
           var notes = [];
           if (d.shared && d.shared.length) {
@@ -807,8 +930,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
           }
           PENDING_NOTE = notes.join(" ");
           if (!QUEUE.length) {
-            $("who-msg").className = "form-msg err";
-            $("who-msg").textContent = PENDING_NOTE || "כל הפרקים שבחרתם כבר נקראו.";
+            say(PENDING_NOTE || "כל הפרקים שבחרתם כבר נקראו.");
             refresh();
             return;
           }
@@ -817,29 +939,24 @@ body{padding-bottom:env(safe-area-inset-bottom)}
         }
         if (d && d.error === "lost") {
           var names = (d.lost || []).map(function (i) { return UNITS[i].name; }).join(", ");
-          $("who-msg").className = "form-msg err";
-          $("who-msg").textContent =
-            "מישהו הקדים אתכם על " + names + ". חזרו ובחרו שוב - הרשת כבר מעודכנת.";
+          say("מישהו הקדים אתכם על " + names + ". חזרו ובחרו שוב - הרשת כבר מעודכנת.");
           SEL = SEL.filter(function (i) { return (d.lost || []).indexOf(i) === -1; });
           refresh();
           return;
         }
         if (d && d.error === "closed") {
-          $("who-msg").className = "form-msg err";
-          $("who-msg").textContent = "הספר הזה כבר הושלם. ישר כוח לכולם.";
+          say("הספר הזה כבר הושלם. ישר כוח לכולם.");
           refresh();
           return;
         }
-        $("who-msg").className = "form-msg err";
-        $("who-msg").textContent = "משהו השתבש. נסו שוב בעוד רגע.";
+        say("משהו השתבש. נסו שוב בעוד רגע.");
       })
       .catch(function () {
         btn.disabled = false;
-        btn.textContent = "לקריאה לחצו כאן";
-        $("who-msg").className = "form-msg err";
-        $("who-msg").textContent = "אין חיבור לשרת כרגע. נסו שוב בעוד רגע.";
+        btn.textContent = label;
+        say("אין חיבור לשרת כרגע. נסו שוב בעוד רגע.");
       });
-  });
+  }
 
   // ---------- קריאה רציפה ----------
   var textCache = {};
@@ -855,8 +972,9 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     if (QPOS >= QUEUE.length) { finish(); return; }
     var i = QUEUE[QPOS];
     $("r-step").textContent = QUEUE.length > 1
-      ? "פרק " + (QPOS + 1) + " מתוך " + QUEUE.length
-      : "פרק אחד";
+      ? "פרק " + (QPOS + 1) + " מתוך " + QUEUE.length + " שבחרתם"
+      : "הפרק שבחרתם";
+    $("r-for").textContent = forWhomText(STATE);
     $("r-msg").className = "form-msg";
     $("r-title").textContent = "תהילים " + UNITS[i].name;
     $("r-verses").innerHTML = "<p class='tiny'>טוען...</p>";
@@ -892,9 +1010,9 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   function showAgain(i) {
     show("read");
     $("r-verses").innerHTML =
-      "<div class='again'><p>תהילים " + escapeHtml(UNITS[i].name) + " כבר נקרא על ידי מישהו אחר.</p>" +
-      "<button type='button' class='btn' id='again-read'>לקרוא אותו בכל זאת</button>" +
-      "<button type='button' class='btn btn-ghost' id='again-skip'>לדלג לפרק הבא שלא נקרא</button></div>";
+      "<div class='again'><p>תהילים " + escapeHtml(UNITS[i].name) + ": הפרק כבר נקרא בסבב הזה. אפשר לקרוא אותו שוב או להמשיך לפרק הבא.</p>" +
+      "<button type='button' class='btn' id='again-read'>לקרוא שוב</button>" +
+      "<button type='button' class='btn btn-ghost' id='again-skip'>לפרק הבא</button></div>";
     $("again-read").onclick = function () { AGAIN_OK.push(i); openRead(); };
     $("again-skip").onclick = function () { QPOS++; openRead(); };
   }
@@ -903,9 +1021,9 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
-  var DONE_LABEL = "סיימתי פרק זה. רוצה את הפרק הבא";
-  var LAST_LABEL = "סיימתי את הפרק האחרון";
-  var STOP_LABEL = "סיימתי פרק זה ולא ממשיך";
+  var DONE_LABEL = "קראתי, לפרק הבא";
+  var LAST_LABEL = "קראתי, סיימתי";
+  var STOP_LABEL = "קראתי, ואסיים כאן";
 
   // אילו פרקים מוחזקים על שמי מלבד זה שפתוח עכשיו. אלה מה שישוחרר.
   //
@@ -939,8 +1057,8 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     stop.disabled = false;
     stop.style.display = rest ? "" : "none";
     stop.innerHTML = STOP_LABEL + "<span>" +
-      (rest === 1 ? "הפרק שנשאר אצלי ישוחרר לאחרים"
-                  : rest + " הפרקים שנשארו אצלי ישוחררו לאחרים") + "</span>";
+      (rest === 1 ? "הפרק הנוסף שבחרתם ישוחרר מהבחירה שלכם."
+                  : "יתר הפרקים שבחרתם ישוחררו מהבחירה שלכם.") + "</span>";
   }
 
   $("r-later").addEventListener("click", function () { stopClock(); refresh(); show("grid"); });
@@ -959,6 +1077,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
       // נקלט, או שמישהו אחר סימן אותו קודם - שניהם קריאה שהתקבלה (הכרעה 17)
       var accepted = d && d.ok && ((d.read && d.read.length) || (d.already && d.already.length));
       if (accepted) DONE_NOW.push(i);
+      if (d && d.closed) CLOSED_NOW = true;
 
       if (!accepted) {
         $("r-msg").className = "form-msg err";
@@ -1028,15 +1147,15 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     var left = exp - now;
     if (left <= 0) {
       el.className = "clock low";
-      el.textContent = "השעה עברה - הסימון עדיין נקלט";
+      el.textContent = "אפשר להמשיך לקרוא ולסמן גם עכשיו.";
       return;
     }
     // "נשארו 60 דקות" ולא 59: מעגלים כלפי מעלה
     var mins = Math.ceil(left / 60000);
     el.className = "clock" + (mins <= 10 ? " low" : "");
-    el.textContent = mins >= 60
-      ? "נשארו " + mins + " דקות"
-      : "נשארו " + mins + (mins === 1 ? " דקה" : " דקות");
+    el.textContent = mins === 1
+      ? "הבחירה נשמרת לעוד דקה"
+      : "הבחירה נשמרת לעוד " + mins + " דקות";
   }
 
   // ---------- גודל הטקסט ----------
@@ -1049,12 +1168,13 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   function applySize() {
     var base = window.innerWidth <= 520 ? 21 : 23;
     $("r-verses").style.fontSize = (base + sizeVal() * 2) + "px";
+    $("mych-verses").style.fontSize = (base + sizeVal() * 2) + "px";
   }
-  $("sz-up").addEventListener("click", function () {
-    sizeVal(Math.min(6, sizeVal() + 1)); applySize();
+  document.querySelectorAll(".sz-up").forEach(function (b) {
+    b.addEventListener("click", function () { sizeVal(Math.min(6, sizeVal() + 1)); applySize(); });
   });
-  $("sz-down").addEventListener("click", function () {
-    sizeVal(Math.max(-2, sizeVal() - 1)); applySize();
+  document.querySelectorAll(".sz-down").forEach(function (b) {
+    b.addEventListener("click", function () { sizeVal(Math.max(-2, sizeVal() - 1)); applySize(); });
   });
 
   // ---------- מסך הסיום ----------
@@ -1063,11 +1183,10 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     showMyCount();
     if (!DONE_NOW.length) { refresh(); show("grid"); return; }
     var names = DONE_NOW.map(function (i) { return UNITS[i].name; }).join(", ");
-    var who = STATE && STATE.kind === "klali"
-      ? "לקריאה הכללית"
-      : forWhomText(STATE);
-    var txt = (DONE_NOW.length === 1 ? "קראתם פרק אחד" : "קראתם " + DONE_NOW.length + " פרקים") +
-      " - " + escapeHtml(names) + "<br>" + escapeHtml(who);
+    var who = forWhomText(STATE);
+    var txt = (DONE_NOW.length === 1 ? "קראתם את תהילים " + escapeHtml(names)
+                                     : "קראתם " + DONE_NOW.length + " פרקים (" + escapeHtml(names) + ")") +
+      (who ? " " + escapeHtml(who) : "") + ".";
     if (RELEASED_NOW) {
       txt += "<br><span class='tiny'>" + (RELEASED_NOW === 1
         ? "הפרק שנשאר אצלכם שוחרר וחזר לרשימה עבור אחרים."
@@ -1075,12 +1194,24 @@ body{padding-bottom:env(safe-area-inset-bottom)}
         "</span>";
     }
     $("end-what").innerHTML = txt;
+    $("end-closed").style.display = CLOSED_NOW ? "" : "none";
+    $("end-klali").style.display = STATE && STATE.kind === "klali" ? "none" : "";
     refresh();
     show("end");
   }
 
-  $("end-more").addEventListener("click", function () { SEL = []; refresh(); show("grid"); });
-  $("end-back").addEventListener("click", function () { SEL = []; refresh(); show("grid"); });
+  function backToBook() {
+    SEL = []; DONE_NOW = []; RELEASED_NOW = 0; CLOSED_NOW = false;
+    show("grid");
+    return refresh().then(loadSuggest);
+  }
+  // „לקרוא עוד פרק" - ישר לכרטיס עם הפרק המוצע הבא
+  $("end-more").addEventListener("click", function () { backToBook(); });
+  // „לראות את התקדמות הספר" - לפס ההתקדמות שבראש הספר
+  $("end-back").addEventListener("click", function () {
+    backToBook();
+    $("pb-read").parentNode.parentNode.scrollIntoView({ block: "center" });
+  });
 
   // ---------- כותרת הספר ----------
   function forWhomText(s) {
@@ -1107,16 +1238,16 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   function head() {
     groupLink();
     if (STATE.kind === "klali") {
-      $("bk-lead").textContent = "הקריאה הכללית";
+      $("bk-lead").textContent = "קוראים יחד תהילים";
       $("bk-for").textContent = STATE.title;
-      $("bk-meta").textContent = "ספר פתוח תמיד. כשהוא נסגר הוא נפתח מחדש.";
+      $("bk-meta").textContent = "הספר הכללי - פתוח תמיד. כשהוא נסגר הוא נפתח מחדש.";
       return;
     }
-    $("bk-lead").textContent = "ספר תהילים";
+    $("bk-lead").textContent = "קוראים יחד תהילים";
     $("bk-for").textContent = forWhomText(STATE);
     var m = [];
-    if (STATE.openerName) m.push("נפתח על ידי " + STATE.openerName);
-    if (STATE.targetDate) m.push("תאריך יעד: " + fmtDate(STATE.targetDate));
+    if (STATE.openerName) m.push("הספר נפתח על ידי " + STATE.openerName);
+    if (STATE.targetDate) m.push("מבקשים להשלים עד " + fmtDate(STATE.targetDate));
     if (STATE.cycle > 1) m.push("סבב " + STATE.cycle + " - הספר הושלם ונפתח שוב");
     $("bk-meta").textContent = m.join(" · ");
   }
@@ -1125,6 +1256,115 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     var p = String(iso).split("-");
     return p.length === 3 ? p[2] + "." + p[1] + "." + p[0] : iso;
   }
+
+  // ---------- הפרק שלך (הכרעה ה1, 5.11.2026) ----------
+  // השרת מציע פרק (suggest) בלי לתפוס אותו ובלי לספור. רק „קראתי" משנה מצב:
+  // take ואז read על אותו פרק, עם אותו readerKey של הדף.
+  function loadSuggest() {
+    return fetch(API + "/api/book/" + TOKEN + "/suggest?rk=" + encodeURIComponent(RK))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) return;
+        if (d.done || d.idx == null) {
+          CARD_IDX = null;
+          $("mych").style.display = "none";
+          $("mych-done").style.display = "";
+          $("mych-klali").style.display = STATE && STATE.kind === "klali" ? "none" : "";
+          return;
+        }
+        $("mych-done").style.display = "none";
+        showCard(d.idx, d.state === "taken");
+      })
+      .catch(function () { /* בלי כרטיס, הרשת עדיין עובדת */ });
+  }
+
+  function showCard(i, othersToo) {
+    var keepMsg = CARD_IDX !== null && CARD_IDX !== i;
+    CARD_IDX = i;
+    var u = UNITS[i];
+    $("mych-title").textContent = "תהילים " + u.name;
+    $("mych-min").textContent = "כ-" + u.min + (u.min === 1 ? " דקה" : " דקות");
+    $("mych-note").style.display = othersToo ? "" : "none";
+    $("mych-note").textContent = othersToo ? "קוראים גם אחרים את הפרק הזה. אפשר לקרוא אותו, ומי שמסמן ראשון - הפרק נספר." : "";
+    $("mych-msg").className = "form-msg";
+    if (!keepMsg) $("mych-ok").className = "form-msg";
+    $("mych-next").disabled = false;
+    $("mych-end").disabled = false;
+    $("mych-next").textContent = "קראתי, לפרק הבא";
+    $("mych-end").textContent = "קראתי, סיימתי";
+    $("mych-verses").innerHTML = "<p class='tiny'>טוען...</p>";
+    $("mych").style.display = "";
+    loadText(i).then(function (d) {
+      if (CARD_IDX !== i) return;
+      var html = "";
+      d.verses.forEach(function (v, n) {
+        html += "<p><span class='vn'>" + (n + 1) + "</span>" + escapeHtml(v) + "</p>";
+      });
+      $("mych-verses").innerHTML = html;
+      applySize();
+    }).catch(function () {
+      $("mych-verses").innerHTML = "<p class='tiny'>לא הצלחנו לטעון את הטקסט. נסו לרענן את הדף.</p>";
+    });
+  }
+
+  function cardMark(end) {
+    if (CARD_IDX === null) return;
+    gate("מסמנים את תהילים " + UNITS[CARD_IDX].name + " כנקרא.", function () { doCardMark(end); });
+  }
+
+  function doCardMark(end) {
+    var i = CARD_IDX;
+    if ($("view-who").classList.contains("on")) show("grid");
+    var btn = end ? $("mych-end") : $("mych-next");
+    $("mych-next").disabled = true;
+    $("mych-end").disabled = true;
+    btn.textContent = "מסמן...";
+    var fail = function (text) {
+      $("mych-next").disabled = false;
+      $("mych-end").disabled = false;
+      $("mych-next").textContent = "קראתי, לפרק הבא";
+      $("mych-end").textContent = "קראתי, סיימתי";
+      $("mych-msg").className = "form-msg err";
+      $("mych-msg").textContent = text;
+    };
+    // take רושם מי קרא (ולא חוסם: פרק שאחר בחר משותף). גם אם נכשל - read קובע.
+    post("/take", { readerKey: RK, readerName: readerName(), idxs: [i] })
+      .catch(function () { return null; })
+      .then(function () {
+        return post("/read", { readerKey: RK, readerName: readerName(), idxs: [i] });
+      })
+      .then(function (d) {
+        var accepted = d && d.ok && ((d.read && d.read.length) || (d.already && d.already.length));
+        if (!accepted) { fail("הסימון לא נקלט. נסו שוב בעוד רגע."); return; }
+        DONE_NOW.push(i);
+        if (d.closed) CLOSED_NOW = true;
+        if (end) {
+          QUEUE = []; QPOS = 0; RELEASED_NOW = 0;
+          finish();
+          return;
+        }
+        $("mych-ok").className = "form-msg ok";
+        $("mych-ok").textContent = "ישר כוח! תהילים " + UNITS[i].name + " סומן כנקרא." +
+          (d.closed ? " הספר הושלם ונפתח לסבב נוסף." : "") + " הנה הפרק הבא:";
+        refresh();
+        loadSuggest().then(function () {
+          $("mych").scrollIntoView({ block: "start" });
+        });
+      })
+      .catch(function () { fail("אין חיבור לשרת כרגע. נסו שוב בעוד רגע."); });
+  }
+
+  $("mych-next").addEventListener("click", function () { cardMark(false); });
+  $("mych-end").addEventListener("click", function () { cardMark(true); });
+  $("mych-other").addEventListener("click", function (e) {
+    e.preventDefault();
+    $("choose").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  $("printed-go").addEventListener("click", function (e) {
+    e.preventDefault();
+    $("range").scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(function () { $("rg-from").focus({ preventScroll: true }); }, 350);
+  });
 
   // ---------- שרת ----------
   function post(op, body) {
@@ -1175,6 +1415,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
     $("quiet-note").style.display = "";
     $("invite-grid").style.display = "";
     show("grid");
+    loadSuggest();
     pollTimer = setInterval(function () {
       if ($("view-grid").classList.contains("on")) refresh();
     }, POLL_MS);

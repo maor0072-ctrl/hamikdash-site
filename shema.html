@@ -63,6 +63,7 @@
   text-decoration:underline;font-family:inherit;padding:0;white-space:nowrap}
 .back-link{background:none;border:0;color:var(--ink-soft);font-family:inherit;font-size:16px;
   text-decoration:underline;cursor:pointer;padding:0;margin-top:18px}
+.more-info>summary{display:inline-block;cursor:pointer;list-style:none}.more-info>summary::-webkit-details-marker{display:none}.more-info-body{text-align:right}
 </style>
 </head>
 <body>
@@ -225,15 +226,21 @@
 <section class="view" id="view-sent">
   <div class="wrap">
     <div class="form-card">
-      <h2 style="font-size:26px;margin-bottom:10px">שלחנו לך מייל</h2>
-      <p>בתיבת הדואר שלך מחכה מייל אימות עם קישור למילוי משאלות. אם הוא לא מגיע תוך כמה
-      דקות, כדאי לבדוק בתיקיית "דואר זבל" או "קידומים".</p>
+      <!-- מסך הסיום לפי ההצעה שאושרה (5.11.2026, outputs/documents/2026-11-05-hamikdash-post-submit-screens.md) -->
+      <h2 style="font-size:26px;margin-bottom:10px">הצטרפת! עוד צעד אחד במייל</h2>
+      <p>שלחנו לך מייל עם קישור אישי, ובו אפשר למסור עד שלוש משאלות - למי שתרצה/י שיתפללו עליו. הקישור תקף לחודש. לא הגיע תוך כמה דקות? כדאי לבדוק בתיקיית „דואר זבל" או „קידומים".</p>
+      <h3 style="font-size:19px;margin:22px 0 6px;color:var(--gold-deep)">מעכשיו ואילך</h3>
+      <p>מהלילה, בשעה 24:00 בדיוק לפי שעון ישראל, אומרים יחד שמע ישראל, ומיד אחר כך מבקשים שכל משאלות הלב של כל השותפים יתמלאו לטובה. מלבד השותפים, מתפללים על המשאלות גם אברכי הכולל שלנו, היתומים והאלמנות שהעמותה תומכת בהם, והרב יעקב מאור, בלי נדר, בכל לילה.</p>
+      <details class="more-info" style="margin:6px 0 14px"><summary class="btn btn-ghost">מה אומרים בחצות</summary><div class="more-info-body" style="margin-top:12px"><p><strong>שְׁמַע יִשְׂרָאֵל ה' אֱלקינוּ ה' אֶחָד!</strong> (בלחש:) ברוך שם כבוד מלכותו לעולם ועד.</p><p>ומיד אחר כך: „אבינו שבשמים, כשם שהתאחדנו באמירת 'שמע ישראל', יהי רצון מלפניך שתמלא כל משאלות לבנו לטובה".</p><p>לא מספיקים בדיוק בחצות? אפשר לומר קודם או אחר כך, ולכוון שהתפילה תהיה לשעת חצות, יחד עם כל עם ישראל.</p></div></details>
       <p style="color:var(--ink-soft);font-size:15px">אין צורך להיכנס לאתר כדי לומר "שמע" בחצות -
       זה לא תנאי. אפשר לומר אותו כל לילה בלי לבקר כאן אף פעם.</p>
+      <h3 style="font-size:19px;margin:22px 0 6px;color:var(--gold-deep)">מי שנותן הוראת קבע</h3><p>המשאלות שהוא מוסר, בלי נדר, <strong>מוזכרות באופן פרטני</strong> בתפילה.</p><p>אנחנו מבקשים מכל שותף לבקש בחצות קודם על חברו, ורק אחר כך על עצמו, כי „כל המתפלל על חברו והוא צריך לאותו דבר, נענה תחילה". ככל שיצטרפו עוד אנשים, כוח התפילה עולה. הקישור לשיתוף עם חברים נמצא כאן למטה.</p>
       <div class="shr" data-share-title="הזמינו גם את החברים לזכות" data-share-sub="שלחו לחברים ולמשפחה הזמנה להצטרף גם הם לשמע ישראל בחצות - כל אחד שמצטרף מוסיף עוד קול לאיחוד." data-share-text="מצאתי אתר מדהים של הרב יעקב מאור: המוני יהודים מכל העולם מתאחדים בכל לילה בשעה 24:00 וקוראים יחד שמע ישראל, למען אחדות ישראל. היכנסו והצטרפו גם אתם. זה מדהים. הפרטים באתר."></div>
       <div class="actions">
         <button type="button" class="btn btn-ghost" data-go="intro">חזרה לדף הבית</button>
       </div>
+      <h2 style="font-size:21px;margin-top:26px">הרשימה הכללית</h2>
+      <div id="sent-list-box"><p style="color:var(--ink-soft)">טוען...</p></div>
     </div>
   </div>
 </section>
@@ -413,22 +420,24 @@
 
   /* ---------- הרשימה הכללית הפומבית ---------- */
   function loadPublic() {
-    var box = $("list-box");
+    var boxes = [$("list-box"), $("sent-list-box")].filter(Boolean);
     apiFetch(ENDPOINT + "?list=public")
       .then(function (r) { return r.ok ? r.json() : null; })
       .catch(function (e) { return null; })
       .then(function (data) {
-        var names = data && data.names ? data.names : [];
+        // החדש ראשון (5.11.2026): השרת שומר לפי סדר המסירה, ולכן הרשימה מתהפכת כאן.
+        var names = data && data.names ? data.names.slice().reverse() : [];
         if (!names.length) {
-          box.innerHTML = '<div class="note-box"><p>הרשימה עדיין מתמלאת. היו הראשונים ' +
-            'למסור שם.</p></div>';
+          boxes.forEach(function (box) { box.innerHTML = '<div class="note-box"><p>הרשימה עדיין מתמלאת. היו הראשונים ' +
+            'למסור שם.</p></div>'; });
           return;
         }
-        box.innerHTML = '<ul class="wish-list">' + names.map(function (n) {
+        var html = '<ul class="wish-list">' + names.map(function (n) {
           return "<li><span>" + esc(fullName(n)) + "</span>" +
             '<button type="button" class="wish-report" data-id="' + esc(n.id) +
             '">דיווח</button></li>';
         }).join("") + "</ul>";
+        boxes.forEach(function (box) { box.innerHTML = html; });
       });
   }
 

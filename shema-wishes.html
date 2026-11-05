@@ -51,6 +51,7 @@
   padding:6px 22px;margin:22px 0}
 .done-list li{margin:12px 0;line-height:1.6}
 .done-list .meta{color:var(--ink-soft);font-size:15px;display:block}
+.more-info>summary{display:inline-block;cursor:pointer;list-style:none}.more-info>summary::-webkit-details-marker{display:none}.more-info-body{text-align:right}
 </style>
 <meta property="og:image" content="https://hamikdash.co.il/assets/og/shema.png">
 <meta property="og:image:width" content="1200">
@@ -133,13 +134,21 @@
 <section class="view" id="view-done">
   <div class="wrap">
     <div class="form-card">
-      <h2 style="font-size:26px;margin-bottom:10px">המשאלות נמסרו</h2>
-      <p id="done-sub"></p>
+      <!-- מסך הסיום לפי ההצעה שאושרה (5.11.2026, outputs/documents/2026-11-05-hamikdash-post-submit-screens.md) -->
+      <h2 style="font-size:26px;margin-bottom:10px">המשאלות התקבלו</h2>
       <ul class="done-list" id="done-list"></ul>
+      <p id="done-sub"></p>
+      <h3 style="font-size:19px;margin:22px 0 6px;color:var(--gold-deep)">מעכשיו ואילך</h3>
+      <p>מהלילה, ובכל לילה, בחצות, השותפים מתפללים גם על המשאלות שמסרת. זה בנוסף לתפילות של אברכי הכולל שלנו, היתומים והאלמנות שהעמותה תומכת בהם, והרב יעקב מאור, בלי נדר.</p>
+      <details class="more-info" style="margin:6px 0 14px"><summary class="btn btn-ghost">מה אומרים בחצות</summary><div class="more-info-body" style="margin-top:12px"><p><strong>שְׁמַע יִשְׂרָאֵל ה' אֱלקינוּ ה' אֶחָד!</strong> (בלחש:) ברוך שם כבוד מלכותו לעולם ועד.</p><p>ומיד אחר כך: „אבינו שבשמים, כשם שהתאחדנו באמירת 'שמע ישראל', יהי רצון מלפניך שתמלא כל משאלות לבנו לטובה".</p><p>לא מספיקים בדיוק בחצות? אפשר לומר קודם או אחר כך, ולכוון שהתפילה תהיה לשעת חצות, יחד עם כל עם ישראל.</p></div></details>
+      <h3 style="font-size:19px;margin:22px 0 6px;color:var(--gold-deep)">מי שנותן הוראת קבע</h3><p>המשאלות שהוא מוסר, בלי נדר, <strong>מוזכרות באופן פרטני</strong> בתפילה.</p><p>אנחנו מבקשים מכל שותף לבקש בחצות קודם על חברו, ורק אחר כך על עצמו, כי „כל המתפלל על חברו והוא צריך לאותו דבר, נענה תחילה". ככל שיצטרפו עוד אנשים, כוח התפילה עולה. הקישור לשיתוף עם חברים נמצא כאן למטה.</p>
+      <p>וכשתבוא הבשורה הטובה, הודיעו לנו. אנחנו רוצים לדעת.</p>
       <div class="shr" data-share-title="הזמינו גם את החברים לזכות" data-share-sub="שלחו לחברים ולמשפחה הזמנה למסור גם הם משאלות, שיתפללו עליהן בחצות." data-share-url="https://hamikdash.co.il/shema.html" data-share-text="מצאתי אתר מדהים של הרב יעקב מאור: בכל לילה בחצות אומרים יחד שמע ישראל ומתפללים על משאלות הלב. היכנסו, הצטרפו ומסרו גם אתם משאלות. הפרטים באתר."></div>
       <div class="actions">
         <a href="/shema.html" class="btn btn-ghost">לרשימה הכללית</a>
       </div>
+      <h2 style="font-size:21px;margin-top:26px">הרשימה הכללית</h2>
+      <div id="done-public"><p style="color:var(--ink-soft)">טוען...</p></div>
     </div>
   </div>
 </section>
@@ -354,8 +363,18 @@
     })
       .then(function (r) { if (!r.ok) throw new Error(String(r.status)); return true; })
       .then(function () {
-        $("done-sub").textContent =
-          "שלחנו לך אישור לדואר האלקטרוני. הלילה, בחצות, שותפי הפרויקט מתפללים גם עליהן.";
+        $("done-sub").textContent = "שלחנו לך אישור לדואר האלקטרוני.";
+        // הרשימה הכללית, החדש ראשון
+        apiFetch(ENDPOINT + "?list=public&v=" + Math.floor(Date.now() / 6e4))
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .catch(function () { return null; })
+          .then(function (data) {
+            var names = data && data.names ? data.names.slice().reverse() : [];
+            $("done-public").innerHTML = names.length
+              ? '<ul class="done-list">' + names.map(function (n) {
+                  return "<li>" + esc(fullName(n)) + "</li>"; }).join("") + "</ul>"
+              : '<p style="color:var(--ink-soft)">הרשימה עדיין מתמלאת.</p>';
+          });
         $("done-list").innerHTML = got.list.map(function (w) {
           return "<li><strong>" + esc(fullName(w)) + "</strong>" +
             '<span class="meta">' + esc(w.wish) + " · " +

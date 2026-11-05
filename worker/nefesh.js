@@ -273,7 +273,17 @@ const btn = (href, text, primary) =>
 
 // ההוראות שחוזרות לממלא, ומעליהן שלושת הכפתורים לניהול הרשימה.
 // **זו הסיבה שהטופס מבקש מייל בכלל** - מסירת השמות אינה הפדיון עצמו:
-// הפדיון נעשה בבית, עם הכסף, על כל אחד מבני המשפחה.
+// הפדיון נערך בידי הרב, ואין מה לעשות בבית (עודכן 5.11.2026).
+// מייל עברי לפי כלל 28: מסמך HTML מלא, dir על כל בלוק, ורצפים לטיניים מבודדים.
+function rtlEmailDoc(inner) {
+  const iso = inner.split(/(<[^>]+>)/).map((part) => part.charAt(0) === "<" ? part :
+    part.replace(/&[#\w]+;|[A-Za-z][\w.@:\/?=&%#+~-]*(?: +[A-Za-z][\w.@:\/?=&%#+~-]*)*/g,
+      (m) => (m.charAt(0) === "&" && m.endsWith(";") ? m : `<span dir="ltr">${m}</span>`))).join("");
+  const body = iso.replace(/<(p|ul|ol|li|table|tr|td|div|h[1-6])(?![^>]*\bdir=)(?=[\s>])/g, '<$1 dir="rtl"');
+  return `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="utf-8"></head>` +
+    `<body dir="rtl" style="direction:rtl;text-align:right">${body}</body></html>`;
+}
+
 function confirmHtml(sender, souls, token, kind) {
   const link = (m) => `${SHEMOT_PAGE}?t=${encodeURIComponent(token)}&m=${m}`;
   const list = souls
@@ -309,6 +319,11 @@ function confirmHtml(sender, souls, token, kind) {
     `<h3 style="margin:0 0 8px;color:#8a6d3b">מה קורה עכשיו</h3>` +
     `<p style="margin:0 0 14px">השמות נכנסים לרשימת פדיון הנפש, ומוקראים בשמם בזמן עריכת ` +
     `הפדיון. <strong>אין מה לעשות בבית</strong> - הפדיון נערך כאן.</p>` +
+    // נוהל המועדים של יעקב, 5.11.2026 - אותו נוסח כמו בדף ובמסך הסיום.
+    `<p style="margin:0 0 14px">תאריכים קבועים בהם נערך פדיון נפש: ערב ראש השנה, ערב יום כיפור וערב סוכות. ` +
+    `בשאר הזמנים אין תאריך קבוע לפדיון נפש. מי שתורם לפדיון נפש - השם שמסר עובר לרשימה אישית ` +
+    `שעליה מתפלל הרב, עד שייערך פדיון הנפש. למקרים מיוחדים אפשר לפנות לרב ` +
+    `<a href="https://wa.me/972528395189">בוואטסאפ</a>.</p>` +
     `<p style="margin:0 0 22px">אפשר להוסיף שמות בכל זמן, וגם לשנות בקשה שהשתנתה. ` +
     `הכפתורים שלמעלה פתוחים תמיד.</p>` +
 
@@ -869,7 +884,7 @@ export default {
           subject: first
             ? "פדיון נפש - השמות התקבלו, וכך עושים את הפדיון"
             : "פדיון נפש - הרשימה עודכנה",
-          html: confirmHtml(prev.sender, souls, d.token, first ? "new" : "replace"),
+          html: rtlEmailDoc(confirmHtml(prev.sender, souls, d.token, first ? "new" : "replace")),
         });
       } catch (e) {
         console.log("confirm mail threw", String(e).slice(0, 150));

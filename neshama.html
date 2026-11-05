@@ -168,6 +168,7 @@ textarea.nf-in{min-height:64px;resize:vertical}
 @media(max-width:640px){.nf-card,.nf-q,.nf-gate,.nf-done{scroll-margin-top:200px}}
 .more-info{margin-top:14px}.more-info>summary{display:inline-block;cursor:pointer;list-style:none}.more-info>summary::-webkit-details-marker{display:none}.more-info-body{margin-top:14px;text-align:right}.more-info-body h3{font-size:19px;margin:18px 0 6px}
 .more-info-lead{margin:16px 0 0;font-weight:500}.more-info-lead+.more-info{margin-top:6px}
+.done-more h3{font-size:19px;margin:18px 0 6px;color:var(--gold-deep)}
 </style>
 </head>
 <body>
@@ -210,7 +211,10 @@ textarea.nf-in{min-height:64px;resize:vertical}
         <p>בעמותה שלנו, אורות האמונה - בני משה, יש כולל אברכים, תמיכה בנזקקים ועוד. כל המצוות שנעשות כאן נזקפות לעילוי נשמת הנפטרים שבאתר.</p>
         <p>לאורך השנה יש: לימוד יומי של אברכים, שיעורים של הרבנים שלנו בציבור, מספר רב של סיומי מסכת, סיום ש"ס אחד לפחות בכל שנה, סיומי זוהר, סיומי משניות ועוד. כל זה נזקף לעילוי נשמת הנפטרים.</p>
         <h3>מי שנותן הוראת קבע</h3>
-        <p>שמות הנפטרים שהוא מסר <strong>מוזכרים באופן פרטני (קוראים את שמו ושם הורה)</strong> בכל עילוי נשמה שנעשה. וכן יכוונו על הנפטר בכל הקדישים, ויעשו לו אשכבה עם הזכרת שמו, בלי נדר, בכל יום אחרי התפילה, וכן בשבתות ובחגים בעלייה לתורה.</p>
+        <p>שמות הנפטרים שהוא מסר <strong>מוזכרים באופן פרטני (קוראים את שמו ושם הורה)</strong> בכל עילוי נשמה שנעשה. וכן יכוונו על הנפטר בכל הקדישים, ויעשו לו אשכבה עם הזכרת שמו, בלי נדר, אחרי התפילה, וכן בשבתות ובחגים בעלייה לתורה. כך באופן קבוע עד סוף השנה הראשונה לפטירה, ובשנים שלאחר מכן בכל יארצייט, החל מהשבת שלפני היארצייט ועד סוף יום היארצייט.</p>
+        <h3>מי שתורם תרומה חד פעמית</h3>
+        <p>שמות הנפטרים שהוא מסר, בלי נדר, <strong>מוזכרים באופן פרטני</strong> בשבוע שבו תרם ובשבוע שלאחר מכן.</p>
+        <p><a class="btn" href="/donate.html">לתרומה חד פעמית או להוראת קבע</a></p>
         <p>כמו כן, אנחנו מבקשים מכל מי ששותף בפרויקט הזה, שכל מה שהוא עושה יכוון שיהיה נזקף לעילוי נשמת כל הנפטרים שרשומים כאן. בכך, כל אדם נוסף שמצטרף לפרויקט הנפלא הזה מגדיל את עילוי הנשמה לכל הנפטרים.</p>
         <p>מלאו את הפרטים של הנפטרים שלכם, והעבירו את הקישור לאתר הזה לכל מי שאתם אוהבים. הקישור לשיתוף עם חברים נמצא בסוף הדף הזה.</p>
       </div>
@@ -371,7 +375,19 @@ textarea.nf-in{min-height:64px;resize:vertical}
       <p id="done-sub">שלחנו לכם אישור לדואר האלקטרוני, והשמות מועברים לאברכי הכולל. תזכו למצוות.</p>
       <ul class="done-list" id="done-list"></ul>
       <div id="done-prev"></div>
+      <!-- מסך הסיום (5.11.2026, outputs/documents/2026-11-05-hamikdash-post-submit-screens.md):
+           מעכשיו ואילך, שתי האפשרויות לתרומה (משוכפלות מההסבר הנוסף כדי ששני המקומות לא ייפרדו),
+           שיתוף, וחלון השמות של השבוע הזה והבא. -->
+      <h3 style="font-size:19px;margin:22px 0 6px;color:var(--gold-deep)">מעכשיו ואילך</h3>
+      <p>מעכשיו ואילך, הלימוד של אברכי הכולל, הקדישים, האשכבות והסיומים שלנו עומדים גם לעילוי נשמת יקיריכם. נר נשמה גדול דולק אצלנו כל השנה, בלי נדר, לעילוי נשמת כל מי שנמסר לנו.</p>
+      <p>בכל שנה, בשבוע של היארצייט, מהשבת שלפניו ועד סוף יום היארצייט, השם עולה ללימוד ולתפילה ומופיע בחלון השבועי כאן באתר. <strong>ואתם לא תצטרכו לזכור:</strong> ביום חמישי שלפני היארצייט תגיע אליכם תזכורת במייל.</p>
+      <p>ואם הנפטר בשנה הראשונה לפטירתו, הוא נשאר ברשימת עילוי הנשמות כל השנה כולה, ולא רק בשבוע היארצייט.</p>
+      <div id="done-more" class="done-more"></div>
       <div class="shr" data-share-title="הזמינו גם את החברים לזכות" data-share-sub="שלחו לחברים ולמשפחה הזמנה למסור גם הם שמות לעילוי נשמת יקיריהם. אותם אברכים לומדים עבור כולם." data-share-text="מצאתי אתר מדהים של הרב יעקב מאור: מוסרים שמות של קרובים שנפטרו, ואברכי הכולל לומדים ומתפללים לעילוי נשמתם, בכל שנה בשבוע היארצייט. היכנסו ותנו שמות של יקיריכם. זה מדהים. הפרטים באתר."></div>
+      <h2 id="done-week-title" style="font-size:21px;margin-top:26px">השמות לתפילה בשבוע הזה:</h2>
+      <div id="done-week-box"><p style="color:var(--ink-soft)">טוען...</p></div>
+      <h2 id="done-week-title-next" style="font-size:21px">השמות לתפילה בשבוע הבא:</h2>
+      <div id="done-week-box-next"><p style="color:var(--ink-soft)">טוען...</p></div>
       <div class="actions">
         <button type="button" class="btn" data-go="names">הוספת שמות נוספים</button>
         <button type="button" class="btn btn-ghost" data-go="edit">שינוי שמות שמסרת</button>
@@ -1794,7 +1810,17 @@ textarea.nf-in{min-height:64px;resize:vertical}
         ? '<h3 style="font-size:17px;color:var(--gold-deep);margin:26px 0 0">' +
           "שמות שמסרת קודם</h3>" + listHtml(prev)
         : "";
+      var mb = document.querySelector(".more-info .more-info-body"), md = $("done-more");
+      if (mb && md) {
+        var on = false, html = "";
+        Array.prototype.forEach.call(mb.children, function (el) {
+          if (!on && el.tagName === "H3" && el.textContent.trim().indexOf("מי שנותן הוראת קבע") === 0) on = true;
+          if (on) html += el.outerHTML;
+        });
+        md.innerHTML = html;
+      }
       show("done");
+      loadPublic();
       refreshFromServer();
     });
   });
@@ -2114,6 +2140,11 @@ textarea.nf-in{min-height:64px;resize:vertical}
       render("week-box-next", "week-title-next", weeks[1], all,
              "אין יארצייט בשבוע הבא. הרשימה מתעדכנת ברגע שנמסר שם, " +
              "ומתחלפת בכל מוצאי שבת.", cfg.firstYear, cfg.showTwice);
+      // אותו חלון גם במסך הסיום (5.11.2026)
+      render("done-week-box", "done-week-title", weeks[0], all,
+             "אין יארצייט בשבוע הזה.", cfg.firstYear, cfg.showTwice);
+      render("done-week-box-next", "done-week-title-next", weeks[1], all,
+             "אין יארצייט בשבוע הבא.", cfg.firstYear, cfg.showTwice);
     });
   }
   loadPublic();

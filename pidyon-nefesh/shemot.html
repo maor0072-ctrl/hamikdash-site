@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>מסירת שמות לפדיון נפש | אורות האמונה - בני משה</title>
-<meta name="description" content="מסירת השמות לפדיון נפש לפני יום כיפור, אחרי העברת הפדיון.">
+<meta name="description" content="מסירת השמות לפדיון נפש, אחרי העברת הפדיון.">
 <meta name="robots" content="noindex,follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -142,7 +142,19 @@
     <div class="view" id="view-done">
       <div class="form-card">
         <h2 style="font-size:26px;margin-bottom:10px">השמות התקבלו</h2>
+        <ul class="done-list" id="done-list" style="list-style:none;padding:0;margin:0 0 14px"></ul>
         <p id="done-sub"></p>
+        <!-- מסך הסיום לפי ההצעה שאושרה (outputs/documents/2026-11-05-hamikdash-post-submit-screens.md),
+             עם נוהל המועדים של יעקב מ-5.11.2026. בפדיון אין רשימה פומבית. -->
+        <h3 style="font-size:19px;margin:22px 0 6px;color:var(--gold-deep)">מעכשיו ואילך</h3>
+        <p>השמות נכנסו לרשימת פדיון הנפש. הרב יעקב מאור עורך את הפדיון, וכל שם מוקרא בשמו, יחד עם הבקשה שכתבתם. אין צורך לעשות את הפדיון בבית. הכסף כולו הולך למשפחות נזקקות, וזו עצמה צדקה גדולה.</p>
+        <p>תאריכים קבועים בהם נערך פדיון נפש: ערב ראש השנה, ערב יום כיפור וערב סוכות. בשאר הזמנים אין תאריך קבוע לפדיון נפש. מי שתורם לפדיון נפש - השם שמסר עובר לרשימה אישית שעליה מתפלל הרב, עד שייערך פדיון הנפש. למקרים מיוחדים אפשר לפנות לרב <a href="https://wa.me/972528395189" target="_blank" rel="noopener">בוואטסאפ</a>.</p>
+        <p>וחשוב לזכור: פדיון הנפש אינו עומד לבדו. כדאי לטפל גם בשורש - חרטה על העבר, וידוי, וקבלה לעתיד.</p>
+        <h3 style="font-size:19px;margin:22px 0 6px;color:var(--gold-deep)">רוצים שיתפללו על השמות גם אחרי הפדיון?</h3>
+        <p>מסרו אותם גם ב„רפואה ושאר משאלות", בחינם. שם הם עומדים לפני אברכי הכולל, וכל השותפים מתפללים עליהם.</p>
+        <p><a href="/refua.html" class="btn">למסירת שם ברפואה ושאר משאלות</a></p>
+        <div class="shr" data-share-url="https://hamikdash.co.il/pidyon-nefesh/" data-share-text="מצאתי אתר מדהים של הרב יעקב מאור, לפדיון נפש: מוסרים שמות ובקשות, והרב עורך את הפדיון ומקריא כל שם ובקשה בשמם. היכנסו ותנו שמות. זה מדהים. הפרטים באתר."></div>
+        <p style="color:var(--ink-soft);margin-top:18px">השמות שמסרתם אינם מוצגים באתר. הם אצלנו בלבד.</p>
         <div class="actions">
           <a href="/pidyon-nefesh/" class="btn btn-lg">חזרה לעמוד פדיון נפש</a>
           <a href="/" class="btn btn-ghost">חזרה לעמוד הבית</a>
@@ -427,9 +439,16 @@
       return r.json();
     }).then(function (out) {
       var n = (out && out.count ? out.count : souls.length);
+      // השורה הישנה „יעלו בפדיון הנפש לפני יום כיפור" ירדה (5.11.2026): אין מועד קבוע מלבד ערבי החגים.
+      var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+      document.getElementById("done-list").innerHTML = souls.map(function (s) {
+        var line = s.name + (s.gender === "f" ? " בת " : " בן ") + s.parent;
+        return '<li style="margin:6px 0"><strong>' + esc(line) + "</strong>" +
+          (s.wish ? '<br><span style="color:var(--ink-soft);font-size:15px">' + esc(s.wish) + "</span>" : "") + "</li>";
+      }).join("");
       document.getElementById("done-sub").textContent =
-        n + " שמות התקבלו ויעלו בפדיון הנפש לפני יום כיפור." +
-        (out && out.replySent ? " אישור נשלח אליכם במייל." : "");
+        (out && out.replySent ? "שלחנו לכם אישור במייל, ובו כפתורים להוסיף שמות, לשנות ולהסיר." : "");
       view("view-done");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }).catch(function (e) {
@@ -442,6 +461,7 @@
 </script>
 
 <!-- Cloudflare Web Analytics - מדידת תנועה ללא עוגיות וללא איסוף פרטים אישיים -->
+<script src="/assets/share.js?v=20261105" defer></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "7ea7cdf64b4545b1a46d3efbb450f49b"}'></script>
 </body>
 </html>

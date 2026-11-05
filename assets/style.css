@@ -367,9 +367,7 @@ a.topic-pill:hover{ border-color:var(--gold,#c9ab77); background:var(--cream-war
 .topic-pill.is-current{ background:var(--gold,#c9ab77); border-color:var(--gold,#c9ab77);
   color:#fff; font-weight:700; }
 @media(max-width:680px){
-  .topic-nav{ flex-wrap:nowrap; overflow-x:auto; padding-bottom:14px;
-    scrollbar-width:none; -webkit-overflow-scrolling:touch; }
-  .topic-nav::-webkit-scrollbar{ display:none; }
-  .topic-pill{ flex:0 0 auto; }
+  .topic-nav{ gap:6px; padding:10px 0; }
+  .topic-pill{ padding:6px 11px; font-size:.88rem; }
 }
 /* nav:end */

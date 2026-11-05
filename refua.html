@@ -296,7 +296,11 @@
     return true;
   }
   function currentValid(){const i=state.items.findIndex(x=>x.id===state.active);return i<0||validateItem(state.items[i],i);}
-  function allValid(){if(!state.items.length&&state.mode!=='edit'){notify(TEXT.noNames,true);return false;}for(let i=0;i<state.items.length;i++)if(!validateItem(state.items[i],i))return false;return true;}
+  /* כרטיס ריק לגמרי (בדרך כלל זה שנפתח אחרי „שמירת השם והוספת שם נוסף") נזרק בשקט לפני המעבר לפרטים,
+     במקום לעצור על שדה חסר. כרטיס שמולא בו משהו עדיין נבדק כרגיל. */
+  function dropEmpty(){const empty=n=>['name','parent','gender','type','request','relation'].every(k=>!String(n[k]||'').trim());
+    if(!state.items.some(empty))return;state.items=state.items.filter(n=>!empty(n));if(!state.items.some(n=>n.id===state.active))state.active=null;persist();}
+  function allValid(){dropEmpty();if(!state.items.length&&state.mode!=='edit'){notify(TEXT.noNames,true);return false;}for(let i=0;i<state.items.length;i++)if(!validateItem(state.items[i],i))return false;return true;}
   function validateMe(){const labels={meName:TEXT.meName,phone:TEXT.phone,email:TEXT.email};for(const k of Object.keys(labels)){const value=String(state.me[k==='meName'?'name':k]||'').trim();if(!value)return focusField(k,format(TEXT.meMissing,{field:labels[k]}));}
     if(state.me.name.length>120)return focusField('meName',format(TEXT.tooLong,{field:TEXT.meName,max:120}));
     if(state.me.phone.length>40)return focusField('phone',format(TEXT.tooLong,{field:TEXT.phone,max:40}));

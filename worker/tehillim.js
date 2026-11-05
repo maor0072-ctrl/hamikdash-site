@@ -551,6 +551,12 @@ async function handleApi(request, url, env, origin) {
 
     if (op === "state") {
       const s = await doCall(stub, "state", { readerKey: readerKey });
+      // מזהה שעובר את תבנית המזהים אבל מעולם לא נפתח כספר (למשל "tehillim" מכתובת
+      // /tehillim/book.html בלי מזהה) מקבל מופע ריק בלי יחידות. זה לא ספר - הדף
+      // מציג "הקישור אינו תקין" במקום רשת ריקה של אפס פרקים.
+      if (s && s.ok && !s.createdAt && !(s.units && s.units.length)) {
+        return json({ ok: false, error: "no_book" }, 404, origin);
+      }
       s.quiet = inQuietWindow(Date.now());
       return json(s, 200, origin);
     }

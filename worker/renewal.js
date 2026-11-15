@@ -293,7 +293,7 @@ export function makeRenewal(cfg) {
     await cfg.sendMail(env, {
       to: cfg.ownerTo, replyTo: rec.email,
       subject: `הסרה מ${T.list} (מייל החידוש): ${rec.name}`,
-      html: rtlEmail(WRAP + `<p><b>${esc(rec.name)}</b> (${esc(rec.email)}, ${esc(rec.phone)}) הסיר/ה ` +
+      html: rtlEmail(WRAP + `<p><b>${esc(rec.name)}</b> (${esc(rec.email)}${rec.phone ? ", " + esc(rec.phone) : ""}) הסיר/ה ` +
         `${removed.length} שמות (${count} מהרשימה הגלויה).</p>` + listHtml(removed) +
         `<p>הסיבה שנבחרה: <b>${why === "healed" ? T.healed : why === "passed" ? "נפטר/ה" : "סיבה אחרת"}</b></p>` +
         (reason ? `<p>מה שנכתב: ${esc(reason)}</p>` : "") + `</div>`),

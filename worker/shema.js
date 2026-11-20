@@ -387,7 +387,7 @@ function joinMailHtml(name, wishesUrl) {
   return (
     `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:16px;line-height:1.8;color:#1c1a17">` +
     `<p>שלום ${esc(name)},</p>` +
-    `<p>שמחים שהצטרפת ל"שמע בחצות". כל לילה בחצות (24:00 שעון ישראל, בלי קשר לשעון ` +
+    `<p>שמחים שהצטרפת ל"שמע ישראל". כל לילה בחצות (24:00 שעון ישראל, בלי קשר לשעון ` +
     `קיץ) שותפי הפרויקט בכל העולם אומרים יחד "שְׁמַע יִשְׂרָאֵל ה' אֱלקינוּ ה' אֶחָד", ` +
     `ומיד אחר כך מבקשים את משאלות ליבם - קודם על חברם, ורק אחר כך על עצמם.</p>` +
     `<p>הצעד הבא, אם תרצה/י: מסירת שם למי שתרצה/י שיתפללו עליו.</p>` +
@@ -641,7 +641,7 @@ async function handleJoin(d, env, headers) {
   const ok = await sendMail(env, {
     to: email,
     replyTo: REPLY_TO_OWNER,
-    subject: "ברוך/ה הבא/ה ל'שמע בחצות'",
+    subject: "ברוך/ה הבא/ה ל'שמע ישראל'",
     html: joinMailHtml(payload.name, wishesUrl),
   });
   if (!ok) return new Response("send failed", { status: 502, headers });

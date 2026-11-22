@@ -358,7 +358,9 @@ export function buildDailyReading(people, fixedRanges, options = {}, todayHebrew
     });
   });
 
+  // סיום: תהילים א א-ג אחרי ק"נ ולפני "מי יתן מציון" (הוראת הרב, 22.11.2026).
   const closing = { type: "closing", parts: [
+    { kind: "verses", chapter: 1, from: 1, to: 3, ref: "תהילים א, א-ג" },
     { kind: "verses", chapter: 14, from: 7, to: 7, ref: "תהילים יד, ז" },
     { kind: "verses", chapter: 37, from: 39, to: 40, ref: "תהילים לז, לט-מ" },
   ] };

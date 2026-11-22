@@ -185,7 +185,8 @@ const units = JSON.parse(fs.readFileSync(new URL("../tehillim/units.json", impor
   eq(r.chapterCount, 8, "מונה הפרקים: 8");
   eq([r.items[0].type, r.items[r.items.length - 1].type], ["opening", "closing"], "פתיחה בראש, סיום בסוף");
   eq(r.items[0].parts.map((p) => p.ref), ["תהילים צה, א-ג"], "פתיחה: צה א-ג בלבד (יהי רצון ממתין לצילום, ז5)");
-  eq(r.items[r.items.length - 1].parts.map((p) => p.ref), ["תהילים יד, ז", "תהילים לז, לט-מ"], "סיום: יד ז ולז לט-מ");
+  eq(r.items[r.items.length - 1].parts.map((p) => p.ref), ["תהילים א, א-ג", "תהילים יד, ז", "תהילים לז, לט-מ"], "סיום: א א-ג אחרי ק\"נ, ואז יד ז ולז לט-מ");
+  eq(r.items[r.items.length - 2].chapter, 150, "ק\"נ הוא הפריט שלפני הסיום (א א-ג בא אחריו)");
   const c14 = chs.find((c) => c.chapter === 14);
   eq(c14.subtitle, "לרפואה ולהצלחה של יוסי בן שרה ודוד בן מרים", "שני אנשים באותו פרק: נקרא פעם אחת עם שני השמות");
   const c23 = chs.find((c) => c.chapter === 23);
@@ -215,7 +216,7 @@ const units = JSON.parse(fs.readFileSync(new URL("../tehillim/units.json", impor
 {
   // פרקים נוספים מהממשק (פרק לבקשה) ונוסח שהוזן מבחוץ
   const r = C.buildDailyReading([], [], { extraChapters: [{ chapter: 20, label: "פרק לבקשה" }], textBefore: "X", textAfter: "Y" }, T);
-  eq([r.chapters, r.items[1].subtitle, r.items[0].parts[0].text, r.items[r.items.length - 1].parts[2].text], [[20, 150], "פרק לבקשה", "X", "Y"], "פרק נוסף ונוסח פתיחה/סיום כשהם מסופקים");
+  eq([r.chapters, r.items[1].subtitle, r.items[0].parts[0].text, r.items[r.items.length - 1].parts[3].text], [[20, 150], "פרק לבקשה", "X", "Y"], "פרק נוסף ונוסח פתיחה/סיום כשהם מסופקים");
 }
 eq(C.normalizeFixed([0, [149, 160], "x", { from: 5 }]), [5, 149, 150], "פרקים קבועים: מחוץ לטווח נחתך, קלט לא תקין מתעלמים");
 

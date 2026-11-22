@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>התהילים האישי שלי | תהילים ישראל</title>
+<meta name="description" content="פרקי תהילים יומיים לפי הגיל העברי של היקרים לכם - הפרק של השנה שבה כל אחד נמצא, לפי יום ההולדת העברי.">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="/assets/favicon.png" sizes="any">
+<link rel="manifest" href="/tehillim/manifest.webmanifest">
+<meta name="theme-color" content="#faf7f1">
+<link rel="apple-touch-icon" href="/tehillim/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="תהילים ישראל">
+<script src="/tehillim/install.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Frank+Ruhl+Libre:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+html,body{overflow-x:hidden}
+.pw{max-width:760px;margin:0 auto;padding:18px 16px 60px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 18px;margin:0 0 16px}
+.card h2{font-size:21px;margin:0 0 8px}
+.lead{font-size:18px;line-height:1.6;margin:0 0 14px}
+.tiny{font-size:14px;color:var(--ink-soft);line-height:1.55}
+.btn-p,.btn-g,.btn-l{display:block;width:100%;min-height:48px;font-family:inherit;font-size:17px;font-weight:700;border-radius:10px;cursor:pointer;padding:12px 16px;text-align:center;text-decoration:none;margin:0 0 10px;box-sizing:border-box}
+.btn-p{background:var(--gold);color:#fff;border:0}
+.btn-g{background:var(--white);color:var(--gold-deep);border:2px solid var(--gold)}
+.btn-l{background:transparent;color:var(--ink-soft);border:1px solid var(--line);font-weight:500;font-size:15px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-row>*{flex:1 1 140px}
+.field{margin:0 0 14px}
+.field label,.field .lbl{display:block;font-weight:700;margin:0 0 5px;font-size:16px}
+.field .hint{display:block;font-weight:400;color:var(--ink-soft);font-size:14px}
+.field input,.field select{width:100%;box-sizing:border-box;font-family:inherit;font-size:17px;color:var(--ink);background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:46px}
+.sel3{display:grid;grid-template-columns:1fr 1.4fr 1.3fr;gap:8px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg label{flex:1 1 80px;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--cream);font-weight:500;cursor:pointer;margin:0}
+.seg input{width:auto;min-height:0}
+.err{color:#9b2c2c;font-size:15px;margin:6px 0 0}
+.msg{background:var(--cream-warm);border-right:4px solid var(--gold);border-radius:8px;padding:10px 12px;margin:0 0 14px;font-size:15px}
+.person{border-bottom:1px solid var(--line);padding:10px 0;display:flex;gap:8px;align-items:flex-start}
+.person:last-child{border-bottom:0}
+.person .who{flex:1;min-width:0}
+.person .nm{font-weight:700;font-size:17px}
+.person .ex{font-size:15px;color:var(--gold-deep)}
+.person .bd{font-size:13px;color:var(--ink-soft)}
+.ib{min-width:44px;min-height:44px;border:1px solid var(--line);background:var(--cream);border-radius:8px;font-family:inherit;font-size:14px;cursor:pointer;color:var(--ink)}
+.preview{font-size:18px;font-weight:700;color:var(--gold-deep);margin:8px 0 0}
+.sw{display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:16px;cursor:pointer}
+.sw input{width:22px;height:22px;flex:none;margin-top:2px}
+.linkbox{direction:ltr;text-align:left;font-size:14px;background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:10px;overflow-wrap:anywhere;word-break:break-all;margin:0 0 10px}
+.hidden{display:none!important}
+.req-list{padding:4px 0 0 0;margin-right:30px}
+/* מסך הקריאה */
+body.reading .site-header{display:none}
+#topbar{position:sticky;top:0;z-index:20;background:var(--cream);border-bottom:1px solid var(--line);padding:6px 10px calc(4px) 10px;padding-top:calc(6px + env(safe-area-inset-top))}
+#topbar .tb{display:flex;align-items:center;gap:6px}
+#topbar .where{flex:1;font-size:14px;color:var(--ink-soft);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#topbar .ib{background:transparent}
+#bar{height:3px;background:var(--line);border-radius:2px;margin-top:5px;overflow:hidden}
+#bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s}
+#rd{font-family:"Frank Ruhl Libre","Heebo",serif;font-size:var(--fs,22px);line-height:1.65;text-align:right;color:var(--ink)}
+#rd p{margin:0 0 6px}
+#rd .vn{font-family:"Heebo",sans-serif;font-size:.58em;color:var(--gold-deep);font-weight:700;margin-left:6px}
+#rd .sec{padding:8px 0 18px}
+#rd .ch-h{font-size:1.5em;font-weight:700;color:var(--gold-deep);text-align:center;margin:28px 0 0;line-height:1.3}
+#rd .ch-s{font-family:"Heebo",sans-serif;font-size:15px;color:var(--ink-soft);text-align:center;margin:4px 0 14px;line-height:1.5}
+#rd .part-h{font-size:1.1em;font-weight:700;color:var(--gold-deep);text-align:center;margin:18px 0 8px}
+#rd .sm-h{font-family:"Heebo",sans-serif;font-size:15px;font-weight:700;color:var(--gold-deep);text-align:center;margin:18px 0 8px}
+#rd .ref{font-family:"Heebo",sans-serif;font-size:13px;color:var(--ink-soft)}
+#rd .yr-slot:empty{display:none}
+.finish{text-align:center;font-family:"Heebo",sans-serif;padding:24px 0 10px}
+.finish h2{font-size:24px;color:var(--gold-deep);margin:0 0 12px}
+.resume{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:30;background:var(--white);border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,.18);padding:14px;max-width:560px;margin:0 auto}
+html[data-theme=dark]{--ink:#ece6da;--ink-soft:#b9b0a1;--cream:#16140f;--cream-warm:#24201a;--white:#1f1c17;--line:#3a342a;--gold:#c9a25a;--gold-deep:#d8b46c}
+html[data-theme=dark] body{background:#16140f;color:var(--ink)}
+html[data-theme=dark] .btn-p{color:#16140f}
+</style>
+</head>
+<body>
+.invite-today{margin-top:28px;padding-top:18px;border-top:1px solid #efe7da}
+.invite-today h3{margin:0 0 8px}
+.copy-btn{white-space:nowrap;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
+  background:var(--gold);color:#fff;border:0;border-radius:8px;padding:11px 18px}
+.copy-btn:hover{background:var(--gold-deep)}
+.copy-btn.done{background:#2e7d4f}
+.wa-preview{background:var(--cream);border:1px solid var(--line);border-radius:8px;
+  padding:14px 16px;white-space:pre-wrap;font-size:16px;line-height:1.8;margin:10px 0;overflow-wrap:anywhere;word-break:break-word}
+#qr-wrap{text-align:center;margin:18px 0 6px}
+#qr-wrap img,#qr-wrap canvas{border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px}
+.tiny{font-size:14px;color:var(--ink-soft)}
+.done-ctas{display:grid;gap:12px;margin:18px 0 4px}
+.done-ctas .hero-btn{text-align:center;text-decoration:none}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <a href="/"><span class="brand-name">אורות האמונה - בני משה</span></a>
+      <span class="brand-sub">בראשות הרב יעקב מאור</span>
+    </div>
+
+<div id="topbar" class="hidden">
+  <div class="tb">
+    <button class="ib" id="tb-back" aria-label="חזרה לרשימה">חזרה</button>
+    <div class="where" id="tb-where"></div>
+    <button class="ib" id="tb-minus" aria-label="הקטנת האותיות">A-</button>
+    <button class="ib" id="tb-plus" aria-label="הגדלת האותיות">A+</button>
+    <button class="ib" id="tb-night" aria-label="מצב לילה">&#9790;</button>
+  </div>
+  <div id="bar"><i></i></div>
+</div>
+
+<main class="pw">
+  <div id="flash" class="msg hidden" role="status"></div>
+
+  <!-- פתיחה: אין רשימה -->
+  <section id="v-welcome" class="hidden">
+    <div class="card">
+      <h2>התהילים האישי שלי</h2>
+      <p class="lead">מנהג ישראל לומר כל יום את הפרק של השנה שבה נמצאים, לפי יום ההולדת העברי - בן 13 נמצא בשנתו ה-14 ואומר פרק יד. כאן מזינים את היקרים לכם, ומקבלים כל יום קריאה אחת מסודרת.</p>
+      <button class="btn-p" id="w-create">ליצירת רשימה</button>
+      <button class="btn-g" id="w-paste">הדבקת הקישור האישי</button>
+      <p class="tiny">יש לכם כבר רשימה? הדביקו את הקישור האישי שקיבלתם, והרשימה תיפתח גם בטלפון הזה.</p>
+      <div id="w-paste-box" class="hidden">
+        <div class="field"><label for="w-paste-in">הקישור האישי</label>
+          <input id="w-paste-in" type="url" dir="ltr" placeholder="https://hamikdash.co.il/tehillim/personal.html#k=..."></div>
+        <button class="btn-p" id="w-paste-go">לפתוח את הרשימה</button>
+        <p class="err hidden" id="w-paste-err"></p>
+      </div>
+    </div>
+    <p class="tiny"><a href="/tehillim.html">לתהילים ישראל</a></p>
+  </section>
+
+  <!-- בית: יש רשימה -->
+  <section id="v-home" class="hidden">
+    <div class="card">
+      <h2>התהילים האישי שלי</h2>
+      <p class="tiny" id="h-date"></p>
+      <p class="preview" id="h-count"></p>
+      <div id="h-people"></div>
+      <div id="h-resume" style="margin-top:14px"></div>
+      <button class="btn-g" id="h-edit">עריכת הרשימה</button>
+      <button class="btn-l" id="h-link">הקישור האישי</button>
+    </div>
+    <div id="h-linkcard" class="hidden"></div>
+    <div id="h-install"></div>
+    <p class="tiny"><a href="/tehillim.html">לתהילים ישראל</a></p>
+  </section>
+
+  <!-- עורך -->
+  <section id="v-editor" class="hidden">
+    <div class="card">
+      <h2>האנשים ברשימה</h2>
+      <div id="e-people"><p class="tiny">עוד אין אף אחד ברשימה.</p></div>
+      <button class="btn-g" id="e-add" style="margin-top:10px">הוספת אדם</button>
+    </div>
+
+    <div class="card hidden" id="e-form">
+      <h2 id="f-title">הוספת אדם</h2>
+      <div class="field"><label for="f-name">שם</label><input id="f-name" maxlength="40" autocomplete="off"></div>
+      <div class="field"><label for="f-parent">שם ההורה <span class="hint">לא חובה. אב או אם, כמנהגכם</span></label><input id="f-parent" maxlength="40" autocomplete="off"></div>
+      <div class="field"><span class="lbl">בן או בת</span>
+        <div class="seg"><label><input type="radio" name="f-g" value="m" checked> בן</label><label><input type="radio" name="f-g" value="f"> בת</label></div></div>
+      <div class="field"><span class="lbl">תאריך הלידה</span>
+        <div class="seg"><label><input type="radio" name="f-mode" value="heb" checked> עברי</label><label><input type="radio" name="f-mode" value="greg"> לועזי</label></div></div>
+      <div id="f-heb" class="field">
+        <div class="sel3">
+          <select id="f-day" aria-label="יום"></select>
+          <select id="f-month" aria-label="חודש"></select>
+          <select id="f-year" aria-label="שנה"></select>
+        </div>
+      </div>
+      <div id="f-greg" class="hidden">
+        <div class="field"><label for="f-gdate">תאריך לועזי</label><input id="f-gdate" type="date"></div>
+        <div class="field"><span class="lbl">נולד אחרי השקיעה?</span>
+          <div class="seg"><label><input type="radio" name="f-sun" value="no" checked> לא</label><label><input type="radio" name="f-sun" value="yes"> כן</label><label><input type="radio" name="f-sun" value="unk"> לא יודע</label></div></div>
+        <button class="btn-l" id="f-convert">להמרה לתאריך עברי</button>
+        <div id="f-conv"></div>
+      </div>
+      <p class="preview" id="f-explain"></p>
+      <p class="err hidden" id="f-err"></p>
+      <div class="btn-row"><button class="btn-p" id="f-ok">לשמור את האדם</button><button class="btn-l" id="f-cancel">ביטול</button></div>
+    </div>
+
+    <div class="card">
+      <h2>פרקים קבועים</h2>
+      <p class="tiny">פרקים שנקראים כל יום, בלי קשר לגיל. פרק אחד או טווח.</p>
+      <div id="e-ranges"></div>
+      <div class="sel3" style="grid-template-columns:1fr 1fr auto;align-items:end;margin-top:8px">
+        <div class="field" style="margin:0"><label for="r-from">מפרק</label><input id="r-from" type="number" inputmode="numeric" min="1" max="150"></div>
+        <div class="field" style="margin:0"><label for="r-to">עד פרק <span class="hint">לא חובה</span></label><input id="r-to" type="number" inputmode="numeric" min="1" max="150"></div>
+        <button class="ib" id="r-add" style="padding:0 14px">הוספה</button>
+      </div>
+      <p class="err hidden" id="r-err"></p>
+    </div>
+
+    <div class="card" id="e-settings-card">
+      <h2>תוספות</h2>
+      <div id="e-settings"></div>
+    </div>
+
+    <div class="card">
+      <p class="preview" id="e-preview"></p>
+      <p class="err hidden" id="e-err"></p>
+      <button class="btn-p" id="e-save">לשמור את הרשימה</button>
+      <button class="btn-l" id="e-cancel">ביטול</button>
+    </div>
+  </section>
+
+  <!-- קריאה -->
+  <section id="v-read" class="hidden">
+    <div id="rd"></div>
+  </section>
+</main>
+
+<div id="resume-pop" class="resume hidden"></div>
+
+<script type="module">
+import * as P from "./personal-core.js";
+
+const API = "https://t.hamikdash.co.il";
+const LS = { id: "tp.id", list: "tp.list", font: "tp.font", theme: "tp.theme", read: "tp.reading", installed: "tp.installShown" };
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const lsGet = (k) => { try { const v = localStorage.getItem(k); return v == null ? null : JSON.parse(v); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+let state = { id: lsGet(LS.id), list: null, updatedAt: null };
+const cached = lsGet(LS.list);
+if (cached && cached.list) { state.list = cached.list; state.updatedAt = cached.updatedAt || null; }
+let units = null, extras = null, extrasJs = null;
+let draft = null; // עותק בעריכה
+
+// ---------- תשתית ----------
+function show(view) {
+  for (const v of ["v-welcome", "v-home", "v-editor", "v-read"]) $(v).classList.toggle("hidden", v !== view);
+  const reading = view === "v-read";
+  document.body.classList.toggle("reading", reading);
+  $("topbar").classList.toggle("hidden", !reading);
+  if (!reading) { $("resume-pop").classList.add("hidden"); releaseWake(); }
+  window.scrollTo(0, 0);
+}
+function flash(text) { const f = $("flash"); f.textContent = text; f.classList.toggle("hidden", !text); }
+async function api(action, body) {
+  const r = await fetch(API + "/api/personal/" + action, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body), cache: "no-store", referrerPolicy: "no-referrer" });
+  let j = null; try { j = await r.json(); } catch (e) {}
+  return { status: r.status, body: j || { ok: false, error: "bad_response" } };
+}
+function persist() { lsSet(LS.id, state.id); lsSet(LS.list, state.list ? { list: state.list, updatedAt: state.updatedAt } : null); }
+function linkFor(id) { return location.origin + "/tehillim/personal.html#k=" + id; }
+function idFromText(t) {
+  t = String(t || "").trim();
+  const m = t.match(/[#&?]k=([A-Za-z0-9_-]{16,64})/);
+  if (m) return m[1];
+  if (/^[A-Za-z0-9_-]{16,64}$/.test(t)) return t;
+  return null;
+}
+async function loadData() {
+  const get = (u) => fetch(u).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  const [u, x] = await Promise.all([get("./units.json"), get("./personal-extras.json")]);
+  units = Array.isArray(u) ? u : null;
+  extras = x && typeof x === "object" ? x : null;
+  try { extrasJs = await import("./personal-extras.js"); } catch (e) { extrasJs = null; }
+}
+const textCache = new Map();
+function loadText(i) {
+  if (!textCache.has(i)) textCache.set(i, fetch("./text/" + i + ".json").then((r) => { if (!r.ok) throw new Error("text " + i); return r.json(); }));
+  return textCache.get(i);
+}
+
+// ---------- תוספות (מתגים) ----------
+function hasNameVerses() { return !!(extras && extras.namePesukim && Object.keys(extras.namePesukim).some((k) => k !== "source" && Array.isArray(extras.namePesukim[k]) && extras.namePesukim[k].length)); }
+function hasPerek20() { return !!(extrasJs && typeof extrasJs.isNoTachanunDay === "function"); }
+function hasRequests() { return !!(extras && Array.isArray(extras.requests) && extras.requests.length); }
+const FINAL = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
+const TO_FINAL = { "כ": "ך", "מ": "ם", "נ": "ן", "פ": "ף", "צ": "ץ" };
+function versesForName(name) {
+  if (!hasNameVerses()) return null;
+  const letters = String(name || "").replace(/[^א-ת]/g, "");
+  if (!letters) return null;
+  const a = FINAL[letters[0]] || letters[0], z = letters[letters.length - 1];
+  const tries = [a + z, a + (FINAL[z] || z), a + (TO_FINAL[z] || z)];
+  for (const k of tries) { const v = extras.namePesukim[k]; if (Array.isArray(v) && v.length) return v; }
+  return null;
+}
+function extraChaptersFor(list, hd) {
+  const out = [], s = (list && list.settings) || {};
+  if (s.noTachanunPerek20 && hasPerek20()) { let no = false; try { no = !!extrasJs.isNoTachanunDay(hd); } catch (e) {} if (no) out.push({ chapter: 20, label: "פרק כ - יום שאין בו תחנון" }); }
+  if (s.requestChapters && hasRequests()) for (const id of s.requests || []) {
+    const r = extras.requests.find((x) => x.id === id); if (!r) continue;
+    for (const c of r.chapters || []) out.push({ chapter: c, label: "לבקשה: " + r.label });
+  }
+  return out;
+}
+function build(list, hd) {
+  hd = hd || P.hebrewToday();
+  const reading = P.buildDailyReading(list.people || [], list.ranges || [], { units, extraChapters: extraChaptersFor(list, hd) }, hd);
+  const nv = [];
+  if (list.settings && list.settings.nameVerses && hasNameVerses()) {
+    const seen = new Set();
+    for (const p of reading.people) {
+      const nm = (p.person.name || "").trim(); if (!nm || seen.has(nm)) continue; seen.add(nm);
+      const v = versesForName(nm); if (v) nv.push({ name: nm, verses: v.slice(0, 1) });
+    }
+  }
+  if (nv.length) reading.items.splice(reading.items.length - 1, 0, { type: "names", list: nv });
+  return reading;
+}
+
+// ---------- פתיחה ----------
+async function boot() {
+  applyTheme(); applyFont();
+  await loadData();
+  const fromHash = idFromText(location.hash);
+  if (fromHash && fromHash !== state.id) { state = { id: fromHash, list: null, updatedAt: null }; }
+  if (state.id) {
+    const ok = await refresh();
+    if (!ok && !state.list) { show("v-welcome"); return; }
+    persist(); goHome(); return;
+  }
+  show("v-welcome");
+}
+async function refresh() {
+  try {
+    const r = await api("get", { id: state.id });
+    if (r.status === 200 && r.body.ok) { state.list = r.body.list; state.updatedAt = r.body.updatedAt; persist(); return true; }
+    if (r.status === 404) { const had = state.list; state = { id: null, list: null, updatedAt: null }; persist(); flash(had ? "הרשימה לא נמצאה בשרת - היא נמחקה או שהקישור הוחלף בקישור חדש." : "לא נמצאה רשימה בקישור הזה. ייתכן שהוחלף בקישור חדש או שהרשימה נמחקה."); return false; }
+  } catch (e) {}
+  if (state.list) flash("אין חיבור לשרת כרגע - מוצגת הרשימה ששמורה בטלפון.");
+  else flash("אין חיבור לשרת כרגע. נסו שוב בעוד רגע.");
+  return !!state.list;
+}
+
+$("w-create").onclick = () => openEditor();
+$("w-paste").onclick = async () => {
+  $("w-paste-box").classList.remove("hidden");
+  let t = "";
+  try { if (navigator.clipboard && navigator.clipboard.readText) t = await navigator.clipboard.readText(); } catch (e) {}
+  if (idFromText(t)) { $("w-paste-in").value = t; openPasted(t); } else $("w-paste-in").focus();
+};
+$("w-paste-go").onclick = () => openPasted($("w-paste-in").value);
+async function openPasted(t) {
+  const id = idFromText(t), err = $("w-paste-err");
+  if (!id) { err.textContent = "זה לא נראה כמו קישור אישי. הקישור מסתיים ב-#k= ואחריו רצף של אותיות ומספרים."; err.classList.remove("hidden"); return; }
+  err.classList.add("hidden");
+  state = { id, list: null, updatedAt: null };
+  if (await refresh()) { history.replaceState(null, "", "#k=" + id); flash(""); goHome(); }
+  else { err.textContent = "לא הצלחנו לפתוח את הרשימה. בדקו שהקישור שלם ושיש חיבור לאינטרנט."; err.classList.remove("hidden"); show("v-welcome"); }
+}
+
+// ---------- בית ----------
+function goHome() {
+  if (!state.list) { show("v-welcome"); return; }
+  const rd = build(state.list);
+  $("h-date").textContent = "היום " + rd.dateLabel;
+  $("h-count").textContent = "היום " + rd.chapterCount + " פרקים";
+  $("h-people").innerHTML = rd.people.map((p) => "<div class='person'><div class='who'><div class='nm'>" + esc(p.label) + (p.isBirthday ? " · יום הולדת שמח" : "") + "</div><div class='ex'>" + esc(p.explanation) + "</div></div></div>").join("")
+    + rd.skipped.map((s) => "<p class='err'>" + esc(P.personLabel(s.person)) + ": " + esc(s.error) + "</p>").join("");
+  renderResumeChoices(rd);
+  show("v-home");
+}
+function renderResumeChoices(today) {
+  const box = $("h-resume"), saved = lsGet(LS.read);
+  let html = "";
+  if (saved && saved.pos && !saved.done && saved.key !== today.key && saved.snapshot) {
+    html = "<p class='tiny'>הקריאה של " + esc(saved.dateLabel || "אתמול") + " לא הסתיימה.</p><button class='btn-p' data-a='yday'>להשלים את הקריאה של אתמול</button><button class='btn-g' data-a='today'>להתחיל את הקריאה של היום</button>";
+  } else if (saved && saved.pos && !saved.done && saved.key === today.key) {
+    html = "<button class='btn-p' data-a='resume'>להמשיך מהמקום שעצרתם</button><button class='btn-l' data-a='restart'>להתחיל מחדש</button>";
+  } else if (saved && saved.done && saved.key === today.key) {
+    html = "<p class='tiny'>ישר כוח, הקריאה של היום הושלמה.</p><button class='btn-g' data-a='restart'>לקרוא שוב</button>";
+  } else html = "<button class='btn-p' data-a='today'>לקריאה של היום</button>";
+  box.innerHTML = html;
+  box.querySelectorAll("button").forEach((b) => b.onclick = () => {
+    const a = b.dataset.a;
+    if (a === "yday") openReading(saved.snapshot, saved.pos, true);
+    else if (a === "resume") openReading(today, saved.pos);
+    else { lsSet(LS.read, { key: today.key, dateLabel: today.dateLabel, snapshot: slim(today), pos: null, done: false }); openReading(today, null); }
+  });
+}
+function slim(rd) { return { key: rd.key, dateLabel: rd.dateLabel, chapterCount: rd.chapterCount, chapters: rd.chapters, items: rd.items }; }
+$("h-edit").onclick = () => openEditor();
+$("h-link").onclick = () => { const c = $("h-linkcard"); if (c.classList.contains("hidden")) { renderLinkCard(c); c.classList.remove("hidden"); } else c.classList.add("hidden"); };
+
+function renderLinkCard(el) {
+  const link = linkFor(state.id);
+  el.innerHTML = "<div class='card'><h2>הקישור האישי שלכם</h2><p>שמרו את הקישור. דרכו אפשר לפתוח את הרשימה בכל טלפון, ולשתף עם בן או בת הזוג. מי שיש לו את הקישור יכול לראות ולערוך את הרשימה.</p>"
+    + "<div class='linkbox' id='lk-url'>" + esc(link) + "</div>"
+    + "<div class='btn-row'><button class='btn-p' id='lk-copy'>העתקת הקישור</button><a class='btn-g' id='lk-wa' target='_blank' rel='noopener noreferrer'>לשלוח לעצמי בוואטסאפ</a></div>"
+    + "<button class='btn-l' id='lk-rotate'>החלפה בקישור חדש (הישן יפסיק לעבוד)</button><button class='btn-l' id='lk-del'>מחיקת הרשימה לגמרי</button><p class='tiny' id='lk-msg'></p></div>";
+  el.querySelector("#lk-wa").href = "https://wa.me/?text=" + encodeURIComponent("הקישור האישי שלי לתהילים האישי - לשמור ולא לשתף:\n" + link);
+  el.querySelector("#lk-copy").onclick = async () => {
+    let ok = false;
+    try { ok = window.TehillimInstall ? await TehillimInstall.copy(link) : (await navigator.clipboard.writeText(link), true); } catch (e) {}
+    el.querySelector("#lk-msg").textContent = ok ? "הקישור הועתק." : "לא הצלחנו להעתיק. אפשר לסמן את הקישור ולהעתיק ידנית.";
+  };
+  el.querySelector("#lk-rotate").onclick = async () => {
+    if (!confirm("להחליף את הקישור? הקישור הישן יפסיק לעבוד מיד, גם אצל מי ששלחתם לו.")) return;
+    const r = await api("rotate", { id: state.id }).catch(() => null);
+    if (r && r.body.ok) { state.id = r.body.id; state.updatedAt = r.body.updatedAt; state.list = r.body.list; persist(); history.replaceState(null, "", "#k=" + state.id); renderLinkCard(el); el.querySelector("#lk-msg").textContent = "נוצר קישור חדש. הקישור הישן כבר לא עובד."; }
+    else el.querySelector("#lk-msg").textContent = "ההחלפה לא הצליחה. נסו שוב.";
+  };
+  el.querySelector("#lk-del").onclick = async () => {
+    if (!confirm("למחוק את הרשימה לגמרי? אי אפשר לשחזר אותה.")) return;
+    const r = await api("delete", { id: state.id }).catch(() => null);
+    if (r && (r.body.ok || r.status === 404)) { state = { id: null, list: null, updatedAt: null }; persist(); lsSet(LS.read, null); history.replaceState(null, "", location.pathname); el.classList.add("hidden"); flash("הרשימה נמחקה."); show("v-welcome"); }
+    else el.querySelector("#lk-msg").textContent = "המחיקה לא הצליחה. נסו שוב.";
+  };
+}
+
+// ---------- עורך ----------
+let editIdx = -1;
+function openEditor() {
+  draft = JSON.parse(JSON.stringify(state.list || { people: [], ranges: [], settings: { nameVerses: false, noTachanunPerek20: false, requestChapters: false, requests: [] } }));
+  draft.settings = Object.assign({ nameVerses: false, noTachanunPerek20: false, requestChapters: false, requests: [] }, draft.settings || {});
+  $("e-form").classList.add("hidden"); $("e-err").classList.add("hidden");
+  renderEditor(); show("v-editor");
+}
+function renderEditor() {
+  const today = P.hebrewToday();
+  $("e-people").innerHTML = draft.people.length ? draft.people.map((p, k) => {
+    const r = P.chapterFor(p, today);
+    return "<div class='person'><div class='who'><div class='nm'>" + esc(P.personLabel(p)) + "</div><div class='bd'>" + esc(P.formatHebrewDate(p.birth)) + "</div><div class='" + (r.ok ? "ex" : "err") + "'>" + esc(r.ok ? r.explanation : r.error) + "</div></div>"
+      + "<button class='ib' data-e='" + k + "'>עריכה</button><button class='ib' data-d='" + k + "'>מחיקה</button></div>";
+  }).join("") : "<p class='tiny'>עוד אין אף אחד ברשימה.</p>";
+  $("e-people").querySelectorAll("[data-e]").forEach((b) => b.onclick = () => openForm(+b.dataset.e));
+  $("e-people").querySelectorAll("[data-d]").forEach((b) => b.onclick = () => { if (confirm("למחוק את " + P.personLabel(draft.people[+b.dataset.d]) + " מהרשימה?")) { draft.people.splice(+b.dataset.d, 1); renderEditor(); } });
+  $("e-ranges").innerHTML = draft.ranges.map((r, k) => "<div class='person'><div class='who'><div class='nm'>" + (r.from === r.to ? "פרק " + P.gematria(r.from) : "מפרק " + P.gematria(r.from) + " עד פרק " + P.gematria(r.to)) + "</div></div><button class='ib' data-re='" + k + "'>עריכה</button><button class='ib' data-rd='" + k + "'>מחיקה</button></div>").join("");
+  $("e-ranges").querySelectorAll("[data-rd]").forEach((b) => b.onclick = () => { draft.ranges.splice(+b.dataset.rd, 1); renderEditor(); });
+  $("e-ranges").querySelectorAll("[data-re]").forEach((b) => b.onclick = () => { const r = draft.ranges[+b.dataset.re]; $("r-from").value = r.from; $("r-to").value = r.to === r.from ? "" : r.to; draft.ranges.splice(+b.dataset.re, 1); renderEditor(); $("r-from").focus(); });
+  renderSettings();
+  const rd = build(draft, today);
+  $("e-preview").textContent = "היום " + rd.chapterCount + " פרקים" + (P.normalizeFixed(draft.ranges).length ? " (כולל " + P.normalizeFixed(draft.ranges).length + " פרקים קבועים, אחרי הסרת כפילויות)" : "") + " · ופרק קנ תמיד בסוף";
+}
+function renderSettings() {
+  const s = draft.settings, el = $("e-settings");
+  let html = "";
+  if (hasNameVerses()) html += "<label class='sw'><input type='checkbox' data-s='nameVerses'" + (s.nameVerses ? " checked" : "") + "><span>פסוקים לפי השם - בסוף הקריאה, פסוק שמתחיל ונגמר באותיות השם של כל אחד<br><span class='tiny'>" + esc(extras.namePesukim.source || extras.source || "") + "</span></span></label>";
+  if (hasPerek20()) html += "<label class='sw'><input type='checkbox' data-s='noTachanunPerek20'" + (s.noTachanunPerek20 ? " checked" : "") + "><span>פרק כ בימים שאין בהם תחנון</span></label>";
+  if (hasRequests()) {
+    html += "<label class='sw'><input type='checkbox' data-s='requestChapters'" + (s.requestChapters ? " checked" : "") + "><span>פרקים לפי בקשה</span></label>";
+    if (s.requestChapters) html += "<div class='req-list'>" + extras.requests.map((r) => "<label class='sw'><input type='checkbox' data-r='" + esc(r.id) + "'" + ((s.requests || []).includes(r.id) ? " checked" : "") + "><span>" + esc(r.label) + " <span class='tiny'>- פרקים " + esc((r.chapters || []).map((c) => P.gematria(c)).join(", ")) + (r.source ? " · " + esc(r.source) : "") + "</span></span></label>").join("") + "</div>";
+  }
+  $("e-settings-card").classList.toggle("hidden", !html);
+  el.innerHTML = html;
+  el.querySelectorAll("[data-s]").forEach((c) => c.onchange = () => { s[c.dataset.s] = c.checked; renderEditor(); });
+  el.querySelectorAll("[data-r]").forEach((c) => c.onchange = () => { const set = new Set(s.requests || []); c.checked ? set.add(c.dataset.r) : set.delete(c.dataset.r); s.requests = [...set]; renderEditor(); });
+}
+$("e-add").onclick = () => openForm(-1);
+$("e-cancel").onclick = () => { if (state.list) goHome(); else show("v-welcome"); };
+$("r-add").onclick = () => {
+  const a = parseInt($("r-from").value, 10), bRaw = $("r-to").value.trim(), b = bRaw ? parseInt(bRaw, 10) : a, err = $("r-err");
+  if (!(a >= 1 && a <= 150 && b >= 1 && b <= 150)) { err.textContent = "מספרי הפרקים הם בין 1 ל-150."; err.classList.remove("hidden"); return; }
+  err.classList.add("hidden");
+  draft.ranges.push({ from: Math.min(a, b), to: Math.max(a, b) });
+  $("r-from").value = ""; $("r-to").value = ""; renderEditor();
+};
+
+// טופס אדם
+function yearOptions() {
+  const ty = P.hebrewToday().year, out = [];
+  for (let y = ty; y >= ty - 149; y--) { const g = P.hebrewToGregorian({ year: y, month: 7, day: 1 }).year; out.push("<option value='" + y + "'>" + P.formatYear(y) + " (" + g + "-" + (g + 1) + ")</option>"); }
+  $("f-year").innerHTML = "<option value=''>שנה</option>" + out.join("");
+}
+function monthOptions(keep) {
+  const y = +$("f-year").value;
+  if (!y) { $("f-month").innerHTML = "<option value=''>חודש</option>"; dayOptions(); return; }
+  $("f-month").innerHTML = "<option value=''>חודש</option>" + P.monthsForYear(y).map((m) => "<option value='" + m.month + "'>" + esc(m.name) + "</option>").join("");
+  if (keep && [...$("f-month").options].some((o) => o.value === String(keep))) $("f-month").value = keep;
+  dayOptions($("f-day").value);
+}
+function dayOptions(keep) {
+  const y = +$("f-year").value, m = +$("f-month").value;
+  const n = y && m ? P.daysInMonth(m, y) : 30;
+  let h = "<option value=''>יום</option>";
+  for (let d = 1; d <= n; d++) h += "<option value='" + d + "'>" + P.gematria(d, true) + "</option>";
+  $("f-day").innerHTML = h;
+  if (keep && +keep <= n) $("f-day").value = keep;
+  updateExplain();
+}
+$("f-year").onchange = () => monthOptions($("f-month").value);
+$("f-month").onchange = () => dayOptions($("f-day").value);
+$("f-day").onchange = updateExplain;
+document.querySelectorAll("input[name=f-g]").forEach((r) => r.onchange = updateExplain);
+$("f-name").oninput = updateExplain; $("f-parent").oninput = updateExplain;
+document.querySelectorAll("input[name=f-mode]").forEach((r) => r.onchange = () => { const g = r.value === "greg" && r.checked; $("f-greg").classList.toggle("hidden", !g); $("f-heb").classList.toggle("hidden", g); });
+function setHebSelects(hd) { $("f-year").value = hd.year; monthOptions(hd.month); $("f-month").value = hd.month; dayOptions(hd.day); $("f-day").value = hd.day; updateExplain(); }
+function readForm() {
+  return { name: $("f-name").value.trim().replace(/\s+/g, " "), parent: $("f-parent").value.trim().replace(/\s+/g, " "),
+    gender: document.querySelector("input[name=f-g]:checked").value,
+    birth: { year: +$("f-year").value || 0, month: +$("f-month").value || 0, day: +$("f-day").value || 0 } };
+}
+function updateExplain() {
+  const p = readForm(), ex = $("f-explain");
+  if (!p.birth.year || !p.birth.month || !p.birth.day) { ex.textContent = ""; return; }
+  const r = P.chapterFor(Object.assign({}, p, { name: p.name || (p.gender === "f" ? "היא" : "הוא") }));
+  ex.textContent = r.ok ? (p.name ? P.personLabel(p) + " - " : "") + r.explanation : "";
+  $("f-err").classList.toggle("hidden", r.ok); if (!r.ok) $("f-err").textContent = r.error;
+}
+$("f-convert").onclick = () => {
+  const v = $("f-gdate").value, box = $("f-conv");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) { box.innerHTML = "<p class='err'>בחרו תאריך לועזי.</p>"; return; }
+  const [gy, gm, gd] = v.split("-").map(Number), sun = document.querySelector("input[name=f-sun]:checked").value;
+  const res = P.birthFromGregorian(gy, gm, gd, sun === "yes" ? true : sun === "no" ? false : null);
+  const opt = (hd, label) => "<button class='btn-g' data-y='" + hd.year + "' data-m='" + hd.month + "' data-d='" + hd.day + "'>" + esc(label + P.formatHebrewDate(hd)) + "</button>";
+  box.innerHTML = res.uncertain
+    ? "<p class='tiny'>כשלא ידוע אם הלידה הייתה אחרי השקיעה, יש שני תאריכים אפשריים. בחרו אחד:</p>" + opt(res.hebrew, "אם נולד לפני השקיעה: ") + opt(res.alternative, "אם נולד אחרי השקיעה: ")
+    : "<p class='tiny'>התאריך העברי:</p>" + opt(res.hebrew, "לאשר: ");
+  box.querySelectorAll("button").forEach((b) => b.onclick = () => {
+    setHebSelects({ year: +b.dataset.y, month: +b.dataset.m, day: +b.dataset.d });
+    document.querySelector("input[name=f-mode][value=heb]").checked = true; $("f-greg").classList.add("hidden"); $("f-heb").classList.remove("hidden"); box.innerHTML = "";
+  });
+};
+function openForm(k) {
+  editIdx = k; yearOptions();
+  const p = k >= 0 ? draft.people[k] : null;
+  $("f-title").textContent = p ? "עריכת " + P.personLabel(p) : "הוספת אדם";
+  $("f-name").value = p ? p.name : ""; $("f-parent").value = p ? p.parent || "" : "";
+  document.querySelector("input[name=f-g][value=" + (p && p.gender === "f" ? "f" : "m") + "]").checked = true;
+  document.querySelector("input[name=f-mode][value=heb]").checked = true; $("f-greg").classList.add("hidden"); $("f-heb").classList.remove("hidden");
+  $("f-conv").innerHTML = ""; $("f-gdate").value = ""; $("f-err").classList.add("hidden");
+  if (p) setHebSelects(p.birth); else { $("f-year").value = ""; monthOptions(); }
+  $("e-form").classList.remove("hidden"); $("e-form").scrollIntoView({ block: "start" }); $("f-name").focus({ preventScroll: true });
+}
+$("f-cancel").onclick = () => $("e-form").classList.add("hidden");
+$("f-ok").onclick = () => {
+  const p = readForm(), err = $("f-err");
+  const fail = (t) => { err.textContent = t; err.classList.remove("hidden"); };
+  if (!p.name) return fail("נא לכתוב שם.");
+  const nameOk = (s) => /^[\p{L}\p{M}\s'"`.\-]{1,40}$/u.test(s);
+  if (!nameOk(p.name) || (p.parent && !nameOk(p.parent))) return fail("בשם אפשר להשתמש באותיות, ניקוד, רווח וגרש בלבד.");
+  if (!p.birth.year || !p.birth.month || !p.birth.day) return fail("נא לבחור יום, חודש ושנה.");
+  const v = P.validateBirth(p.birth); if (!v.ok) return fail(v.error);
+  const person = { name: p.name, parent: p.parent, gender: p.gender, birth: p.birth };
+  if (editIdx >= 0) { person.id = draft.people[editIdx].id; draft.people[editIdx] = person; }
+  else { person.id = "p" + Date.now().toString(36).slice(-8); draft.people.push(person); }
+  $("e-form").classList.add("hidden"); renderEditor();
+};
+
+$("e-save").onclick = async () => {
+  const err = $("e-err"); err.classList.add("hidden");
+  if (!draft.people.length && !draft.ranges.length) { err.textContent = "הוסיפו לפחות אדם אחד או פרק קבוע אחד."; err.classList.remove("hidden"); return; }
+  const btn = $("e-save"); btn.disabled = true; btn.textContent = "שומר...";
+  const first = !state.id;
+  try {
+    const r = first ? await api("create", { list: draft }) : await api("update", { id: state.id, list: draft, baseUpdatedAt: state.updatedAt });
+    if (r.status === 200 && r.body.ok) {
+      state.id = r.body.id; state.list = r.body.list; state.updatedAt = r.body.updatedAt; persist();
+      history.replaceState(null, "", "#k=" + state.id);
+      flash(first ? "" : "הרשימה נשמרה."); goHome();
+      if (first) { const c = $("h-linkcard"); renderLinkCard(c); c.classList.remove("hidden"); showInstall(); }
+    } else if (r.status === 409) {
+      state.list = r.body.list; state.updatedAt = r.body.updatedAt; persist();
+      flash("הרשימה השתנתה ממכשיר אחר - נטענה הגרסה העדכנית."); openEditor();
+    } else if (r.status === 404) {
+      state = { id: null, list: null, updatedAt: null }; persist(); err.textContent = "הרשימה כבר לא קיימת בשרת (נמחקה או שהקישור הוחלף). לחצו שוב על השמירה כדי ליצור רשימה חדשה."; err.classList.remove("hidden");
+    } else { err.textContent = "השמירה לא הצליחה (" + esc(r.body.error) + "). נסו שוב."; err.classList.remove("hidden"); }
+  } catch (e) { err.textContent = "אין חיבור לשרת. הרשימה לא נשמרה - נסו שוב כשיש אינטרנט."; err.classList.remove("hidden"); }
+  btn.disabled = false; btn.textContent = "לשמור את הרשימה";
+};
+function showInstall() {
+  const tryShow = () => { if (window.TehillimInstall) TehillimInstall.show($("h-install"), { personalLink: linkFor(state.id) }).catch(() => {}); };
+  if (window.TehillimInstall) tryShow(); else window.addEventListener("load", tryShow, { once: true });
+}
+
+// ---------- מסך הקריאה ----------
+let cur = null, verseEls = [], saveT = 0, isYday = false;
+async function openReading(rd, pos, yday) {
+  cur = rd; isYday = !!yday;
+  const out = [];
+  out.push("<div class='sec' data-sec='open'><div class='sm-h'>פתיחה</div><div class='yr-slot' id='yr-before'></div>");
+  const verseBlock = async (part, sec) => {
+    const idx = P.unitIndexesFor(part.chapter, units)[0];
+    const d = await loadText(idx);
+    let h = "";
+    for (let v = part.from; v <= part.to; v++) h += "<p data-k='" + sec + ":" + part.chapter + ":0:" + v + "'><span class='vn'>" + v + "</span>" + esc(d.verses[v - 1]) + "</p>";
+    return h + "<p class='ref'>(" + esc(part.ref) + ")</p>";
+  };
+  try {
+    for (const it of rd.items) {
+      if (it.type === "opening") { for (const pt of it.parts) if (pt.kind === "verses") out.push(await verseBlock(pt, "o")); out.push("</div>"); }
+      else if (it.type === "chapter") {
+        out.push("<div class='sec' data-pos='" + it.position + "'><h2 class='ch-h'>" + esc(it.title) + "</h2><div class='ch-s'>" + esc(it.subtitle) + "</div>");
+        const docs = await Promise.all(it.units.map((u) => loadText(u.i)));
+        it.units.forEach((u, k) => {
+          const d = docs[k], off = it.chapter === 119 && u.part ? (u.part - 1) * 8 : 0;
+          if (it.chapter === 119 && u.part) out.push("<div class='part-h'>" + esc((u.name || d.name || "").split(" - ").pop()) + "</div>");
+          d.verses.forEach((t, n) => out.push("<p data-k='c:" + it.chapter + ":" + (u.part || 0) + ":" + (n + 1 + off) + "'><span class='vn'>" + (n + 1 + off) + "</span>" + esc(t) + "</p>"));
+        });
+        out.push("</div>");
+      } else if (it.type === "names") {
+        out.push("<div class='sec' data-sec='names'>");
+        for (const n of it.list) { out.push("<div class='sm-h'>פסוק לשמו של " + esc(n.name) + "</div>"); n.verses.forEach((v, j) => out.push("<p data-k='n:" + esc(n.name) + ":0:" + (j + 1) + "'>" + esc(v.text) + (v.ref ? " <span class='ref'>(" + esc(v.ref) + ")</span>" : "") + "</p>")); }
+        out.push("</div>");
+      } else if (it.type === "closing") {
+        out.push("<div class='sec' data-sec='close'><div class='sm-h'>סיום</div>");
+        for (const pt of it.parts) if (pt.kind === "verses") out.push(await verseBlock(pt, "z"));
+        out.push("<div class='yr-slot' id='yr-after'></div></div>");
+      }
+    }
+  } catch (e) { out.push("<p class='err'>לא הצלחנו לטעון חלק מהטקסט. בדקו את החיבור ונסו שוב.</p>"); }
+  out.push("<div class='finish' id='finish'><h2>ישר כוח! סיימתם את הקריאה של היום</h2><p>אפשר להמשיך ולקרוא גם בספרים הפתוחים של תהילים ישראל, לרפואת אנשים שמחכים לתפילה, ולהצטרף לקהילת שמע רפא ומשאלות.</p>"
+    + "<a class='btn-p' href='/tehillim/sfarim'>לספרים הפתוחים</a><a class='btn-g' href='/tefilot/'>לשמע רפא ומשאלות</a><button class='btn-l' id='fin-home'>חזרה לרשימה</button></div>");
+  $("rd").innerHTML = out.join("");
+  $("fin-home").onclick = () => goHome();
+  verseEls = [...$("rd").querySelectorAll("p[data-k]")];
+  show("v-read");
+  requestWake();
+  if (pos && pos.k) {
+    const el = verseEls.find((e) => e.dataset.k === pos.k);
+    if (el) requestAnimationFrame(() => { const y = el.getBoundingClientRect().top + window.scrollY - $("topbar").offsetHeight - 6; window.scrollTo(0, y); onScroll(); });
+  } else onScroll();
+}
+function topVerse() {
+  const limit = $("topbar").offsetHeight + 4;
+  let lo = 0, hi = verseEls.length - 1, ans = 0;
+  while (lo <= hi) { const mid = (lo + hi) >> 1; if (verseEls[mid].getBoundingClientRect().bottom > limit) { ans = mid; hi = mid - 1; } else lo = mid + 1; }
+  return verseEls[ans];
+}
+function onScroll() {
+  if (!cur || $("v-read").classList.contains("hidden") || !verseEls.length) return;
+  const el = topVerse(); if (!el) return;
+  const sec = el.closest(".sec"), n = cur.chapterCount;
+  let pos = sec && sec.dataset.pos ? +sec.dataset.pos : (sec && sec.dataset.sec === "open" ? 0 : n);
+  $("tb-where").textContent = (isYday ? "הקריאה של " + cur.dateLabel + " · " : "") + (pos === 0 ? "פתיחה · " + n + " פרקים היום" : "פרק " + Math.min(pos, n) + " מתוך " + n + " היום");
+  const fin = $("finish").getBoundingClientRect().top < window.innerHeight - 40;
+  $("bar").firstElementChild.style.width = (fin ? 100 : Math.round(Math.max(0, pos - 1) / n * 100 + (pos ? 100 / n / 2 : 0))) + "%";
+  clearTimeout(saveT);
+  saveT = setTimeout(() => {
+    const saved = lsGet(LS.read) || {};
+    const rec = saved.key === cur.key ? saved : { key: cur.key, dateLabel: cur.dateLabel, snapshot: slim(cur), done: false };
+    rec.pos = { k: el.dataset.k }; if (fin) rec.done = true;
+    if (!rec.snapshot) rec.snapshot = slim(cur);
+    lsSet(LS.read, rec);
+  }, 350);
+}
+window.addEventListener("scroll", () => requestAnimationFrame(onScroll), { passive: true });
+$("tb-back").onclick = () => goHome();
+
+// גודל אותיות
+function applyFont() { const s = lsGet(LS.font) || 22; document.documentElement.style.setProperty("--fs", s + "px"); }
+function bump(d) { const keep = cur && !$("v-read").classList.contains("hidden") ? topVerse() : null; const s = Math.max(16, Math.min(36, (lsGet(LS.font) || 22) + d)); lsSet(LS.font, s); applyFont(); if (keep) { window.scrollTo(0, keep.getBoundingClientRect().top + window.scrollY - $("topbar").offsetHeight - 6); } }
+$("tb-minus").onclick = () => bump(-2); $("tb-plus").onclick = () => bump(2);
+// מצב לילה
+const mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+function applyTheme() {
+  const t = lsGet(LS.theme), dark = t ? t === "dark" : !!(mq && mq.matches);
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
+  const m = document.querySelector("meta[name=theme-color]"); if (m) m.content = dark ? "#16140f" : "#faf7f1";
+  $("tb-night").textContent = dark ? "☀" : "☾";
+  $("tb-night").setAttribute("aria-label", dark ? "מצב יום" : "מצב לילה");
+}
+$("tb-night").onclick = () => { lsSet(LS.theme, document.documentElement.dataset.theme === "dark" ? "light" : "dark"); applyTheme(); };
+if (mq && mq.addEventListener) mq.addEventListener("change", () => { if (!lsGet(LS.theme)) applyTheme(); });
+// המסך לא נכבה
+let wake = null;
+async function requestWake() { try { if ("wakeLock" in navigator && !wake) { wake = await navigator.wakeLock.request("screen"); wake.addEventListener("release", () => { wake = null; }); } } catch (e) { wake = null; } }
+function releaseWake() { if (wake) { wake.release().catch(() => {}); wake = null; } }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && !$("v-read").classList.contains("hidden")) requestWake(); });
+window.addEventListener("hashchange", () => { const id = idFromText(location.hash); if (id && id !== state.id) { state = { id, list: null, updatedAt: null }; refresh().then((ok) => ok ? goHome() : show("v-welcome")); } });
+
+boot();
+</script>
+</body>
+</html>

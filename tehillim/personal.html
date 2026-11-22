@@ -80,6 +80,12 @@ body.reading .site-header{display:none}
 #rd .sec{padding:8px 0 18px}
 #rd .ch-h{font-size:1.5em;font-weight:700;color:var(--gold-deep);text-align:center;margin:28px 0 0;line-height:1.3}
 #rd .ch-s{font-family:"Heebo",sans-serif;font-size:15px;color:var(--ink-soft);text-align:center;margin:4px 0 14px;line-height:1.5}
+#rd .ch-h.solo{margin-bottom:14px}
+#rd .ch-n{font-weight:800;font-size:1.25em;color:var(--ink)}
+.to-all{display:block;text-align:center;font-size:16px;font-weight:700;color:var(--gold-deep);background:var(--white);border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin:0 0 14px;text-decoration:none}
+body.reading .to-all{display:none}
+.btn-big{min-height:62px;font-size:20px}
+.h-sub{font-size:15px;color:var(--ink-soft);margin:0 0 16px;line-height:1.55}
 #rd .part-h{font-size:1.1em;font-weight:700;color:var(--gold-deep);text-align:center;margin:18px 0 8px}
 #rd .sm-h{font-family:"Heebo",sans-serif;font-size:15px;font-weight:700;color:var(--gold-deep);text-align:center;margin:18px 0 8px}
 #rd .ref{font-family:"Heebo",sans-serif;font-size:13px;color:var(--ink-soft)}
@@ -135,6 +141,7 @@ html[data-theme=dark] .btn-p{color:#16140f}
 </div>
 
 <main class="pw">
+  <a class="to-all" href="/tehillim.html">לכל תהילים ישראל</a>
   <div id="flash" class="msg hidden" role="status"></div>
 
   <!-- פתיחה: אין רשימה -->
@@ -152,23 +159,18 @@ html[data-theme=dark] .btn-p{color:#16140f}
         <p class="err hidden" id="w-paste-err"></p>
       </div>
     </div>
-    <p class="tiny"><a href="/tehillim.html">לתהילים ישראל</a></p>
   </section>
 
-  <!-- בית: יש רשימה -->
+  <!-- בית: יש רשימה. מסך נקי - קריאה ועריכה בלבד; השמות, הקישור וההגדרות רק בעריכה (הוראת הרב 22.11.2026) -->
   <section id="v-home" class="hidden">
     <div class="card">
       <h2>התהילים האישי שלי</h2>
-      <p class="tiny" id="h-date"></p>
-      <p class="preview" id="h-count"></p>
-      <div id="h-people"></div>
-      <div id="h-resume" style="margin-top:14px"></div>
+      <p class="h-sub" id="h-date"></p>
+      <div id="h-resume"></div>
       <button class="btn-g" id="h-edit">עריכת הרשימה</button>
-      <button class="btn-l" id="h-link">הקישור האישי</button>
     </div>
     <div id="h-linkcard" class="hidden"></div>
     <div id="h-install"></div>
-    <p class="tiny"><a href="/tehillim.html">לתהילים ישראל</a></p>
   </section>
 
   <!-- עורך -->
@@ -232,6 +234,11 @@ html[data-theme=dark] .btn-p{color:#16140f}
       <p class="err hidden" id="e-err"></p>
       <button class="btn-p" id="e-save">לשמור את הרשימה</button>
       <button class="btn-l" id="e-cancel">ביטול</button>
+    </div>
+
+    <div id="e-linkwrap" class="hidden">
+      <button class="btn-l" id="e-link">הקישור האישי</button>
+      <div id="e-linkcard" class="hidden"></div>
     </div>
   </section>
 
@@ -413,10 +420,10 @@ async function openPasted(t) {
 function goHome() {
   if (!state.list) { show("v-welcome"); return; }
   const rd = build(state.list);
-  $("h-date").textContent = "היום " + rd.dateLabel;
-  $("h-count").textContent = "היום " + rd.chapterCount + " פרקים";
-  $("h-people").innerHTML = rd.people.map((p) => "<div class='person'><div class='who'><div class='nm'>" + esc(p.label) + (p.isBirthday ? " · יום הולדת שמח" : "") + "</div><div class='ex'>" + esc(p.explanation) + "</div></div></div>").join("")
-    + rd.skipped.map((s) => "<p class='err'>" + esc(P.personLabel(s.person)) + ": " + esc(s.error) + "</p>").join("");
+  const bday = rd.people.filter((p) => p.isBirthday).map((p) => p.label);
+  $("h-date").textContent = rd.dateLabel + " · היום " + (rd.chapterCount === 1 ? "פרק אחד" : rd.chapterCount + " פרקים")
+    + (bday.length ? " · יום הולדת שמח ל" + joinNames(bday) : "");
+  $("h-linkcard").classList.add("hidden"); $("h-install").innerHTML = "";
   renderResumeChoices(rd);
   show("v-home");
 }
@@ -424,12 +431,12 @@ function renderResumeChoices(today) {
   const box = $("h-resume"), saved = lsGet(LS.read);
   let html = "";
   if (saved && saved.pos && !saved.done && saved.key !== today.key && saved.snapshot) {
-    html = "<p class='tiny'>הקריאה של " + esc(saved.dateLabel || "אתמול") + " לא הסתיימה.</p><button class='btn-p' data-a='yday'>להשלים את הקריאה של אתמול</button><button class='btn-g' data-a='today'>להתחיל את הקריאה של היום</button>";
+    html = "<p class='tiny'>הקריאה של " + esc(saved.dateLabel || "אתמול") + " לא הסתיימה.</p><button class='btn-p btn-big' data-a='yday'>להשלים את הקריאה של אתמול</button><button class='btn-p' data-a='today'>לקריאת הפרקים של היום</button>";
   } else if (saved && saved.pos && !saved.done && saved.key === today.key) {
-    html = "<button class='btn-p' data-a='resume'>להמשיך מהמקום שעצרתם</button><button class='btn-l' data-a='restart'>להתחיל מחדש</button>";
+    html = "<button class='btn-p btn-big' data-a='resume'>להמשיך מהמקום שעצרתם</button><button class='btn-l' data-a='restart'>להתחיל מחדש</button>";
   } else if (saved && saved.done && saved.key === today.key) {
-    html = "<p class='tiny'>ישר כוח, הקריאה של היום הושלמה.</p><button class='btn-g' data-a='restart'>לקרוא שוב</button>";
-  } else html = "<button class='btn-p' data-a='today'>לקריאה של היום</button>";
+    html = "<p class='tiny'>ישר כוח, הקריאה של היום הושלמה.</p><button class='btn-p btn-big' data-a='restart'>לקרוא שוב את הפרקים של היום</button>";
+  } else html = "<button class='btn-p btn-big' data-a='today'>לקריאת הפרקים של היום</button>";
   box.innerHTML = html;
   box.querySelectorAll("button").forEach((b) => b.onclick = () => {
     const a = b.dataset.a;
@@ -439,8 +446,9 @@ function renderResumeChoices(today) {
   });
 }
 function slim(rd) { return { key: rd.key, dateLabel: rd.dateLabel, chapterCount: rd.chapterCount, chapters: rd.chapters, items: rd.items }; }
+function joinNames(names) { return names.length <= 1 ? names.join("") : names.slice(0, -1).join(", ") + " ו" + names[names.length - 1]; }
 $("h-edit").onclick = () => openEditor();
-$("h-link").onclick = () => { const c = $("h-linkcard"); if (c.classList.contains("hidden")) { renderLinkCard(c); c.classList.remove("hidden"); } else c.classList.add("hidden"); };
+$("e-link").onclick = () => { const c = $("e-linkcard"); if (c.classList.contains("hidden")) { renderLinkCard(c); c.classList.remove("hidden"); } else c.classList.add("hidden"); };
 
 function renderLinkCard(el) {
   const link = linkFor(state.id);
@@ -474,6 +482,7 @@ function openEditor() {
   draft = JSON.parse(JSON.stringify(state.list || { people: [], ranges: [], settings: { nameVerses: false, noTachanunPerek20: false, requestChapters: false, requests: [] } }));
   draft.settings = Object.assign({ nameVerses: false, noTachanunPerek20: false, requestChapters: false, requests: [] }, draft.settings || {});
   $("e-form").classList.add("hidden"); $("e-err").classList.add("hidden");
+  $("e-linkwrap").classList.toggle("hidden", !state.id); $("e-linkcard").classList.add("hidden");
   renderEditor(); show("v-editor");
 }
 function renderEditor() {
@@ -672,7 +681,10 @@ async function openReading(rd, pos, yday) {
     for (const it of rd.items) {
       if (it.type === "opening") { for (const pt of it.parts) if (pt.kind === "verses") out.push(await verseBlock(pt, "o")); out.push("</div>"); }
       else if (it.type === "chapter") {
-        out.push("<div class='sec' data-pos='" + it.position + "'><h2 class='ch-h'>" + esc(it.title) + "</h2><div class='ch-s'>" + esc(it.subtitle) + "</div>");
+        // מתחת לכותרת: השמות מודגשים ואחריהם "לרפואה והצלחה". פרק קבוע בלי שם - הכותרת בלבד (הוראת הרב 22.11.2026).
+        const nms = Array.isArray(it.names) ? it.names.filter(Boolean) : [], exs = Array.isArray(it.extras) ? it.extras.filter(Boolean) : [];
+        const sub = nms.length ? "<span class='ch-n'>" + esc(joinNames(nms)) + "</span> לרפואה והצלחה" : exs.length ? esc(exs.join(" · ")) : "";
+        out.push("<div class='sec' data-pos='" + it.position + "'><h2 class='ch-h" + (sub ? "" : " solo") + "'>" + esc(it.title) + "</h2>" + (sub ? "<div class='ch-s'>" + sub + "</div>" : ""));
         const docs = await Promise.all(it.units.map((u) => loadText(u.i)));
         it.units.forEach((u, k) => {
           const d = docs[k], off = it.chapter === 119 && u.part ? (u.part - 1) * 8 : 0;

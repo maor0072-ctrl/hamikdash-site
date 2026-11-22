@@ -111,6 +111,15 @@ body.th-inner .hero-ctas,body.th-inner .th-hero .sub,body.th-inner #counter{disp
 .door.door-top .t{font-size:21px}
 .door.door-top .s{color:var(--ink)}
 body.th-inner .door.door-top{display:none}
+/* הכרטיס של מי שיש לו רשימה: כותרת ו"עריכה" בשורה אחת, "הפרקים שלי" מתחת */
+.door.door-mine{cursor:default}
+.door.door-mine:hover{transform:none}
+.door-mine .pm-row{display:flex;align-items:center;gap:12px}
+.door-mine .pm-edit{margin-inline-start:auto;flex:none;font-size:15px;font-weight:700;color:var(--gold-deep);
+  text-decoration:none;border:1px solid var(--gold);border-radius:999px;padding:5px 16px;background:var(--white)}
+.door-mine .pm-read{display:block;margin-top:12px;text-align:center;font-size:18px;font-weight:800;text-decoration:none;
+  color:#fff;background:var(--gold-deep);border-radius:12px;padding:13px 16px}
+.door-mine .pm-edit:focus-visible,.door-mine .pm-read:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .door.soft .t{font-size:17px;color:var(--gold-deep)}
 
 /* ---------- מסך ההצלחה ---------- */
@@ -213,7 +222,7 @@ body.th-inner .door.door-top{display:none}
   <div class="counter-strip" id="counter" aria-live="polite" hidden>
     <div class="cell" id="cell-today" hidden><div class="num" id="c-today"></div><div class="lbl">פרקים נקראו היום</div></div>
     <div class="cell" id="cell-month" hidden><div class="num" id="c-month"></div><div class="lbl">פרקים נקראו החודש</div></div>
-    <div class="cell"><div class="num" id="c-total"></div><div class="lbl">פרקים שנקראו מאז ההתחלה</div></div>
+    <div class="cell"><div class="num" id="c-total"></div><div class="lbl">פרקים שנקראו</div></div>
     <div class="cell"><div class="num" id="c-books"></div><div class="lbl">ספרים שהושלמו</div></div>
   </div>
 
@@ -978,10 +987,20 @@ body.th-inner .door.door-top{display:none}
     var key = null;
     try { key = localStorage.getItem("th_personal_key"); } catch (e) { return; }
     if (!key) return;
-    var door = $("door-personal"), ctas = document.querySelector(".hero-ctas");
-    if (door && ctas) { door.classList.add("door-top"); ctas.insertAdjacentElement("afterend", door); }
-    $("door-personal-t").textContent = "להמשיך בתהילים האישי";
-    $("door-personal-s").textContent = "הקריאה האישית של היום מחכה לכם.";
+    // הוראת הרב 22.11.2026: כותרת "התהילים האישי שלי", משמאלה כפתור "עריכה" (ישר למסך העריכה),
+    // ומתחת כפתור "הפרקים שלי" שפותח את הקריאה מהמקום האחרון. הכרטיס הוא div ולא קישור,
+    // כי קישור בתוך קישור אינו תקין.
+    var old = $("door-personal"), ctas = document.querySelector(".hero-ctas");
+    if (!old) return;
+    var door = document.createElement("div");
+    door.className = "door door-personal door-mine" + (ctas ? " door-top" : "");
+    door.id = "door-personal";
+    door.innerHTML = "<div class='pm-row'><span class='t' id='door-personal-t'>התהילים האישי שלי</span>"
+      + "<a class='pm-edit' id='door-personal-edit' href='/tehillim/personal.html#edit'>עריכה</a></div>"
+      + "<span class='s' id='door-personal-s'>הקריאה האישית של היום מחכה לכם.</span>"
+      + "<a class='pm-read' id='door-personal-read' href='/tehillim/personal.html#read'>הפרקים שלי</a>";
+    old.replaceWith(door);
+    if (ctas) ctas.insertAdjacentElement("afterend", door);
     var list = null;
     try { list = JSON.parse(localStorage.getItem("th_personal_list") || "null"); } catch (e) { list = null; }
     if (list && list.list) list = list.list;

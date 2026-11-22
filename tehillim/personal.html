@@ -382,14 +382,28 @@ function build(list, hd) {
 async function boot() {
   applyTheme(); applyFont();
   await loadData();
+  // כניסות ישירות מהכרטיס בעמוד הפתיחה: #edit - מסך העריכה, #read - הקריאה מהמקום האחרון.
+  // הקישור האישי #k=<מזהה> ממשיך לעבוד כמו קודם (אפשר גם #k=<מזהה>&read).
+  const entry = /(^#|&)edit(&|$)/.test(location.hash) ? "edit" : /(^#|&)read(&|$)/.test(location.hash) ? "read" : "";
+  if (entry) history.replaceState(null, "", location.pathname + (idFromText(location.hash) ? "#k=" + idFromText(location.hash) : ""));
   const fromHash = idFromText(location.hash);
   if (fromHash && fromHash !== state.id) { state = { id: fromHash, list: null, updatedAt: null }; }
   if (state.id) {
     const ok = await refresh();
-    if (!ok && !state.list) { show("v-welcome"); return; }
-    persist(); goHome(); return;
+    if (!ok && !state.list) { if (entry === "edit") openEditor(); else show("v-welcome"); return; }
+    persist(); goHome();
+    if (entry === "edit") openEditor();
+    else if (entry === "read") openFromLastPlace();
+    return;
   }
-  show("v-welcome");
+  if (entry === "edit") openEditor(); else show("v-welcome");
+}
+// "הפרקים שלי": הקריאה של היום מהמקום האחרון; אין מקום שמור (או שהקריאה הושלמה) - מתחילת הקריאה של היום.
+function openFromLastPlace() {
+  const today = build(state.list), saved = lsGet(LS.read);
+  if (saved && saved.key === today.key && saved.pos && !saved.done) { openReading(today, saved.pos); return; }
+  lsSet(LS.read, { key: today.key, dateLabel: today.dateLabel, snapshot: slim(today), pos: null, done: false });
+  openReading(today, null);
 }
 async function refresh() {
   try {

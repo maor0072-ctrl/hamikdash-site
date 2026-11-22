@@ -46,10 +46,10 @@ for (const y of [5785, 5786, 5787]) {
   ok(n > 90 && n < 150, `שנה ${y}: ${n} ימים בלי תחנון`);
 }
 
-// ---------- personal-extras.json ----------
+// ---------- personal-extras-draft.json ----------
 const FIN = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
 const letters = t => t.replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, c => FIN[c]);
-const j = JSON.parse(fs.readFileSync(new URL("../tehillim/personal-extras.json", import.meta.url), "utf8"));
+const j = JSON.parse(fs.readFileSync(new URL("../tehillim/personal-extras-draft.json", import.meta.url), "utf8"));
 ok(typeof j.namePesukim?.source === "string" && j.namePesukim.source.length > 10, "יש מקור לפסוקים לפי השם");
 let keys = 0;
 for (const [k, arr] of Object.entries(j.namePesukim)) {

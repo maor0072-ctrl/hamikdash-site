@@ -13,6 +13,7 @@ export { BookDO } from "./tehillim-book-do.js";
 export { CounterDO } from "./tehillim-counter-do.js";
 
 import { UNITS } from "./tehillim-units.js";
+import { handlePersonal } from "./tehillim-personal.js";
 import { inQuietWindow } from "./tehillim-quiet.js";
 import {
   selectItems,
@@ -447,6 +448,14 @@ async function resolve(token, env, role) {
 
 async function handleApi(request, url, env, origin) {
   const parts = url.pathname.split("/").filter(Boolean); // ["api", ...]
+
+  // תהילים אישי (22.11.2026). כל הנתיבים POST והמזהה בגוף בלבד - ראה tehillim-personal.js.
+  if (parts[1] === "personal") {
+    const action = parts.length === 3 ? parts[2] : "";
+    return handlePersonal(request, action, env, (data, status) =>
+      json(data, status, origin, { "Cache-Control": "no-store" })
+    );
+  }
 
   // רשימת הנמענים למייל החודשי (הכרעה 10). לסקריפט השליחה המקומי בלבד:
   // הוא חותם "mail-list:<דקה>" באותו סוד, כך שהסוד עצמו אינו עובר ברשת,

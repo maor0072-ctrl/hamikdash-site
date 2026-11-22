@@ -5,6 +5,8 @@
 // אינו מתקרב לגבול, והתשובה החוצה ממילא מוגשת ממטמון של 30 שניות.
 // אם אי פעם יגיע עומס אמיתי - מפצלים לעשרה מונים וסוכמים. לא עכשיו.
 
+import { personalOp } from "./tehillim-personal.js";
+
 export class CounterDO {
   constructor(ctx, env) {
     this.ctx = ctx;
@@ -210,6 +212,9 @@ export class CounterDO {
     else if (op === "person-get") out = this.personGet(body.pkey);
     else if (op === "mail-list") out = this.mailList();
     else if (op === "person-unsub") out = this.personUnsub(body.email);
+    // תהילים אישי: רשימות אישיות, במופע נפרד בשם "personal" (ראה tehillim-personal.js).
+    // הטבלה נוצרת רק כשה-op מגיע, ולכן המופע "global" לא מקבל אותה.
+    else if (op.startsWith("plist-")) out = personalOp(this.sql, op, body);
     else out = this.stats();
 
     return new Response(JSON.stringify(out), {

@@ -1,0 +1,21 @@
+{
+  "id": "/tehillim.html?source=app",
+  "name": "תהילים ישראל",
+  "short_name": "תהילים ישראל",
+  "description": "תהילים ישראל - קריאת תהילים יומית, התהילים האישי לפי הגיל העברי, וספרים משותפים לרפואה ולהצלחה. אורות האמונה - בני משה.",
+  "start_url": "/tehillim.html?source=app",
+  "scope": "/tehillim",
+  "display": "standalone",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "he",
+  "background_color": "#faf7f1",
+  "theme_color": "#faf7f1",
+  "categories": ["books", "lifestyle"],
+  "icons": [
+    { "src": "/tehillim/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/tehillim/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/tehillim/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/tehillim/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

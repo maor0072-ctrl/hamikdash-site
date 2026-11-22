@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>תהילים ישראל בטלפון | אורות האמונה - בני משה</title>
+<meta name="description" content="התקנת תהילים ישראל כאייקון במסך הבית של הטלפון. נקי מפרסומות, בחינם, בלי הרשמה.">
+<meta property="og:title" content="תהילים ישראל - אייקון במסך הבית">
+<meta property="og:description" content="לחיצה אחת, ותהילים ישראל נפתח מהטלפון כמו אפליקציה. נקי מפרסומות, בחינם, בלי הרשמה.">
+<meta property="og:locale" content="he_IL">
+<link rel="manifest" href="/tehillim/manifest.webmanifest">
+<meta name="theme-color" content="#faf7f1">
+<link rel="apple-touch-icon" href="/tehillim/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="תהילים ישראל">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+body{background:var(--cream)}
+.app-wrap{max-width:560px;margin:0 auto;padding:28px 18px 60px;text-align:center}
+.app-icon{width:110px;height:110px;border-radius:24px;box-shadow:var(--shadow);margin:6px auto 18px;display:block}
+.app-wrap h1{font-size:28px;margin:0 0 10px}
+.app-wrap .sub{font-size:17px;line-height:1.6;color:var(--ink-soft);margin:0 0 22px}
+#install-box{text-align:right}
+.app-links{margin-top:28px;display:grid;gap:10px}
+.app-links a{font-size:16px}
+</style>
+<script src="/tehillim/install.js" defer></script>
+</head>
+<body>
+<div class="app-wrap">
+  <img class="app-icon" src="/tehillim/icons/icon-192.png" alt="תהילים ישראל">
+  <h1>תהילים ישראל בטלפון</h1>
+  <p class="sub">אייקון במסך הבית, שנפתח כמו אפליקציה: הקריאה הכללית, הספרים הפתוחים, והתהילים האישי שלכם. נקי מפרסומות, בחינם ובלי הרשמה.</p>
+  <div id="install-box"></div>
+  <div class="app-links">
+    <a href="/tehillim.html">לכניסה לתהילים ישראל</a>
+    <a href="/tehillim/personal.html">התהילים האישי שלי</a>
+  </div>
+</div>
+<script>
+window.addEventListener("load", function () {
+  var box = document.getElementById("install-box");
+  function go() {
+    if (!window.TehillimInstall) return setTimeout(go, 200);
+    window.TehillimInstall.show(box, { force: true }).then(function (r) {
+      if (r === "installed") box.innerHTML = "<p style='text-align:center;font-size:17px'>תהילים ישראל כבר מותקן בטלפון הזה.</p>";
+    });
+  }
+  go();
+});
+</script>
+</body>
+</html>

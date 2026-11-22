@@ -21,16 +21,8 @@
 <meta name="theme-color" content="#faf7f1">
 <meta name="apple-mobile-web-app-title" content="תהילים ישראל">
 <script src="/tehillim/install.js" defer></script>
-<script>
-/* פתיחה מהאייקון: מי שיש לו רשימה אישית נוחת ישר בתהילים האישי. מפתח: th_personal_key (חוזה עם personal.html) */
-(function () {
-  try {
-    var app = /[?&]source=app(&|$)/.test(location.search) ||
-      (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
-    if (app && !location.hash && localStorage.getItem("th_personal_key")) location.replace("/tehillim/personal.html");
-  } catch (e) { /* גלישה פרטית */ }
-})();
-</script>
+<!-- 22.11.2026: בוטל המעבר האוטומטי לתהילים האישי (מ-?source=app או מאפליקציה מותקנת) - הוא הסתיר את תהילים ישראל
+     ממי שיש לו רשימה. במקומו הכרטיס האישי עולה לראש העמוד (ראו "door-top" למטה). הוראת הרב יעקב מאור. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -114,6 +106,11 @@ body.th-inner .hero-ctas,body.th-inner .th-hero .sub,body.th-inner #counter{disp
 .door.soft{background:var(--cream-warm);box-shadow:none}
 .door.door-personal{border-color:var(--gold);text-decoration:none}
 .door.door-personal .t{color:var(--gold-deep)}
+/* מי שיש לו רשימה אישית: הכרטיס עולה מתחת לשני הכפתורים הראשיים, ובולט */
+.door.door-top{margin-top:14px;max-width:760px;background:var(--cream-warm);border:2px solid var(--gold);box-sizing:border-box}
+.door.door-top .t{font-size:21px}
+.door.door-top .s{color:var(--ink)}
+body.th-inner .door.door-top{display:none}
 .door.soft .t{font-size:17px;color:var(--gold-deep)}
 
 /* ---------- מסך ההצלחה ---------- */
@@ -981,6 +978,8 @@ body.th-inner .hero-ctas,body.th-inner .th-hero .sub,body.th-inner #counter{disp
     var key = null;
     try { key = localStorage.getItem("th_personal_key"); } catch (e) { return; }
     if (!key) return;
+    var door = $("door-personal"), ctas = document.querySelector(".hero-ctas");
+    if (door && ctas) { door.classList.add("door-top"); ctas.insertAdjacentElement("afterend", door); }
     $("door-personal-t").textContent = "להמשיך בתהילים האישי";
     $("door-personal-s").textContent = "הקריאה האישית של היום מחכה לכם.";
     var list = null;

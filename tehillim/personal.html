@@ -103,6 +103,14 @@ html[data-theme=dark] .btn-p{color:#16140f}
       <a href="/"><span class="brand-name">אורות האמונה - בני משה</span></a>
       <span class="brand-sub">בראשות הרב יעקב מאור</span>
     </div>
+    <nav class="nav">
+      <a href="/">בית</a>
+      <a href="/tehillim.html">תהילים ישראל</a>
+      <a href="/tefilot/">שמע רפא ומשאלות</a>
+      <a href="/donate.html" class="nav-donate">לתרומה</a>
+    </nav>
+  </div>
+</header>
 
 <div id="topbar" class="hidden">
   <div class="tb">
@@ -224,15 +232,16 @@ html[data-theme=dark] .btn-p{color:#16140f}
 import * as P from "./personal-core.js";
 
 const API = "https://t.hamikdash.co.il";
-const LS = { id: "tp.id", list: "tp.list", font: "tp.font", theme: "tp.theme", read: "tp.reading", installed: "tp.installShown" };
+const LS = { id: "th_personal_key", list: "th_personal_list", upd: "tp.updatedAt", font: "tp.font", theme: "tp.theme", read: "tp.reading", installed: "tp.installShown" };
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const lsGet = (k) => { try { const v = localStorage.getItem(k); return v == null ? null : JSON.parse(v); } catch (e) { return null; } };
 const lsSet = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 
-let state = { id: lsGet(LS.id), list: null, updatedAt: null };
+const rawId = (() => { try { return localStorage.getItem(LS.id); } catch (e) { return null; } })();
+let state = { id: rawId && /^[A-Za-z0-9_-]{16,64}$/.test(rawId) ? rawId : null, list: null, updatedAt: null };
 const cached = lsGet(LS.list);
-if (cached && cached.list) { state.list = cached.list; state.updatedAt = cached.updatedAt || null; }
+if (state.id && cached) { state.list = cached.people ? cached : cached.list || null; state.updatedAt = lsGet(LS.upd); }
 let units = null, extras = null, extrasJs = null;
 let draft = null; // עותק בעריכה
 
@@ -251,7 +260,10 @@ async function api(action, body) {
   let j = null; try { j = await r.json(); } catch (e) {}
   return { status: r.status, body: j || { ok: false, error: "bad_response" } };
 }
-function persist() { lsSet(LS.id, state.id); lsSet(LS.list, state.list ? { list: state.list, updatedAt: state.updatedAt } : null); }
+function persist() {
+  try { if (state.id) localStorage.setItem(LS.id, state.id); else localStorage.removeItem(LS.id); } catch (e) {}
+  lsSet(LS.list, state.id && state.list ? state.list : null); lsSet(LS.upd, state.id ? state.updatedAt : null);
+}
 function linkFor(id) { return location.origin + "/tehillim/personal.html#k=" + id; }
 function idFromText(t) {
   t = String(t || "").trim();
@@ -612,7 +624,7 @@ async function openReading(rd, pos, yday) {
   requestWake();
   if (pos && pos.k) {
     const el = verseEls.find((e) => e.dataset.k === pos.k);
-    if (el) requestAnimationFrame(() => { const y = el.getBoundingClientRect().top + window.scrollY - $("topbar").offsetHeight - 6; window.scrollTo(0, y); onScroll(); });
+    if (el) requestAnimationFrame(() => { const y = el.getBoundingClientRect().top + window.scrollY - $("topbar").offsetHeight - 6; window.scrollTo({ top: y, behavior: "instant" }); onScroll(); });
   } else onScroll();
 }
 function topVerse() {
@@ -626,7 +638,7 @@ function onScroll() {
   const el = topVerse(); if (!el) return;
   const sec = el.closest(".sec"), n = cur.chapterCount;
   let pos = sec && sec.dataset.pos ? +sec.dataset.pos : (sec && sec.dataset.sec === "open" ? 0 : n);
-  $("tb-where").textContent = (isYday ? "הקריאה של " + cur.dateLabel + " · " : "") + (pos === 0 ? "פתיחה · " + n + " פרקים היום" : "פרק " + Math.min(pos, n) + " מתוך " + n + " היום");
+  $("tb-where").textContent = (isYday ? "הקריאה של " + cur.dateLabel + " · " : "") + (pos === 0 ? "פתיחה · " + n + " פרקים היום" : "פרק " + Math.min(pos, n) + " מתוך " + n + (isYday ? "" : " היום"));
   const fin = $("finish").getBoundingClientRect().top < window.innerHeight - 40;
   $("bar").firstElementChild.style.width = (fin ? 100 : Math.round(Math.max(0, pos - 1) / n * 100 + (pos ? 100 / n / 2 : 0))) + "%";
   clearTimeout(saveT);
@@ -643,7 +655,7 @@ $("tb-back").onclick = () => goHome();
 
 // גודל אותיות
 function applyFont() { const s = lsGet(LS.font) || 22; document.documentElement.style.setProperty("--fs", s + "px"); }
-function bump(d) { const keep = cur && !$("v-read").classList.contains("hidden") ? topVerse() : null; const s = Math.max(16, Math.min(36, (lsGet(LS.font) || 22) + d)); lsSet(LS.font, s); applyFont(); if (keep) { window.scrollTo(0, keep.getBoundingClientRect().top + window.scrollY - $("topbar").offsetHeight - 6); } }
+function bump(d) { const keep = cur && !$("v-read").classList.contains("hidden") ? topVerse() : null; const s = Math.max(16, Math.min(36, (lsGet(LS.font) || 22) + d)); lsSet(LS.font, s); applyFont(); if (keep) { window.scrollTo({ top: keep.getBoundingClientRect().top + window.scrollY - $("topbar").offsetHeight - 6, behavior: "instant" }); } }
 $("tb-minus").onclick = () => bump(-2); $("tb-plus").onclick = () => bump(2);
 // מצב לילה
 const mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;

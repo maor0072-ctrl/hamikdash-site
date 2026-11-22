@@ -255,6 +255,7 @@ const rawId = (() => { try { return localStorage.getItem(LS.id); } catch (e) { r
 let state = { id: rawId && /^[A-Za-z0-9_-]{16,64}$/.test(rawId) ? rawId : null, list: null, updatedAt: null };
 const cached = lsGet(LS.list);
 if (state.id && cached) { state.list = cached.people ? cached : cached.list || null; state.updatedAt = lsGet(LS.upd); }
+sortList(state.list);
 let units = null, extras = null, extrasJs = null;
 let draft = null; // עותק בעריכה
 
@@ -277,6 +278,18 @@ function persist() {
   try { if (state.id) localStorage.setItem(LS.id, state.id); else localStorage.removeItem(LS.id); } catch (e) {}
   lsSet(LS.list, state.id && state.list ? state.list : null); lsSet(LS.upd, state.id ? state.updatedAt : null);
 }
+// סדר האנשים: מהצעיר לבוגר (הפרק העולה), בשוויון - הצעיר יותר לפי תאריך הלידה, ואחר כך לפי השם.
+// מי שתאריכו לא תקין היום (עתידי, מעל 150) - בסוף. הוראת הרב יעקב מאור 22.11.2026.
+function sortPeople(people) {
+  if (!Array.isArray(people)) return people;
+  const today = P.hebrewToday();
+  const ch = new Map(people.map((p) => { let r = null; try { r = P.chapterFor(p, today); } catch (e) {} return [p, r && r.ok ? r.chapter : 1e9]; }));
+  return people.sort((a, b) => (ch.get(a) - ch.get(b))
+    || ((a.birth && b.birth) ? P.compareHebrew(b.birth, a.birth) : 0)
+    || String(a.name || "").localeCompare(String(b.name || ""), "he")
+    || String(a.parent || "").localeCompare(String(b.parent || ""), "he"));
+}
+function sortList(list) { if (list && Array.isArray(list.people)) sortPeople(list.people); return list; }
 function linkFor(id) { return location.origin + "/tehillim/personal.html#k=" + id; }
 function idFromText(t) {
   t = String(t || "").trim();
@@ -353,7 +366,7 @@ async function boot() {
 async function refresh() {
   try {
     const r = await api("get", { id: state.id });
-    if (r.status === 200 && r.body.ok) { state.list = r.body.list; state.updatedAt = r.body.updatedAt; persist(); return true; }
+    if (r.status === 200 && r.body.ok) { state.list = sortList(r.body.list); state.updatedAt = r.body.updatedAt; persist(); return true; }
     if (r.status === 404) { const had = state.list; state = { id: null, list: null, updatedAt: null }; persist(); flash(had ? "הרשימה לא נמצאה בשרת - היא נמחקה או שהקישור הוחלף בקישור חדש." : "לא נמצאה רשימה בקישור הזה. ייתכן שהוחלף בקישור חדש או שהרשימה נמחקה."); return false; }
   } catch (e) {}
   if (state.list) flash("אין חיבור לשרת כרגע - מוצגת הרשימה ששמורה בטלפון.");
@@ -563,6 +576,7 @@ $("f-ok").onclick = () => {
   const person = { name: p.name, parent: p.parent, gender: p.gender, birth: p.birth };
   if (editIdx >= 0) { person.id = draft.people[editIdx].id; draft.people[editIdx] = person; }
   else { person.id = "p" + Date.now().toString(36).slice(-8); draft.people.push(person); }
+  sortPeople(draft.people);
   $("e-form").classList.add("hidden"); renderEditor();
 };
 
@@ -571,15 +585,16 @@ $("e-save").onclick = async () => {
   if (!draft.people.length && !draft.ranges.length) { err.textContent = "הוסיפו לפחות אדם אחד או פרק קבוע אחד."; err.classList.remove("hidden"); return; }
   const btn = $("e-save"); btn.disabled = true; btn.textContent = "שומר...";
   const first = !state.id;
+  sortPeople(draft.people);
   try {
     const r = first ? await api("create", { list: draft }) : await api("update", { id: state.id, list: draft, baseUpdatedAt: state.updatedAt });
     if (r.status === 200 && r.body.ok) {
-      state.id = r.body.id; state.list = r.body.list; state.updatedAt = r.body.updatedAt; persist();
+      state.id = r.body.id; state.list = sortList(r.body.list); state.updatedAt = r.body.updatedAt; persist();
       history.replaceState(null, "", "#k=" + state.id);
       flash(first ? "" : "הרשימה נשמרה."); goHome();
       if (first) { const c = $("h-linkcard"); renderLinkCard(c); c.classList.remove("hidden"); showInstall(); }
     } else if (r.status === 409) {
-      state.list = r.body.list; state.updatedAt = r.body.updatedAt; persist();
+      state.list = sortList(r.body.list); state.updatedAt = r.body.updatedAt; persist();
       flash("הרשימה השתנתה ממכשיר אחר - נטענה הגרסה העדכנית."); openEditor();
     } else if (r.status === 404) {
       state = { id: null, list: null, updatedAt: null }; persist(); err.textContent = "הרשימה כבר לא קיימת בשרת (נמחקה או שהקישור הוחלף). לחצו שוב על השמירה כדי ליצור רשימה חדשה."; err.classList.remove("hidden");

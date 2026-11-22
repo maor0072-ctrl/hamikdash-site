@@ -53,6 +53,19 @@ html,body{overflow-x:hidden}
 .linkbox{direction:ltr;text-align:left;font-size:14px;background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:10px;overflow-wrap:anywhere;word-break:break-all;margin:0 0 10px}
 .hidden{display:none!important}
 .req-list{padding:4px 0 0 0;margin-right:30px}
+/* בוחר גלגל (tehillim/wheel.js) - שורה 44px, שלוש שורות גלויות, הנבחרת במרכז */
+.wh-lbls{margin:0 0 4px}
+.wh-lbls span{display:block;text-align:center;font-size:14px;font-weight:700;color:var(--ink-soft)}
+.wh{position:relative;min-width:0;border:1px solid var(--line);border-radius:10px;background:var(--cream);outline:none;touch-action:pan-y}
+.wh:focus-visible{box-shadow:0 0 0 3px rgba(184,146,74,.45)}
+.wh::before{content:"";position:absolute;left:4px;right:4px;top:44px;height:44px;border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);background:rgba(184,146,74,.10);border-radius:6px;pointer-events:none}
+.wh-vp{height:132px;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.35) 0,#000 34%,#000 66%,rgba(0,0,0,.35) 100%);mask-image:linear-gradient(to bottom,rgba(0,0,0,.35) 0,#000 34%,#000 66%,rgba(0,0,0,.35) 100%)}
+.wh-vp::-webkit-scrollbar{display:none}
+.wh-pad{height:44px}
+.wh-row{height:44px;display:flex;align-items:center;justify-content:center;gap:5px;scroll-snap-align:center;font-size:18px;color:var(--ink);cursor:pointer;white-space:nowrap;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.wh-row small{font-size:12px;color:var(--ink-soft);font-weight:400}
+.wh-row.on{font-weight:700;color:var(--gold-deep)}
 /* מסך הקריאה */
 body.reading .site-header{display:none}
 #topbar{position:sticky;top:0;z-index:20;background:var(--cream);border-bottom:1px solid var(--line);padding:6px 10px calc(4px) 10px;padding-top:calc(6px + env(safe-area-inset-top))}
@@ -175,11 +188,13 @@ html[data-theme=dark] .btn-p{color:#16140f}
       <div class="field"><span class="lbl">תאריך הלידה</span>
         <div class="seg"><label><input type="radio" name="f-mode" value="heb" checked> עברי</label><label><input type="radio" name="f-mode" value="greg"> לועזי</label></div></div>
       <div id="f-heb" class="field">
+        <div class="sel3 wh-lbls"><span>יום</span><span>חודש</span><span>שנה</span></div>
         <div class="sel3">
-          <select id="f-day" aria-label="יום"></select>
-          <select id="f-month" aria-label="חודש"></select>
-          <select id="f-year" aria-label="שנה"></select>
+          <div id="f-day"></div>
+          <div id="f-month"></div>
+          <div id="f-year"></div>
         </div>
+        <p class="tiny" id="f-note" style="margin:6px 0 0"></p>
       </div>
       <div id="f-greg" class="hidden">
         <div class="field"><label for="f-gdate">תאריך לועזי</label><input id="f-gdate" type="date"></div>
@@ -197,11 +212,13 @@ html[data-theme=dark] .btn-p{color:#16140f}
       <h2>פרקים קבועים</h2>
       <p class="tiny">פרקים שנקראים כל יום, בלי קשר לגיל. פרק אחד או טווח.</p>
       <div id="e-ranges"></div>
-      <div class="sel3" style="grid-template-columns:1fr 1fr auto;align-items:end;margin-top:8px">
-        <div class="field" style="margin:0"><label for="r-from">מפרק</label><input id="r-from" type="number" inputmode="numeric" min="1" max="150"></div>
-        <div class="field" style="margin:0"><label for="r-to">עד פרק <span class="hint">לא חובה</span></label><input id="r-to" type="number" inputmode="numeric" min="1" max="150"></div>
-        <button class="ib" id="r-add" style="padding:0 14px">הוספה</button>
+      <div class="sel3 wh-lbls" style="grid-template-columns:1fr 1fr;margin-top:8px"><span>מפרק</span><span>עד פרק</span></div>
+      <div class="sel3" style="grid-template-columns:1fr 1fr">
+        <div id="r-from"></div>
+        <div id="r-to"></div>
       </div>
+      <p class="tiny" id="r-sum" style="margin:6px 0 8px"></p>
+      <button class="btn-g" id="r-add">הוספה</button>
       <p class="err hidden" id="r-err"></p>
     </div>
 
@@ -243,6 +260,7 @@ html[data-theme=dark] .btn-p{color:#16140f}
   }
 
 import * as P from "./personal-core.js";
+import { makeWheel } from "./wheel.js";
 
 const API = "https://t.hamikdash.co.il";
 const LS = { id: "th_personal_key", list: "th_personal_list", upd: "tp.updatedAt", font: "tp.font", theme: "tp.theme", read: "tp.reading", installed: "tp.installShown" };
@@ -469,7 +487,7 @@ function renderEditor() {
   $("e-people").querySelectorAll("[data-d]").forEach((b) => b.onclick = () => { if (confirm("למחוק את " + P.personLabel(draft.people[+b.dataset.d]) + " מהרשימה?")) { draft.people.splice(+b.dataset.d, 1); renderEditor(); } });
   $("e-ranges").innerHTML = draft.ranges.map((r, k) => "<div class='person'><div class='who'><div class='nm'>" + (r.from === r.to ? "פרק " + P.gematria(r.from) : "מפרק " + P.gematria(r.from) + " עד פרק " + P.gematria(r.to)) + "</div></div><button class='ib' data-re='" + k + "'>עריכה</button><button class='ib' data-rd='" + k + "'>מחיקה</button></div>").join("");
   $("e-ranges").querySelectorAll("[data-rd]").forEach((b) => b.onclick = () => { draft.ranges.splice(+b.dataset.rd, 1); renderEditor(); });
-  $("e-ranges").querySelectorAll("[data-re]").forEach((b) => b.onclick = () => { const r = draft.ranges[+b.dataset.re]; $("r-from").value = r.from; $("r-to").value = r.to === r.from ? "" : r.to; draft.ranges.splice(+b.dataset.re, 1); renderEditor(); $("r-from").focus(); });
+  $("e-ranges").querySelectorAll("[data-re]").forEach((b) => b.onclick = () => { const r = draft.ranges[+b.dataset.re]; wFrom.set(r.from); wTo.set(r.to); toFollows = r.from === r.to; rangeSum(); draft.ranges.splice(+b.dataset.re, 1); renderEditor(); $("r-from").scrollIntoView({ block: "center" }); $("r-from").focus({ preventScroll: true }); });
   renderSettings();
   const rd = build(draft, today);
   $("e-preview").textContent = "היום " + rd.chapterCount + " פרקים" + (P.normalizeFixed(draft.ranges).length ? " (כולל " + P.normalizeFixed(draft.ranges).length + " פרקים קבועים, אחרי הסרת כפילויות)" : "") + " · ופרק קנ תמיד בסוף";
@@ -490,51 +508,79 @@ function renderSettings() {
 }
 $("e-add").onclick = () => openForm(-1);
 $("e-cancel").onclick = () => { if (state.list) goHome(); else show("v-welcome"); };
+// פרקים קבועים - שני גלגלים מעגליים 1-150 (אחרי קנ בא א). "עד פרק" הולך אחרי "מפרק" עד שנוגעים בו.
+const chItems = (() => { const a = []; for (let c = 1; c <= 150; c++) a.push({ value: c, label: P.gematria(c), sub: String(c) }); return a; })();
+let toFollows = true;
+const wFrom = makeWheel($("r-from"), { cyclic: true, label: "מפרק", items: chItems, value: 1, onChange: (v) => { if (toFollows) wTo.set(v); rangeSum(); } });
+const wTo = makeWheel($("r-to"), { cyclic: true, label: "עד פרק", items: chItems, value: 1, onChange: (v) => { toFollows = +v === +wFrom.get(); rangeSum(); } });
+function rangeSum() {
+  const a = Math.min(+wFrom.get(), +wTo.get()), b = Math.max(+wFrom.get(), +wTo.get());
+  $("r-sum").textContent = a === b ? "יתווסף: פרק " + P.gematria(a) : "יתווספו: מפרק " + P.gematria(a) + " עד פרק " + P.gematria(b) + " (" + (b - a + 1) + " פרקים)";
+}
+rangeSum();
 $("r-add").onclick = () => {
-  const a = parseInt($("r-from").value, 10), bRaw = $("r-to").value.trim(), b = bRaw ? parseInt(bRaw, 10) : a, err = $("r-err");
+  const a = +wFrom.get(), b = +wTo.get(), err = $("r-err");
   if (!(a >= 1 && a <= 150 && b >= 1 && b <= 150)) { err.textContent = "מספרי הפרקים הם בין 1 ל-150."; err.classList.remove("hidden"); return; }
   err.classList.add("hidden");
   draft.ranges.push({ from: Math.min(a, b), to: Math.max(a, b) });
-  $("r-from").value = ""; $("r-to").value = ""; renderEditor();
+  renderEditor();
 };
 
-// טופס אדם
-function yearOptions() {
-  const ty = P.hebrewToday().year, out = [];
-  for (let y = ty; y >= ty - 149; y--) { const g = P.hebrewToGregorian({ year: y, month: 7, day: 1 }).year; out.push("<option value='" + y + "'>" + P.formatYear(y) + " (" + g + "-" + (g + 1) + ")</option>"); }
-  $("f-year").innerHTML = "<option value=''>שנה</option>" + out.join("");
+// טופס אדם - שלושה גלגלים (tehillim/wheel.js). השנה מכוונת מראש לשנה האחרונה שנבחרה,
+// ולכן החודש והיום פתוחים לבחירה מהרגע הראשון (הוראת הרב יעקב מאור 22.11.2026).
+const LASTY = "th_personal_lastyear";
+const TY = P.hebrewToday().year, Y_MIN = TY - 149;
+let fd = { year: 0, month: 7, day: 1 }, wantDay = 1, picked = { month: false, day: false };
+let adarPick = null; // "I" / "II" / "plain" - איזה אדר נבחר, כדי שמעבר בין שנים לא יאבד את הבחירה
+function noteAdar(m, y) { adarPick = m === 12 || m === 13 ? (P.isLeapYear(y) ? (m === 12 ? "I" : "II") : "plain") : null; }
+function defaultYear() { const v = parseInt(lsGet(LASTY), 10); return v >= Y_MIN && v <= TY ? v : TY - 30; }
+// כל החודשים, כשאין שנה (גיבוי - בפועל תמיד יש שנה): תשרי עד אלול עם אדר א' ואדר ב'
+const ALL_MONTHS = [[7, "תשרי"], [8, "חשוון"], [9, "כסלו"], [10, "טבת"], [11, "שבט"], [12, "אדר א'"], [13, "אדר ב'"], [1, "ניסן"], [2, "אייר"], [3, "סיון"], [4, "תמוז"], [5, "מנחם אב"], [6, "אלול"]];
+function monthItems(y) { return y ? P.monthsForYear(y).map((m) => ({ value: m.month, label: m.name })) : ALL_MONTHS.map(([v, l]) => ({ value: v, label: l })); }
+function dayItems(n) { const a = []; for (let d = 1; d <= n; d++) a.push({ value: d, label: P.gematria(d, true) }); return a; }
+const yearItems = (() => { const a = []; for (let y = Y_MIN; y <= TY; y++) { const g = P.hebrewToGregorian({ year: y, month: 7, day: 1 }).year; a.push({ value: y, label: P.formatYear(y), sub: g + "/" + String(g + 1).slice(-2) }); } return a; })();
+const wDay = makeWheel($("f-day"), { cyclic: true, label: "יום בחודש", items: dayItems(30), value: 1,
+  onChange: (d) => { fd.day = d; wantDay = d; $("f-note").textContent = ""; updateExplain(); }, onPick: () => { picked.day = true; updateExplain(); } });
+const wMonth = makeWheel($("f-month"), { cyclic: true, label: "חודש", items: monthItems(0), value: 7,
+  onChange: (m) => { fd.month = m; noteAdar(m, fd.year); $("f-note").textContent = ""; refreshDays(); }, onPick: () => { picked.month = true; updateExplain(); } });
+const wYear = makeWheel($("f-year"), { cyclic: false, label: "שנה", items: yearItems, value: TY - 30, onChange: onYear });
+function onYear(y) {
+  fd.year = y;
+  let m = fd.month, note = "";
+  const leap = P.isLeapYear(y);
+  if (!leap && m === 13) m = 12;                       // אדר ב' (או אדר א') בשנה פשוטה -> אדר
+  else if (leap && (m === 12 || m === 13) && adarPick) {
+    if (adarPick === "I") m = 12;
+    else if (adarPick === "II") m = 13;
+    else { m = 13; note = "שנת " + P.formatYear(y) + " מעוברת, ולכן נבחר אדר ב'. אם הלידה הייתה באדר א' - בחרו אדר א'."; } // אדר של שנה פשוטה -> אדר ב'
+  }
+  fd.month = m; wMonth.setItems(monthItems(y), m);
+  refreshDays(note);
 }
-function monthOptions(keep) {
-  const y = +$("f-year").value;
-  if (!y) { $("f-month").innerHTML = "<option value=''>חודש</option>"; dayOptions(); return; }
-  $("f-month").innerHTML = "<option value=''>חודש</option>" + P.monthsForYear(y).map((m) => "<option value='" + m.month + "'>" + esc(m.name) + "</option>").join("");
-  if (keep && [...$("f-month").options].some((o) => o.value === String(keep))) $("f-month").value = keep;
-  dayOptions($("f-day").value);
-}
-function dayOptions(keep) {
-  const y = +$("f-year").value, m = +$("f-month").value;
-  const n = y && m ? P.daysInMonth(m, y) : 30;
-  let h = "<option value=''>יום</option>";
-  for (let d = 1; d <= n; d++) h += "<option value='" + d + "'>" + P.gematria(d, true) + "</option>";
-  $("f-day").innerHTML = h;
-  if (keep && +keep <= n) $("f-day").value = keep;
+function refreshDays(note) {
+  const n = fd.year && fd.month ? P.daysInMonth(fd.month, fd.year) : 30;
+  const d = Math.min(wantDay, n);
+  if (d < wantDay && picked.day) note = (note ? note + " " : "") + "ב" + P.monthName(fd.month, fd.year) + " " + P.formatYear(fd.year) + " יש " + n + " ימים, ולכן נבחר " + P.gematria(d, true) + ".";
+  fd.day = d; wDay.setItems(dayItems(n), d);
+  $("f-note").textContent = note || "";
   updateExplain();
 }
-$("f-year").onchange = () => monthOptions($("f-month").value);
-$("f-month").onchange = () => dayOptions($("f-day").value);
-$("f-day").onchange = updateExplain;
+function setFormDate(hd, isPicked) {
+  fd = { year: hd.year, month: hd.month, day: hd.day }; wantDay = hd.day;
+  picked = { month: !!isPicked, day: !!isPicked }; noteAdar(hd.month, hd.year);
+  wYear.set(hd.year); wMonth.setItems(monthItems(hd.year), hd.month); refreshDays();
+}
 document.querySelectorAll("input[name=f-g]").forEach((r) => r.onchange = updateExplain);
 $("f-name").oninput = updateExplain; $("f-parent").oninput = updateExplain;
 document.querySelectorAll("input[name=f-mode]").forEach((r) => r.onchange = () => { const g = r.value === "greg" && r.checked; $("f-greg").classList.toggle("hidden", !g); $("f-heb").classList.toggle("hidden", g); });
-function setHebSelects(hd) { $("f-year").value = hd.year; monthOptions(hd.month); $("f-month").value = hd.month; dayOptions(hd.day); $("f-day").value = hd.day; updateExplain(); }
 function readForm() {
   return { name: $("f-name").value.trim().replace(/\s+/g, " "), parent: $("f-parent").value.trim().replace(/\s+/g, " "),
     gender: document.querySelector("input[name=f-g]:checked").value,
-    birth: { year: +$("f-year").value || 0, month: +$("f-month").value || 0, day: +$("f-day").value || 0 } };
+    birth: { year: fd.year || 0, month: fd.month || 0, day: fd.day || 0 } };
 }
 function updateExplain() {
   const p = readForm(), ex = $("f-explain");
-  if (!p.birth.year || !p.birth.month || !p.birth.day) { ex.textContent = ""; return; }
+  if (!p.birth.year || !p.birth.month || !p.birth.day || !picked.month || !picked.day) { ex.textContent = ""; $("f-err").classList.add("hidden"); return; }
   const r = P.chapterFor(Object.assign({}, p, { name: p.name || (p.gender === "f" ? "היא" : "הוא") }));
   ex.textContent = r.ok ? (p.name ? P.personLabel(p) + " - " : "") + r.explanation : "";
   $("f-err").classList.toggle("hidden", r.ok); if (!r.ok) $("f-err").textContent = r.error;
@@ -549,19 +595,19 @@ $("f-convert").onclick = () => {
     ? "<p class='tiny'>כשלא ידוע אם הלידה הייתה אחרי השקיעה, יש שני תאריכים אפשריים. בחרו אחד:</p>" + opt(res.hebrew, "אם נולד לפני השקיעה: ") + opt(res.alternative, "אם נולד אחרי השקיעה: ")
     : "<p class='tiny'>התאריך העברי:</p>" + opt(res.hebrew, "לאשר: ");
   box.querySelectorAll("button").forEach((b) => b.onclick = () => {
-    setHebSelects({ year: +b.dataset.y, month: +b.dataset.m, day: +b.dataset.d });
+    setFormDate({ year: +b.dataset.y, month: +b.dataset.m, day: +b.dataset.d }, true);
     document.querySelector("input[name=f-mode][value=heb]").checked = true; $("f-greg").classList.add("hidden"); $("f-heb").classList.remove("hidden"); box.innerHTML = "";
   });
 };
 function openForm(k) {
-  editIdx = k; yearOptions();
+  editIdx = k;
   const p = k >= 0 ? draft.people[k] : null;
   $("f-title").textContent = p ? "עריכת " + P.personLabel(p) : "הוספת אדם";
   $("f-name").value = p ? p.name : ""; $("f-parent").value = p ? p.parent || "" : "";
   document.querySelector("input[name=f-g][value=" + (p && p.gender === "f" ? "f" : "m") + "]").checked = true;
   document.querySelector("input[name=f-mode][value=heb]").checked = true; $("f-greg").classList.add("hidden"); $("f-heb").classList.remove("hidden");
   $("f-conv").innerHTML = ""; $("f-gdate").value = ""; $("f-err").classList.add("hidden");
-  if (p) setHebSelects(p.birth); else { $("f-year").value = ""; monthOptions(); }
+  if (p) setFormDate(p.birth, true); else setFormDate({ year: defaultYear(), month: 7, day: 1 }, false);
   $("e-form").classList.remove("hidden"); $("e-form").scrollIntoView({ block: "start" }); $("f-name").focus({ preventScroll: true });
 }
 $("f-cancel").onclick = () => $("e-form").classList.add("hidden");
@@ -572,8 +618,10 @@ $("f-ok").onclick = () => {
   const nameOk = (s) => /^[\p{L}\p{M}\s'"`.\-]{1,40}$/u.test(s);
   if (!nameOk(p.name) || (p.parent && !nameOk(p.parent))) return fail("בשם אפשר להשתמש באותיות, ניקוד, רווח וגרש בלבד.");
   if (!p.birth.year || !p.birth.month || !p.birth.day) return fail("נא לבחור יום, חודש ושנה.");
+  if (!picked.month || !picked.day) return fail("נא לבחור את היום ואת החודש של הלידה - גוללים את הגלגל עד שהתאריך הנכון באמצע, או לוחצים עליו.");
   const v = P.validateBirth(p.birth); if (!v.ok) return fail(v.error);
   const person = { name: p.name, parent: p.parent, gender: p.gender, birth: p.birth };
+  lsSet(LASTY, p.birth.year); // האדם הבא נפתח על אותה שנה
   if (editIdx >= 0) { person.id = draft.people[editIdx].id; draft.people[editIdx] = person; }
   else { person.id = "p" + Date.now().toString(36).slice(-8); draft.people.push(person); }
   sortPeople(draft.people);

@@ -19,6 +19,8 @@
 <link rel="stylesheet" href="/assets/style.css">
 <style>
 html,body{overflow-x:hidden}
+/* hidden על body הופך אותו למכל גלילה ושובר את ה-sticky של סרגל הקריאה; clip חותך בלי לשבור */
+@supports (overflow-x:clip){html,body{overflow-x:clip}}
 .pw{max-width:760px;margin:0 auto;padding:18px 16px 60px}
 .card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 18px;margin:0 0 16px}
 .card h2{font-size:21px;margin:0 0 8px}
@@ -85,6 +87,7 @@ body.reading .site-header{display:none}
 .to-all{display:block;text-align:center;font-size:16px;font-weight:700;color:var(--gold-deep);background:var(--white);border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin:0 0 14px;text-decoration:none}
 body.reading .to-all{display:none}
 .btn-big{min-height:62px;font-size:20px}
+#v-welcome,#v-home,#v-editor{padding-top:0;margin-top:0}
 .h-sub{font-size:15px;color:var(--ink-soft);margin:0 0 16px;line-height:1.55}
 #rd .part-h{font-size:1.1em;font-weight:700;color:var(--gold-deep);text-align:center;margin:18px 0 8px}
 #rd .sm-h{font-family:"Heebo",sans-serif;font-size:15px;font-weight:700;color:var(--gold-deep);text-align:center;margin:18px 0 8px}
@@ -683,7 +686,7 @@ async function openReading(rd, pos, yday) {
       else if (it.type === "chapter") {
         // מתחת לכותרת: השמות מודגשים ואחריהם "לרפואה והצלחה". פרק קבוע בלי שם - הכותרת בלבד (הוראת הרב 22.11.2026).
         const nms = Array.isArray(it.names) ? it.names.filter(Boolean) : [], exs = Array.isArray(it.extras) ? it.extras.filter(Boolean) : [];
-        const sub = nms.length ? "<span class='ch-n'>" + esc(joinNames(nms)) + "</span> לרפואה והצלחה" : exs.length ? esc(exs.join(" · ")) : "";
+        const sub = nms.length ? "<span class='ch-n'>" + esc(joinNames(nms)) + "</span> <span style='white-space:nowrap'>לרפואה והצלחה</span>" : exs.length ? esc(exs.join(" · ")) : "";
         out.push("<div class='sec' data-pos='" + it.position + "'><h2 class='ch-h" + (sub ? "" : " solo") + "'>" + esc(it.title) + "</h2>" + (sub ? "<div class='ch-s'>" + sub + "</div>" : ""));
         const docs = await Promise.all(it.units.map((u) => loadText(u.i)));
         it.units.forEach((u, k) => {

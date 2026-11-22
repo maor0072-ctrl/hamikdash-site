@@ -90,7 +90,7 @@ html[data-theme=dark] .btn-p{color:#16140f}
 .tiny{font-size:14px;color:var(--ink-soft)}
 .done-ctas{display:grid;gap:12px;margin:18px 0 4px}
 .done-ctas .hero-btn{text-align:center;text-decoration:none}
-.yr-box{margin:10px 0 16px;border:1px solid var(--line);border-radius:10px;background:var(--cream-warm)}.yr-box summary{cursor:pointer;padding:12px 14px;font-weight:700;color:var(--gold-deep);list-style:none}.yr-box .yr-text{padding:0 14px 12px;font-family:"Frank Ruhl Libre",serif;font-size:20px;line-height:1.65}
+.yr-box{margin:10px 0 16px;border:1px solid var(--line);border-radius:10px;background:var(--cream-warm)}.yr-box summary{cursor:pointer;padding:12px 14px;font-weight:700;color:var(--gold-deep);list-style:none}.yr-box .yr-note{font-size:14px;color:var(--ink-soft);font-family:Heebo,sans-serif}.yr-box small{font-size:.78em}.yr-box .yr-text{padding:0 14px 12px;font-family:"Frank Ruhl Libre",serif;font-size:20px;line-height:1.65}
 </style>
 </head>
 <body>
@@ -231,7 +231,9 @@ html[data-theme=dark] .btn-p{color:#16140f}
   // אלא כפתור שנפתח לקריאה. "לכו נרננה" כן מופיע בפתיחה. הנוסח יועתק מצילום הספר של הרב;
   // כל עוד המחרוזת ריקה - הכפתור לא מוצג.
   var YR_BEFORE_TITLE = "יהי רצון שלפני אמירת תהילים";
-  var YR_BEFORE = "";
+  // הועתק מצילום ספר התהילים של הרב יעקב מאור, 22.11.2026 ("בקשה קודם אמירת תהלים").
+  var YR_BEFORE = "<span class='yr-note'>(בשבת ידלג לשון מחילה וסליחה הכתובים באותיות קטנות)</span>\n\n" +
+    "יהי רצון מלפניך יהוה אלהינו ואלהי אבותינו, הבוחר בדוד עבדו ובזרעו אחריו, והבוחר בשירות ותשבחות, שתפן ברחמים אל קריאת מזמורי תהלים שאקרא כאלו אמרם דוד המלך עליו השלום בעצמו, זכותו יגן עלינו. ויעמד לנו זכות פסוקי תהלים וזכות תבותיהם ואותיותיהם ונקודותיהם וטעמיהם והשמות היוצאים מהם מראשי תבות ומסופי תבות, <small>לכפר פשעינו ועונותינו וחטאתינו,</small> ולזמר עריצים ולהכרית כל החוחים והקוצים הסובבים את השושנה העליונה, ולחבר אשת נעורים עם דודה באהבה ואחוה ורעות. ומשם ימשך לנו שפע לנפש רוח ונשמה, <small>לטהרנו מעונותינו ולסלוח חטאתינו ולכפר פשעינו, כמו שסלחת לדוד שאמר מזמורים אלו לפניך, כמו שנאמר גם יהוה העביר חטאתך לא תמות.</small> ואל תקחנו מהעולם הזה קודם זמננו, ונזכה ונחיה חיים ארכים טובים ומתקנים באופן שנוכל לתקן את אשר שחתנו, וזכות דוד המלך עליו השלום יגן עלינו ובעדנו, שתאריך אפך עד שובנו אליך בתשובה שלמה לפניך, ומאוצר מתנת חנם חננו, כדכתיב וחנתי את אשר אחן ורחמתי את אשר ארחם. וכשם שאנו אומרים לפניך שירה בעולם הזה, כך נזכה לומר לפניך יהוה אלהינו שיר ושבחה לעולם הבא. ועל ידי אמירת תהלים תתעורר חבצלת השרון, ולשיר בקול נעים בגילת ורנן, כבוד הלבנון נתן לה, הוד והדר בבית אלהינו, במהרה בימינו אמן סלה.";
   var YR_AFTER_TITLE = "יהי רצון שאחרי אמירת תהילים";
   var YR_AFTER = "";
   function yrBox(id, title, text) {

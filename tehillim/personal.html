@@ -711,6 +711,9 @@ async function openReading(rd, pos, yday) {
   $("rd").innerHTML = out.join("");
   $("fin-home").onclick = () => goHome();
   verseEls = [...$("rd").querySelectorAll("p[data-k]")];
+  const ends = new Map();
+  verseEls.forEach((e, i) => { const m = /^c:(\d+):(\d+):/.exec(e.dataset.k); if (m) ends.set(m[1] + ":" + m[2], i); });
+  unitEnds = [...ends].map(([key, last]) => ({ key, last }));
   show("v-read");
   requestWake();
   if (pos && pos.k) {
@@ -718,20 +721,65 @@ async function openReading(rd, pos, yday) {
     if (el) requestAnimationFrame(() => { const y = el.getBoundingClientRect().top + window.scrollY - $("topbar").offsetHeight - 6; window.scrollTo({ top: y, behavior: "instant" }); onScroll(); });
   } else onScroll();
 }
-function topVerse() {
+function topIdx() {
   const limit = $("topbar").offsetHeight + 4;
   let lo = 0, hi = verseEls.length - 1, ans = 0;
   while (lo <= hi) { const mid = (lo + hi) >> 1; if (verseEls[mid].getBoundingClientRect().bottom > limit) { ans = mid; hi = mid - 1; } else lo = mid + 1; }
-  return verseEls[ans];
+  return ans;
 }
+function topVerse() { return verseEls[topIdx()]; }
+
+// ---------- זקיפה למונה של תהילים ישראל (הוראת הרב 22.11.2026) ----------
+// "כל פרק תהילים אישי שקוראים כל הקוראים, בכל זמן, תזקוף אותו גם לפרקי תהילים של תהילים ישראל".
+// פרק נחשב נקרא כשהקורא גלל אל מעבר לפסוק האחרון שלו (הפסוק עלה מעל סרגל הקריאה), או כשהגיע
+// למסך הסיום - אז כל פרקי הקריאה. היחידה כמו בספרים של תהילים ישראל: פרק, וכל חלק מ-22 חלקי קי"ט.
+// פסוקי הפתיחה והסיום (צה, א, יד, לז) ופסוקי השם אינם נספרים. כל יחידה נספרת פעם אחת לכל קריאה
+// יומית (cur.key) בכל מכשיר; הדיווח לשרת בצרורות (10 יחידות, או 15 שניות, או ביציאה מהמסך).
+const CNT_LS = "tp.counted"; // { keys: { <key>: ["<פרק>:<חלק>", ...] }, order: [key...], pending: n }
+let unitEnds = [];
+function cntState() { const s = lsGet(CNT_LS); return s && typeof s === "object" && s.keys && typeof s.keys === "object" ? s : { keys: {}, order: [], pending: 0 }; }
+function countPassed(idx, fin) {
+  if (!cur || !cur.key || !unitEnds.length) return;
+  const s = cntState(), done = new Set(Array.isArray(s.keys[cur.key]) ? s.keys[cur.key] : []);
+  let add = 0;
+  for (const u of unitEnds) if ((fin || u.last < idx) && !done.has(u.key)) { done.add(u.key); add++; }
+  if (!add) return;
+  s.keys[cur.key] = [...done];
+  s.order = (Array.isArray(s.order) ? s.order : []).filter((k) => k !== cur.key); s.order.push(cur.key);
+  while (s.order.length > 4) delete s.keys[s.order.shift()];
+  s.pending = Math.max(0, Number(s.pending) || 0) + add;
+  lsSet(CNT_LS, s);
+  scheduleFlush(fin || s.pending >= 10 ? 0 : 15000);
+}
+let flushT = 0, flushing = false;
+function scheduleFlush(ms) { clearTimeout(flushT); flushT = setTimeout(flushCount, ms); }
+async function flushCount() {
+  if (flushing) return;
+  const n = Math.min(200, Math.floor(Number(cntState().pending) || 0));
+  if (n < 1) return;
+  flushing = true;
+  try {
+    // text/plain - בקשה פשוטה בלי preflight, ו-keepalive כדי שתצא גם כשסוגרים את הדף.
+    const r = await fetch(API + "/api/personal/read", { method: "POST", headers: { "content-type": "text/plain" }, body: JSON.stringify({ n }), keepalive: true, cache: "no-store", referrerPolicy: "no-referrer" });
+    // 400/429 - לא לנסות שוב את אותו צרור בלולאה. שגיאת רשת או 5xx - נשאר ממתין לפעם הבאה.
+    if (r.ok || r.status === 400 || r.status === 429) {
+      const t = cntState(); t.pending = Math.max(0, (Number(t.pending) || 0) - n); lsSet(CNT_LS, t);
+      if (r.ok && t.pending > 0) scheduleFlush(1000);
+    }
+  } catch (e) {} finally { flushing = false; }
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushCount(); });
+if ((Number(cntState().pending) || 0) > 0) scheduleFlush(4000);
 function onScroll() {
   if (!cur || $("v-read").classList.contains("hidden") || !verseEls.length) return;
-  const el = topVerse(); if (!el) return;
+  const ti = topIdx(), el = verseEls[ti]; if (!el) return;
   const sec = el.closest(".sec"), n = cur.chapterCount;
   let pos = sec && sec.dataset.pos ? +sec.dataset.pos : (sec && sec.dataset.sec === "open" ? 0 : n);
   $("tb-where").textContent = (isYday ? "הקריאה של " + cur.dateLabel + " · " : "") + (pos === 0 ? "פתיחה · " + n + " פרקים היום" : "פרק " + Math.min(pos, n) + " מתוך " + n + (isYday ? "" : " היום"));
   const fin = $("finish").getBoundingClientRect().top < window.innerHeight - 40;
   $("bar").firstElementChild.style.width = (fin ? 100 : Math.round(Math.max(0, pos - 1) / n * 100 + (pos ? 100 / n / 2 : 0))) + "%";
+  // מסך הסיום נספר רק אחרי גלילה (או כשהקריאה כולה נכנסת במסך אחד), שלא ייספר מיד בפתיחה.
+  countPassed(ti, fin && (window.scrollY > 0 || document.documentElement.scrollHeight <= window.innerHeight + 40));
   clearTimeout(saveT);
   saveT = setTimeout(() => {
     const saved = lsGet(LS.read) || {};

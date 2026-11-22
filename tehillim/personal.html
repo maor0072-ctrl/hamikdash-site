@@ -622,7 +622,7 @@ async function openReading(rd, pos, yday) {
         for (const n of it.list) { out.push("<div class='sm-h'>פסוק לשמו של " + esc(n.name) + "</div>"); n.verses.forEach((v, j) => out.push("<p data-k='n:" + esc(n.name) + ":0:" + (j + 1) + "'>" + esc(v.text) + (v.ref ? " <span class='ref'>(" + esc(v.ref) + ")</span>" : "") + "</p>")); }
         out.push("</div>");
       } else if (it.type === "closing") {
-        out.push("<div class='sec' data-sec='close'><div class='sm-h'>סיום</div>");
+        out.push("<div class='sec' data-sec='close'><div class='sm-h'>אחר קריאת התהלים נהגו לומר פסוקים אלו</div>");
         for (const pt of it.parts) if (pt.kind === "verses") out.push(await verseBlock(pt, "z"));
         out.push(""+yrBox('yr-after',YR_AFTER_TITLE,YR_AFTER)+"</div>");
       }

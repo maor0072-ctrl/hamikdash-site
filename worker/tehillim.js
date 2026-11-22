@@ -15,6 +15,7 @@ export { CounterDO } from "./tehillim-counter-do.js";
 import { UNITS } from "./tehillim-units.js";
 import { handlePersonal } from "./tehillim-personal.js";
 import { inQuietWindow } from "./tehillim-quiet.js";
+import { offlineBase } from "./tehillim-offline.js";
 import {
   selectItems,
   renderCatalog,
@@ -38,11 +39,7 @@ const SHORT = "https://t.hamikdash.co.il";
 const FROM_ADDR = "info@hamikdash.co.il";
 const FROM_NAME = "אורות האמונה - אתר המקדש";
 
-// בסיס המונה: קריאה שנעשתה מחוץ לאתר (הכרעת יעקב ה3, 5.11.2026).
-// מ-24.9 עד 5.11.2026 (שישה שבועות) יעקב קרא שני ספרים בשבוע, ובני המשפחה
-// והחברים לפחות ספר בשבוע, לרפואת אברהם בן שרה: 18 ספרים, 2,700 פרקים.
-// נכנס ל-total ול-booksDone של /api/stats בלבד. today ו-month נשארים אמיתיים.
-const OFFLINE_BASE = { books: 18, chapters: 2700, asOf: "2026-11-05" };
+// בסיס המונה (קריאה מחוץ לאתר, ועוד 2 ספרים על כל שבת שיצאה) - ראו tehillim-offline.js.
 
 const DEFAULT_BUDGET_MS = 60 * 60 * 1000; // שעה. קבוע בפרוסה 1 (הכרעה א4).
 const UNIT_COUNT = UNITS.length;
@@ -191,6 +188,26 @@ function book(env, bookId) {
 
 function counter(env) {
   return env.COUNTER.get(env.COUNTER.idFromName("global"));
+}
+
+// תקרה לדיווחי תהילים אישי: עד 600 יחידות בשעה לכל כתובת IP, בזיכרון המופע.
+// קריאה יומית מלאה היא לכל היותר 171 יחידות, כך שגם משפחה עם כמה מכשירים
+// על אותה רשת לא נחסמת; מי שמנסה לנפח את המונה נעצר. לא הגנה מושלמת (כל
+// מופע סופר לבד) - מטרתה לחסום הצפה מסקריפט, לא לאמת קריאה.
+const PREAD_WINDOW_MS = 60 * 60 * 1000;
+const PREAD_MAX = 600;
+const preadByIp = new Map();
+export function personalReadAllowed(ip, n, now) {
+  const key = ip || "?";
+  let e = preadByIp.get(key);
+  if (!e || now - e.start > PREAD_WINDOW_MS) e = { start: now, used: 0 };
+  if (e.used + n > PREAD_MAX) return false;
+  e.used += n;
+  preadByIp.set(key, e);
+  if (preadByIp.size > 5000) {
+    for (const [k, v] of preadByIp) if (now - v.start > PREAD_WINDOW_MS) preadByIp.delete(k);
+  }
+  return true;
 }
 
 async function doCall(stub, op, body) {
@@ -450,6 +467,32 @@ async function handleApi(request, url, env, origin) {
   const parts = url.pathname.split("/").filter(Boolean); // ["api", ...]
 
   // תהילים אישי (22.11.2026). כל הנתיבים POST והמזהה בגוף בלבד - ראה tehillim-personal.js.
+  // פרקים שנקראו בתהילים האישי נזקפים למונה הגלובלי (הוראת הרב, 22.11.2026):
+  // "כל פרק תהילים אישי שקוראים כל הקוראים, בכל זמן, תזקוף אותו גם לפרקי תהילים של
+  // תהילים ישראל". גוף {n}: מספר שלם 1-200 של יחידות שנקראו - אותה יחידה כמו בספרים
+  // (פרק, וכל אחד מ-22 חלקי קי"ט). הדף שולח בצרורות ושומר מה כבר דווח, ובשרת יש תקרה
+  // לכל כתובת IP במופע (personalReadAllowed). אין כאן מזהה רשימה ואין שמות.
+  if (parts[1] === "personal" && parts[2] === "read" && parts.length === 3) {
+    const noStore = { "Cache-Control": "no-store" };
+    if (request.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405, origin, noStore);
+    let b = null;
+    try {
+      const t = await request.text();
+      if (t.length > 512) return json({ ok: false, error: "too_large" }, 413, origin, noStore);
+      b = JSON.parse(t || "{}");
+    } catch (e) {
+      return json({ ok: false, error: "bad_json" }, 400, origin, noStore);
+    }
+    const n = b && typeof b === "object" ? b.n : undefined;
+    if (!Number.isInteger(n) || n < 1 || n > 200) return json({ ok: false, error: "bad_request" }, 400, origin, noStore);
+    if (!personalReadAllowed(request.headers.get("CF-Connecting-IP") || "", n, Date.now())) {
+      return json({ ok: false, error: "rate_limited" }, 429, origin, noStore);
+    }
+    const s = await doCall(counter(env), "bump", { n: n });
+    if (!s || !s.ok) return fail("counter_error", origin);
+    return json({ ok: true, counted: n }, 200, origin, noStore);
+  }
+
   if (parts[1] === "personal") {
     const action = parts.length === 3 ? parts[2] : "";
     return handlePersonal(request, action, env, (data, status) =>
@@ -557,11 +600,12 @@ async function handleApi(request, url, env, origin) {
   if (parts[1] === "stats") {
     const s = await doCall(counter(env), "stats", {});
     if (s && s.ok) {
-      // total ו-booksDone כוללים את בסיס הקריאה שמחוץ לאתר (OFFLINE_BASE).
-      // books נשאר מספר הספרים שנפתחו באתר, כפי שהיה.
-      s.total = Number(s.total || 0) + OFFLINE_BASE.chapters;
-      s.booksDone = Number(s.done || 0) + OFFLINE_BASE.books;
-      s.offline = OFFLINE_BASE;
+      // total ו-booksDone כוללים את בסיס הקריאה שמחוץ לאתר (tehillim-offline.js),
+      // שגדל ב-2 ספרים בכל מוצאי שבת. books נשאר מספר הספרים שנפתחו באתר, כפי שהיה.
+      const off = offlineBase(Date.now());
+      s.total = Number(s.total || 0) + off.chapters;
+      s.booksDone = Number(s.done || 0) + off.books;
+      s.offline = off;
     }
     return json(s, 200, origin, { "Cache-Control": "public, max-age=30" });
   }

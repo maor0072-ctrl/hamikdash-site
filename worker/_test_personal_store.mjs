@@ -182,5 +182,41 @@ check("/health עדיין עונה", h.status === 200 && (await h.json()).ok ===
 const pre = await worker.fetch(new Request("https://t.hamikdash.co.il/api/personal/create", { method: "OPTIONS", headers: { Origin: "https://t.hamikdash.co.il" } }), env);
 check("OPTIONS מחזיר 204 עם POST", pre.status === 204 && pre.headers.get("access-control-allow-methods").includes("POST"));
 
+// ---- /api/personal/read: זקיפה למונה הגלובלי (22.11.2026) ----
+async function pread(body, ip) {
+  const headers = { "content-type": "application/json", Origin: "https://hamikdash.co.il", "CF-Connecting-IP": ip || "10.0.0.1" };
+  const res = await worker.fetch(new Request("https://t.hamikdash.co.il/api/personal/read", { method: "POST", headers, body: typeof body === "string" ? body : JSON.stringify(body) }), env);
+  return { status: res.status, headers: res.headers, data: await res.json() };
+}
+async function stats() {
+  const res = await worker.fetch(new Request("https://t.hamikdash.co.il/api/stats"), env);
+  return res.json();
+}
+const s0 = await stats();
+r = await pread({ n: 5 });
+check("read n=5 - 200", r.status === 200 && r.data.ok === true && r.data.counted === 5, JSON.stringify(r.data));
+check("read - CORS של האתר", r.headers.get("access-control-allow-origin") === "https://hamikdash.co.il");
+const s1 = await stats();
+check("total, today, month גדלו ב-5", s1.total - s0.total === 5 && s1.today - s0.today === 5 && s1.month - s0.month === 5, JSON.stringify([s0, s1]));
+check("read נכנס למופע global ולא ל-personal", instances.global && instances.global.db.prepare("SELECT v FROM c WHERE k='total'").get().v === 5);
+for (const bad of [{ n: 0 }, { n: 201 }, { n: 2.5 }, { n: "3" }, {}, { n: -1 }]) {
+  r = await pread(bad);
+  check("read פסול נדחה " + JSON.stringify(bad), r.status === 400 && r.data.error === "bad_request");
+}
+r = await pread("{nope");
+check("read JSON שבור - 400", r.status === 400);
+const g = await worker.fetch(new Request("https://t.hamikdash.co.il/api/personal/read"), env);
+check("read ב-GET - 405", g.status === 405);
+const s2 = await stats();
+check("בקשות פסולות לא נגעו במונה", s2.total === s1.total);
+// תקרה: 600 יחידות בשעה לכל IP
+let okCount = 0;
+for (let i = 0; i < 4; i++) { r = await pread({ n: 150 }, "10.9.9.9"); if (r.status === 200) okCount++; }
+check("ארבע קריאות של 150 מאותו IP עוברות (600)", okCount === 4);
+r = await pread({ n: 1 }, "10.9.9.9");
+check("הקריאה ה-601 מאותו IP - 429", r.status === 429 && r.data.error === "rate_limited");
+r = await pread({ n: 1 }, "10.9.9.8");
+check("IP אחר לא נחסם", r.status === 200);
+
 console.log(fails ? `\n${fails} נכשלו` : "\nהכל עבר");
 process.exit(fails ? 1 : 0);

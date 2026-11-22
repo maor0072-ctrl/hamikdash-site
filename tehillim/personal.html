@@ -90,6 +90,7 @@ html[data-theme=dark] .btn-p{color:#16140f}
 .tiny{font-size:14px;color:var(--ink-soft)}
 .done-ctas{display:grid;gap:12px;margin:18px 0 4px}
 .done-ctas .hero-btn{text-align:center;text-decoration:none}
+.yr-box{margin:10px 0 16px;border:1px solid var(--line);border-radius:10px;background:var(--cream-warm)}.yr-box summary{cursor:pointer;padding:12px 14px;font-weight:700;color:var(--gold-deep);list-style:none}.yr-box .yr-text{padding:0 14px 12px;font-family:"Frank Ruhl Libre",serif;font-size:20px;line-height:1.65}
 </style>
 </head>
 <body>
@@ -226,6 +227,19 @@ html[data-theme=dark] .btn-p{color:#16140f}
 <div id="resume-pop" class="resume hidden"></div>
 
 <script type="module">
+  // יהי רצון לפני ואחרי - הוראת הרב יעקב מאור 22.11.2026: לא מודפס בתחילת הקריאה,
+  // אלא כפתור שנפתח לקריאה. "לכו נרננה" כן מופיע בפתיחה. הנוסח יועתק מצילום הספר של הרב;
+  // כל עוד המחרוזת ריקה - הכפתור לא מוצג.
+  var YR_BEFORE_TITLE = "יהי רצון שלפני אמירת תהילים";
+  var YR_BEFORE = "";
+  var YR_AFTER_TITLE = "יהי רצון שאחרי אמירת תהילים";
+  var YR_AFTER = "";
+  function yrBox(id, title, text) {
+    if (!text) return "";
+    return "<details class='yr-box' id='" + id + "'><summary>" + title + "</summary><div class='yr-text'>" +
+      text.split(/\n\s*\n/).map(function (p) { return "<p>" + p + "</p>"; }).join("") + "</div></details>";
+  }
+
 import * as P from "./personal-core.js";
 
 const API = "https://t.hamikdash.co.il";
@@ -581,7 +595,7 @@ let cur = null, verseEls = [], saveT = 0, isYday = false;
 async function openReading(rd, pos, yday) {
   cur = rd; isYday = !!yday;
   const out = [];
-  out.push("<div class='sec' data-sec='open'><div class='sm-h'>פתיחה</div><div class='yr-slot' id='yr-before'></div>");
+  out.push("<div class='sec' data-sec='open'><div class='sm-h'>פתיחה</div>"+yrBox('yr-before',YR_BEFORE_TITLE,YR_BEFORE)+"");
   const verseBlock = async (part, sec) => {
     const idx = P.unitIndexesFor(part.chapter, units)[0];
     const d = await loadText(idx);
@@ -608,7 +622,7 @@ async function openReading(rd, pos, yday) {
       } else if (it.type === "closing") {
         out.push("<div class='sec' data-sec='close'><div class='sm-h'>סיום</div>");
         for (const pt of it.parts) if (pt.kind === "verses") out.push(await verseBlock(pt, "z"));
-        out.push("<div class='yr-slot' id='yr-after'></div></div>");
+        out.push(""+yrBox('yr-after',YR_AFTER_TITLE,YR_AFTER)+"</div>");
       }
     }
   } catch (e) { out.push("<p class='err'>לא הצלחנו לטעון חלק מהטקסט. בדקו את החיבור ונסו שוב.</p>"); }

@@ -13,6 +13,9 @@ function check(name, cond, extra) {
 const N = UNITS.length;
 const NOW = Date.parse("2026-11-05T12:00:00+02:00");
 const DAY = 86400000;
+// השעון מוקפא על NOW: הנתיבים מחשבים "רדום" לפי Date.now(), והספרים המדומים בנויים יחסית ל-NOW.
+// בלי ההקפאה NEW1 (נוצר יומיים לפני NOW) נעשה רדום כשהשעון האמיתי מתקדם, והבדיקה נשברת עם הזמן.
+Date.now = () => NOW;
 const row = (o) => Object.assign({ ok: true, exists: true, status: "open", kind: "private", cycle: 0,
   patientName: "חנה", motherName: "פנינה", gender: "f", intent: "refua", targetDate: "",
   createdAt: NOW - 30 * DAY, lastMarkAt: 0, states: "f".repeat(N), id: "abc" }, o);

@@ -16,7 +16,18 @@
 <meta property="og:url" content="https://hamikdash.co.il/tehillim/book.html">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.png" sizes="any">
-<link rel="apple-touch-icon" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="https://hamikdash.co.il/tehillim/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#faf7f1">
+<meta name="apple-mobile-web-app-title" content="תהילים ישראל">
+<script>
+/* הדף מוגש גם מ-t.hamikdash.co.il; המניפסט נטען רק בדומיין הראשי, כדי שלא תותקן אפליקציה על הדומיין של השרת */
+(function () {
+  if (!/^(www\.)?hamikdash\.co\.il$/.test(location.hostname)) return;
+  var l = document.createElement("link"); l.rel = "manifest"; l.href = "/tehillim/manifest.webmanifest";
+  document.head.appendChild(l);
+})();
+</script>
+<script src="https://hamikdash.co.il/tehillim/install.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Frank+Ruhl+Libre:wght@400;500;700&display=swap" rel="stylesheet">
@@ -188,6 +199,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 .slim .home{color:var(--ink);font-weight:700}
 .slim .back{display:inline-block;padding:8px 14px;border:1px solid var(--gold);border-radius:999px;
   color:var(--gold-deep);font-weight:700;min-height:40px;line-height:22px}
+.slim .personal{color:var(--gold-deep);font-weight:700;margin-inline-start:auto}
 
 /* ---------- כרטיס „הפרק שלך" (הכרעה ה1) ---------- */
 .mych{padding-top:18px}
@@ -225,6 +237,7 @@ details.how .note-box{margin:8px 0 0}
 <div class="slim">
   <div class="slim-in">
     <a class="home" href="https://hamikdash.co.il/">אורות האמונה - בני משה</a>
+    <a class="personal" href="https://hamikdash.co.il/tehillim/personal.html">התהילים האישי שלי</a>
     <a class="back" href="https://hamikdash.co.il/tehillim.html">חזרה לתהילים ישראל</a>
   </div>
 </div>
@@ -431,6 +444,8 @@ details.how .note-box{margin:8px 0 0}
       <button type="button" class="btn btn-lg" id="end-more">לקרוא עוד פרק</button>
       <button type="button" class="btn btn-ghost" id="end-back">לראות את התקדמות הספר</button>
     </div>
+
+    <p style="text-align:center;margin:18px 0 0"><a href="https://hamikdash.co.il/tehillim/personal.html" style="color:var(--gold-deep);font-weight:700">התהילים האישי שלי - פרקים יומיים לפי הגיל העברי של היקרים לכם</a></p>
 
     <div class="charity" id="charity-end"></div>
 

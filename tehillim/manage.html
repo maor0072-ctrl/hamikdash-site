@@ -65,7 +65,18 @@ table.roster td.n{font-variant-numeric:tabular-nums}
 <meta property="og:url" content="https://hamikdash.co.il/tehillim/manage.html">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.png" sizes="any">
-<link rel="apple-touch-icon" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="https://hamikdash.co.il/tehillim/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#faf7f1">
+<meta name="apple-mobile-web-app-title" content="תהילים ישראל">
+<script>
+/* הדף מוגש גם מ-t.hamikdash.co.il; המניפסט נטען רק בדומיין הראשי, כדי שלא תותקן אפליקציה על הדומיין של השרת */
+(function () {
+  if (!/^(www\.)?hamikdash\.co\.il$/.test(location.hostname)) return;
+  var l = document.createElement("link"); l.rel = "manifest"; l.href = "/tehillim/manifest.webmanifest";
+  document.head.appendChild(l);
+})();
+</script>
+<script src="https://hamikdash.co.il/tehillim/install.js" defer></script>
 </head>
 <body>
 
@@ -172,6 +183,8 @@ table.roster td.n{font-variant-numeric:tabular-nums}
     </div>
     <div class="form-msg" id="dist-msg" role="status"></div>
   </div>
+
+  <p style="text-align:center;margin:6px 0 0"><a href="https://hamikdash.co.il/tehillim/personal.html" style="color:var(--gold-deep);font-weight:700">התהילים האישי שלי</a> <span class="tiny">- פרקים יומיים לפי הגיל העברי של היקרים לכם</span></p>
 
 </div>
 

@@ -16,7 +16,21 @@
 <meta property="og:url" content="https://hamikdash.co.il/tehillim.html">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.png" sizes="any">
-<link rel="apple-touch-icon" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/tehillim/icons/apple-touch-icon.png">
+<link rel="manifest" href="/tehillim/manifest.webmanifest">
+<meta name="theme-color" content="#faf7f1">
+<meta name="apple-mobile-web-app-title" content="תהילים ישראל">
+<script src="/tehillim/install.js" defer></script>
+<script>
+/* פתיחה מהאייקון: מי שיש לו רשימה אישית נוחת ישר בתהילים האישי. מפתח: th_personal_key (חוזה עם personal.html) */
+(function () {
+  try {
+    var app = /[?&]source=app(&|$)/.test(location.search) ||
+      (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+    if (app && !location.hash && localStorage.getItem("th_personal_key")) location.replace("/tehillim/personal.html");
+  } catch (e) { /* גלישה פרטית */ }
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -98,6 +112,8 @@ body.th-inner .hero-ctas,body.th-inner .th-hero .sub,body.th-inner #counter{disp
 .door .t{font-size:20px;font-weight:800;color:var(--ink);display:block}
 .door .s{font-size:15px;color:var(--ink-soft);margin-top:4px;display:block;line-height:1.6}
 .door.soft{background:var(--cream-warm);box-shadow:none}
+.door.door-personal{border-color:var(--gold);text-decoration:none}
+.door.door-personal .t{color:var(--gold-deep)}
 .door.soft .t{font-size:17px;color:var(--gold-deep)}
 
 /* ---------- מסך ההצלחה ---------- */
@@ -211,6 +227,11 @@ body.th-inner .hero-ctas,body.th-inner .th-hero .sub,body.th-inner #counter{disp
         <span class="t">תהילים להיום</span>
         <span class="s" id="door-today-s">פרקי היום, לפי החלוקה החודשית.</span>
       </button>
+
+      <a class="door door-personal" id="door-personal" href="/tehillim/personal.html">
+        <span class="t" id="door-personal-t">התהילים האישי שלי</span>
+        <span class="s" id="door-personal-s">פרקים יומיים לפי הגיל העברי של היקרים לכם.</span>
+      </a>
 
       <a class="door" href="/tehillim/sfarim">
         <span class="t">להצטרף לספר פתוח</span>
@@ -935,6 +956,24 @@ body.th-inner .hero-ctas,body.th-inner .th-hero .sub,body.th-inner #counter{disp
     }
   }
   if (location.hash === "#today") openToday();
+
+  // כרטיס התהילים האישי: אחרי שנוצרה רשימה (th_personal_key) - "להמשיך", ואם יש עותק שמור (th_personal_list) - כמה פרקים היום
+  (function () {
+    var key = null;
+    try { key = localStorage.getItem("th_personal_key"); } catch (e) { return; }
+    if (!key) return;
+    $("door-personal-t").textContent = "להמשיך בתהילים האישי";
+    $("door-personal-s").textContent = "הקריאה האישית של היום מחכה לכם.";
+    var list = null;
+    try { list = JSON.parse(localStorage.getItem("th_personal_list") || "null"); } catch (e) { list = null; }
+    if (list && list.list) list = list.list;
+    if (!list || !Array.isArray(list.people)) return;
+    import("/tehillim/personal-core.js").then(function (P) {
+      var r = P.buildDailyReading(list.people, list.ranges || [], {});
+      var n = r && r.chapterCount;
+      if (n > 0) $("door-personal-s").textContent = "היום " + (n === 1 ? "פרק אחד" : n + " פרקים") + " בקריאה האישית שלכם.";
+    }).catch(function () { /* נשאר הנוסח הכללי */ });
+  })();
 })();
 </script>
 <script src="/assets/share.js" defer></script>

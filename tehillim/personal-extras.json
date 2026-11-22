@@ -1,5 +1,97 @@
 {
  "namePesukim": {},
- "requests": [],
- "_note": "פסוקי השם והפרקים לפי בקשה ממתינים לאישור הרב יעקב מאור (22.11.2026). הטיוטה ב-personal-extras-draft.json."
+ "requests": [
+  {
+   "id": "refua",
+   "label": "לרפואה שלמה",
+   "chapters": [
+    1,
+    6,
+    13,
+    20,
+    102,
+    130
+   ],
+   "source": "כיפה - תהילים לרפואה https://www.kipa.co.il/סידור-תפילה/תהילים/תהילים-לרפואה/ ; מוקד תהילים ארצי https://www.tehillim-center.co.il/sgula/48 ; tehilim.co https://tehilim.co/segulot/refuah/"
+  },
+  {
+   "id": "parnasa",
+   "label": "לפרנסה",
+   "chapters": [
+    23,
+    104,
+    128,
+    145
+   ],
+   "source": "כיפה - תהילים לפרנסה https://www.kipa.co.il/סידור-תפילה/תהילים/תהילים-לפרנסה/ ; mako יהדות https://www.mako.co.il/spirituality-popular_culture/blessings_prayers/Article-262740a6ddd3c91027.htm ; tehilim.co https://tehilim.co/segulot/parnassa/"
+  },
+  {
+   "id": "zivug",
+   "label": "לזיווג הגון",
+   "chapters": [
+    32,
+    38,
+    70,
+    71,
+    124
+   ],
+   "source": "כיפה - תהילים לזיווג https://www.kipa.co.il/סידור-תפילה/תהילים/תהילים-לזיווג/ ; tehilim.co https://tehilim.co/segulot/zivug/ ; dailyprayer.co.il https://dailyprayer.co.il/tehilim/zivug/"
+  },
+  {
+   "id": "zera",
+   "label": "לזרע של קיימא",
+   "chapters": [
+    127
+   ],
+   "source": "הידברות https://www.hidabroot.org/article/1123138 ; ברסלב פוריו https://breslevforyou.co.il/iprayer/tehilim/topic-seed ; מוקד תהילים ארצי https://www.tehillim-center.co.il/sgula/628"
+  },
+  {
+   "id": "leida",
+   "label": "ללידה קלה",
+   "chapters": [
+    1,
+    4,
+    5,
+    8,
+    20,
+    35,
+    57,
+    93,
+    108,
+    142
+   ],
+   "source": "בשם הרבנית בת שבע קניבסקי ע\"ה: הידברות https://www.hidabroot.org/article/215305 ; מכון עליה https://www.aliya.org.il/פרקי-תהילים-ללידה-קלה/ (בספר סגולות רבותינו עמ' 113 בלי פרק כ - https://www.hidabroot.org/question/232753)"
+  },
+  {
+   "id": "hatzlacha",
+   "label": "להצלחה",
+   "chapters": [
+    19,
+    24,
+    90,
+    101
+   ],
+   "source": "כיפה - תהילים להצלחה https://www.kipa.co.il/סידור-תפילה/תהילים/תהילים-להצלחה/ ; tehilim.co https://tehilim.co/segulot/success/ ; הידברות https://www.hidabroot.org/article/1189199"
+  },
+  {
+   "id": "derech",
+   "label": "לשמירה בדרך",
+   "chapters": [
+    91,
+    121
+   ],
+   "source": "הלוח העברי - תהילים לנסיעה https://tehillim.hebcal.co.il/for/safe-travel/ ; מוקד תהילים ארצי https://www.tehillim-center.co.il/sgula/642"
+  },
+  {
+   "id": "yeshua",
+   "label": "לישועה בעת צרה ולהצלת עם ישראל",
+   "chapters": [
+    83,
+    130,
+    142
+   ],
+   "source": "הידברות https://www.hidabroot.org/article/1135220 ; ברסלב פוריו - לישועה בעת צרה https://breslevforyou.co.il/iprayer/tehilim/topic-trouble ; הידברות https://www.hidabroot.org/article/1130993"
+  }
+ ],
+ "_note": "פרקים לפי בקשה - הרשימות המקובלות היום באתרים תורניים (כיפה, הידברות, מוקד תהילים ארצי ועוד), לפי הרשימה שחוזרת אצל רוב המקורות; המקורות בשדה source של כל בקשה. פסוקי השם בוטלו לפי הוראת הרב יעקב מאור. עודכן 22.11.2026."
 }

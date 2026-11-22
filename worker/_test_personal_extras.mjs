@@ -46,32 +46,18 @@ for (const y of [5785, 5786, 5787]) {
   ok(n > 90 && n < 150, `שנה ${y}: ${n} ימים בלי תחנון`);
 }
 
-// ---------- personal-extras-draft.json ----------
-const FIN = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
-const letters = t => t.replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, c => FIN[c]);
-const j = JSON.parse(fs.readFileSync(new URL("../tehillim/personal-extras-draft.json", import.meta.url), "utf8"));
-ok(typeof j.namePesukim?.source === "string" && j.namePesukim.source.length > 10, "יש מקור לפסוקים לפי השם");
-let keys = 0;
-for (const [k, arr] of Object.entries(j.namePesukim)) {
-  if (k === "source") continue;
-  keys++;
-  ok(/^[א-ת]{2}$/.test(k) && !/[ךםןףץ]/.test(k), `מפתח ${k} שתי אותיות רגילות`);
-  ok(Array.isArray(arr) && arr.length > 0, `מפתח ${k} לא ריק`);
-  for (const v of arr) {
-    const L = letters(v.text);
-    ok(L[0] === k[0] && L[L.length - 1] === k[1], `${k}: ${v.ref} מתחיל ב-${L[0]} ונגמר ב-${L[L.length - 1]}`);
-    ok(!/[֑-֯]/.test(v.text), `${k}: בלי טעמים`);
-    ok(typeof v.ref === "string" && v.ref.length > 3, `${k}: יש הפניה`);
-  }
-}
-console.log("צירופי שמות:", keys);
-ok(keys > 300, "יותר מ-300 צירופים");
+// ---------- personal-extras.json (הקובץ החי) ----------
+const j = JSON.parse(fs.readFileSync(new URL("../tehillim/personal-extras.json", import.meta.url), "utf8"));
+ok(!fs.existsSync(new URL("../tehillim/personal-extras-draft.json", import.meta.url)), "אין קובץ טיוטה");
+ok(!j.namePesukim || Object.keys(j.namePesukim).length === 0, "בלי פסוקים לפי השם (בוטלו)");
 ok(Array.isArray(j.requests) && j.requests.length > 0, "יש בקשות");
 const ids = new Set();
 for (const r of j.requests) {
   ok(/^[a-z0-9_-]{1,32}$/.test(r.id) && !ids.has(r.id), `בקשה ${r.id} מזהה תקין וייחודי`); ids.add(r.id);
-  ok(r.label && r.source && r.source.length > 10, `בקשה ${r.id} עם כותרת ומקור`);
-  ok(r.chapters.length > 0 && r.chapters.every(c => Number.isInteger(c) && c >= 1 && c <= 150), `בקשה ${r.id} פרקים 1-150`);
+  ok(typeof r.label === "string" && r.label.length > 1, `בקשה ${r.id} עם כותרת`);
+  ok(typeof r.source === "string" && /https?:\/\//.test(r.source), `בקשה ${r.id} עם מקור וקישור`);
+  ok(Array.isArray(r.chapters) && r.chapters.length > 0 && r.chapters.every(c => Number.isInteger(c) && c >= 1 && c <= 150), `בקשה ${r.id} פרקים 1-150`);
+  ok(new Set(r.chapters).size === r.chapters.length, `בקשה ${r.id} בלי פרק כפול`);
 }
 
 console.log(`

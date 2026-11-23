@@ -79,3 +79,9 @@
 
 /* בזמן הקריאה הדף המארח מסתיר את כל מה שמסביב (body.thr-reading) */
 body.thr-reading{background:#fffcf5}
+
+/* מצב לילה - רק בדף שמציב data-theme="dark" על html (התהילים האישי). הספרים אינם מושפעים. */
+html[data-theme="dark"] .thr{--thr-paper:#16140f;--thr-ink:#ece4d4;--thr-soft:#b3a893;--thr-gold:#c9a45c;
+  --thr-gold-deep:#d9b46a;--thr-line:#3a342a;--thr-tint:#241f17;--thr-ok:#6fbf8c}
+html[data-theme="dark"] .thr-bar{background:rgba(22,20,15,.96)}
+html[data-theme="dark"] body.thr-reading{background:#16140f}

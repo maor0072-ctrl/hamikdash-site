@@ -15,8 +15,10 @@
 <script src="/tehillim/install.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Frank+Ruhl+Libre:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Frank+Ruhl+Libre:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/tehillim/reader.css">
+<script src="/tehillim/reader.js"></script>
 <style>
 html,body{overflow-x:hidden}
 /* hidden על body הופך אותו למכל גלילה ושובר את ה-sticky של סרגל הקריאה; clip חותך בלי לשבור */
@@ -682,81 +684,126 @@ function showInstall() {
 }
 
 // ---------- מסך הקריאה ----------
-let cur = null, verseEls = [], saveT = 0, isYday = false;
+let cur = null, isYday = false, rdr = null, saveT = 0, unitKeys = [];
+// מסך הקריאה המשותף (tehillim/reader.js) - אותו מראה ואותה התנהגות כמו בספר הכללי ובספר המשותף:
+// 26px Frank Ruhl 600, פרק כפסקה אחת עם אותיות פסוק קטנות, פס עליון אחד עם א- א+ (th_read_size משותף).
+// הכרעה (23.11.2026): בתהילים האישי אין "סיימתי" ואין סימון בגלילה עם חלון ביטול (doneButton:false,
+// autoMark:false). הרשימה היא של הקורא עצמו ואין בה תפיסת פרקים או סבב משותף, כך שכפתור לכל פרק רק
+// מוסיף עצירה; הספירה למונה הגלובלי נשארת כמו שהייתה - פרק שעברו את סופו נספר, וסוף הקריאה סופר הכול.
+function vHtml(text, n) {
+  const t = String(text).trim(), sp = t.indexOf(" ");
+  const w1 = sp === -1 ? t : t.slice(0, sp), rest = sp === -1 ? "" : t.slice(sp);
+  return "<span class='thr-v' data-v='" + n + "'><span class='thr-lead'><span class='thr-vn' aria-hidden='true'>" + THReader.heb(n) + "</span>" + esc(w1) + "</span>" + esc(rest) + "</span>";
+}
+async function verseBlock(part) {
+  const idx = P.unitIndexesFor(part.chapter, units)[0];
+  const d = await loadText(idx), off = part.chapter === 119 ? 0 : 0;
+  const h = [];
+  for (let v = part.from; v <= part.to; v++) h.push(vHtml(d.verses[v - 1 - off], v));
+  return "<p class='thr-txt'>" + h.join(" ") + "</p><p class='thr-note'>(" + esc(part.ref) + ")</p>";
+}
+// מקום שמור: {key:"<פרק>:<חלק>", verse}; הפורמט הישן {k:"c:<פרק>:<חלק>:<פסוק>"} מתורגם.
+function startFrom(pos) {
+  if (!pos) return null;
+  if (pos.key != null) return { key: String(pos.key), verse: Number(pos.verse) || 0 };
+  const m = /^c:(\d+):(\d+):(\d+)/.exec(pos.k || "");
+  return m ? { key: m[1] + ":" + m[2], verse: +m[3] } : null;
+}
 async function openReading(rd, pos, yday) {
   cur = rd; isYday = !!yday;
-  const out = [];
-  out.push("<div class='sec' data-sec='open'><div class='sm-h'>פתיחה</div>"+yrBox('yr-before',YR_BEFORE_TITLE,YR_BEFORE)+"");
-  const verseBlock = async (part, sec) => {
-    const idx = P.unitIndexesFor(part.chapter, units)[0];
-    const d = await loadText(idx);
-    let h = "";
-    for (let v = part.from; v <= part.to; v++) h += "<p data-k='" + sec + ":" + part.chapter + ":0:" + v + "'><span class='vn'>" + v + "</span>" + esc(d.verses[v - 1]) + "</p>";
-    return h + "<p class='ref'>(" + esc(part.ref) + ")</p>";
-  };
+  if (rdr) { try { rdr.destroy(); } catch (e) {} rdr = null; }
+  const n = rd.chapterCount, U = [];
+  let before = "<div class='thr-head'><h3>פתיחה</h3></div>" + yrBox("yr-before", YR_BEFORE_TITLE, YR_BEFORE), after = "";
   try {
     for (const it of rd.items) {
-      if (it.type === "opening") { for (const pt of it.parts) if (pt.kind === "verses") out.push(await verseBlock(pt, "o")); out.push("</div>"); }
+      if (it.type === "opening") { for (const pt of it.parts) if (pt.kind === "verses") before += await verseBlock(pt); }
       else if (it.type === "chapter") {
         // מתחת לכותרת: השמות מודגשים ואחריהם "לרפואה והצלחה". פרק קבוע בלי שם - הכותרת בלבד (הוראת הרב 22.11.2026).
         const nms = Array.isArray(it.names) ? it.names.filter(Boolean) : [], exs = Array.isArray(it.extras) ? it.extras.filter(Boolean) : [];
         const sub = nms.length ? "<span class='ch-n'>" + esc(joinNames(nms)) + "</span> <span style='white-space:nowrap'>לרפואה והצלחה</span>" : exs.length ? esc(exs.join(" · ")) : "";
-        out.push("<div class='sec' data-pos='" + it.position + "'><h2 class='ch-h" + (sub ? "" : " solo") + "'>" + esc(it.title) + "</h2>" + (sub ? "<div class='ch-s'>" + sub + "</div>" : ""));
-        const docs = await Promise.all(it.units.map((u) => loadText(u.i)));
         it.units.forEach((u, k) => {
-          const d = docs[k], off = it.chapter === 119 && u.part ? (u.part - 1) * 8 : 0;
-          if (it.chapter === 119 && u.part) out.push("<div class='part-h'>" + esc((u.name || d.name || "").split(" - ").pop()) + "</div>");
-          d.verses.forEach((t, n) => out.push("<p data-k='c:" + it.chapter + ":" + (u.part || 0) + ":" + (n + 1 + off) + "'><span class='vn'>" + (n + 1 + off) + "</span>" + esc(t) + "</p>"));
+          const part = it.chapter === 119 && u.part ? u.part : 0;
+          U.push({
+            key: it.chapter + ":" + part,
+            name: part ? THReader.hebName(119) + " אות " + THReader.LETTERS[part - 1] : THReader.hebName(it.chapter),
+            title: k === 0 ? it.title : null,
+            subtitle: part ? "אות " + THReader.LETTERS[part - 1] : null,
+            sub: k === 0 ? sub : "",
+            barTitle: it.title,
+            first: part ? (part - 1) * 8 + 1 : 1,
+            load: () => loadText(u.i).then((d) => d.verses)
+          });
         });
-        out.push("</div>");
       } else if (it.type === "names") {
-        out.push("<div class='sec' data-sec='names'>");
-        for (const n of it.list) { out.push("<div class='sm-h'>פסוק לשמו של " + esc(n.name) + "</div>"); n.verses.forEach((v, j) => out.push("<p data-k='n:" + esc(n.name) + ":0:" + (j + 1) + "'>" + esc(v.text) + (v.ref ? " <span class='ref'>(" + esc(v.ref) + ")</span>" : "") + "</p>")); }
-        out.push("</div>");
+        for (const nm of it.list) {
+          after += "<div class='thr-head'><h3>פסוק לשמו של " + esc(nm.name) + "</h3></div>";
+          nm.verses.forEach((v) => { after += "<p class='thr-txt'>" + esc(v.text) + "</p>" + (v.ref ? "<p class='thr-note'>(" + esc(v.ref) + ")</p>" : ""); });
+        }
       } else if (it.type === "closing") {
-        out.push("<div class='sec' data-sec='close'><div class='sm-h'>אחר קריאת התהלים נהגו לומר פסוקים אלו</div>");
-        for (const pt of it.parts) if (pt.kind === "verses") out.push(await verseBlock(pt, "z"));
-        out.push(""+yrBox('yr-after',YR_AFTER_TITLE,YR_AFTER)+"</div>");
+        after += "<div class='thr-head'><h3>אחר קריאת התהלים נהגו לומר פסוקים אלו</h3></div>";
+        for (const pt of it.parts) if (pt.kind === "verses") after += await verseBlock(pt);
+        after += yrBox("yr-after", YR_AFTER_TITLE, YR_AFTER);
       }
     }
-  } catch (e) { out.push("<p class='err'>לא הצלחנו לטעון חלק מהטקסט. בדקו את החיבור ונסו שוב.</p>"); }
-  out.push("<div class='finish' id='finish'><h2>ישר כוח! סיימתם את הקריאה של היום</h2><p>אפשר להמשיך ולקרוא גם בספרים הפתוחים של תהילים ישראל, לרפואת אנשים שמחכים לתפילה, ולהצטרף לקהילת שמע רפא ומשאלות.</p>"
-    + "<a class='btn-p' href='/tehillim/sfarim'>לספרים הפתוחים</a><a class='btn-g' href='/tefilot/'>לשמע רפא ומשאלות</a><button class='btn-l' id='fin-home'>חזרה לרשימה</button></div>");
-  $("rd").innerHTML = out.join("");
-  $("fin-home").onclick = () => goHome();
-  verseEls = [...$("rd").querySelectorAll("p[data-k]")];
-  const ends = new Map();
-  verseEls.forEach((e, i) => { const m = /^c:(\d+):(\d+):/.exec(e.dataset.k); if (m) ends.set(m[1] + ":" + m[2], i); });
-  unitEnds = [...ends].map(([key, last]) => ({ key, last }));
+  } catch (e) { after += "<p class='err'>לא הצלחנו לטעון חלק מהטקסט. בדקו את החיבור ונסו שוב.</p>"; }
+  after += "<div class='finish' id='finish'><h2>ישר כוח! סיימתם את הקריאה של היום</h2><p>אפשר להמשיך ולקרוא גם בספרים הפתוחים של תהילים ישראל, לרפואת אנשים שמחכים לתפילה, ולהצטרף לקהילת שמע רפא ומשאלות.</p>"
+    + "<a class='btn-p' href='/tehillim/sfarim'>לספרים הפתוחים</a><a class='btn-g' href='/tefilot/'>לשמע רפא ומשאלות</a><button class='btn-l' id='fin-home'>חזרה לרשימה</button></div>";
+  const afterEl = document.createElement("div"); afterEl.innerHTML = after;
+  afterEl.querySelector("#fin-home").onclick = () => leaveReading();
+  unitKeys = U.map((u) => u.key);
   show("v-read");
+  $("topbar").classList.add("hidden"); // לקורא יש פס עליון משלו
+  rdr = THReader.create({
+    mount: $("rd"), units: U, start: startFrom(pos),
+    dedication: isYday ? "הקריאה של " + cur.dateLabel : "התהילים שלי להיום · " + n + (n === 1 ? " פרק" : " פרקים"),
+    before, after: afterEl, autoMark: false, doneButton: false, backLabel: "חזרה לרשימה",
+    onBack: () => leaveReading(),
+    onPlace: (pl) => {
+      const i = unitKeys.indexOf(String(pl.key));
+      if (i > 0) countPassed(i);
+      clearTimeout(saveT);
+      saveT = setTimeout(() => savePlace({ key: String(pl.key), verse: pl.verse }, false), 300);
+    },
+    onReachEnd: () => { countPassed(unitKeys.length, true); savePlace(null, true); }
+  });
+  // מצב לילה - כפתור בפס של הקורא
+  const bar = $("rd").querySelector(".thr-bar");
+  if (bar) {
+    const nb = document.createElement("button"); nb.type = "button"; nb.className = "thr-sz thr-night";
+    const paint = () => { const d = document.documentElement.dataset.theme === "dark"; nb.textContent = d ? "☀" : "☾"; nb.setAttribute("aria-label", d ? "מצב יום" : "מצב לילה"); };
+    nb.onclick = () => { $("tb-night").click(); paint(); }; paint();
+    const pr = bar.querySelector(".thr-prog"); bar.insertBefore(nb, pr);
+  }
   requestWake();
-  if (pos && pos.k) {
-    const el = verseEls.find((e) => e.dataset.k === pos.k);
-    if (el) requestAnimationFrame(() => { const y = el.getBoundingClientRect().top + window.scrollY - $("topbar").offsetHeight - 6; window.scrollTo({ top: y, behavior: "instant" }); onScroll(); });
-  } else onScroll();
 }
-function topIdx() {
-  const limit = $("topbar").offsetHeight + 4;
-  let lo = 0, hi = verseEls.length - 1, ans = 0;
-  while (lo <= hi) { const mid = (lo + hi) >> 1; if (verseEls[mid].getBoundingClientRect().bottom > limit) { ans = mid; hi = mid - 1; } else lo = mid + 1; }
-  return ans;
+function savePlace(p, done) {
+  if (!cur) return;
+  const saved = lsGet(LS.read) || {};
+  const rec = saved.key === cur.key ? saved : { key: cur.key, dateLabel: cur.dateLabel, snapshot: slim(cur), done: false };
+  if (p) rec.pos = p;
+  if (done) rec.done = true;
+  if (!rec.snapshot) rec.snapshot = slim(cur);
+  lsSet(LS.read, rec);
 }
-function topVerse() { return verseEls[topIdx()]; }
+function leaveReading() {
+  if (rdr) { try { rdr.destroy(); } catch (e) {} rdr = null; }
+  flushCount();
+  goHome();
+}
 
 // ---------- זקיפה למונה של תהילים ישראל (הוראת הרב 22.11.2026) ----------
 // "כל פרק תהילים אישי שקוראים כל הקוראים, בכל זמן, תזקוף אותו גם לפרקי תהילים של תהילים ישראל".
-// פרק נחשב נקרא כשהקורא גלל אל מעבר לפסוק האחרון שלו (הפסוק עלה מעל סרגל הקריאה), או כשהגיע
-// למסך הסיום - אז כל פרקי הקריאה. היחידה כמו בספרים של תהילים ישראל: פרק, וכל חלק מ-22 חלקי קי"ט.
-// פסוקי הפתיחה והסיום (צה, א, יד, לז) ופסוקי השם אינם נספרים. כל יחידה נספרת פעם אחת לכל קריאה
+// פרק נחשב נקרא כשהקורא גלל ממנו אל הפרק שאחריו (הקורא מדווח שהיחידה שבראש המסך התחלפה), או כשהגיע
+// לסוף הקריאה - אז כל פרקי הקריאה. היחידה כמו בספרים של תהילים ישראל: פרק, וכל חלק מ-22 חלקי קי"ט.
+// פסוקי הפתיחה והסיום ופסוקי השם אינם נספרים. כל יחידה נספרת פעם אחת לכל קריאה
 // יומית (cur.key) בכל מכשיר; הדיווח לשרת בצרורות (10 יחידות, או 15 שניות, או ביציאה מהמסך).
 const CNT_LS = "tp.counted"; // { keys: { <key>: ["<פרק>:<חלק>", ...] }, order: [key...], pending: n }
-let unitEnds = [];
 function cntState() { const s = lsGet(CNT_LS); return s && typeof s === "object" && s.keys && typeof s.keys === "object" ? s : { keys: {}, order: [], pending: 0 }; }
-function countPassed(idx, fin) {
-  if (!cur || !cur.key || !unitEnds.length) return;
+function countPassed(upto, fin) {
+  if (!cur || !cur.key || !unitKeys.length) return;
   const s = cntState(), done = new Set(Array.isArray(s.keys[cur.key]) ? s.keys[cur.key] : []);
   let add = 0;
-  for (const u of unitEnds) if ((fin || u.last < idx) && !done.has(u.key)) { done.add(u.key); add++; }
+  for (let i = 0; i < Math.min(upto, unitKeys.length); i++) if (!done.has(unitKeys[i])) { done.add(unitKeys[i]); add++; }
   if (!add) return;
   s.keys[cur.key] = [...done];
   s.order = (Array.isArray(s.order) ? s.order : []).filter((k) => k !== cur.key); s.order.push(cur.key);
@@ -784,32 +831,22 @@ async function flushCount() {
 }
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushCount(); });
 if ((Number(cntState().pending) || 0) > 0) scheduleFlush(4000);
-function onScroll() {
-  if (!cur || $("v-read").classList.contains("hidden") || !verseEls.length) return;
-  const ti = topIdx(), el = verseEls[ti]; if (!el) return;
-  const sec = el.closest(".sec"), n = cur.chapterCount;
-  let pos = sec && sec.dataset.pos ? +sec.dataset.pos : (sec && sec.dataset.sec === "open" ? 0 : n);
-  $("tb-where").textContent = (isYday ? "הקריאה של " + cur.dateLabel + " · " : "") + (pos === 0 ? "פתיחה · " + n + " פרקים היום" : "פרק " + Math.min(pos, n) + " מתוך " + n + (isYday ? "" : " היום"));
-  const fin = $("finish").getBoundingClientRect().top < window.innerHeight - 40;
-  $("bar").firstElementChild.style.width = (fin ? 100 : Math.round(Math.max(0, pos - 1) / n * 100 + (pos ? 100 / n / 2 : 0))) + "%";
-  // מסך הסיום נספר רק אחרי גלילה (או כשהקריאה כולה נכנסת במסך אחד), שלא ייספר מיד בפתיחה.
-  countPassed(ti, fin && (window.scrollY > 0 || document.documentElement.scrollHeight <= window.innerHeight + 40));
-  clearTimeout(saveT);
-  saveT = setTimeout(() => {
-    const saved = lsGet(LS.read) || {};
-    const rec = saved.key === cur.key ? saved : { key: cur.key, dateLabel: cur.dateLabel, snapshot: slim(cur), done: false };
-    rec.pos = { k: el.dataset.k }; if (fin) rec.done = true;
-    if (!rec.snapshot) rec.snapshot = slim(cur);
-    lsSet(LS.read, rec);
-  }, 350);
-}
-window.addEventListener("scroll", () => requestAnimationFrame(onScroll), { passive: true });
-$("tb-back").onclick = () => goHome();
+$("tb-back").onclick = () => leaveReading();
 
-// גודל אותיות
-function applyFont() { const s = lsGet(LS.font) || 22; document.documentElement.style.setProperty("--fs", s + "px"); }
-function bump(d) { const keep = cur && !$("v-read").classList.contains("hidden") ? topVerse() : null; const s = Math.max(16, Math.min(36, (lsGet(LS.font) || 22) + d)); lsSet(LS.font, s); applyFont(); if (keep) { window.scrollTo({ top: keep.getBoundingClientRect().top + window.scrollY - $("topbar").offsetHeight - 6, behavior: "instant" }); } }
-$("tb-minus").onclick = () => bump(-2); $("tb-plus").onclick = () => bump(2);
+// גודל אותיות: משותף לכל מסכי הקריאה (th_read_size, 20-34, ברירת מחדל 26). המפתח הישן tp.font
+// (ברירת מחדל 22) מועבר פעם אחת, באותו מרחק מברירת המחדל, ונמחק.
+function applyFont() {
+  try {
+    const old = localStorage.getItem(LS.font);
+    if (old != null) {
+      if (localStorage.getItem("th_read_size") == null) {
+        const v = Number(old);
+        if (v && v !== 22) localStorage.setItem("th_read_size", String(Math.max(20, Math.min(34, Math.round((v + 4) / 2) * 2))));
+      }
+      localStorage.removeItem(LS.font);
+    }
+  } catch (e) {}
+}
 // מצב לילה
 const mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
 function applyTheme() {

@@ -59,13 +59,14 @@ const items = selectItems([
   row({ id: "klali", kind: "klali", title: "הקריאה הכללית" }),
 ], NOW, {});
 const html = renderCatalog(items, {});
-const li = (id) => html.slice(html.lastIndexOf('<li class="bk">', html.indexOf("/" + id + '"')), html.indexOf("/" + id + '"'));
+// עיצוב 23.11.2026: הכרטיס כולו קישור, והתוכן אחרי ה-href - בודקים את כל ה-li שמכיל אותו
+const li = (id) => { const at = html.indexOf("/" + id + '"'); return html.slice(html.lastIndexOf("<li>", at), html.indexOf("</li>", at)); };
 check("רדום: תג ספר כללי במקום יעד", li("idle").includes("ספר כללי - פתוח לכל מי שרוצה לקרוא") && !li("idle").includes("24.09.2026"));
 check("יעד שעבר ולא רדום", li("past").includes("היעד המקורי היה 24.09.2026. הספר טרם הושלם."));
 check("יעד עתידי", li("future").includes("תאריך יעד 01.12.2026"));
-check("הכללית: פתוח תמיד וכפתור משלה", li("klali").includes("הספר הכללי, פתוח תמיד") && html.includes("לקריאה בספר הכללי"));
-check("מלל: נקראו X מתוך 150. עוד Y", html.includes("נקראו 0 מתוך 150 פרקים. עוד 150 פרקים להשלמת הספר."));
-check("כותרת וכפתור לפי הנספח", html.includes("<h1>מצטרפים לקריאת תהילים</h1>") && html.includes("לקריאה בספר הזה") &&
+check("הכללית: פתוח תמיד וכפתור משלה", li("klali").includes("הספר הכללי - ") && li("klali").includes("פתוח תמיד") && html.includes("לקריאה בספר הכללי"));
+check("מלל: נקראו X מתוך 150, עוד Y", li("future").includes("נקראו 0 מתוך 150") && li("future").includes("עוד 150"));
+check("כותרת וכפתור (עיצוב 23.11)", html.includes("<h1>ספרים פתוחים</h1>") && html.includes("לקריאה בספר הזה") &&
   html.includes("רוצים לפתוח ספר עבור אדם יקר?") && html.includes("לפתיחת ספר חדש"));
 check("אין מקף ארוך", !/[–—]/.test(html));
 

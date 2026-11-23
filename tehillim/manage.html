@@ -580,10 +580,10 @@ body.sheet-on{overflow:hidden}
   }
 
   // קישור לטופס הפתיחה בדף הראשי, עם השם ממולא והכוונה עילוי נשמה.
-  // הפרמטרים מתועדים ביומן הבנייה כדי שהטופס בדף הראשי יקלוט אותם.
+  // אותם פרמטרים שהטופס ב-tehillim.html קורא: ?open=1&intent=&name=&parent=&g=
   function neshamaUrl(s) {
-    return SITE + "/tehillim.html?open=neshama&name=" + encodeURIComponent(s.patientName) +
-      "&parent=" + encodeURIComponent(s.motherName) + "&g=" + (s.gender === "f" ? "f" : "m") + "#book-form";
+    return SITE + "/tehillim.html?open=1&intent=neshama&name=" + encodeURIComponent(s.patientName) +
+      "&parent=" + encodeURIComponent(s.motherName) + "&g=" + (s.gender === "f" ? "f" : "m");
   }
 
   function readCount() {

@@ -1047,6 +1047,11 @@ body.thr-reading section.wrap{padding:0!important;max-width:none}
     charity($("charity-done"));
     $("pub-link").value = d.publicUrl;
     $("man-link").value = d.manageUrl;
+    try {
+      var thMan = JSON.parse(localStorage.getItem("th_manage") || "{}") || {};
+      thMan[d.id] = d.manageUrl;
+      localStorage.setItem("th_manage", JSON.stringify(thMan));
+    } catch (e) { /* גלישה פרטית */ }
     $("go-book").href = d.publicUrl;
 
     // הודעת ההפצה לפי הנספח (5.11), עם שם, שם הורה ועל מה מתפללים, ואחריה המסר הקבוע.

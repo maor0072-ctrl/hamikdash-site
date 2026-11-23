@@ -327,6 +327,13 @@ body.sheet-on{overflow:hidden}
   // הנתיב הוא /m/<token>
   var TOKEN = location.pathname.replace(/^\/+/, "").split("/")[1] || "";
 
+  // הטלפון זוכר את קישור הניהול, כדי שדף הספר יציג לפותח כפתור ניהול וסגירה.
+  // בלי זה הדרך היחידה חזרה הייתה הקישור שהוצג פעם אחת בפתיחת הספר.
+  try {
+    var thMan = JSON.parse(localStorage.getItem("th_manage") || "{}") || {};
+    if (TOKEN) { thMan[TOKEN.split(".")[0]] = location.origin + "/m/" + TOKEN; localStorage.setItem("th_manage", JSON.stringify(thMan)); }
+  } catch (e) { /* גלישה פרטית */ }
+
   var $ = function (id) { return document.getElementById(id); };
   var UNITS = null, STATE = null;
 

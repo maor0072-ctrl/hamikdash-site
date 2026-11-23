@@ -268,6 +268,7 @@ body.thr-reading{padding-bottom:0}
     <div class="for" id="bk-for"></div>
     <div class="meta" id="bk-meta"></div>
     <div class="meta" id="bk-grp" style="display:none"><a id="bk-grp-a" href="#">לקבוצת הוואטסאפ של הספר</a></div>
+    <div class="meta" id="bk-man" style="display:none"><a id="bk-man-a" href="#">פתחת את הספר הזה - לניהול ולסגירת הספר</a></div>
   </div>
 
   <div class="prog">
@@ -1127,6 +1128,10 @@ body.thr-reading{padding-bottom:0}
     if (STATE.targetDate) m.push("מבקשים להשלים עד " + fmtDate(STATE.targetDate));
     if (STATE.cycle > 1) m.push("סבב " + STATE.cycle + " - הספר הושלם ונפתח שוב");
     $("bk-meta").textContent = m.join(" · ");
+    // הפותח: הטלפון שפתח את הספר (או שנכנס פעם לדף הניהול שלו) זוכר את קישור הניהול.
+    var man = null;
+    try { man = (JSON.parse(localStorage.getItem("th_manage") || "{}") || {})[TOKEN]; } catch (e) { man = null; }
+    if (man && /^https:\/\/[^/]+\/m\//.test(man)) { $("bk-man-a").href = man; $("bk-man").style.display = ""; }
   }
 
   function fmtDate(iso) {

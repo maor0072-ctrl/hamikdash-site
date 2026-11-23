@@ -27,6 +27,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Frank+Ruhl+Libre:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/tehillim/reader.css">
+<script src="/tehillim/reader.js"></script>
 <style>
 /* סגנונות מקומיים לעמוד הזה בלבד, בדפוס של shema.html ו-neshama.html */
 .form-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
@@ -180,6 +182,9 @@ body.th-inner .door.door-top{display:none}
 .charity p{margin:0 0 8px}
 .charity a{font-weight:700}
 .today-mode{display:flex;gap:8px;margin:10px 0 18px;flex-wrap:wrap}
+body.thr-reading .site-header,body.thr-reading .th-hero,body.thr-reading .topic-nav-wrap,body.thr-reading .site-footer,body.thr-reading section.prose{display:none}
+body.thr-reading section.wrap{padding:0!important;max-width:none}
+#today-reader .today-before,#today-reader .today-after{padding:0 18px}
 #view-today .verses{font-family:"Frank Ruhl Libre","Heebo",serif;font-size:22px;line-height:1.65;text-align:right}
 #view-today .verses p{margin:0 0 6px;font-size:inherit;color:inherit;line-height:inherit}
 #view-today .verses .vn{font-size:13px;color:var(--gold-deep,#8a6d3b);font-weight:700;margin-left:8px;font-family:"Heebo",sans-serif}
@@ -321,15 +326,20 @@ body.th-inner .door.door-top{display:none}
 
   <!-- ============ מסך: התהילים של היום (הכרעות 16, 23) ============ -->
   <div class="view" id="view-today">
-    <div class="form-card">
+    <!-- מסך הקריאה המשותף (tehillim/reader.js) נבנה כאן; הפתיחה והסיום שלמטה עוברים לתוכו -->
+    <div id="today-reader"></div>
+    <div id="today-hold" hidden>
+      <div id="today-before" class="today-before">
       <h2 style="margin-top:0">תהילים להיום</h2>
       <p class="tiny" id="today-sub"></p>
       <div class="today-mode" role="group" aria-label="סוג החלוקה">
         <button type="button" class="topic-btn" data-mode="month" aria-pressed="true">חלוקה חודשית</button>
         <button type="button" class="topic-btn" data-mode="week" aria-pressed="false">חלוקה שבועית</button>
       </div>
-      <div class="verses" id="today-text"><p class="tiny">טוען...</p></div>
+      <p class="tiny" id="today-text" hidden></p>
+      </div>
 
+      <div id="today-after" class="today-after">
       <div style="text-align:center;margin-top:20px">
         <button type="button" class="copy-btn" id="today-mark">קראתי - לסמן בקריאה הכללית</button>
         <p class="tiny" id="today-msg" style="margin-top:10px">הקריאה נזקפת לקריאה הכללית, להצלחת תורמי העמותה, חברי פרויקט שמע ישראל והפועלים למען עם ישראל.</p>
@@ -342,6 +352,7 @@ body.th-inner .door.door-top{display:none}
       </div>
       <div class="charity" id="charity-today"></div>
       <p style="text-align:center;margin-top:18px"><a href="#" data-go="home">חזרה</a></p>
+      </div>
     </div>
   </div>
 
@@ -572,6 +583,8 @@ body.th-inner .door.door-top{display:none}
     $("view-" + name).classList.add("on");
     // מחוץ למסך הראשון הכפתורים והמונים מתקפלים, כדי שהטופס או הקישור יהיו מול העיניים
     document.body.classList.toggle("th-inner", name !== "home");
+    // תהילים להיום - מסך הקריאה המשותף, בלי הכותרת והתפריט של האתר מסביב (כמו בספר)
+    document.body.classList.toggle("thr-reading", name === "today");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -836,7 +849,10 @@ body.th-inner .door.door-top{display:none}
   }
   window.__thTodayPlan = todayPlan; // לבדיקות בלבד
 
-  var TH_UNITS = null, TODAY_MODE = "month", TODAY_LIST = [];
+  var TH_UNITS = null, TODAY_MODE = "month", TODAY_LIST = [], TODAY_RDR = null;
+  // הפתיחה והסיום עוברים לתוך מסך הקריאה ויוצאים מה-DOM כשהוא נבנה מחדש - לכן הפניות קבועות ולא $()
+  var TODAY_EL = { mount: $("today-reader"), before: $("today-before"), after: $("today-after"), text: $("today-text"),
+    sub: $("today-sub"), mark: $("today-mark"), charity: $("charity-today") };
   function myReaderKey() {
     var k = null;
     try { k = localStorage.getItem("tehillim_rk"); } catch (e) { /* גלישה פרטית */ }
@@ -860,34 +876,39 @@ body.th-inner .door.door-top{display:none}
   function openToday() {
     show("today");
     if (location.hash !== "#today") history.replaceState(null, "", "#today");
+    // הקריאה עצמה במסך הקריאה המשותף (tehillim/reader.js), כמו בספרים ובתהילים האישי:
+    // פתיחה (כותרת, החלוקה החודשית/השבועית) לפני הפרקים, והסימון הקיים "קראתי" עם ההזמנה בסוף.
+    // אין "סיימתי" לכל פרק ואין סימון בגלילה - הסימון לקריאה הכללית נשאר כפתור אחד בסוף, כמו קודם.
+    var T = TODAY_EL;
     paintMode();
-    charity($("charity-today"));
-    $("today-text").innerHTML = "<p class='tiny'>טוען...</p>";
-    loadUnits().then(function () {
+    charity(T.charity);
+    T.text.hidden = false;
+    T.text.textContent = "טוען...";
+    T.mark.disabled = true;
+    if (TODAY_RDR) { try { TODAY_RDR.destroy(); } catch (e) { /* בסדר */ } TODAY_RDR = null; }
+    if (!window.THReader) { T.text.textContent = "לא הצלחנו לטעון את מסך הקריאה. נסו לרענן את הדף."; T.mount.appendChild(T.before); return; }
+    loadUnits().then(function (all) {
       var plan = todayPlan(TODAY_MODE);
       var list = unitsFor(plan.ranges);
       TODAY_LIST = list.map(function (u) { return u.i; });
-      $("today-mark").disabled = false;
-      $("today-mark").textContent = "קראתי - לסמן בקריאה הכללית";
+      T.mark.disabled = false;
+      T.mark.textContent = "קראתי - לסמן בקריאה הכללית";
       var mins = 0;
       list.forEach(function (u) { mins += u.min; });
-      $("today-sub").textContent = plan.label + " · כ-" + mins + " דקות קריאה";
-      return Promise.all(list.map(function (u) {
-        return fetch(TEXT_BASE + "text/" + u.i + ".json").then(function (r) { return r.json(); });
-      })).then(function (docs) {
-        var html = "";
-        docs.forEach(function (d, k) {
-          var u = list[k];
-          var off = u.ch === 119 && u.part ? (u.part - 1) * 8 : 0;
-          if (!(u.ch === 119 && u.part > 1 && list[k - 1] && list[k - 1].ch === 119)) {
-            html += "<div class='ch-h'>" + esc("תהילים " + (u.ch === 119 ? "קי״ט" : u.name)) + "</div>";
-          }
-          d.verses.forEach(function (v, n) { html += "<p><span class='vn'>" + (n + 1 + off) + "</span>" + esc(v) + "</p>"; });
-        });
-        $("today-text").innerHTML = html;
+      T.sub.textContent = plan.label + " · כ-" + mins + " דקות קריאה";
+      T.text.hidden = true;
+      TODAY_RDR = THReader.create({
+        mount: T.mount,
+        units: THReader.bookUnits(all, TODAY_LIST, function (i) { return TEXT_BASE + "text/" + i + ".json"; }),
+        dedication: "להצלחת תורמי העמותה, הקוראים וכל ישראל.",
+        before: T.before, after: T.after,
+        autoMark: false, doneButton: false, backLabel: "חזרה",
+        onBack: function () { show("home"); history.replaceState(null, "", location.pathname + location.search); }
       });
+      paintMode();
     }).catch(function () {
-      $("today-text").innerHTML = "<p class='tiny'>לא הצלחנו לטעון את הטקסט. נסו לרענן את הדף.</p>";
+      T.text.textContent = "לא הצלחנו לטעון את הטקסט. נסו לרענן את הדף.";
+      T.mount.appendChild(T.before);
     });
   }
   $("door-today").addEventListener("click", openToday);

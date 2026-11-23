@@ -1,0 +1,81 @@
+/* מסך הקריאה המשותף של תהילים ישראל (אפיון 23.11.2026, הכרעות ט1-ט4).
+   כל המחלקות בקידומת thr- כדי לא להתנגש בעיצוב המשותף של האתר.
+   הגופן: Frank Ruhl Libre במשקל 600 - הדף הטוען צריך לבקש את המשקל הזה מ-Google Fonts. */
+
+.thr{--thr-paper:#fffcf5;--thr-ink:#1c1814;--thr-soft:#5a5248;--thr-gold:#9a7430;--thr-gold-deep:#7a5a22;
+  --thr-line:#e8dfcf;--thr-tint:#f6efe2;--thr-ok:#2e6b45;--read-size:26px;--read-lh:1.8;
+  background:var(--thr-paper);color:var(--thr-ink);font-family:Heebo,Arial,sans-serif;direction:rtl;
+  min-height:100vh;min-height:100dvh;text-align:right}
+.thr *{box-sizing:border-box}
+.thr button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+
+/* ---------- הפס העליון: חזרה, מקום, א- א+ ---------- */
+.thr-bar{position:sticky;top:0;z-index:30;height:calc(52px + env(safe-area-inset-top));background:rgba(255,252,245,.96);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-bottom:1px solid var(--thr-line);
+  display:flex;align-items:center;padding:0 6px;gap:2px;padding-top:env(safe-area-inset-top)}
+.thr-back{width:44px;height:44px;border:0;background:none;font-size:22px;color:var(--thr-soft);
+  display:flex;align-items:center;justify-content:center;padding:0;flex:none}
+.thr-where{flex:1;min-width:0;font-family:"Frank Ruhl Libre",serif;font-weight:700;font-size:19px;
+  color:var(--thr-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-inline-start:2px}
+.thr-where small{font-family:Heebo,sans-serif;font-weight:500;font-size:13px;color:var(--thr-soft);
+  margin-inline-start:6px}
+.thr-sz{min-width:44px;height:44px;border:0;background:none;color:var(--thr-ink);padding:0;flex:none;
+  font-family:"Frank Ruhl Libre",serif;font-weight:700;display:flex;align-items:center;justify-content:center}
+.thr-sz.s{font-size:16px}
+.thr-sz.l{font-size:23px}
+.thr-sz:disabled{opacity:.3;cursor:default}
+.thr-prog{position:absolute;left:0;right:0;bottom:-1px;height:3px;pointer-events:none}
+.thr-prog i{display:block;height:100%;background:var(--thr-gold);width:0;transition:width .3s}
+
+/* ---------- שורת ההקדשה: פעם אחת, לא דביקה ---------- */
+.thr-ded{font-size:14px;line-height:1.35;color:var(--thr-soft);text-align:center;margin:10px 18px 0}
+
+/* ---------- הטקסט ---------- */
+.thr-main{padding:0 18px 140px;max-width:680px;margin:0 auto}
+.thr-unit{scroll-margin-top:60px}
+.thr-head{border-top:1px solid var(--thr-line);margin-top:14px;padding-top:10px}
+.thr-unit.first .thr-head{border-top:0;margin-top:6px;padding-top:4px}
+.thr-unit.cont .thr-head{border-top:0;margin-top:10px;padding-top:0}
+.thr-head h2{margin:0;font-family:"Frank Ruhl Libre",serif;font-weight:700;font-size:21px;
+  color:var(--thr-gold-deep);line-height:1.2}
+.thr-head h3{margin:0;font-family:Heebo,sans-serif;font-weight:700;font-size:15px;color:var(--thr-gold-deep);
+  line-height:1.3}
+.thr-head h2 + h3{margin-top:4px}
+.thr-sub{margin:4px 0 0;font-size:15px;line-height:1.45;color:var(--thr-soft)}
+.thr-note{margin:3px 0 0;font-size:13px;line-height:1.4;color:var(--thr-soft)}
+.thr-note:empty{display:none}
+.thr-txt{margin:4px 0 0;font-family:"Frank Ruhl Libre",serif;font-size:var(--read-size);font-weight:600;
+  line-height:var(--read-lh);color:var(--thr-ink);text-align:right;text-wrap:pretty;overflow-wrap:break-word}
+.thr-v{white-space:normal}
+.thr-lead{white-space:nowrap}
+.thr-vn{font-family:Heebo,sans-serif;font-size:.6em;font-weight:700;color:var(--thr-gold-deep);
+  vertical-align:.3em;margin-inline-end:.2em;line-height:0;user-select:none;-webkit-user-select:none}
+.thr-wait{font-size:15px;color:var(--thr-soft);padding:8px 0}
+
+/* ---------- "סיימתי" - מתחת לשורה האחרונה של הפרק (ט2) ---------- */
+.thr-seam{display:flex;justify-content:flex-start;margin-top:8px}
+.thr-done{border:1px solid #cdbb98;background:#fff;color:var(--thr-gold-deep);font-size:14px;font-weight:600;
+  height:34px;padding:0 12px;border-radius:17px;white-space:nowrap;position:relative}
+.thr-done::after{content:"";position:absolute;inset:-5px}
+.thr-done.ok{background:var(--thr-tint);border-color:transparent;color:var(--thr-ok);cursor:default}
+.thr-done:disabled{opacity:.6}
+
+/* ---------- פתיחה, סיום, וסוף הרצף ---------- */
+.thr-before,.thr-after{margin:14px 0 0}
+.thr-end{margin:26px 0 0;padding-top:16px;border-top:1px solid var(--thr-line);text-align:center}
+.thr-end p{margin:0 0 12px;font-size:16px;line-height:1.6;color:var(--thr-soft)}
+.thr-end button{font-size:17px;font-weight:700;border-radius:10px;padding:12px 22px;border:0;
+  background:var(--thr-gold);color:#fff;min-height:48px}
+
+/* ---------- ההודעה הקטנה בתחתית: "פרק כ"א סומן כנקרא · ביטול" ---------- */
+.thr-toast{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;
+  transform:translateX(-50%) translateY(140px);background:#2b2620;color:#fff;font-size:15px;
+  padding:10px 16px;border-radius:22px;display:flex;gap:14px;align-items:center;
+  transition:transform .25s;z-index:60;white-space:nowrap;max-width:calc(100vw - 24px)}
+.thr-toast.on{transform:translateX(-50%) translateY(0)}
+.thr-toast button{background:none;border:0;color:#f0d9a6;font-weight:700;font-size:15px;padding:4px;min-height:32px}
+.thr-toast button[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){.thr-toast,.thr-prog i{transition:none}}
+
+/* בזמן הקריאה הדף המארח מסתיר את כל מה שמסביב (body.thr-reading) */
+body.thr-reading{background:#fffcf5}

@@ -25,6 +25,7 @@ import {
   pickGeneral,
   pickSuggest,
   labelFor,
+  chapterStats,
 } from "./tehillim-catalog.js";
 
 const ALLOWED = [
@@ -56,6 +57,23 @@ const KLALI_META = {
   budgetMs: DEFAULT_BUDGET_MS,
   title: "להצלחת תורמי העמותה, חברי פרויקט שמע ישראל, והפועלים למען עם ישראל בכל מקום",
 };
+
+// ===== סגירת ספר על ידי הפותח (הכרעות ט5, ט6) =====
+// הסיבות שהפותח בוחר. נשמרות לפותח בלבד; לקוראים יוצאת רק ההודעה הניטרלית.
+const CLOSE_REASONS = ["filled", "deceased", "stop", "other"];
+
+// מספר הפרקים (מתוך 150) שנקראו, מתוך units של snapshot.
+function chaptersReadOf(units) {
+  let states = "";
+  for (const u of units || []) states += u.s === "read" ? "r" : u.s === "taken" ? "t" : "f";
+  return chapterStats(states).read;
+}
+
+// ההודעה לקוראים שנכנסים לספר סגור. בלי סיבה, בלי "נפטר" - מכבדת וניטרלית.
+function closedMessage(n) {
+  const read = n === 1 ? "נקרא בו פרק אחד" : "נקראו בו " + n + " פרקים";
+  return "הספר נסגר לבקשת מי שפתח אותו. " + read + ". תודה לכל מי שקרא והתפלל.";
+}
 
 // ===== עזרי תשובה =====
 
@@ -684,6 +702,13 @@ async function handleApi(request, url, env, origin) {
         return json({ ok: false, error: "no_book" }, 404, origin);
       }
       s.quiet = inQuietWindow(Date.now());
+      // ספר שהפותח סגר: status "closed" ו-closedBy "owner" (ספר שהושלם נשאר closedBy ריק).
+      // הדף מציג את closedMessage ואת כפתור הספר הכללי (generalUrl), ולא את הרשת.
+      if (s && s.closedBy === "owner") {
+        s.chaptersRead = chaptersReadOf(s.units);
+        s.closedMessage = closedMessage(s.chaptersRead);
+        s.generalUrl = SHORT + "/" + KLALI_ID;
+      }
       return json(s, 200, origin);
     }
 
@@ -694,6 +719,9 @@ async function handleApi(request, url, env, origin) {
         return json({ ok: false, error: "no_book" }, 404, origin);
       }
       const left = s.counts ? s.counts.total - s.counts.read : 0;
+      if (s.closedBy === "owner") {
+        return json({ ok: true, idx: null, done: false, closed: true, closedBy: "owner", left: left }, 200, origin);
+      }
       const pick = s.status === "open" ? pickSuggest(s.units) : null;
       if (!pick) return json({ ok: true, idx: null, done: true, left: left }, 200, origin);
       const u = UNITS[pick.idx] || {};
@@ -755,7 +783,7 @@ async function handleApi(request, url, env, origin) {
           /* ייפתח בקריאה הבאה ל-/api/klali */
         }
       }
-      return json(r, r.ok ? 200 : 429, origin);
+      return json(r, r.ok ? 200 : r.error === "closed" ? 409 : 429, origin);
     }
 
     if (op === "release" && request.method === "POST") {
@@ -790,7 +818,38 @@ async function handleApi(request, url, env, origin) {
       s.publicUrl = SHORT + "/" + (await publicToken(p.b));
       const cg = await doCall(counter(env), "catalog-get", { bookId: p.b });
       s.listed = cg && cg.listed ? 1 : 0;
+      // הפותח רואה גם את הסיבה שבחר, כדי שמסך הסגירה יחזור אחרי רענון
+      s.closable = p.b !== KLALI_ID && s.kind !== "klali" ? 1 : 0;
+      if (s.closedBy === "owner") {
+        const si = await doCall(stub, "shut-info", {});
+        s.closeReason = si && si.shut ? si.shut.reason : "";
+        s.closeNote = si && si.shut ? si.shut.note : "";
+        s.chaptersRead = chaptersReadOf(s.units);
+      }
       return json(s, 200, origin);
+    }
+
+    // סגירת ספר (הכרעות ט5, ט6): סופית, בלי פתיחה מחדש. גוף {reason, note}.
+    // reason אחד מ-CLOSE_REASONS; note טקסט קצר לא חובה (נשמר רק ב-"other").
+    // הקריאה הכללית אינה נסגרת לעולם.
+    if (op === "close" && request.method === "POST") {
+      if (p.b === KLALI_ID) return json({ ok: false, error: "klali" }, 403, origin);
+      const reason = CLOSE_REASONS.indexOf(b.reason) !== -1 ? b.reason : "";
+      if (!reason) return json({ ok: false, error: "bad_reason" }, 400, origin);
+      const note = reason === "other" ? cleanFree(b.note, 80) : "";
+      const r = await doCall(stub, "shut", { reason: reason, note: note });
+      if (!r || !r.ok) {
+        if (r && r.error === "klali") return json(r, 403, origin);
+        if (r && r.error === "no_book") return json(r, 404, origin);
+        return fail("close_failed", origin);
+      }
+      // יוצא גם מרישום הקטלוג. הספר כבר לא מוצג בכל מקרה (status), זה ניקיון בלבד.
+      try {
+        await doCall(counter(env), "catalog-set", { bookId: p.b, listed: 0 });
+      } catch (e) {
+        /* הקטלוג מסנן לפי status בכל מקרה */
+      }
+      return json(r, 200, origin);
     }
 
     if (op === "listing" && request.method === "POST") {

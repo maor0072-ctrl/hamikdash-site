@@ -142,9 +142,12 @@ export class BookDO {
       if (u.s === "taken") taken++;
       else if (u.s === "read") read++;
     }
+    const shut = this.shutInfo();
     return {
       ok: true,
-      status: this.getMeta("status") || "open",
+      status: shut ? "closed" : this.getMeta("status") || "open",
+      closedBy: shut ? "owner" : "",
+      closedAt: shut ? shut.at : 0,
       patientName: this.getMeta("patientName") || "",
       motherName: this.getMeta("motherName") || "",
       gender: this.getMeta("gender") || "",
@@ -179,7 +182,8 @@ export class BookDO {
     return {
       ok: true,
       exists: !!this.getMeta("createdAt"),
-      status: this.getMeta("status") || "open",
+      status: this.shutInfo() ? "closed" : this.getMeta("status") || "open",
+      closedBy: this.shutInfo() ? "owner" : "",
       kind: this.getMeta("kind") || "private",
       patientName: this.getMeta("patientName") || "",
       motherName: this.getMeta("motherName") || "",
@@ -228,6 +232,7 @@ export class BookDO {
   take(readerKey, readerName, idxs, budgetMs) {
     const now = Date.now();
     this.sweep(now);
+    if (this.shutInfo()) return { ok: false, error: "closed", closedBy: "owner" };
     if ((this.getMeta("status") || "open") !== "open") return { ok: false, error: "closed" };
     if (!readerKey || !idxs || !idxs.length) return { ok: false, error: "bad_request" };
 
@@ -272,6 +277,7 @@ export class BookDO {
   // את היחידה בינתיים. אדם שקרא באמת לא מאבד את מה שקרא בגלל שעון.
   markRead(readerKey, idxs, readerName) {
     const now = Date.now();
+    if (this.shutInfo()) return { ok: false, error: "closed", closedBy: "owner" };
     if (!readerKey || !idxs || !idxs.length) return { ok: false, error: "bad_request" };
 
     // אין הגבלת קצב על הסימון. הכרעת יעקב 24.9: יש פרקים של כמה שניות
@@ -323,6 +329,8 @@ export class BookDO {
   // ישראל. זו אותה מכונה בדיוק, ספר קבוע שפשוט נפתח מחדש כשהוא נסגר -
   // וזה מה שהופך את הקישור למשהו שנשלח כל יום ולא רק בשעת משבר.
   reopen(meta) {
+    // ספר שהפותח סגר לא נפתח לעולם, גם לא לסבב נוסף (הכרעה ט5)
+    if (this.shutInfo()) return { ok: false, error: "closed", closedBy: "owner" };
     // ספר פרטי לא רושם cycle בפתיחה, והסבב הראשון שלו הוא 1
     const cycle = Number(this.getMeta("cycle") || 1);
     if (!this.getMeta("createdAt")) {
@@ -392,6 +400,7 @@ export class BookDO {
   // הפנויים בין הקוראים שכבר נמצאים בספר, במנות שוות, ומאריך להם את הזמן.
   distribute() {
     const now = Date.now();
+    if (this.shutInfo()) return { ok: false, error: "closed" };
     this.sweep(now);
     const free = this.sql
       .exec("SELECT idx FROM units WHERE state = 'free' ORDER BY idx")
@@ -425,8 +434,37 @@ export class BookDO {
   }
 
   extend(targetDate) {
+    if (this.shutInfo()) return { ok: false, error: "closed" };
     if (targetDate) this.setMeta("targetDate", String(targetDate).slice(0, 20));
     return { ok: true, targetDate: this.getMeta("targetDate") || "" };
+  }
+
+  // ---- סגירת ספר על ידי הפותח (הכרעות ט5, ט6, 23.11.2026) ----
+  //
+  // סגירה סופית: אין פתיחה מחדש, אין סבב נוסף, ואין take/read אחריה. זה מצב
+  // נפרד מ"הושלם" (status=closed אחרי הפרק האחרון, שנפתח מיד לסבב נוסף):
+  // הסימן הוא המפתח shutAt ב-meta, והוא שגובר על כל השאר. מה שכבר נקרא נשמר,
+  // ההחזקות משתחררות. הסיבה נשמרת לפותח בלבד ואינה יוצאת בנתיב הציבורי.
+  shutInfo() {
+    const at = Number(this.getMeta("shutAt") || 0);
+    if (!at) return null;
+    return { at: at, reason: this.getMeta("shutReason") || "", note: this.getMeta("shutNote") || "" };
+  }
+
+  shut(reason, note) {
+    if (!this.getMeta("createdAt")) return { ok: false, error: "no_book" };
+    if ((this.getMeta("kind") || "") === "klali") return { ok: false, error: "klali" };
+    const prev = this.shutInfo();
+    if (prev) return { ok: true, already: true, closedAt: prev.at, reason: prev.reason, note: prev.note };
+    const now = Date.now();
+    this.setMeta("shutAt", now);
+    this.setMeta("shutReason", reason || "");
+    this.setMeta("shutNote", note || "");
+    this.sql.exec("DELETE FROM holds");
+    this.sql.exec(
+      "UPDATE units SET state='free', readerKey=NULL, readerName=NULL, takenAt=NULL, budgetMs=NULL WHERE state = 'taken'"
+    );
+    return { ok: true, already: false, closedAt: now, reason: reason || "", note: note || "" };
   }
 
   // הרשימה למסך הניהול: מי לקח מה, וכמה סימן.
@@ -491,6 +529,8 @@ export class BookDO {
     else if (op === "extend") out = this.extend(body.targetDate);
     else if (op === "roster") out = this.roster();
     else if (op === "counts") out = this.counts();
+    else if (op === "shut") out = this.shut(body.reason, body.note);
+    else if (op === "shut-info") out = { ok: true, shut: this.shutInfo() };
     else out = { ok: false, error: "unknown_op", op: op };
 
     return new Response(JSON.stringify(out), {

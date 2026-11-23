@@ -30,8 +30,9 @@
 <script src="https://hamikdash.co.il/tehillim/install.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Frank+Ruhl+Libre:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Frank+Ruhl+Libre:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://hamikdash.co.il/assets/style.css">
+<link rel="stylesheet" href="https://hamikdash.co.il/tehillim/reader.css">
 <style>
 /* ===== הדף הזה מוגש דרך הכתובת הקצרה, ולכן כל נכס סטטי בכתובת מלאה ===== */
 
@@ -225,6 +226,16 @@ details.how .note-box{margin:8px 0 0}
 .cellu .m.st{font-size:10px;line-height:1.2;color:var(--gold-deep);font-weight:700}
 .cellu.done .m.st{color:#6f8f6f}
 
+/* ---------- אפיון 23.11.2026: עמוד הספר מפנה, מסך הקריאה ב-reader.js ---------- */
+.mych-go{width:100%;margin-top:14px;font-size:19px}
+.mych .mych-min{margin-top:10px;line-height:1.6}
+.resume{display:block;width:calc(100% - 32px);font-family:inherit;text-align:right;cursor:pointer;
+  border:2px solid var(--gold);background:#fffaf0;font-size:17px;line-height:1.5;color:var(--ink)}
+.resume b{display:block;color:var(--gold-deep);font-size:15px;margin-bottom:2px}
+.chooser-open{text-align:center;margin:4px 0 22px}
+body.thr-reading .slim,body.thr-reading .site-footer,body.thr-reading .tray{display:none}
+body.thr-reading{padding-bottom:0}
+
 .spinner{text-align:center;padding:60px 20px;color:var(--ink-soft)}
 .charity{max-width:560px;margin:26px auto 0;padding:14px 16px;border-radius:10px;background:#f6efe2;border:1px solid #e3d9c8;text-align:center}
 .charity p{margin:0 0 8px}
@@ -269,32 +280,22 @@ details.how .note-box{margin:8px 0 0}
   </div>
 
   <!-- הפרק שלך (הכרעה ה1): פרק מוכן לקריאה, בלי לבחור. ההצעה אינה תופסת ואינה נספרת - רק „קראתי" -->
+  <!-- להמשיך מהמקום האחרון (אפיון 23.11.2026): נשמר במכשיר לפי פרק ופסוק -->
+  <button type="button" class="card resume" id="resume" style="display:none"></button>
+
+  <!-- הפרק הבא לקריאה: כפתור אחד שנכנס למסך הקריאה הרציף. הטקסט עצמו רק במסך הקריאה. -->
   <div class="card mych" id="mych" style="display:none">
-    <div class="form-msg" id="mych-ok" role="status" style="margin:0 0 14px"></div>
-    <div class="mych-top">
-      <div>
-        <div class="mych-kicker">הפרק שלך</div>
-        <h2 class="mych-title" id="mych-title"></h2>
-        <div class="mych-min" id="mych-min"></div>
-      </div>
-      <div class="size-ctl">
-        <button type="button" class="sz-down" aria-label="להקטין את האותיות">א-</button>
-        <button type="button" class="sz-up" aria-label="להגדיל את האותיות">א+</button>
-      </div>
-    </div>
-    <a href="#choose" class="mych-other" id="mych-other">לבחור פרק אחר או כמה פרקים</a>
+    <div class="mych-kicker">הפרק הבא לקריאה</div>
+    <h2 class="mych-title" id="mych-title"></h2>
     <p class="tiny" id="mych-note" style="margin:4px 0 0;display:none"></p>
-    <div class="verses" id="mych-verses"></div>
-    <div class="read-actions">
-      <button type="button" class="btn btn-lg" id="mych-next">קראתי, לפרק הבא</button>
-      <button type="button" class="btn btn-lg btn-soft" id="mych-end">קראתי, סיימתי</button>
-    </div>
-    <div class="form-msg" id="mych-msg" role="status"></div>
+    <button type="button" class="btn btn-lg mych-go" id="mych-go"></button>
+    <p class="mych-min">קוראים וגוללים מפרק לפרק. פרק שגוללים ממנו לבא אחריו נספר כנקרא, ותמיד אפשר ללחוץ "סיימתי".</p>
+    <a href="#choose" class="mych-other" id="mych-other">לבחור פרק אחר או כמה פרקים</a>
   </div>
 
   <!-- ספר שהושלם -->
   <div class="card" id="mych-done" style="display:none;text-align:center">
-    <p style="font-size:20px;font-weight:800;margin:0 0 12px">הספר הושלם. ישר כוח לכל מי שהשתתף!</p>
+    <p style="font-size:20px;font-weight:800;margin:0 0 12px" id="mych-done-t">הספר הושלם. ישר כוח לכל מי שהשתתף!</p>
     <a class="btn btn-lg" id="mych-klali" href="https://t.hamikdash.co.il/klali">לקריאה בספר הכללי</a>
   </div>
 
@@ -319,6 +320,9 @@ details.how .note-box{margin:8px 0 0}
     </details>
   </div>
 
+  <!-- הרשת של 171 היחידות: אפשרות ("לבחור פרק אחר"), לא המסך הראשי -->
+  <p class="chooser-open" id="chooser-open-wrap"><button type="button" class="btn btn-ghost" id="chooser-open">לבחור פרקים מהרשת, או לסמן פרקים שקראתי</button></p>
+  <div id="chooser" hidden>
   <p class="invite-line" id="choose">אפשר לבחור את הפרקים הקבועים שלך, או כל פרק ופרק אחר. גם אם לא נסיים היום, כל מי שקורא משהו, זה נשמר.</p>
 
   <div class="range" id="range" role="group" aria-label="בחירת רצף">
@@ -339,6 +343,7 @@ details.how .note-box{margin:8px 0 0}
   <p class="tiny" style="text-align:center;margin-bottom:6px" id="filter-note"></p>
 
   <div class="sefer" id="grid-wrap" style="padding:0 20px"></div>
+  </div>
 
   <div style="max-width:900px;margin:0 auto 90px;padding:0 20px">
     <div class="invite" id="invite-grid" style="display:none">
@@ -401,31 +406,9 @@ details.how .note-box{margin:8px 0 0}
 </div>
 
 <!-- ============ מסך 3: קריאה ============ -->
+<!-- נטו קריאה: הפס העליון, שורת ההקדשה והפרקים ברצף - נבנה ב-reader.js -->
 <div class="view" id="view-read">
-  <div class="read-top">
-    <div class="read-top-in">
-      <div class="read-step" id="r-step"></div>
-      <div class="size-ctl">
-        <button type="button" class="sz-down" aria-label="להקטין את האותיות">א-</button>
-        <button type="button" class="sz-up" aria-label="להגדיל את האותיות">א+</button>
-      </div>
-      <div class="clock" id="r-clock"></div>
-    </div>
-  </div>
-
-  <div style="padding:0 20px 40px">
-    <p class="tiny" id="r-for" style="text-align:center;margin:0 0 4px"></p>
-    <h2 class="ch-title" id="r-title"></h2>
-    <div class="verses" id="r-verses"></div>
-
-    <div class="read-actions">
-      <button type="button" class="btn btn-lg" id="r-done">קראתי, לפרק הבא</button>
-      <button type="button" class="btn btn-lg btn-soft" id="r-stop">קראתי, ואסיים כאן
-        <span>יתר הפרקים שבחרתם ישוחררו מהבחירה שלכם.</span></button>
-      <button type="button" class="btn btn-ghost" id="r-later">לחזור לספר</button>
-    </div>
-    <div class="form-msg" id="r-msg" style="max-width:760px;margin:14px auto 0" role="status"></div>
-  </div>
+  <div id="reader-mount"></div>
 </div>
 
 <!-- ============ מסך 4: ישר כוח ============ -->
@@ -499,6 +482,7 @@ details.how .note-box{margin:8px 0 0}
 </footer>
 
 <script src="https://hamikdash.co.il/tehillim/topics.js"></script>
+<script src="https://hamikdash.co.il/tehillim/reader.js"></script>
 <script>
 (function () {
   "use strict";
@@ -747,7 +731,7 @@ details.how .note-box{margin:8px 0 0}
     }
     if (!u) return;
 
-    if (u.s === "taken" && u.mine) { QUEUE = [i]; QPOS = 0; DONE_NOW = []; RELEASED_NOW = 0; openRead(); return; }
+    if (u.s === "taken" && u.mine) { startReading([i]); return; }
     if (u.s === "read") return;
 
     var p = SEL.indexOf(i);
@@ -860,8 +844,11 @@ details.how .note-box{margin:8px 0 0}
   $("tray-clear").addEventListener("click", function () { SEL = []; paint(); });
   $("tray-go").addEventListener("click", function () {
     if (!SEL.length) return;
-    var names = SEL.map(function (i) { return UNITS[i].name; }).join(", ");
-    gate((SEL.length === 1 ? "בחרתם פרק אחד: " : "בחרתם " + SEL.length + " פרקים: ") + names, takeSel);
+    // בלי טופס לפני הקריאה ובלי תפיסה מראש: במסך הקריאה נתפס רק הפרק שבראש המסך (ט4)
+    var seq = SEL.slice().sort(function (a, b) { return a - b; });
+    SEL = [];
+    paint();
+    startReading(seq);
   });
 
   document.querySelectorAll(".filters button").forEach(function (b) {
@@ -917,296 +904,157 @@ details.how .note-box{margin:8px 0 0}
     });
   });
 
-  // ---------- תפיסה של הבחירה מהרשת ----------
-  function takeSel() {
-    var btn = $("view-who").classList.contains("on") ? $("who-go") : $("tray-go");
-    var label = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = "תופס את הפרקים...";
-    post("/take", { readerKey: RK, readerName: readerName(), idxs: SEL.slice() })
-      .then(function (d) {
-        btn.disabled = false;
-        btn.textContent = label;
-        if (d && d.ok) {
-          QUEUE = d.taken.slice().sort(function (a, b) { return a - b; });
-          QPOS = 0;
-          DONE_NOW = [];
-          RELEASED_NOW = 0;
-          CLOSED_NOW = false;
-          SEL = [];
-          var notes = [];
-          if (d.shared && d.shared.length) {
-            notes.push("מישהו אחר כבר לקח על עצמו את " + d.shared.map(function (i) { return UNITS[i].name; }).join(", ") +
-              ". אם תקראו לפניו, הפרק יסומן כנקרא.");
-          }
-          if (d.alreadyRead && d.alreadyRead.length) {
-            notes.push("הפרקים " + d.alreadyRead.map(function (i) { return UNITS[i].name; }).join(", ") +
-              " כבר נקראו בינתיים, ולכן לא נלקחו.");
-          }
-          PENDING_NOTE = notes.join(" ");
-          if (!QUEUE.length) {
-            say(PENDING_NOTE || "כל הפרקים שבחרתם כבר נקראו.");
-            refresh();
-            return;
-          }
-          refresh().then(function () { openRead(); });
-          return;
-        }
-        if (d && d.error === "lost") {
-          var names = (d.lost || []).map(function (i) { return UNITS[i].name; }).join(", ");
-          say("מישהו הקדים אתכם על " + names + ". חזרו ובחרו שוב - הרשת כבר מעודכנת.");
-          SEL = SEL.filter(function (i) { return (d.lost || []).indexOf(i) === -1; });
-          refresh();
-          return;
-        }
-        if (d && d.error === "closed") {
-          say("הספר הזה כבר הושלם. ישר כוח לכולם.");
-          refresh();
-          return;
-        }
-        say("משהו השתבש. נסו שוב בעוד רגע.");
-      })
-      .catch(function () {
-        btn.disabled = false;
-        btn.textContent = label;
-        say("אין חיבור לשרת כרגע. נסו שוב בעוד רגע.");
-      });
+  // ---------- מסך הקריאה (אפיון 23.11.2026, הכרעות ט1-ט4) ----------
+  // הקריאה עצמה ב-reader.js. כאן רק הקשר לשרת: תפיסה לשעה של הפרק שבראש המסך
+  // בלבד (ט4), שחרור כשעוברים ממנו בלי לסמן, וסימון read. אין נעילה ואין ספירה
+  // כפולה - השרת סופר את הראשון שסימן, והשני מקבל already.
+  var READER = null;
+  var HELD = [];          // יחידות שתפוסות על שמי מתוך מסך הקריאה
+  var ALREADY_NOW = [];   // סימנתי, אבל מישהו אחר סימן קודם בסבב הזה
+  var takeTimer = null, relTimers = {};
+  var DEDICATION = "להצלחת תורמי העמותה, הקוראים וכל ישראל.";
+
+  function unitName(i) {
+    var u = UNITS[i];
+    return THReader.hebName(u.ch) + (u.part ? " אות " + THReader.LETTERS[u.part - 1] : "");
   }
-
-  // ---------- קריאה רציפה ----------
-  var textCache = {};
-
-  function loadText(i) {
-    if (textCache[i]) return Promise.resolve(textCache[i]);
-    return fetch(SITE + "/tehillim/text/" + i + ".json")
-      .then(function (r) { return r.json(); })
-      .then(function (d) { textCache[i] = d; return d; });
+  function placeKey() { return "th_place:" + TOKEN; }
+  function savePlace(p) {
+    try {
+      localStorage.setItem(placeKey(), JSON.stringify({ i: p.key, v: p.verse, t: Date.now() }));
+      // החוזה עם הדף הראשי (יומן הבנייה 23.11.2026): th_resume = {url, where}. הכתובת נושאת
+      // #r=<יחידה>.<פסוק>, ועמוד הספר נפתח ממנה ישר למסך הקריאה במקום הזה.
+      var book = STATE && STATE.kind !== "klali" ? forWhomText(STATE) : "הספר הכללי";
+      localStorage.setItem("th_resume", JSON.stringify({
+        url: "https://t.hamikdash.co.il/" + TOKEN + "#r=" + p.key + "." + p.verse,
+        where: book + ", פרק " + THReader.hebName(UNITS[p.key].ch) + " פסוק " + THReader.heb(p.verse || 1)
+      }));
+    } catch (e) { /* בסדר */ }
   }
+  function loadPlace() {
+    try {
+      var p = JSON.parse(localStorage.getItem(placeKey()) || "null");
+      if (p && UNITS && UNITS[p.i] && Date.now() - (p.t || 0) < 60 * 86400000) return p;
+    } catch (e) { /* בסדר */ }
+    return null;
+  }
+  function stateOf(i) {
+    if (!STATE || !STATE.units) return null;
+    for (var k = 0; k < STATE.units.length; k++) if (STATE.units[k].i === i) return STATE.units[k];
+    return null;
+  }
+  function fromHere(a) { var out = []; for (var i = a; i < UNITS.length; i++) out.push(i); return out; }
 
-  function openRead() {
-    if (QPOS >= QUEUE.length) { finish(); return; }
-    var i = QUEUE[QPOS];
-    $("r-step").textContent = QUEUE.length > 1
-      ? "פרק " + (QPOS + 1) + " מתוך " + QUEUE.length + " שבחרתם"
-      : "הפרק שבחרתם";
-    $("r-for").textContent = forWhomText(STATE);
-    $("r-msg").className = "form-msg";
-    $("r-title").textContent = "תהילים " + UNITS[i].name;
-    $("r-verses").innerHTML = "<p class='tiny'>טוען...</p>";
-    if (PENDING_NOTE) {
-      $("r-msg").className = "form-msg";
-      $("r-msg").textContent = PENDING_NOTE;
-      PENDING_NOTE = "";
-    }
-    var cur = null;
-    if (STATE) STATE.units.forEach(function (u) { if (u.i === i) cur = u; });
-    if (cur && cur.s === "read" && DONE_NOW.indexOf(i) === -1 && AGAIN_OK.indexOf(i) === -1) {
-      showAgain(i);
-      return;
-    }
-    resetReadButtons();
+  function startReading(seq, start) {
+    if (!seq || !seq.length) return;
+    DONE_NOW = []; ALREADY_NOW = []; CLOSED_NOW = false; HELD = [];
+    var units = THReader.bookUnits(UNITS, seq, function (i) { return SITE + "/tehillim/text/" + i + ".json"; });
+    units.forEach(function (u) {
+      var s = stateOf(u.key);
+      if (s && s.s === "read") {
+        if (s.mine) u.read = true;
+        else u.note = "נקרא כבר בסבב הזה";
+      }
+    });
+    var who = STATE && STATE.kind !== "klali" ? forWhomText(STATE) : "";
     show("read");
-    startClock();
-
-    loadText(i).then(function (d) {
-      var html = "";
-      d.verses.forEach(function (v, n) {
-        html += "<p><span class='vn'>" + (n + 1) + "</span>" + escapeHtml(v) + "</p>";
-      });
-      $("r-verses").innerHTML = html;
-      applySize();
-    }).catch(function () {
-      $("r-verses").innerHTML = "<p class='tiny'>לא הצלחנו לטעון את הטקסט. " +
-        "נסו לרענן את הדף - הפרק עדיין שמור על שמכם.</p>";
+    document.body.classList.add("thr-reading");
+    READER = THReader.create({
+      mount: $("reader-mount"),
+      units: units,
+      start: start || null,
+      dedication: who ? who + "." : DEDICATION,
+      backLabel: "חזרה לעמוד הספר",
+      endText: seq[seq.length - 1] === UNITS.length - 1 ? "הגעתם לסוף ספר התהילים." : "",
+      endLabel: "לסיום הקריאה",
+      onBack: exitReading,
+      onMark: markOne,
+      onCurrent: onCurrent,
+      onPlace: savePlace
     });
   }
 
-  // הפרק נקרא כבר על ידי מישהו אחר: לקרוא שוב, או לדלג לפרק הבא שלא נקרא
-  function showAgain(i) {
-    show("read");
-    $("r-verses").innerHTML =
-      "<div class='again'><p>תהילים " + escapeHtml(UNITS[i].name) + ": הפרק כבר נקרא בסבב הזה. אפשר לקרוא אותו שוב או להמשיך לפרק הבא.</p>" +
-      "<button type='button' class='btn' id='again-read'>לקרוא שוב</button>" +
-      "<button type='button' class='btn btn-ghost' id='again-skip'>לפרק הבא</button></div>";
-    $("again-read").onclick = function () { AGAIN_OK.push(i); openRead(); };
-    $("again-skip").onclick = function () { QPOS++; openRead(); };
+  function onCurrent(u, prev) {
+    clearTimeout(takeTimer);
+    if (prev) scheduleRelease(prev.key);
+    if (relTimers[u.key]) { clearTimeout(relTimers[u.key]); delete relTimers[u.key]; }
+    // רק מי שנשאר בפרק כמה שניות תופס אותו. מי שגולל לחפש פרק לא תופס כלום.
+    takeTimer = setTimeout(function () { takeOne(u.key); }, 2500);
+  }
+  function takeOne(i) {
+    if (!READER || HELD.indexOf(i) !== -1 || DONE_NOW.indexOf(i) !== -1 || ALREADY_NOW.indexOf(i) !== -1) return;
+    var s = stateOf(i);
+    if (s && s.s === "read") return;
+    post("/take", { readerKey: RK, readerName: readerName(), idxs: [i] }).then(function (d) {
+      if (!d || !d.ok || !READER) return;
+      if ((d.taken || []).indexOf(i) !== -1) HELD.push(i);
+      if ((d.alreadyRead || []).indexOf(i) !== -1) READER.setNote(i, "נקרא כבר בסבב הזה");
+      else if ((d.shared || []).indexOf(i) !== -1) READER.setNote(i, "קוראים גם אחרים את הפרק הזה");
+    }).catch(function () { /* התפיסה אינה תנאי לקריאה */ });
+  }
+  function scheduleRelease(i) {
+    if (HELD.indexOf(i) === -1 || relTimers[i]) return;
+    relTimers[i] = setTimeout(function () {
+      delete relTimers[i];
+      var c = READER && READER.current();
+      if (c && c.key === i) return;
+      if (DONE_NOW.indexOf(i) !== -1 || ALREADY_NOW.indexOf(i) !== -1) return;
+      releaseIdx([i]);
+    }, 5000);
+  }
+  function releaseIdx(list) {
+    if (!list || !list.length) return Promise.resolve();
+    HELD = HELD.filter(function (x) { return list.indexOf(x) === -1; });
+    return post("/release", { readerKey: RK, idxs: list }).catch(function () { /* יפקע לבד בתוך שעה */ });
+  }
+
+  function markOne(u) {
+    var i = u.key;
+    return post("/read", { readerKey: RK, readerName: readerName(), idxs: [i] }).then(function (d) {
+      var ok = d && d.ok && ((d.read && d.read.length) || (d.already && d.already.length));
+      if (!ok) {
+        var shut = d && d.error === "closed" && d.closedBy === "owner";
+        if (shut) refresh();
+        return { ok: false, message: shut
+          ? ((STATE && STATE.closedMessage) || "הספר נסגר לבקשת מי שפתח אותו.") + " הסימון לא נקלט." : "" };
+      }
+      HELD = HELD.filter(function (x) { return x !== i; });
+      if (d.read && d.read.length) { if (DONE_NOW.indexOf(i) === -1) DONE_NOW.push(i); }
+      else if (ALREADY_NOW.indexOf(i) === -1) ALREADY_NOW.push(i);
+      if (d.closed) CLOSED_NOW = true;
+      return { ok: true, already: !(d.read && d.read.length) };
+    });
+  }
+
+  function exitReading() {
+    clearTimeout(takeTimer);
+    for (var k in relTimers) clearTimeout(relTimers[k]);
+    relTimers = {};
+    var held = HELD.slice();
+    if (READER) { READER.destroy(); READER = null; }
+    document.body.classList.remove("thr-reading");
+    releaseIdx(held);
+    finish();
   }
 
   function escapeHtml(s) {
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
-  var DONE_LABEL = "קראתי, לפרק הבא";
-  var LAST_LABEL = "קראתי, סיימתי";
-  var STOP_LABEL = "קראתי, ואסיים כאן";
-
-  // אילו פרקים מוחזקים על שמי מלבד זה שפתוח עכשיו. אלה מה שישוחרר.
-  //
-  // שני מקורות, ושניהם נחוצים: התור עצמו (מה שנתפס עכשיו), ומצב השרת
-  // (פרקים שנתפסו בביקור קודם). אי אפשר להסתמך על STATE לבדו - openRead
-  // נקרא מיד אחרי התפיסה, לפני שה-refresh חזר, ואז השרת עוד מראה אותם
-  // פנויים והכפתור היה נעלם בדיוק כשהוא הכי נחוץ.
-  function otherHeld() {
-    var cur = QUEUE[QPOS];
-    var out = [];
-    for (var k = QPOS + 1; k < QUEUE.length; k++) {
-      if (QUEUE[k] !== cur && out.indexOf(QUEUE[k]) === -1) out.push(QUEUE[k]);
-    }
-    if (STATE) {
-      STATE.units.forEach(function (u) {
-        if (u.mine && u.s === "taken" && u.i !== cur && out.indexOf(u.i) === -1) out.push(u.i);
-      });
-    }
-    return out;
-  }
-
-  function resetReadButtons() {
-    var last = QPOS >= QUEUE.length - 1;
-    var rest = otherHeld().length;
-
-    $("r-done").disabled = false;
-    $("r-done").textContent = last ? LAST_LABEL : DONE_LABEL;
-
-    // "לא ממשיך" מוצג רק כשיש באמת מה לשחרר. אחרת הוא כפתור שלא עושה כלום.
-    var stop = $("r-stop");
-    stop.disabled = false;
-    stop.style.display = rest ? "" : "none";
-    stop.innerHTML = STOP_LABEL + "<span>" +
-      (rest === 1 ? "הפרק הנוסף שבחרתם ישוחרר מהבחירה שלכם."
-                  : "יתר הפרקים שבחרתם ישוחררו מהבחירה שלכם.") + "</span>";
-  }
-
-  $("r-later").addEventListener("click", function () { stopClock(); refresh(); show("grid"); });
-
-  // מסמן את הפרק הפתוח. stop=true פירושו: לשחרר אחר כך את השאר ולסיים.
-  function markCurrent(stop) {
-    var i = QUEUE[QPOS];
-    var rest = stop ? otherHeld() : [];
-    var btn = stop ? $("r-stop") : $("r-done");
-    $("r-done").disabled = true;
-    $("r-stop").disabled = true;
-    var label = btn.innerHTML;
-    btn.textContent = "מסמן...";
-
-    post("/read", { readerKey: RK, readerName: readerName(), idxs: [i] }).then(function (d) {
-      // נקלט, או שמישהו אחר סימן אותו קודם - שניהם קריאה שהתקבלה (הכרעה 17)
-      var accepted = d && d.ok && ((d.read && d.read.length) || (d.already && d.already.length));
-      if (accepted) DONE_NOW.push(i);
-      if (d && d.closed) CLOSED_NOW = true;
-
-      if (!accepted) {
-        $("r-msg").className = "form-msg err";
-        $("r-msg").textContent = "הסימון לא נקלט. נסו שוב בעוד רגע.";
-      }
-
-      if (!stop) {
-        btn.innerHTML = label;
-        QPOS++;
-        refresh();
-        if (accepted) openRead();
-        else setTimeout(function () { refresh(); openRead(); }, 1600);
-        return;
-      }
-
-      // עוצרים: משחררים את מה שנשאר על שמי, כדי שלא ייתקע אצלי
-      var done = function () {
-        RELEASED_NOW = rest.length;
-        QPOS = QUEUE.length;
-        stopClock();
-        refresh();
-        finish();
-      };
-      if (!rest.length) return done();
-      post("/release", { readerKey: RK, idxs: rest }).then(done).catch(done);
-    }).catch(function () {
-      $("r-done").disabled = false;
-      $("r-stop").disabled = false;
-      btn.innerHTML = label;
-      $("r-msg").className = "form-msg err";
-      $("r-msg").textContent = "אין חיבור לשרת. הפרק שמור על שמכם - נסו שוב בעוד רגע.";
-    });
-  }
-
-  $("r-done").addEventListener("click", function () { markCurrent(false); });
-  $("r-stop").addEventListener("click", function () { markCurrent(true); });
-
-  // ---------- השעון ----------
-  function myExpiry() {
-    if (!STATE) return 0;
-    var i = QUEUE[QPOS];
-    for (var k = 0; k < STATE.units.length; k++) {
-      if (STATE.units[k].i === i) return STATE.units[k].exp || 0;
-    }
-    return 0;
-  }
-
-  function startClock() {
-    stopClock();
-    tickClock();
-    clockTimer = setInterval(tickClock, 1000);
-  }
-  function stopClock() { if (clockTimer) clearInterval(clockTimer); clockTimer = null; }
-
-  function tickClock() {
-    var el = $("r-clock");
-    var exp = myExpiry();
-    if (!exp) { el.textContent = ""; return; }
-    var now = Date.now();
-
-    if (inQuiet(now)) {
-      el.className = "clock paused";
-      el.textContent = "השעון עוצר בשבת ובחג";
-      return;
-    }
-
-    var left = exp - now;
-    if (left <= 0) {
-      el.className = "clock low";
-      el.textContent = "אפשר להמשיך לקרוא ולסמן גם עכשיו.";
-      return;
-    }
-    // "נשארו 60 דקות" ולא 59: מעגלים כלפי מעלה
-    var mins = Math.ceil(left / 60000);
-    el.className = "clock" + (mins <= 10 ? " low" : "");
-    el.textContent = mins === 1
-      ? "הבחירה נשמרת לעוד דקה"
-      : "הבחירה נשמרת לעוד " + mins + " דקות";
-  }
-
-  // ---------- גודל הטקסט ----------
-  function sizeVal(v) {
-    try {
-      if (v != null) localStorage.setItem("tehillim_sz", v);
-      return Number(localStorage.getItem("tehillim_sz") || 0);
-    } catch (e) { return 0; }
-  }
-  function applySize() {
-    var base = window.innerWidth <= 520 ? 21 : 23;
-    $("r-verses").style.fontSize = (base + sizeVal() * 2) + "px";
-    $("mych-verses").style.fontSize = (base + sizeVal() * 2) + "px";
-  }
-  document.querySelectorAll(".sz-up").forEach(function (b) {
-    b.addEventListener("click", function () { sizeVal(Math.min(6, sizeVal() + 1)); applySize(); });
-  });
-  document.querySelectorAll(".sz-down").forEach(function (b) {
-    b.addEventListener("click", function () { sizeVal(Math.max(-2, sizeVal() - 1)); applySize(); });
-  });
-
-  // ---------- מסך הסיום ----------
+  // ---------- מסך הסיכום: מופיע ביציאה מהקריאה ----------
   function finish() {
-    stopClock();
     showMyCount();
-    if (!DONE_NOW.length) { refresh(); show("grid"); return; }
-    var names = DONE_NOW.map(function (i) { return UNITS[i].name; }).join(", ");
+    var all = DONE_NOW.concat(ALREADY_NOW).sort(function (a, b) { return a - b; });
+    if (!all.length) { backToBook(); return; }
+    var names = all.map(unitName).join(", ");
     var who = forWhomText(STATE);
-    var txt = (DONE_NOW.length === 1 ? "קראתם את תהילים " + escapeHtml(names)
-                                     : "קראתם " + DONE_NOW.length + " פרקים (" + escapeHtml(names) + ")") +
+    var txt = (all.length === 1 ? "קראתם את פרק " + escapeHtml(names)
+                                : "קראתם " + all.length + " פרקים (" + escapeHtml(names) + ")") +
       (who ? " " + escapeHtml(who) : "") + ".";
-    if (RELEASED_NOW) {
-      txt += "<br><span class='tiny'>" + (RELEASED_NOW === 1
-        ? "הפרק שנשאר אצלכם שוחרר וחזר לרשימה עבור אחרים."
-        : RELEASED_NOW + " הפרקים שנשארו אצלכם שוחררו וחזרו לרשימה עבור אחרים.") +
-        "</span>";
+    if (ALREADY_NOW.length) {
+      txt += "<br><span class='tiny'>" + (ALREADY_NOW.length === 1
+        ? "פרק אחד מהם כבר נקרא בסבב הזה בידי אחר, ולכן לא נספר שוב בהתקדמות הספר."
+        : ALREADY_NOW.length + " מהם כבר נקראו בסבב הזה בידי אחרים, ולכן לא נספרו שוב בהתקדמות הספר.") + "</span>";
     }
     $("end-what").innerHTML = txt;
     $("end-closed").style.display = CLOSED_NOW ? "" : "none";
@@ -1216,16 +1064,30 @@ details.how .note-box{margin:8px 0 0}
   }
 
   function backToBook() {
-    SEL = []; DONE_NOW = []; RELEASED_NOW = 0; CLOSED_NOW = false;
+    SEL = []; DONE_NOW = []; ALREADY_NOW = []; CLOSED_NOW = false;
     show("grid");
+    paintResume();
     return refresh().then(loadSuggest);
   }
-  // „לקרוא עוד פרק" - ישר לכרטיס עם הפרק המוצע הבא
+  // „לקרוא עוד" - חזרה לעמוד הספר, לפרק המוצע הבא
   $("end-more").addEventListener("click", function () { backToBook(); });
   // „לראות את התקדמות הספר" - לפס ההתקדמות שבראש הספר
   $("end-back").addEventListener("click", function () {
     backToBook();
     $("pb-read").parentNode.parentNode.scrollIntoView({ block: "center" });
+  });
+
+  // ---------- להמשיך מהמקום האחרון ----------
+  function paintResume() {
+    var p = loadPlace(), b = $("resume");
+    if (!p) { b.style.display = "none"; return; }
+    var u = UNITS[p.i];
+    b.innerHTML = "<b>להמשיך מהמקום האחרון</b>פרק " + THReader.hebName(u.ch) + " פסוק " + THReader.heb(p.v || 1);
+    b.style.display = "";
+  }
+  $("resume").addEventListener("click", function () {
+    var p = loadPlace();
+    if (p) startReading(fromHere(p.i), { key: p.i, verse: p.v });
   });
 
   // ---------- כותרת הספר ----------
@@ -1272,18 +1134,26 @@ details.how .note-box{margin:8px 0 0}
     return p.length === 3 ? p[2] + "." + p[1] + "." + p[0] : iso;
   }
 
-  // ---------- הפרק שלך (הכרעה ה1, 5.11.2026) ----------
-  // השרת מציע פרק (suggest) בלי לתפוס אותו ובלי לספור. רק „קראתי" משנה מצב:
-  // take ואז read על אותו פרק, עם אותו readerKey של הדף.
+  // ---------- הפרק הבא לקריאה (הכרעה ה1, ובאפיון 23.11.2026 - כפתור בלבד) ----------
+  // השרת מציע פרק (suggest) בלי לתפוס אותו ובלי לספור. הכפתור פותח את מסך הקריאה
+  // מהפרק הזה והלאה; שם נתפס רק הפרק שבראש המסך (ט4).
   function loadSuggest() {
     return fetch(API + "/api/book/" + TOKEN + "/suggest?rk=" + encodeURIComponent(RK))
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d || !d.ok) return;
-        if (d.done || d.idx == null) {
+        var shut = STATE && STATE.closedBy === "owner";
+        if (shut || d.done || d.idx == null) {
           CARD_IDX = null;
           $("mych").style.display = "none";
           $("mych-done").style.display = "";
+          // ספר שפותחו סגר (ט5) - מצב נפרד מ"הושלם"
+          $("mych-done-t").textContent = shut
+            ? (STATE.closedMessage || "הספר נסגר לבקשת מי שפתח אותו. תודה לכל מי שקרא והתפלל.")
+            : "הספר הושלם. ישר כוח לכל מי שהשתתף!";
+          $("mych-klali").textContent = shut ? "להמשיך לקרוא בספר הכללי" : "לקריאה בספר הכללי";
+          if (shut && /^https:\/\/t\.hamikdash\.co\.il\//.test(STATE.generalUrl || "")) $("mych-klali").href = STATE.generalUrl;
+          if (shut) { $("resume").style.display = "none"; $("chooser-open-wrap").style.display = "none"; $("chooser").hidden = true; $("printed").style.display = "none"; }
           $("mych-klali").style.display = STATE && STATE.kind === "klali" ? "none" : "";
           return;
         }
@@ -1294,90 +1164,27 @@ details.how .note-box{margin:8px 0 0}
   }
 
   function showCard(i, othersToo) {
-    var keepMsg = CARD_IDX !== null && CARD_IDX !== i;
     CARD_IDX = i;
-    var u = UNITS[i];
-    $("mych-title").textContent = "תהילים " + u.name;
-    $("mych-min").textContent = "כ-" + u.min + (u.min === 1 ? " דקה" : " דקות");
+    $("mych-title").textContent = "פרק " + unitName(i);
+    $("mych-go").textContent = "להתחיל לקרוא מפרק " + unitName(i);
     $("mych-note").style.display = othersToo ? "" : "none";
     $("mych-note").textContent = othersToo ? "קוראים גם אחרים את הפרק הזה. אפשר לקרוא אותו, ומי שמסמן ראשון - הפרק נספר." : "";
-    $("mych-msg").className = "form-msg";
-    if (!keepMsg) $("mych-ok").className = "form-msg";
-    $("mych-next").disabled = false;
-    $("mych-end").disabled = false;
-    $("mych-next").textContent = "קראתי, לפרק הבא";
-    $("mych-end").textContent = "קראתי, סיימתי";
-    $("mych-verses").innerHTML = "<p class='tiny'>טוען...</p>";
     $("mych").style.display = "";
-    loadText(i).then(function (d) {
-      if (CARD_IDX !== i) return;
-      var html = "";
-      d.verses.forEach(function (v, n) {
-        html += "<p><span class='vn'>" + (n + 1) + "</span>" + escapeHtml(v) + "</p>";
-      });
-      $("mych-verses").innerHTML = html;
-      applySize();
-    }).catch(function () {
-      $("mych-verses").innerHTML = "<p class='tiny'>לא הצלחנו לטעון את הטקסט. נסו לרענן את הדף.</p>";
-    });
   }
 
-  function cardMark(end) {
-    if (CARD_IDX === null) return;
-    gate("מסמנים את תהילים " + UNITS[CARD_IDX].name + " כנקרא.", function () { doCardMark(end); });
-  }
-
-  function doCardMark(end) {
-    var i = CARD_IDX;
-    if ($("view-who").classList.contains("on")) show("grid");
-    var btn = end ? $("mych-end") : $("mych-next");
-    $("mych-next").disabled = true;
-    $("mych-end").disabled = true;
-    btn.textContent = "מסמן...";
-    var fail = function (text) {
-      $("mych-next").disabled = false;
-      $("mych-end").disabled = false;
-      $("mych-next").textContent = "קראתי, לפרק הבא";
-      $("mych-end").textContent = "קראתי, סיימתי";
-      $("mych-msg").className = "form-msg err";
-      $("mych-msg").textContent = text;
-    };
-    // take רושם מי קרא (ולא חוסם: פרק שאחר בחר משותף). גם אם נכשל - read קובע.
-    post("/take", { readerKey: RK, readerName: readerName(), idxs: [i] })
-      .catch(function () { return null; })
-      .then(function () {
-        return post("/read", { readerKey: RK, readerName: readerName(), idxs: [i] });
-      })
-      .then(function (d) {
-        var accepted = d && d.ok && ((d.read && d.read.length) || (d.already && d.already.length));
-        if (!accepted) { fail("הסימון לא נקלט. נסו שוב בעוד רגע."); return; }
-        DONE_NOW.push(i);
-        if (d.closed) CLOSED_NOW = true;
-        if (end) {
-          QUEUE = []; QPOS = 0; RELEASED_NOW = 0;
-          finish();
-          return;
-        }
-        $("mych-ok").className = "form-msg ok";
-        $("mych-ok").textContent = "ישר כוח! תהילים " + UNITS[i].name + " סומן כנקרא." +
-          (d.closed ? " הספר הושלם ונפתח לסבב נוסף." : "") + " הנה הפרק הבא:";
-        refresh();
-        loadSuggest().then(function () {
-          $("mych").scrollIntoView({ block: "start" });
-        });
-      })
-      .catch(function () { fail("אין חיבור לשרת כרגע. נסו שוב בעוד רגע."); });
-  }
-
-  $("mych-next").addEventListener("click", function () { cardMark(false); });
-  $("mych-end").addEventListener("click", function () { cardMark(true); });
-  $("mych-other").addEventListener("click", function (e) {
-    e.preventDefault();
-    $("choose").scrollIntoView({ behavior: "smooth", block: "start" });
+  $("mych-go").addEventListener("click", function () {
+    if (CARD_IDX !== null) startReading(fromHere(CARD_IDX));
   });
+  function openChooser(target) {
+    $("chooser").hidden = false;
+    $("chooser-open-wrap").style.display = "none";
+    $(target || "choose").scrollIntoView({ behavior: "smooth", block: target === "range" ? "center" : "start" });
+  }
+  $("chooser-open").addEventListener("click", function () { openChooser("choose"); });
+  $("mych-other").addEventListener("click", function (e) { e.preventDefault(); openChooser("choose"); });
   $("printed-go").addEventListener("click", function (e) {
     e.preventDefault();
-    $("range").scrollIntoView({ behavior: "smooth", block: "center" });
+    openChooser("range");
     setTimeout(function () { $("rg-from").focus({ preventScroll: true }); }, 350);
   });
 
@@ -1400,9 +1207,9 @@ details.how .note-box{margin:8px 0 0}
         paint();
         $("quiet-note").style.display = "";
         $("invite-grid").style.display = "";
-        if ($("view-read").classList.contains("on")) resetReadButtons();
         if (d.status === "closed" && d.kind !== "klali") {
-          $("bk-meta").textContent = "הספר הושלם. ישר כוח לכל מי שקרא.";
+          $("bk-meta").textContent = d.closedBy === "owner" ? "הספר נסגר לבקשת מי שפתח אותו."
+            : "הספר הושלם. ישר כוח לכל מי שקרא.";
         }
       })
       .catch(function () { /* הסקר הבא ינסה שוב */ });
@@ -1430,7 +1237,16 @@ details.how .note-box{margin:8px 0 0}
     $("quiet-note").style.display = "";
     $("invite-grid").style.display = "";
     show("grid");
+    paintResume();
+    var shutNow = STATE.closedBy === "owner";
     loadSuggest();
+    // כניסה מכרטיס "להמשיך מהמקום האחרון" בדף הראשי: #r=<יחידה>.<פסוק>
+    var hm = /^#r=(\d+)\.(\d+)$/.exec(location.hash);
+    if (hm) {
+      history.replaceState(null, "", location.pathname + location.search);
+      var hi = Number(hm[1]);
+      if (!shutNow && UNITS[hi]) startReading(fromHere(hi), { key: hi, verse: Number(hm[2]) });
+    }
     pollTimer = setInterval(function () {
       if ($("view-grid").classList.contains("on")) refresh();
     }, POLL_MS);
@@ -1438,7 +1254,6 @@ details.how .note-box{margin:8px 0 0}
     $("boot").innerHTML = "לא הצלחנו לטעון את הספר. נסו לרענן את הדף.";
   });
 
-  window.addEventListener("resize", applySize);
 })();
 </script>
 <!-- Cloudflare Web Analytics - מדידת תנועה ללא עוגיות וללא איסוף פרטים אישיים -->

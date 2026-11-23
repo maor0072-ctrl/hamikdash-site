@@ -118,7 +118,8 @@
      opts.backLabel   aria-label לחץ החזרה
      opts.sizeKey     מפתח localStorage לגודל (ברירת מחדל th_read_size, משותף לכל המסכים)
      opts.onBack()            החץ או כפתור הסוף. הסימונים הממתינים נשלחים קודם (flush).
-     opts.onMark(unit, how)   how = "button" | "scroll". מחזיר Promise של {ok, already?}. נקרא אחרי חלון הביטול.
+     opts.onMark(unit, how)   how = "button" | "scroll" | "flush". מחזיר Promise של {ok, already?, message?}.
+                              נקרא אחרי חלון הביטול. ok:false מחזיר את הכפתור ומציג message (או נוסח כללי).
      opts.onCurrent(unit, prev)  היחידה שבראש המסך התחלפה (לתפיסה של הפרק הנוכחי בספר משותף, ט4)
      opts.onPlace({key, verse, unit})  המקום התעדכן (נקרא בכל גלילה, מוגבל לפעם בחצי שנייה)
      opts.onReachEnd()        סוף הרצף נראה על המסך (פעם אחת)
@@ -338,12 +339,12 @@
       try { p = opts.onMark ? Promise.resolve(opts.onMark(u.d, how)) : Promise.resolve({ ok: true }); }
       catch (e) { p = Promise.reject(e); }
       return p.then(function (r) {
-        if (r && r.ok === false) throw new Error("rejected");
+        if (r && r.ok === false) { var e = new Error("rejected"); e.userMessage = r.message; throw e; }
         if (MARKED.indexOf(u.d.key) === -1) MARKED.push(u.d.key);
-      }).catch(function () {
+      }).catch(function (e) {
         u.read = false;
         paintBtn(u);
-        if (!dead) showToast("הסימון של פרק " + u.d.name + " לא נקלט. אפשר ללחוץ שוב על סיימתי.", null);
+        if (!dead) showToast((e && e.userMessage) || ("הסימון של פרק " + u.d.name + " לא נקלט. אפשר ללחוץ שוב על סיימתי."), null);
       });
     }
     function flush() {
@@ -356,6 +357,7 @@
 
     // ---------- מעקב גלילה: מקום, פס, "עבר בקצב קריאה" ----------
     var last = Date.now(), cur = null, lastPlaceAt = 0, placeNow = null, reachedEnd = false, raf = 0;
+    var moved = false, isReady = false;
     function sample() {
       var now = Date.now();
       var dt = document.hidden ? 0 : Math.min(1500, now - last);
@@ -405,7 +407,8 @@
         var p = (BAR + 60 - cr.top) / Math.max(1, cr.height - vh + BAR + 120);
         progI.style.width = Math.max(0, Math.min(1, p)) * 100 + "%";
         placeNow = { key: cur.d.key, verse: vn, unit: cur.d };
-        if (opts.onPlace && now - lastPlaceAt > 500) {
+        // המקום נשמר רק אחרי גלילה של הקורא: פתיחה "שני פסוקים לפני" לא תזיז אותו אחורה בכל כניסה
+        if (opts.onPlace && moved && now - lastPlaceAt > 500) {
           lastPlaceAt = now;
           try { opts.onPlace(placeNow); } catch (e) { /* לא קריטי */ }
         }
@@ -418,14 +421,15 @@
         }
       }
     }
-    function tick() {
+    function tick(e) {
+      if (e && e.type === "scroll" && isReady) moved = true;
       if (raf || dead) return;
       raf = requestAnimationFrame(function () { raf = 0; sample(); ensureAhead(); });
     }
     function onHide() {
       if (document.visibilityState === "hidden") {
         flush();
-        if (placeNow && opts.onPlace) { try { opts.onPlace(placeNow); } catch (e) { /* לא קריטי */ } }
+        if (placeNow && moved && opts.onPlace) { try { opts.onPlace(placeNow); } catch (e) { /* לא קריטי */ } }
       }
     }
     window.addEventListener("scroll", tick, { passive: true });
@@ -455,7 +459,11 @@
         scrollToVerse(U[startIdx], startVerse);
         return ensureAhead();
       }
-    }).then(function () { last = Date.now(); sample(); });
+    }).then(function () {
+      last = Date.now(); sample();
+      // הגלילה של הפתיחה עצמה (scrollTo) מגיעה כאירוע scroll אחרי רגע - מתעלמים ממנה
+      setTimeout(function () { isReady = true; }, 300);
+    });
 
     return {
       el: root,

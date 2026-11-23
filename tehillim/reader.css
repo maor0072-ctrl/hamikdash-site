@@ -32,7 +32,7 @@
 
 /* ---------- הטקסט ---------- */
 .thr-main{padding:0 18px 140px;max-width:680px;margin:0 auto}
-.thr-unit{scroll-margin-top:60px}
+.thr-unit{scroll-margin-top:60px;padding:0;margin:0}
 .thr-head{border-top:1px solid var(--thr-line);margin-top:14px;padding-top:10px}
 .thr-unit.first .thr-head{border-top:0;margin-top:6px;padding-top:4px}
 .thr-unit.cont .thr-head{border-top:0;margin-top:10px;padding-top:0}

@@ -25,7 +25,7 @@
      ממי שיש לו רשימה. במקומו הכרטיס האישי עולה לראש העמוד (ראו "door-top" למטה). הוראת הרב יעקב מאור. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Frank+Ruhl+Libre:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/style.css">
 <style>
 /* סגנונות מקומיים לעמוד הזה בלבד, בדפוס של shema.html ו-neshama.html */
@@ -60,40 +60,77 @@
 .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
 
 /* ---------- המסך הראשון: כותרת ושני כפתורים, מעל הקפל גם ברוחב 390 (הכרעה ה2) ---------- */
-.th-hero{padding:26px 0 24px}
-.th-hero .eyebrow{display:block;font-size:15px;font-weight:700;color:var(--gold-deep);margin-bottom:2px}
-.th-hero h1{margin-bottom:8px}
-.th-hero .sub{font-size:18px;line-height:1.6;margin:0}
-.hero-ctas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px;max-width:760px}
-.hero-ctas .cta{display:flex;flex-direction:column;gap:6px}
-.hero-btn{width:100%;min-height:56px;font-size:19px;font-weight:800;padding:12px 18px;cursor:pointer;
-  font-family:inherit;border:0}
+/* 23.11.2026, האפיון החדש: כותרות בגובה שורה משלהן (לא 1.75 של הטקסט), שבירה מאוזנת, פחות רווח מבוזבז */
+.th-page h1,.th-page h2,.th-page h3{line-height:1.2;text-wrap:balance}
+.th-hero{padding:18px 0 20px}
+.th-hero .crumbnav{margin-bottom:6px}
+.th-hero .eyebrow{display:block;font-size:14px;font-weight:600;color:var(--gold-deep);margin-bottom:2px}
+.th-hero h1{font-family:"Frank Ruhl Libre","Heebo",serif;font-weight:800;font-size:40px;line-height:1.18;margin:0 0 8px}
+.th-hero .sub{font-size:18px;line-height:1.55;margin:0;max-width:640px}
+.hero-ctas{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;max-width:760px}
+.hero-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:100%;
+  min-height:64px;padding:10px 16px;cursor:pointer;font-family:inherit;border:0;border-radius:14px;line-height:1.3;text-decoration:none}
+.hero-btn b{font-size:20px;font-weight:800}
+.hero-btn small{font-size:14px;font-weight:500;opacity:.92}
 .hero-btn.btn-ghost{border:2px solid var(--gold);background:var(--white);color:var(--gold-deep)}
+.hero-btn.btn-ghost small{color:var(--ink-soft);opacity:1}
 .hero-btn[aria-busy="true"]{opacity:.65}
-.cta-s{font-size:14px;color:var(--ink-soft);line-height:1.5}
-body.th-inner .hero-ctas,body.th-inner .th-hero .sub,body.th-inner #counter{display:none}
+.th-resume{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;max-width:760px;
+  background:var(--white);border:1.5px solid var(--gold);border-radius:14px;padding:10px 14px;color:var(--ink);line-height:1.4}
+.th-resume[hidden]{display:none}
+.th-resume:hover{text-decoration:none;border-color:var(--gold-deep)}
+.th-resume b{display:block;font-size:17px}.th-resume span{font-size:14px;color:var(--ink-soft)}
+.th-resume i{font-style:normal;color:var(--gold-deep);font-weight:700;font-size:20px}
+body.th-inner .hero-ctas,body.th-inner .th-hero .sub,body.th-inner #counter,body.th-inner .th-resume{display:none}
 @media(max-width:640px){
-  .th-hero{padding:14px 0 18px}
-  .th-hero h1{font-size:29px;margin-bottom:6px}
-  .th-hero .sub{font-size:16px}
-  .hero-ctas{grid-template-columns:1fr;gap:12px;margin-top:14px}
-  .hero-btn{min-height:54px}
+  .th-hero{padding:12px 0 16px}
+  .th-hero h1{font-size:31px;margin-bottom:6px}
+  .th-hero .sub{font-size:16.5px}
+  .hero-ctas{grid-template-columns:1fr;gap:10px;margin-top:14px}
+  .hero-btn{min-height:62px}
+  .form-card{padding:20px 16px}
+  .form-card h2{font-size:25px}
 }
 
+/* ---------- רשימות הכניסה, הספרים הפתוחים, המונים ---------- */
+.th-home{max-width:760px;margin:0 auto}
+.th-sec{font-size:15px;font-weight:700;color:var(--ink-soft);margin:22px 0 8px;line-height:1.3}
+.th-home > .th-sec:first-child{margin-top:4px}
+.th-list{display:flex;flex-direction:column;background:var(--white);border:1px solid var(--line);
+  border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.th-list .door{display:flex;align-items:center;gap:12px;border:0;border-top:1px solid var(--line);
+  border-radius:0;box-shadow:none;padding:13px 16px;min-height:66px;background:var(--white);color:var(--ink);line-height:1.35}
+.th-list .door:first-child{border-top:0}
+.th-list .door:hover{transform:none;background:#fdfaf4;text-decoration:none}
+.th-list .door .tx{flex:1;min-width:0}
+.th-list .door .t{font-size:18px;font-weight:700;color:var(--ink)}
+.th-list .door .s{font-size:14.5px;margin-top:2px;line-height:1.45}
+.th-list .door .ch{flex:none;color:#b9ab92;font-size:22px;line-height:1}
+.th-list .door.door-personal{border-color:var(--line)}
+.th-list .door.door-personal .t{color:var(--ink)}
+.th-books{display:grid;gap:10px}
+.th-books[hidden]{display:none}
+.th-bk{display:block;background:var(--white);border:1px solid var(--line);border-radius:14px;
+  padding:12px 16px;color:var(--ink);box-shadow:var(--shadow);line-height:1.35}
+.th-bk:hover{text-decoration:none;border-color:var(--gold)}
+.th-bk .n{font-family:"Frank Ruhl Libre","Heebo",serif;font-weight:700;font-size:19px;line-height:1.3;text-wrap:balance}
+.th-bk .m{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--ink-soft);margin-top:3px}
+.th-bk .bar{height:6px;background:#efe6d5;border-radius:3px;margin-top:8px;overflow:hidden}
+.th-bk .bar i{display:block;height:100%;background:var(--gold)}
+.th-more{display:block;text-align:center;font-size:16px;font-weight:700;padding:10px;margin-top:2px}
+.th-big{background:var(--cream-warm);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:22px;line-height:1.5}
+.th-big .t{display:block;font-family:"Frank Ruhl Libre","Heebo",serif;font-size:21px;font-weight:700;color:var(--gold-deep);line-height:1.25}
+.th-big .s{display:block;font-size:15.5px;color:var(--ink-soft);margin-top:4px}
+.th-big .btn{margin-top:12px}
+.th-credit{text-align:center;font-size:14px;color:var(--ink-soft);margin:16px 0 0;line-height:1.5}
+
 /* ---------- המונה הגלובלי ---------- */
-.counter-strip{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
-  box-shadow:var(--shadow);padding:22px 20px;margin:0 auto 32px;max-width:760px;
-  display:flex;gap:8px;text-align:center}
+.counter-strip{margin:22px auto 0;max-width:760px;display:flex;gap:8px;text-align:center}
 .counter-strip[hidden],.counter-strip .cell[hidden]{display:none}
-.counter-strip .cell{padding:4px 6px;flex:1 1 0;min-width:0}
-.counter-strip .cell:not([hidden]) ~ .cell:not([hidden]){border-right:1px solid var(--line)}
-.door.soft.bigger{cursor:default}
-.door.soft.bigger:hover{transform:none}
-.door.soft.bigger .t{font-size:19px}
-.counter-strip .num{font-size:30px;font-weight:800;color:var(--gold-deep);line-height:1.25;
-  font-variant-numeric:tabular-nums}
-.counter-strip .lbl{font-size:14px;color:var(--ink-soft);margin-top:2px}
-@media(max-width:520px){.counter-strip .num{font-size:24px}.counter-strip .lbl{font-size:13px}}
+.counter-strip .cell{flex:1 1 0;min-width:0;background:var(--cream-warm);border-radius:12px;padding:9px 4px}
+.counter-strip .num{font-family:"Frank Ruhl Libre","Heebo",serif;font-size:23px;font-weight:700;color:var(--gold-deep);
+  line-height:1.2;font-variant-numeric:tabular-nums}
+.counter-strip .lbl{font-size:13px;color:var(--ink-soft);margin-top:2px;line-height:1.3}
 
 /* ---------- שלוש הדלתות ---------- */
 .doors{display:grid;gap:14px;max-width:760px;margin:0 auto}
@@ -162,7 +199,7 @@ body.th-inner .door.door-top{display:none}
 .done-ctas .hero-btn{text-align:center;text-decoration:none}
 </style>
 </head>
-<body>
+<body class="th-page">
 
 <header class="site-header">
   <div class="header-inner">
@@ -192,17 +229,13 @@ body.th-inner .door.door-top{display:none}
     <!-- crumbs:end -->
     <span class="eyebrow">תהילים ישראל</span>
     <h1>קוראים תהילים יחד</h1>
-    <p class="sub">כל אחד קורא פרק, ויחד משלימים ספר תהילים. אפשר לקרוא מיד או לפתוח ספר עבור אדם יקר.</p>
+    <p class="sub">כל אחד קורא פרק, ויחד משלימים ספר שלם. בלי הרשמה ובלי למסור פרטים.</p>
     <div class="hero-ctas">
-      <div class="cta">
-        <button type="button" class="btn btn-lg hero-btn" id="read-now">לקרוא עכשיו</button>
-        <span class="cta-s">מצטרפים לספר הכללי, שפתוח תמיד. אין צורך למסור פרטים.</span>
-      </div>
-      <div class="cta">
-        <button type="button" class="btn btn-lg btn-ghost hero-btn" data-go="form">לפתוח ספר עבור מישהו</button>
-        <span class="cta-s">כותבים עבור מי מתפללים, מקבלים קישור ושולחים למשפחה ולחברים.</span>
-      </div>
+      <button type="button" class="btn btn-lg hero-btn" id="read-now"><b id="read-now-t">לקרוא עכשיו</b><small>בספר הכללי, שפתוח תמיד</small></button>
+      <button type="button" class="btn btn-lg btn-ghost hero-btn" data-go="form"><b>לפתוח ספר עבור מישהו</b><small>לרפואה, להצלחה או לעילוי נשמה</small></button>
     </div>
+    <!-- "להמשיך מהמקום האחרון": מוצג רק כשמסך הקריאה שמר th_resume = {"url","where"} ב-localStorage -->
+    <a class="th-resume" id="th-resume" href="#" hidden><span><b>להמשיך מהמקום האחרון</b><span id="th-resume-where"></span></span><i aria-hidden="true">&#8592;</i></a>
   </div>
 </div>
 
@@ -216,45 +249,58 @@ body.th-inner .door.door-top{display:none}
 </div></div>
 <!-- topics:end -->
 
-<section class="wrap" style="padding-top:34px;padding-bottom:10px">
-
-  <!-- המונים (הכרעה ה3): מוסתרים עד שהמספרים הגיעו, ו„היום" ו„החודש" לא מוצגים כשהם 0 -->
-  <div class="counter-strip" id="counter" aria-live="polite" hidden>
-    <div class="cell" id="cell-today" hidden><div class="num" id="c-today"></div><div class="lbl">פרקים נקראו היום</div></div>
-    <div class="cell" id="cell-month" hidden><div class="num" id="c-month"></div><div class="lbl">פרקים נקראו החודש</div></div>
-    <div class="cell"><div class="num" id="c-total"></div><div class="lbl">פרקים שנקראו</div></div>
-    <div class="cell"><div class="num" id="c-books"></div><div class="lbl">ספרים שהושלמו</div></div>
-  </div>
+<section class="wrap" style="padding-top:14px;padding-bottom:10px">
 
   <!-- ============ מסך 1: מה עוד אפשר לעשות כאן ============ -->
-  <div class="view on" id="view-home">
-    <div class="doors">
+  <div class="view on th-home" id="view-home">
+    <h2 class="th-sec">עוד דרכים לקרוא</h2>
+    <div class="th-list">
       <button type="button" class="door" id="door-today">
-        <span class="t">תהילים להיום</span>
-        <span class="s" id="door-today-s">פרקי היום, לפי החלוקה החודשית.</span>
+        <span class="tx"><span class="t">תהילים להיום</span>
+        <span class="s" id="door-today-s">פרקי היום, לפי החלוקה החודשית.</span></span>
+        <span class="ch" aria-hidden="true">&#8249;</span>
       </button>
 
       <a class="door door-personal" id="door-personal" href="/tehillim/personal.html">
-        <span class="t" id="door-personal-t">התהילים האישי שלי</span>
-        <span class="s" id="door-personal-s">פרקים יומיים לפי הגיל העברי של היקרים לכם.</span>
+        <span class="tx"><span class="t" id="door-personal-t">התהילים האישי שלי</span>
+        <span class="s" id="door-personal-s">פרקים יומיים לפי הגיל העברי של היקרים לכם.</span></span>
+        <span class="ch" aria-hidden="true">&#8249;</span>
       </a>
 
-      <a class="door" href="/tehillim/sfarim">
-        <span class="t">להצטרף לספר פתוח</span>
-        <span class="s">בוחרים עבור מי לקרוא ומצטרפים להשלמת הספר.</span>
-      </a>
+      <button type="button" class="door" id="door-klali">
+        <span class="tx"><span class="t">הקריאה הכללית</span>
+        <span class="s">ספר שפתוח תמיד, להצלחת תורמי העמותה, חברי שמע ישראל והפועלים למען עם ישראל.</span></span>
+        <span class="ch" aria-hidden="true">&#8249;</span>
+      </button>
+    </div>
 
+    <!-- הכרעה ט7 (23.11.2026): שניים-שלושה ספרים פתוחים מ-/api/catalog, וקישור לכל השאר -->
+    <h2 class="th-sec" id="books-h" hidden>ספרים פתוחים עכשיו</h2>
+    <div class="th-books" id="open-books" hidden></div>
+    <a class="th-more" id="books-more" href="/tehillim/sfarim">לכל הספרים הפתוחים</a>
+
+    <!-- המונים (הכרעה ה3): מוסתרים עד שהמספרים הגיעו, ו„היום" ו„החודש" לא מוצגים כשהם 0 -->
+    <div class="counter-strip" id="counter" aria-live="polite" hidden>
+      <div class="cell" id="cell-today" hidden><div class="num" id="c-today"></div><div class="lbl">פרקים נקראו היום</div></div>
+      <div class="cell" id="cell-month" hidden><div class="num" id="c-month"></div><div class="lbl">פרקים נקראו החודש</div></div>
+      <div class="cell"><div class="num" id="c-total"></div><div class="lbl">פרקים שנקראו</div></div>
+      <div class="cell"><div class="num" id="c-books"></div><div class="lbl">ספרים שהושלמו</div></div>
+    </div>
+
+    <h2 class="th-sec">להפיץ ולהצטרף</h2>
+    <div class="th-list">
       <a class="door" id="door-share" href="https://hamikdash.co.il/tehillim.html" target="_blank" rel="noopener">
-        <span class="t">להפצת תהילים ישראל</span>
-        <span class="s">שולחים בוואטסאפ למשפחה, לחברים ולקבוצות. כל מי שמצטרף מגדיל את התפילה לכולם.</span>
+        <span class="tx"><span class="t">להפצת תהילים ישראל</span>
+        <span class="s">שולחים בוואטסאפ למשפחה, לחברים ולקבוצות. כל מי שמצטרף מגדיל את התפילה לכולם.</span></span>
+        <span class="ch" aria-hidden="true">&#8249;</span>
       </a>
 
       <a class="door" href="/tefilot/">
-        <span class="t">לשאר הפרויקטים</span>
-        <span class="s">עילוי נשמות, רפואה ושאר משאלות, שמע ישראל ופדיון נפש.</span>
+        <span class="tx"><span class="t">לשאר הפרויקטים</span>
+        <span class="s">עילוי נשמות, רפואה ושאר משאלות, שמע ישראל ופדיון נפש.</span></span>
+        <span class="ch" aria-hidden="true">&#8249;</span>
       </a>
-
-      <p class="th-credit" style="text-align:center;font-size:14px;color:var(--ink-soft);margin:6px 0 0">תהילים ישראל פותח על ידי הרב יעקב מאור, לזיכוי הרבים.</p>
+    </div>
       <script>
       (function () {
         var msg = "תהילים ישראל - קוראים תהילים יחד: כל אחד קורא פרק, ויחד משלימים ספר שלם. אפשר גם לקבל כל יום את פרקי התהילים לפי הגיל העברי של כל היקרים לכם.\nhttps://hamikdash.co.il/tehillim.html\n\n*האתר שלנו נקי מפרסומות!* האתר נבנה על ידי הרב יעקב מאור, לזיכוי הרבים, כחלק מפרויקט ענק שכולל את הפרויקטים: עילוי נשמות, שמע רפא ומשאלות. *כל התפילות של האנשים בפרויקטים הנ\"ל הן גם למען מי שאתם קוראים תהילים בעבורו!* כשאתם קוראים תהילים, תכוונו גם על השמות ששם.";
@@ -263,18 +309,13 @@ body.th-inner .door.door-top{display:none}
       })();
       </script>
 
-      <button type="button" class="door" id="door-klali">
-        <span class="t">להצטרף לקריאה הכללית</span>
-        <span class="s">ספר תהילים שפתוח תמיד, להצלחת תורמי העמותה, חברי פרויקט שמע ישראל,
-        והפועלים למען עם ישראל בכל מקום. לוקחים פרק וקוראים, מתי שרוצים.</span>
-      </button>
-
-      <div class="door soft bigger">
-        <span class="t">יש כאן משהו גדול יותר</span>
-        <span class="s">קהילה שמתפללת זה על זה, לרפואה, למשאלות הלב ולעילוי נשמות היקרים לנו.</span>
-        <a class="btn" href="/shema.html" style="margin-top:12px">להכיר את קהילת שמע רפא ומשאלות</a>
-      </div>
+    <div class="th-big">
+      <span class="t">יש כאן משהו גדול יותר</span>
+      <span class="s">קהילה שמתפללת זה על זה, לרפואה, למשאלות הלב ולעילוי נשמות היקרים לנו.</span>
+      <a class="btn" href="/shema.html">להכיר את קהילת שמע רפא ומשאלות</a>
     </div>
+
+    <p class="th-credit">תהילים ישראל פותח על ידי הרב יעקב מאור, לזיכוי הרבים.</p>
   </div>
 
 
@@ -541,7 +582,7 @@ body.th-inner .door.door-top{display:none}
   $("read-now").addEventListener("click", function () {
     var btn = this;
     btn.setAttribute("aria-busy", "true");
-    btn.textContent = "פותח את הספר...";
+    $("read-now-t").textContent = "פותח את הספר...";
     var gone = false;
     var go = function (url) { if (gone) return; gone = true; location.href = url; };
     var timer = setTimeout(function () { go(GENERAL_FALLBACK); }, 6000);
@@ -555,7 +596,7 @@ body.th-inner .door.door-top{display:none}
   window.addEventListener("pageshow", function () {
     var b = $("read-now");
     b.removeAttribute("aria-busy");
-    b.textContent = "לקרוא עכשיו";
+    $("read-now-t").textContent = "לקרוא עכשיו";
   });
 
   document.addEventListener("click", function (e) {
@@ -620,6 +661,45 @@ body.th-inner .door.door-top{display:none}
   }
   loadCounter();
   setInterval(loadCounter, 45000);
+
+  // ---------- ספרים פתוחים (הכרעה ט7, 23.11.2026) ----------
+  // שלושה ספרים פרטיים ראשונים מהקטלוג (החדשים קודם, כמו בעמוד הקטלוג). אין ספר פרטי - הקריאה הכללית.
+  // קריאה בלבד: הכניסה לספר אינה תופסת פרק.
+  function bookCard(b) {
+    var st = b.st || {}, total = st.total || 150, read = st.read || 0;
+    var a = document.createElement("a");
+    a.className = "th-bk";
+    a.href = "https://t.hamikdash.co.il/" + encodeURIComponent(b.id);
+    a.innerHTML = "<div class='n'></div><div class='m'><span class='r'></span><span class='l'></span></div>"
+      + "<div class='bar' aria-hidden='true'><i></i></div>";
+    a.querySelector(".n").textContent = b.klali ? "הספר הכללי - " + b.label : b.label;
+    a.querySelector(".r").textContent = "נקראו " + read + " מתוך " + total;
+    a.querySelector(".l").textContent = b.klali ? "פתוח תמיד" : "עוד " + (total - read);
+    a.querySelector(".bar i").style.width = Math.round(read / total * 100) + "%";
+    return a;
+  }
+  fetch(API + "/api/catalog").then(function (r) { return r.json(); }).then(function (d) {
+    var all = d && d.ok && Array.isArray(d.books) ? d.books : [];
+    var pick = all.filter(function (b) { return !b.klali; }).slice(0, 3);
+    if (!pick.length) pick = all.filter(function (b) { return b.klali; }).slice(0, 1);
+    if (!pick.length) return;
+    var box = $("open-books");
+    pick.forEach(function (b) { box.appendChild(bookCard(b)); });
+    box.hidden = false;
+    $("books-h").hidden = false;
+    $("books-more").textContent = "לכל הספרים הפתוחים (" + all.length + ")";
+  }).catch(function () { /* נשאר הקישור לקטלוג */ });
+
+  // ---------- להמשיך מהמקום האחרון ----------
+  // מסך הקריאה שומר th_resume = {"url": "<כתובת באתר או ב-t.hamikdash.co.il>", "where": "הספר הכללי, פרק כ\"ב פסוק יב"}
+  (function () {
+    var r = null;
+    try { r = JSON.parse(localStorage.getItem("th_resume") || "null"); } catch (e) { r = null; }
+    if (!r || typeof r.url !== "string" || !/^(\/|https:\/\/(t\.)?hamikdash\.co\.il\/)/.test(r.url)) return;
+    $("th-resume").href = r.url;
+    $("th-resume-where").textContent = String(r.where || "").slice(0, 80);
+    $("th-resume").hidden = false;
+  })();
 
   // ---------- תצוגה מקדימה של "X בן/בת Y" ----------
   function preview() {
@@ -981,6 +1061,24 @@ body.th-inner .door.door-top{display:none}
     }
   }
   if (location.hash === "#today") openToday();
+
+  // ---------- פתיחת ספר עם פרטים ממולאים מהכתובת ----------
+  // ?open=1&name=<שם>&parent=<שם ההורה>&g=m|f&intent=<מפתח נושא, למשל neshama>
+  // משמש את "לפתוח ספר לעילוי נשמת..." אחרי סגירת ספר (הכרעה ט6). רק ממלא את הטופס - לא שולח.
+  (function () {
+    var q;
+    try { q = new URLSearchParams(location.search); } catch (e) { return; }
+    if (q.get("open") !== "1") return;
+    var clip = function (v) { return String(v || "").trim().slice(0, 40); };
+    if (q.get("name")) $("patientName").value = clip(q.get("name"));
+    if (q.get("parent")) $("motherName").value = clip(q.get("parent"));
+    var g = q.get("g");
+    if (g === "m" || g === "f") $("gender").value = g;
+    var it = q.get("intent");
+    if (it && T && T.items && T.items[it]) pickTopic(it);
+    preview();
+    show("form");
+  })();
 
   // כרטיס התהילים האישי: אחרי שנוצרה רשימה (th_personal_key) - "להמשיך", ואם יש עותק שמור (th_personal_list) - כמה פרקים היום
   (function () {

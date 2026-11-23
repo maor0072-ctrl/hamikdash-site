@@ -169,25 +169,25 @@ function fmtDate(iso) {
 function row(it) {
   const pct = Math.round((it.st.read / it.st.total) * 100);
   const date = fmtDate(it.targetDate);
-  let sub;
+  let left;
   let note = "";
   if (it.klali) {
-    sub = "הספר הכללי, פתוח תמיד";
+    left = "פתוח תמיד";
   } else {
-    sub = "נקראו " + it.st.read + " מתוך " + it.st.total + " פרקים. עוד " + (it.st.total - it.st.read) +
-      " פרקים להשלמת הספר.";
+    left = "עוד " + (it.st.total - it.st.read);
     if (it.general) note = "ספר כללי - פתוח לכל מי שרוצה לקרוא";
     else if (it.targetPast && date) note = "היעד המקורי היה " + esc(date) + ". הספר טרם הושלם.";
     else if (date) note = "תאריך יעד " + esc(date);
   }
+  // עיצוב 23.11.2026: הכרטיס כולו לחיץ, כמו בדף הראשי - שם, כמה נקרא, פס התקדמות
   return (
-    '<li class="bk">' +
-    '<div class="bk-t">' + esc(it.label) + "</div>" +
-    '<div class="bk-s">' + sub + (note ? "<br>" + note : "") + "</div>" +
-    '<div class="bar" aria-hidden="true"><i style="width:' + pct + '%"></i></div>' +
-    '<a class="btn" href="' + SHORT + "/" + esc(it.id) + '">' +
-    (it.klali ? "לקריאה בספר הכללי" : "לקריאה בספר הזה") + "</a>" +
-    "</li>"
+    '<li><a class="bk" href="' + SHORT + "/" + esc(it.id) + '">' +
+    '<span class="bk-t">' + (it.klali ? "הספר הכללי - " : "") + esc(it.label) + "</span>" +
+    '<span class="bk-m"><span>נקראו ' + it.st.read + " מתוך " + it.st.total + "</span><span>" + left + "</span></span>" +
+    '<span class="bar" aria-hidden="true"><i style="width:' + pct + '%"></i></span>' +
+    (note ? '<span class="bk-n">' + note + "</span>" : "") +
+    '<span class="bk-go">' + (it.klali ? "לקריאה בספר הכללי" : "לקריאה בספר הזה") + "</span>" +
+    "</a></li>"
   );
 }
 
@@ -213,27 +213,45 @@ export function renderCatalog(items, opts) {
     '<meta property="og:url" content="' + SITE + '/tehillim/sfarim">' +
     '<meta property="og:locale" content="he_IL">' +
     '<link rel="canonical" href="' + SITE + '/tehillim/sfarim">' +
-    '<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">' +
+    '<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Frank+Ruhl+Libre:wght@600;700;800&display=swap" rel="stylesheet">' +
     '<link rel="stylesheet" href="' + SITE + '/assets/style.css">' +
+    // עיצוב 23.11.2026 (אפיון העיצוב החדש, הכרעה ט7): אותה שפה כמו הדף הראשי - כותרת בשורה אחת
+    // בגובה שורה משלה (לא 1.75 של הטקסט), פחות רווח, כרטיס לחיץ עם שם, כמה נקרא ופס התקדמות.
     "<style>" +
-    ".books{list-style:none;margin:0 auto;padding:0;max-width:760px;display:grid;gap:14px}" +
-    ".bk{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);" +
-    "box-shadow:var(--shadow);padding:20px 22px}" +
-    ".bk-t{font-size:20px;font-weight:800}" +
-    ".bk-s{font-size:15px;color:var(--ink-soft);margin:6px 0 10px;line-height:1.6}" +
-    ".bar{height:8px;border-radius:4px;background:var(--cream-warm);overflow:hidden;margin-bottom:14px}" +
+    ".th-page h1,.th-page h2{line-height:1.2;text-wrap:balance}" +
+    ".th-page .page-head{padding:18px 0 18px}" +
+    ".th-page .page-head .eyebrow{display:block;font-size:14px;font-weight:600;color:var(--gold-deep)}" +
+    ".th-page .page-head h1{font-family:'Frank Ruhl Libre','Heebo',serif;font-weight:800;font-size:38px;margin:2px 0 6px}" +
+    ".th-page .page-head p{font-size:17px;line-height:1.55;margin:0}" +
+    ".th-cat{max-width:760px;margin:0 auto}" +
+    ".books{list-style:none;margin:0;padding:0;display:grid;gap:10px}" +
+    ".bk{display:block;background:var(--white);border:1px solid var(--line);border-radius:14px;" +
+    "box-shadow:var(--shadow);padding:13px 16px;color:var(--ink);line-height:1.35}" +
+    ".bk:hover{text-decoration:none;border-color:var(--gold)}" +
+    ".bk-t{display:block;font-family:'Frank Ruhl Libre','Heebo',serif;font-size:20px;font-weight:700;line-height:1.3;text-wrap:balance}" +
+    ".bk-m{display:flex;justify-content:space-between;gap:10px;font-size:14.5px;color:var(--ink-soft);margin-top:4px}" +
+    ".bar{display:block;height:6px;border-radius:3px;background:#efe6d5;overflow:hidden;margin-top:8px}" +
     ".bar i{display:block;height:100%;background:var(--gold)}" +
-    ".empty,.grp{text-align:center;max-width:760px;margin:20px auto}" +
-    "</style></head><body>" +
+    ".bk-n{display:block;font-size:14px;color:var(--gold-deep);margin-top:7px}" +
+    ".bk-go{display:block;margin-top:10px;text-align:center;font-size:16px;font-weight:700;color:#fff;" +
+    "background:var(--gold);border-radius:10px;padding:9px 12px}" +
+    ".bk:hover .bk-go{background:var(--gold-deep)}" +
+    ".empty,.grp{text-align:center;margin:18px auto}" +
+    ".grp .btn{line-height:1.35;padding:12px 18px}" +
+    ".th-open{text-align:center;margin-top:20px;font-size:16px;line-height:1.6}" +
+    "@media(max-width:640px){.th-page .page-head{padding:12px 0 14px}.th-page .page-head h1{font-size:30px}" +
+    ".th-page .page-head p{font-size:16px}}" +
+    "</style></head><body class=\"th-page\">" +
     '<header class="site-header"><div class="header-inner"><div class="brand">' +
     '<a href="' + SITE + '/"><span class="brand-name">אורות האמונה - בני משה</span></a>' +
     '<span class="brand-sub">בראשות הרב יעקב מאור</span></div></div></header>' +
-    '<div class="page-head"><div class="wrap"><h1>מצטרפים לקריאת תהילים</h1>' +
-    "<p>בחרו ספר והצטרפו לתפילה. אפשר לקרוא גם פרק אחד, בלי למסור פרטים.</p></div></div>" +
-    '<section class="wrap" style="padding-top:30px;padding-bottom:30px">' +
+    '<div class="page-head"><div class="wrap"><a class="eyebrow" href="' + SITE + '/tehillim.html">תהילים ישראל</a>' +
+    "<h1>ספרים פתוחים</h1>" +
+    "<p>בוחרים ספר ומצטרפים לתפילה. אפשר לקרוא גם פרק אחד, בלי למסור פרטים.</p></div></div>" +
+    '<section class="wrap" style="padding-top:16px;padding-bottom:30px"><div class="th-cat">' +
     list + group +
-    '<p style="text-align:center;margin-top:26px">רוצים לפתוח ספר עבור אדם יקר? <a href="' + SITE +
-    '/tehillim.html">לפתיחת ספר חדש</a></p></section>' +
+    '<p class="th-open">רוצים לפתוח ספר עבור אדם יקר?<br><a href="' + SITE +
+    '/tehillim.html?open=1">לפתיחת ספר חדש</a> · <a href="' + SITE + '/tehillim.html">לדף הראשי של תהילים ישראל</a></p></div></section>' +
     '<footer class="site-footer"><div class="wrap"><p>עמותת אורות האמונה - בני משה | בראשות הרב יעקב מאור</p></div></footer>' +
     "</body></html>"
   );

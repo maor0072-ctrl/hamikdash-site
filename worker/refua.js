@@ -490,7 +490,31 @@ export default {
       // GET /remove?o=&s= - הסרה בלחיצה אחת מתוך המייל. אדם שקיבל בשורה
       // טובה, ולהבדיל אדם שנפטר לו יקיר, לא ימלא טופס. הקישור חתום ולכן
       // הוא לא מאפשר להסיר את השמות של מישהו אחר.
+      // GET מציג כפתור בלבד ואינו מוחק (24.11.2026): שירותי דואר בארגונים פותחים
+      // כל קישור במייל אוטומטית כדי לסרוק אותו, ופתיחה כזאת מחקה שמות בלי שאיש לחץ.
+      // המחיקה עצמה ב-POST, מהכפתור שבדף.
       if (url.pathname === "/remove") {
+        const o = url.searchParams.get("o") || "";
+        const s = url.searchParams.get("s") || "";
+        const bad = `<p>אפשר להסיר שמות גם מתוך הדף עצמו, בלשונית התיקון.</p>`;
+        if (!o || !s || !env.REFUA_TOKEN_SECRET)
+          return removePage("הקישור אינו תקין", bad);
+        if ((await hmac(env.REFUA_TOKEN_SECRET, o)) !== s)
+          return removePage("הקישור אינו תקין", bad);
+        return removePage("הסרת השמות שמסרתם",
+          `<p>בלחיצה על הכפתור יוסרו מרשימת הרפואה והבקשות כל השמות שמסרתם.</p>` +
+          `<form method="post" action="${SELF}/remove?o=${esc(o)}&s=${esc(s)}">` +
+          `<button type="submit" style="font:inherit;font-size:18px;font-weight:700;` +
+          `background:#8a6a1f;color:#fff;border:0;border-radius:10px;padding:12px 22px;` +
+          `cursor:pointer">להסיר את השמות</button></form>` +
+          `<p style="margin-top:14px">כדי להסיר רק חלק מהשמות, אפשר להשתמש בקישור התיקון שבמייל.</p>`);
+      }
+
+      return new Response("method not allowed", { status: 405, headers });
+    }
+
+    if (request.method === "POST" && url.pathname === "/remove") {
+      {
         const o = url.searchParams.get("o") || "";
         const s = url.searchParams.get("s") || "";
         const bad = `<p>אפשר להסיר שמות גם מתוך הדף עצמו, בלשונית התיקון.</p>`;

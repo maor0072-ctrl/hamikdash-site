@@ -283,6 +283,57 @@ async function catalogItems(env) {
   return selectItems(rows, now, sticky);
 }
 
+// קריאה כפולה עוברת לספר אחר. הסדר: ספרים פתוחים בקטלוג, הקרוב לסיום קודם (שם
+// כל פרק מקרב סגירה), ואחריהם הקריאה הכללית, שנפתחת מחדש תמיד. ספר שנגמר בזכות
+// ההעברה נפתח לסבב נוסף בדיוק כמו בסימון רגיל. מחזיר [{i, to, label}].
+async function placeOverflow(env, fromId, idxs, readerKey, readerName) {
+  const reg = await doCall(counter(env), "catalog-list", { limit: 60 });
+  const ids = (reg && reg.ok ? reg.books.map((x) => x.id) : []).filter((id) => id !== KLALI_ID && id !== fromId);
+  const rows = (await bookRows(env, ids)).filter((x) => x && x.exists && x.status === "open");
+  const readOf = (x) => (x.states || "").split("r").length - 1;
+  rows.sort((a, b) => readOf(b) - readOf(a));
+  const order = rows.map((x) => ({ id: x.id, label: overflowLabel(x) }));
+  if (fromId !== KLALI_ID) order.push({ id: KLALI_ID, label: "לקריאה הכללית" });
+
+  let left = idxs.slice();
+  const placed = [];
+  for (const dest of order) {
+    if (!left.length) break;
+    const stub = book(env, dest.id);
+    let r;
+    try {
+      if (dest.id === KLALI_ID) await doCall(stub, "reopen", { meta: KLALI_META });
+      r = await doCall(stub, "read", { readerKey: readerKey, idxs: left, readerName: readerName });
+    } catch (e) {
+      continue;
+    }
+    if (!r || !r.ok || !r.read || !r.read.length) continue;
+    for (const i of r.read) placed.push({ i: i, to: dest.id, label: dest.label });
+    left = left.filter((i) => r.read.indexOf(i) === -1);
+    if (r.closed) {
+      try {
+        await doCall(counter(env), "book-done", {});
+      } catch (e) {
+        /* לא קריטי */
+      }
+      try {
+        await doCall(stub, "reopen", { meta: dest.id === KLALI_ID ? KLALI_META : {} });
+      } catch (e) {
+        /* ייפתח בקריאה הבאה */
+      }
+    }
+  }
+  return placed;
+}
+
+// התווית כבר בצורת יעד („לספר של..."), כדי שהמסך יחבר אותה למשפט בלי ניחוש דקדוקי.
+function overflowLabel(x) {
+  if (x.kind === "klali") return "לקריאה הכללית";
+  if (x.patientName) return "לספר של " + x.patientName + (x.gender === "f" ? " בת " : " בן ") + x.motherName;
+  if (x.title) return "לספר " + x.title;
+  return "לספר פתוח אחר";
+}
+
 // counts חי מכל ספר, במקביל. ספר אחד שנכשל לא מפיל את הרשימה.
 async function bookRows(env, ids) {
   return Promise.all(
@@ -751,6 +802,29 @@ async function handleApi(request, url, env, origin) {
       const idxs = cleanIdxs(b.idxs);
       if (!idxs || !readerKey) return json({ ok: false, error: "bad_request" }, 400, origin);
       const r = await doCall(stub, "read", { readerKey: readerKey, idxs: idxs, readerName: cleanFree(b.readerName, 40) });
+      // שום קריאה אינה הולכת לאיבוד (יעקב, 24.11.2026): „כולם קוראים בשביל כולם, גם
+      // כשעושים את זה עם ספר אישי". פרק שכבר נקרא בספר הזה נזקף לספר פתוח אחר שבו
+      // הוא עוד חסר, והקורא נספר עליו במונה הכללי ובספירה האישית.
+      if (r.ok && r.already && r.already.length) {
+        try {
+          r.overflow = await placeOverflow(env, p.b, r.already, readerKey, cleanFree(b.readerName, 40));
+        } catch (e) {
+          r.overflow = [];
+        }
+        const extra = r.already.length;
+        if (readerKey[0] === "p") {
+          try {
+            await doCall(counter(env), "person-bump", { pkey: readerKey.slice(1), n: extra });
+          } catch (e) {
+            /* לא קריטי */
+          }
+        }
+        try {
+          await doCall(counter(env), "bump", { n: extra });
+        } catch (e) {
+          /* לא קריטי */
+        }
+      }
       if (r.ok && r.read && r.read.length) {
         if (readerKey[0] === "p") {
           try {

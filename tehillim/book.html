@@ -823,6 +823,7 @@ body.thr-reading{padding-bottom:0}
       var got = (d.read || []).length, already = (d.already || []).length;
       say("ישר כוח! " + got + (got === 1 ? " קטע סומן" : " קטעים סומנו") + " כנקראים" +
         (already ? ", ו-" + already + " כבר היו נקראים לפני כן" : "") + "." +
+        overflowLine(d.overflow, already) +
         (d.closed ? " הספר הושלם. ישר כוח לכל מי שהשתתף!" : ""));
       SEL = [];
       refresh().then(loadSuggest);
@@ -911,7 +912,8 @@ body.thr-reading{padding-bottom:0}
   // כפולה - השרת סופר את הראשון שסימן, והשני מקבל already.
   var READER = null;
   var HELD = [];          // יחידות שתפוסות על שמי מתוך מסך הקריאה
-  var ALREADY_NOW = [];   // סימנתי, אבל מישהו אחר סימן קודם בסבב הזה
+  var ALREADY_NOW = [];
+  var OVERFLOW_NOW = [];  // קריאה כפולה שהשרת העביר לספר אחר: {i, label}   // סימנתי, אבל מישהו אחר סימן קודם בסבב הזה
   var takeTimer = null, relTimers = {};
   var DEDICATION = "להצלחת תורמי העמותה, הקוראים וכל ישראל.";
 
@@ -948,7 +950,7 @@ body.thr-reading{padding-bottom:0}
 
   function startReading(seq, start) {
     if (!seq || !seq.length) return;
-    DONE_NOW = []; ALREADY_NOW = []; CLOSED_NOW = false; HELD = [];
+    DONE_NOW = []; ALREADY_NOW = []; OVERFLOW_NOW = []; CLOSED_NOW = false; HELD = [];
     var units = THReader.bookUnits(UNITS, seq, function (i) { return SITE + "/tehillim/text/" + i + ".json"; });
     units.forEach(function (u) {
       var s = stateOf(u.key);
@@ -1009,6 +1011,16 @@ body.thr-reading{padding-bottom:0}
     return post("/release", { readerKey: RK, idxs: list }).catch(function () { /* יפקע לבד בתוך שעה */ });
   }
 
+  // שום קריאה אינה הולכת לאיבוד: פרק שכבר נקרא כאן נזקף לספר פתוח אחר שבו הוא חסר.
+  function overflowLine(list, already) {
+    if (!already) return "";
+    list = list || [];
+    if (!list.length) return " הקריאה לא הלכה לאיבוד - היא נספרה במניין הכללי של כל הקוראים.";
+    var labels = [];
+    list.forEach(function (o) { if (labels.indexOf(o.label) === -1) labels.push(o.label); });
+    return " הקריאה לא הלכה לאיבוד - היא נוספה " + labels.join(" ו") + ", שם הפרק עוד היה חסר. כולם קוראים בשביל כולם.";
+  }
+
   function markOne(u) {
     var i = u.key;
     return post("/read", { readerKey: RK, readerName: readerName(), idxs: [i] }).then(function (d) {
@@ -1022,6 +1034,7 @@ body.thr-reading{padding-bottom:0}
       HELD = HELD.filter(function (x) { return x !== i; });
       if (d.read && d.read.length) { if (DONE_NOW.indexOf(i) === -1) DONE_NOW.push(i); }
       else if (ALREADY_NOW.indexOf(i) === -1) ALREADY_NOW.push(i);
+      (d.overflow || []).forEach(function (o) { OVERFLOW_NOW.push(o); });
       if (d.closed) CLOSED_NOW = true;
       return { ok: true, already: !(d.read && d.read.length) };
     });
@@ -1053,9 +1066,10 @@ body.thr-reading{padding-bottom:0}
                                 : "קראתם " + all.length + " פרקים (" + escapeHtml(names) + ")") +
       (who ? " " + escapeHtml(who) : "") + ".";
     if (ALREADY_NOW.length) {
-      txt += "<br><span class='tiny'>" + (ALREADY_NOW.length === 1
-        ? "פרק אחד מהם כבר נקרא בסבב הזה בידי אחר, ולכן לא נספר שוב בהתקדמות הספר."
-        : ALREADY_NOW.length + " מהם כבר נקראו בסבב הזה בידי אחרים, ולכן לא נספרו שוב בהתקדמות הספר.") + "</span>";
+      txt += "<br><span class='tiny'>" + escapeHtml((ALREADY_NOW.length === 1
+        ? "פרק אחד מהם כבר נקרא בסבב הזה בידי אחר."
+        : ALREADY_NOW.length + " מהם כבר נקראו בסבב הזה בידי אחרים.") +
+        overflowLine(OVERFLOW_NOW, ALREADY_NOW.length)) + "</span>";
     }
     $("end-what").innerHTML = txt;
     $("end-closed").style.display = CLOSED_NOW ? "" : "none";
@@ -1065,7 +1079,7 @@ body.thr-reading{padding-bottom:0}
   }
 
   function backToBook() {
-    SEL = []; DONE_NOW = []; ALREADY_NOW = []; CLOSED_NOW = false;
+    SEL = []; DONE_NOW = []; ALREADY_NOW = []; OVERFLOW_NOW = []; CLOSED_NOW = false;
     show("grid");
     paintResume();
     return refresh().then(loadSuggest);

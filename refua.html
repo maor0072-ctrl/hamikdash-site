@@ -273,7 +273,7 @@
      בתהילים. לשרת נשלחת רק הסיבה (התאריך נקבע שם), בלי שם ובלי מייל, וההסבר החופשי אינו נשלח. */
   const WA_THANKS={refua:"ברוך ה', זכינו לבשורה טובה! תודה לכל מי שהתפלל וקרא תהילים לרפואה. ומי שעוד צריך רפואה, לו או למי שקרוב אליו, אפשר למסור שם לתפילה: https://hamikdash.co.il/refua.html",
     bakasha:"ברוך ה', הבקשה התמלאה! תודה לכל מי שהתפלל וקרא תהילים. ומי שעוד מחכה לישועה, בזיווג, בפרנסה, בילדים או בכל בקשה, אפשר למסור שם לתפילה: https://hamikdash.co.il/refua.html"};
-  const WHY_ON=false; // נדלק אחרי אישור יעקב לנוסח, יחד עם cfg:why בשני הוורקרים
+  const WHY_ON=true; // אושר ע"י יעקב 24.11.2026 (א1); בשרת - cfg:why=on בשני הוורקרים
   function whyBox(){const r=state.removed||[];if(!WHY_ON||!r.length)return '';const one=r.length===1,kind=r.some(n=>n.type==='refua')?'refua':'bakasha';
     let h='<div class="active-card" id="why-box">';
     if(!state.why){const opt=(v,t)=>'<button type="button" class="btn btn-ghost" style="display:block;width:100%;text-align:right;margin:8px 0" data-action="why" data-why="'+v+'">'+esc(t)+'</button>';

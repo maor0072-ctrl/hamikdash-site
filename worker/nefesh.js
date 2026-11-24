@@ -657,6 +657,87 @@ async function grantPaid(env, id, intent, how) {
   return token;
 }
 
+// ---------- הזמנת חוברת הקבר ונוסח ברכת המזון לאבלים (הכרעת יעקב 24.11.2026) ----------
+// אותו שער תרומה כמו בפדיון נפש: פרטים -> תרומה בנדרים פלוס עם הטלפון -> אימות לפי
+// הטלפון מאז רגע ההזמנה. **אין הזמנה בלי תרומה**, והסכום אינו מוגבל. ההפקה במחשב
+// הנייח (scripts/kever_orders.py, שמפעיל את scripts/kever_booklet.py); עד שההגהה של
+// טופיק 8014 נגמרת כל הזמנה ששולמה מגיעה ליעקב במייל, והוא מחליט על השליחה.
+const KEVER_ITEMS = { booklet: "חוברת תהילים לקריאה על הקבר", birkat: "נוסח ברכת המזון לאבלים ספרדים" };
+
+function kfull(o) {
+  return o.name + (o.gender === "f" ? " בת " : " בן ") + o.parent;
+}
+
+async function readKever(env, id) {
+  if (!/^[A-Za-z0-9_-]{6,64}$/.test(String(id || ""))) return null;
+  return await kvJson(env, "kever:" + id, null);
+}
+
+async function writeKever(env, id, data) {
+  try {
+    await env.NEFESH.put("kever:" + id, JSON.stringify(data),
+      data.status === "paid" ? {} : { expirationTtl: INTENT_HOURS * 3600 });
+    return true;
+  } catch (e) {
+    console.log("kever write failed", String(e).slice(0, 120));
+    return false;
+  }
+}
+
+function keverOwnerHtml(o, how) {
+  return (
+    `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.8">` +
+    `<h2 style="margin:0 0 8px;color:#8a6d3b">הזמנה ששולמה: ${esc(o.items.map((k) => KEVER_ITEMS[k]).join(" + "))}</h2>` +
+    `<p style="margin:0 0 6px">לעילוי נשמת <strong>${esc(kfull(o))}</strong></p>` +
+    `<p style="margin:0 0 6px">אותיות קי"ט לפי השם: ${esc(o.name)}</p>` +
+    `<p style="margin:0 0 6px">מזמין: ${esc(o.sender)} · ${esc(o.phone)} · ${esc(o.email)}</p>` +
+    `<p style="margin:0 0 12px">אימות התרומה: ${how === "manual" ? "ידני, אחרי שאישרת" : "אוטומטי מול נדרים פלוס"}</p>` +
+    `<p style="margin:0 0 6px">ההגהה של טופיק 8014 עוד לא הסתיימה, ולכן ההזמנה מגיעה אליך לפני שליחה.</p>` +
+    `<p style="margin:0;color:#7a6a52;font-size:13px">הפקה במחשב הנייח: py scripts/kever_orders.py produce --id ${esc(o.id)}</p>` +
+    `</div>`
+  );
+}
+
+function keverPaidMail(o) {
+  const what = o.items.map((k) => KEVER_ITEMS[k]).join(" ו");
+  return (
+    `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:16px;line-height:1.8;color:#2c2416">` +
+    `<p style="margin:0 0 14px">שלום ${esc(o.sender)},</p>` +
+    `<p style="margin:0 0 14px">התרומה התקבלה, תבורכו. התרומה הולכת לכולל ולפעילות העמותה, ונעשית ` +
+    `לעילוי נשמת ${esc(kfull(o))}.</p>` +
+    `<p style="margin:0 0 14px">ה${esc(what)} יוכנו בשם הנפטר וישלחו לכתובת המייל הזאת.</p>` +
+    `<p style="margin:0 0 14px">אם נפלה טעות בשם, אפשר להשיב למייל הזה ולכתוב את השם הנכון.</p>` +
+    `<p style="margin:0">תנוחמו מן השמיים.<br>אורות האמונה - בני משה</p></div>`
+  );
+}
+
+async function grantKever(env, id, o, how) {
+  if (o.status === "paid") return;
+  Object.assign(o, { status: "paid", paidAt: Date.now(), how: how, id: id });
+  await writeKever(env, id, o);
+  // אינדקס ההזמנות ששולמו, לסקריפט ההפקה בנייח.
+  const idx = await kvJson(env, "kever:paid", []);
+  if (!idx.includes(id)) idx.push(id);
+  await env.NEFESH.put("kever:paid", JSON.stringify(idx.slice(-2000)));
+  await sendMail(env, {
+    to: TO, replyTo: o.email,
+    subject: "הזמנה לעילוי נשמת " + kfull(o) + " - " + o.items.map((k) => KEVER_ITEMS[k]).join(" + "),
+    html: keverOwnerHtml(o, how),
+  });
+  try {
+    if (await sendMail(env, {
+      to: o.email, replyTo: REPLY_TO_OWNER,
+      subject: "התרומה התקבלה - לעילוי נשמת " + kfull(o),
+      html: keverPaidMail(o),
+    })) {
+      o.mailed = true;
+      await writeKever(env, id, o);
+    }
+  } catch (e) {
+    console.log("kever paid mail threw", String(e).slice(0, 150));
+  }
+}
+
 function pageHtml(title, body) {
   return new Response(
     `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">` +
@@ -718,6 +799,46 @@ export default {
           return json({ ok: true, paid: true, url: shemotUrl(token) });
         }
         return json({ ok: true, paid: false });
+      }
+
+      // GET ?kever=<id> - דף ההזמנה שואל אם התרומה כבר נראתה בנדרים פלוס.
+      const keverId = url.searchParams.get("kever");
+      if (keverId) {
+        const o = await readKever(env, keverId);
+        if (!o) return json({ ok: false, reason: "gone" }, 404);
+        if (o.status === "paid") return json({ ok: true, paid: true });
+        if (await phoneHasPaid(env, o.phone, o.since)) {
+          await grantKever(env, keverId, o, "auto");
+          return json({ ok: true, paid: true });
+        }
+        return json({ ok: true, paid: false });
+      }
+
+      // GET ?kgrant=<טוקן> - יעקב מאשר ידנית תרומה שלא זוהתה (נרשמה בלי טלפון).
+      const kgrant = url.searchParams.get("kgrant");
+      if (kgrant) {
+        const payload = await verifyToken(kgrant, env.NEFESH_TOKEN_SECRET);
+        if (!payload || !payload.kv)
+          return pageHtml("קישור לא תקף", `<h2>הקישור אינו תקף או שפג תוקפו</h2>`);
+        const o = await readKever(env, payload.kv);
+        if (!o) return pageHtml("ההזמנה פגה", `<h2>ההזמנה כבר אינה קיימת</h2>` +
+          `<p>הזמנה שלא שולמה נמחקת אחרי יומיים.</p>`);
+        await grantKever(env, payload.kv, o, "manual");
+        return pageHtml("אושר", `<h2 style="color:#8a6d3b">ההזמנה של ${esc(o.sender)} אושרה</h2>` +
+          `<p>נשלח אליו מייל שהתרומה התקבלה, ואליך מייל ההזמנה.</p>`);
+      }
+
+      // GET ?kever-orders=<מפתח מנהל> - ההזמנות ששולמו, לסקריפט ההפקה בנייח.
+      // המפתח: HMAC של "kever-admin" בסוד הוורקר, ונגזר בנייח מאותו סוד שב-.env.
+      const kadmin = url.searchParams.get("kever-orders");
+      if (kadmin) {
+        const k = await hmacKey(env.NEFESH_TOKEN_SECRET);
+        const sig = b64url(new Uint8Array(await crypto.subtle.sign("HMAC", k, new TextEncoder().encode("kever-admin"))));
+        if (kadmin !== sig) return json({ ok: false }, 403);
+        const ids = await kvJson(env, "kever:paid", []);
+        const out = [];
+        for (const id of ids.slice(-200)) { const o = await readKever(env, id); if (o) out.push(o); }
+        return json({ ok: true, orders: out });
       }
 
       // GET ?grant=<טוקן חתום> - יעקב לוחץ על הכפתור שבמייל ופותח ידנית
@@ -796,6 +917,48 @@ export default {
         ok: true, id: id, paid: false,
         donate: DONATE_PREFILL + "&Phone=" + encodeURIComponent(p),
       });
+    }
+
+    // ---------- הזמנת חוברת הקבר: פרטים, לפני התרומה ----------
+    if (d.action === "kever-start") {
+      const o = {
+        name: String(d.name || "").trim(), parent: String(d.parent || "").trim(),
+        gender: d.gender === "f" ? "f" : d.gender === "m" ? "m" : "",
+        sender: String(d.sender || "").trim(), email: String(d.email || "").trim().toLowerCase(),
+        items: (Array.isArray(d.items) ? d.items : []).filter((k) => KEVER_ITEMS[k]),
+      };
+      if (!o.name || !o.parent || !o.gender || !o.sender) return json({ ok: false, reason: "missing" }, 400);
+      if (o.name.length > 60 || o.parent.length > 60 || o.sender.length > 120)
+        return json({ ok: false, reason: "too long" }, 400);
+      if (!/[א-ת]/.test(o.name)) return json({ ok: false, reason: "hebrew name" }, 400);
+      if (!o.items.length) return json({ ok: false, reason: "no items" }, 400);
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.email)) return json({ ok: false, reason: "bad email" }, 400);
+      o.phone = normPhone(d.phone);
+      if (!/^05\d{8}$/.test(o.phone)) return json({ ok: false, reason: "bad phone" }, 400);
+      const id = crypto.randomUUID().replace(/-/g, "");
+      const now = Date.now();
+      Object.assign(o, { status: "open", createdAt: now, since: now - PAY_GRACE_MS });
+      if (!(await writeKever(env, id, o))) return json({ ok: false, reason: "storage" }, 503);
+      // בניגוד לפדיון, תרומה קודמת אינה פותחת כאן: כל חוברת היא תרומה משלה.
+      return json({ ok: true, id: id, donate: DONATE_PREFILL + "&Phone=" + encodeURIComponent(o.phone) });
+    }
+
+    if (d.action === "kever-help") {
+      const o = await readKever(env, d.id);
+      if (!o) return json({ ok: false, reason: "gone" }, 404);
+      const grant = await signToken({ kv: String(d.id), exp: Date.now() + 7 * 86400000 }, env.NEFESH_TOKEN_SECRET);
+      const grantUrl = new URL(request.url).origin + "/?kgrant=" + encodeURIComponent(grant);
+      const ok = await sendMail(env, {
+        to: TO, replyTo: o.email,
+        subject: "חוברת הקבר - " + o.sender + " מדווח שתרם והתרומה לא זוהתה",
+        html:
+          `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7">` +
+          `<p><strong>${esc(o.sender)}</strong> · ${esc(o.phone)} · ${esc(o.email)}</p>` +
+          `<p>הזמנה לעילוי נשמת ${esc(kfull(o))}. מדווח שתרם, והתרומה לא זוהתה לפי הטלפון.</p>` +
+          `<p>אחרי שווידאת בנדרים פלוס שהתרומה נכנסה:</p><p>${btn(grantUrl, "לאשר את ההזמנה", true)}</p></div>`,
+      });
+      if (!ok) return json({ ok: false, reason: "mail failed" }, 502);
+      return json({ ok: true });
     }
 
     // ---------- שילמתי והדף לא נפתח ----------

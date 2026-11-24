@@ -445,7 +445,7 @@ function removePage(title, body) {
     `background:#fff;border:1px solid #e5ddd0;border-radius:14px;padding:28px 26px}` +
     `h1{font-size:26px;margin:0 0 14px;color:#8a6a1f}a{color:#8a6a1f}</style></head>` +
     `<body><main><h1>${title}</h1>${body}` +
-    `<p style="margin-top:26px"><a href="${PAGE}">חזרה לדף השמות לרפואה</a></p>` +
+    `<p style="margin-top:26px"><a href="${PAGE}">חזרה לדף רפואה ושאר משאלות</a></p>` +
     `</main></body></html>`,
     { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } }
   );
@@ -502,7 +502,7 @@ export default {
         if ((await hmac(env.REFUA_TOKEN_SECRET, o)) !== s)
           return removePage("הקישור אינו תקין", bad);
         return removePage("הסרת השמות שמסרתם",
-          `<p>בלחיצה על הכפתור יוסרו מרשימת הרפואה והבקשות כל השמות שמסרתם.</p>` +
+          `<p>בלחיצה על הכפתור יוסרו מרשימת רפואה ושאר משאלות כל השמות שמסרתם.</p>` +
           `<form method="post" action="${SELF}/remove?o=${esc(o)}&s=${esc(s)}">` +
           `<button type="submit" style="font:inherit;font-size:18px;font-weight:700;` +
           `background:#8a6a1f;color:#fff;border:0;border-radius:10px;padding:12px 22px;` +
@@ -529,7 +529,7 @@ export default {
         await RENEW.clearSubmitter(env, o);
         await sendMail(env, {
           to: TO, replyTo: REPLY_TO_OWNER,
-          subject: "הסרה מרשימת הרפואה (קישור מהמייל)",
+          subject: "הסרה מרשימת רפואה ושאר משאלות (קישור מהמייל)",
           html: `<div dir="rtl">הוסרו ${before.length - kept.length} שמות של מוסר ${esc(o)}.</div>`,
         });
         return removePage("השמות הוסרו", `<p>הוסרו מהרשימה, ותודה שהודעתם. ` +
@@ -621,7 +621,7 @@ export default {
     const okNotice = await sendMail(env, {
       to: TO,
       replyTo: req.email,
-      subject: (isEmpty ? "הסרה מרשימת הרפואה: " : isFix ? "תיקון רשימת רפואה: " : "שמות לרפואה: ") +
+      subject: (isEmpty ? "הסרה מרשימת רפואה ושאר משאלות: " : isFix ? "תיקון רשימת רפואה ושאר משאלות: " : "רפואה ושאר משאלות: ") +
         `${req.name}${isEmpty ? "" : " (" + cholim.length + ")"}`,
       html: rtlEmail(ownerNoticeHtml(req, cholim, isFix, isEmpty)),
     });
@@ -641,8 +641,8 @@ export default {
     await sendMail(env, {
       to: req.email,
       replyTo: REPLY_TO_OWNER,
-      subject: isEmpty ? "השמות הוסרו מרשימת הרפואה"
-             : isFix ? "הרשימה עודכנה" : "קיבלנו את השמות לרפואה",
+      subject: isEmpty ? "השמות הוסרו מרשימת רפואה ושאר משאלות"
+             : isFix ? "הרשימה עודכנה" : "קיבלנו את השמות - רפואה ושאר משאלות",
       html: rtlEmail(thanksHtml(req.name, cholim, isFix, isEmpty, await removeUrlFor(env, ownerKey),
         await RENEW.editUrlFor(env, ownerKey))),
     });

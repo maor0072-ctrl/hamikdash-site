@@ -84,7 +84,7 @@ export function makeRenewal(cfg) {
   const isRefua = cfg.kind === "refua";
   const SITE = "https://hamikdash.co.il";
   const T = isRefua
-    ? { what: "השמות", list: "רשימת הרפואה", bless: "ולרפואה שלמה במהרה",
+    ? { what: "השמות", list: "רשימת רפואה ושאר משאלות", bless: "ולרפואה שלמה במהרה",
         healed: "ברוך השם, הבריא/ה", healedShort: "הבריא" }
     : { what: "השמות והבקשות", list: "רשימת הבקשות", bless: "ושהבקשה תתקבל במהרה",
         healed: "ברוך השם, הבקשה התקבלה", healedShort: "הבקשה התקבלה" };
@@ -112,7 +112,7 @@ export function makeRenewal(cfg) {
     const keep = await renewUrl(env, o, "keep"), remove = await renewUrl(env, o, "remove");
     const edit = await editUrlFor(env, o);
     return {
-      subject: isRefua ? "האם להשאיר את השמות ברשימת הרפואה?" : "האם להשאיר את הבקשות ברשימה?",
+      subject: isRefua ? "האם להשאיר את השמות ברשימת רפואה ושאר משאלות?" : "האם להשאיר את הבקשות ברשימה?",
       html: WRAP +
         `<p>שלום ${esc(rec.name)},</p>` +
         `<p>מסרתם לתפילה את ${T.what} האלה:</p>` + listHtml(names(rec)) +

@@ -269,6 +269,27 @@
      (משוכפל מתוך details.more-info בדף, כדי ששני המקומות לא ייפרדו), שיתוף, ורשימת השמות - החדשים ראשונים. */
   function moreInfoTail(){const body=document.querySelector('.more-info .more-info-body');if(!body)return '';let on=false,out='';
     Array.from(body.children).forEach(el=>{if(!on&&el.tagName==='H3'&&el.textContent.trim().indexOf('מי שנותן הוראת קבע')===0)on=true;if(on)out+=el.outerHTML;});return out;}
+  /* אחרי הסרה בתיקון: „למה" - רשות, אחרי שהמחיקה כבר בוצעה (הכרעת יעקב 24.11.2026). כמו חלון „למה סוגרים"
+     בתהילים. לשרת נשלחת רק הסיבה (התאריך נקבע שם), בלי שם ובלי מייל, וההסבר החופשי אינו נשלח. */
+  const WA_THANKS={refua:"ברוך ה', זכינו לבשורה טובה! תודה לכל מי שהתפלל וקרא תהילים לרפואה. ומי שעוד צריך רפואה, לו או למי שקרוב אליו, אפשר למסור שם לתפילה: https://hamikdash.co.il/refua.html",
+    bakasha:"ברוך ה', הבקשה התמלאה! תודה לכל מי שהתפלל וקרא תהילים. ומי שעוד מחכה לישועה, בזיווג, בפרנסה, בילדים או בכל בקשה, אפשר למסור שם לתפילה: https://hamikdash.co.il/refua.html"};
+  const WHY_ON=false; // נדלק אחרי אישור יעקב לנוסח, יחד עם cfg:why בשני הוורקרים
+  function whyBox(){const r=state.removed||[];if(!WHY_ON||!r.length)return '';const one=r.length===1,kind=r.some(n=>n.type==='refua')?'refua':'bakasha';
+    let h='<div class="active-card" id="why-box">';
+    if(!state.why){const opt=(v,t)=>'<button type="button" class="btn btn-ghost" style="display:block;width:100%;text-align:right;margin:8px 0" data-action="why" data-why="'+v+'">'+esc(t)+'</button>';
+      h+='<p><b>'+(one?'השם הוסר.':'השמות הוסרו.')+' אם תרצו, ספרו לנו מה הסיבה.</b></p>'+opt('healed',kind==='refua'?"ברוך ה', הבריא/ה":"הבקשה התמלאה, ברוך ה'")+opt('passed','חלילה נפטר/ה')+opt('stop','לא רוצים להמשיך')+opt('other','סיבה אחרת')+
+        '<button type="button" class="btn" style="margin-top:10px" data-action="why" data-why="none">סיום</button>';}
+    else if(state.why==='healed'){const t=WA_THANKS[kind];
+      h+='<p>'+(kind==='refua'?"ברוך ה', שמחים לשמוע על הבשורה הטובה, ומודים לה' יחד אתכם.":"ברוך ה', שמחים לשמוע שהבקשה התמלאה, ומודים לה' יחד אתכם.")+'</p><p>אם תרצו לשתף את מי שהתפלל, הנה נוסח קצר בלי שם ובלי פרטים:</p><p style="background:#f3ece0;border-right:4px solid var(--gold);padding:12px 16px;border-radius:8px">'+esc(t)+'</p>'+
+        '<p><a class="btn" href="https://wa.me/?text='+encodeURIComponent(t)+'">לשיתוף בוואטסאפ</a></p><p>יש שנוהגים לעשות סעודת הודיה על ישועה, ומי שרוצה יכול להודות גם בתרומה לכולל, ובכך להחזיק את האברכים שלמדו והתפללו.</p><p><a class="btn btn-ghost" href="/donate.html">לתרומה חד פעמית או להוראת קבע</a></p>';}
+    else if(state.why==='passed'){h+='<p>משתתפים בצערכם. המקום ינחם אתכם בתוך שאר אבלי ציון וירושלים.</p><p><b>האם תרצו להזכיר את השם לעילוי נשמה?</b></p><p>בטופס עילוי הנשמה השם ושם ההורה כבר ממולאים, ונשאר רק להוסיף את תאריך הפטירה.</p>'+
+        r.map(n=>'<p><a class="btn" href="/neshama.html?'+new URLSearchParams({prefill:'1',name:n.name,parent:n.parent,gender:n.gender||''}).toString()+'">'+esc('להזכיר את '+fullName(n)+' לעילוי נשמה')+'</a></p>').join('');}
+    else if(state.why==='other')h+='<p>תודה שעדכנתם. אפשר למסור שמות חדשים בכל עת.</p>';
+    else h+='<p>'+(one?'השם הוסר':'השמות הוסרו')+' מהרשימה.</p>';
+    return h+'</div>';}
+  function answerWhy(why){state.why=why;
+    if(why!=='none')[...new Set((state.removed||[]).map(n=>n.type))].forEach(k=>{apiFetch(k,'/why',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({why})}).catch(()=>{});});
+    render();const box=$('why-box');if(box)box.scrollIntoView({block:'start'});}
   function shareBox(){const src=document.querySelector('.share-end .shr');return '<div class="shr" id="done-share" data-share-title="'+esc(src?src.getAttribute('data-share-title')||'':'')+'" data-share-text="'+esc(src?src.getAttribute('data-share-text'):'')+'"></div>';}
   function mixedOwners(){return cache.refua.names.length&&cache.bakasha.names.length&&String(cache.refua.me?.email||'').toLowerCase()!==String(cache.bakasha.me?.email||'').toLowerCase();}
   function render(){const root=$('app-content');let html='';
@@ -291,7 +312,7 @@
       html+=inputRow('meName',TEXT.meName,state.me.name,TEXT.examples.meName,{autocomplete:'name',readonly:!!state.jobs})+inputRow('phone',TEXT.phone,state.me.phone||'',TEXT.examples.phone,{type:'tel',autocomplete:'tel',dir:true,required:false,readonly:!!state.jobs})+inputRow('email',TEXT.email,state.me.email,TEXT.examples.email,{hint:TEXT.emailHint,type:'email',autocomplete:'email',dir:true,readonly:!!state.jobs||state.mode==='edit'})+
         '<div class="hp" aria-hidden="true"><label for="website">'+esc(TEXT.honeypot)+'</label><input id="website" type="text" tabindex="-1" autocomplete="off"></div><div class="actions">'+button('send',state.jobs?TEXT.retry:state.mode==='edit'?TEXT.saveChanges:TEXT.send,'id="send-button"')+(!state.jobs?button('back',TEXT.back,'',true):'')+'</div>';
     }else{const removedAll=state.mode==='edit'&&state.scope.every(k=>!state.items.some(n=>n.type===k));
-      html='<h2>'+esc(removedAll?TEXT.removedAll:state.mode==='edit'?TEXT.corrected:TEXT.received)+'</h2><p>'+esc(removedAll?TEXT.removedAllText:state.mode==='edit'?TEXT.correctedText:TEXT.receivedText)+'</p><div class="done-more">'+moreInfoTail()+'</div>'+shareBox()+'<p class="app-chok" style="margin:22px 0 6px;padding:12px 14px;border:1px solid rgba(201,171,119,.5)">להתקנת האפליקציה חוק לישראל בטלפון:<br><a href="https://chok.reshimu.co.il/app" dir="ltr">https://chok.reshimu.co.il/app</a></p>'+publicBlock()+((state.done||[]).length?'<h3>'+esc(TEXT.yourNames)+'</h3>'+summary(state.done,false):'')+'<div class="actions">'+button('another',TEXT.newNames)+(mixedOwners()?button('edit-refua',TEXT.editRefua,'',true)+button('edit-bakasha',TEXT.editBakasha,'',true):button('edit',TEXT.edit,'',true))+'</div>';}
+      html='<h2>'+esc(removedAll?TEXT.removedAll:state.mode==='edit'?TEXT.corrected:TEXT.received)+'</h2><p>'+esc(removedAll?TEXT.removedAllText:state.mode==='edit'?TEXT.correctedText:TEXT.receivedText)+'</p>'+whyBox()+'<div class="done-more">'+moreInfoTail()+'</div>'+shareBox()+'<p class="app-chok" style="margin:22px 0 6px;padding:12px 14px;border:1px solid rgba(201,171,119,.5)">להתקנת האפליקציה חוק לישראל בטלפון:<br><a href="https://chok.reshimu.co.il/app" dir="ltr">https://chok.reshimu.co.il/app</a></p>'+publicBlock()+((state.done||[]).length?'<h3>'+esc(TEXT.yourNames)+'</h3>'+summary(state.done,false):'')+'<div class="actions">'+button('another',TEXT.newNames)+(mixedOwners()?button('edit-refua',TEXT.editRefua,'',true)+button('edit-bakasha',TEXT.editBakasha,'',true):button('edit',TEXT.edit,'',true))+'</div>';}
     root.innerHTML=html;updateLive();notify(message,messageError);
     if($('public-names'))loadPublic();
     const endShare=document.querySelector('.share-end');if(endShare)endShare.hidden=state.stage==='done';
@@ -362,6 +383,8 @@
     }}catch(error){failed=error;}finally{busy=false;$('app-content').inert=false;}
     if(failed){state.stage='details';persist();render();const pending=state.jobs.reduce((sum,j)=>sum+j.entries.length,0);
       notify((pending?format(TEXT.partial,{sent:state.received,pending}):TEXT.partialChanges)+(failed.status?format(TEXT.code,{code:failed.status}):TEXT.network),true);return;}
+    if(state.mode==='edit'){const key=n=>n.name+'|'+n.parent;state.removed=[];state.why='';
+      KINDS.forEach(k=>{const now=new Set(cache[k].names.map(key));(state.baseline[k]||[]).forEach(n=>{if(!now.has(key(n)))state.removed.push({...n,type:k});});});}
     state.jobs=null;state.stage='done';state.active=null;publicCache=null;
     try{localStorage.removeItem(DRAFT);}catch(e){storageWarning();}message='';render();
   }
@@ -396,6 +419,7 @@
     if(key==='type'){const n=state.items.find(x=>x.id===state.active);if(!n)return;n.type=e.target.value;persist();render();$('field-type-'+n.type)?.focus();}
   });
   $('app-content').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b||busy)return;const action=b.dataset.action;
+    if(action==='why'){answerWhy(b.dataset.why);return;}
     if(state.jobs){if(action==='send')send();return;}message='';notify('');
     if(action==='start'){if(!state.items.length){const n=blank();state.items.push(n);state.active=n.id;}state.stage='names';}
     if(action==='another'){state=initial();state.stage='names';const n=blank();state.items=[n];state.active=n.id;}

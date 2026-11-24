@@ -491,6 +491,8 @@ export default {
       // GET /remove?o=&s= - הסרה בלחיצה אחת מתוך המייל. אדם שקיבל בשורה
       // טובה, ולהבדיל אדם שנפטר לו יקיר, לא ימלא טופס. הקישור חתום ולכן
       // הוא לא מאפשר להסיר את השמות של מישהו אחר.
+      // GET מציג כפתור בלבד ואינו מוחק (24.11.2026, כמו ב-refua.js): שירותי דואר בארגונים
+      // פותחים כל קישור במייל אוטומטית כדי לסרוק אותו, ופתיחה כזאת מחקה שמות בלי שאיש לחץ.
       if (url.pathname === "/remove") {
         const o = url.searchParams.get("o") || "";
         const s = url.searchParams.get("s") || "";
@@ -499,22 +501,39 @@ export default {
           return removePage("הקישור אינו תקין", bad);
         if ((await hmac(env.TEFILOT_TOKEN_SECRET, o)) !== s)
           return removePage("הקישור אינו תקין", bad);
-        const before = await readPublic(env);
-        const kept = before.filter((e) => e.owner !== o);
-        if (kept.length !== before.length) await env.TEFILOT.put(KV_KEY, JSON.stringify(kept));
-        // גם הרשומה הפרטית מתרוקנת, אחרת מייל החידוש היה שואל על שמות שכבר הוסרו.
-        await RENEW.clearSubmitter(env, o);
-        await sendMail(env, {
-          to: TO, replyTo: REPLY_TO_OWNER,
-          subject: "הסרה מרשימת רפואה ושאר משאלות (קישור מהמייל)",
-          html: `<div dir="rtl">הוסרו ${before.length - kept.length} שמות של מוסר ${esc(o)}.</div>`,
-        });
-        return removePage("השמות הוסרו", `<p>הוסרו מהרשימה, ותודה שהודעתם. ` +
-          `אם זו בשורה טובה - שתהיה שעה טובה ומבורכת, ואם לא, תנוחמו מהשמיים. ` +
-          `אפשר למסור שמות חדשים בכל עת.</p>`);
+        return removePage("הסרת השמות שמסרתם",
+          `<p>בלחיצה על הכפתור יוסרו מרשימת הבקשות כל השמות שמסרתם.</p>` +
+          `<form method="post" action="${SELF}/remove?o=${esc(o)}&s=${esc(s)}">` +
+          `<button type="submit" style="font:inherit;font-size:18px;font-weight:700;` +
+          `background:#8a6a1f;color:#fff;border:0;border-radius:10px;padding:12px 22px;` +
+          `cursor:pointer">להסיר את השמות</button></form>` +
+          `<p style="margin-top:14px">כדי להסיר רק חלק מהשמות, אפשר להשתמש בקישור התיקון שבמייל.</p>`);
       }
 
       return new Response("method not allowed", { status: 405, headers });
+    }
+
+    if (request.method === "POST" && url.pathname === "/remove") {
+      const o = url.searchParams.get("o") || "";
+      const s = url.searchParams.get("s") || "";
+      const bad = `<p>אפשר להסיר שמות גם מתוך הדף עצמו, בלשונית התיקון.</p>`;
+      if (!o || !s || !env.TEFILOT_TOKEN_SECRET)
+        return removePage("הקישור אינו תקין", bad);
+      if ((await hmac(env.TEFILOT_TOKEN_SECRET, o)) !== s)
+        return removePage("הקישור אינו תקין", bad);
+      const before = await readPublic(env);
+      const kept = before.filter((e) => e.owner !== o);
+      if (kept.length !== before.length) await env.TEFILOT.put(KV_KEY, JSON.stringify(kept));
+      // גם הרשומה הפרטית מתרוקנת, אחרת מייל החידוש היה שואל על שמות שכבר הוסרו.
+      await RENEW.clearSubmitter(env, o);
+      await sendMail(env, {
+        to: TO, replyTo: REPLY_TO_OWNER,
+        subject: "הסרה מרשימת הבקשות (קישור מהמייל)",
+        html: `<div dir="rtl">הוסרו ${before.length - kept.length} שמות של מוסר ${esc(o)}.</div>`,
+      });
+      // המחיקה כבר בוצעה; השאלה „למה" באה אחריה והיא רשות (24.11.2026).
+      return removePage("השמות הוסרו", `<p>השמות הוסרו מהרשימה.</p>` +
+        (await RENEW.whyForm(env, o, before.filter((e) => e.owner === o))));
     }
 
     if (request.method !== "POST")

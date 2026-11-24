@@ -206,11 +206,106 @@ export function makeRenewal(cfg) {
     return cur.length - kept.length;
   }
 
+  // ---------- אחרי ההסרה: למה (הכרעת יעקב 24.11.2026) ----------
+  // המחיקה קודמת והשאלה אחריה, והיא רשות. ארבע תשובות כמו בסגירת ספר תהילים, וכפתור
+  // „סיום" למי שלא רוצה לענות; מי שלא ענה לא מקבל תזכורת. **נשמרות רק הסיבה והתאריך**
+  // (מפתח why:), כדי לדעת אם השירות עוזר. ההסבר החופשי של „אחר" אינו נשלח ואינו נשמר,
+  // כי אנשים כותבים בו פרטים רפואיים ומשפחתיים. אין מונה גלוי באתר (הוכרע 24.11).
+  // השמות שהוסרו עוברים בטופס רק כדי לבנות את קישור עילוי הנשמה הממולא.
+  const WHY = ["healed", "passed", "stop", "other"];
+  const WA_THANKS = isRefua
+    ? "ברוך ה', זכינו לבשורה טובה! תודה לכל מי שהתפלל וקרא תהילים לרפואה. ומי שעוד צריך רפואה, לו או למי שקרוב אליו, אפשר למסור שם לתפילה: " + SITE + "/refua.html"
+    : "ברוך ה', הבקשה התמלאה! תודה לכל מי שהתפלל וקרא תהילים. ומי שעוד מחכה לישועה, בזיווג, בפרנסה, בילדים או בכל בקשה, אפשר למסור שם לתפילה: " + SITE + "/refua.html";
+
+  async function whyForm(env, o, removed) {
+    // כבוי עד שיעקב מאשר את הנוסח (cfg:why = "on" ב-KV של הוורקר). כבוי - דף ההסרה כמו קודם.
+    if ((await kv(env).get("cfg:why")) !== "on")
+      return `<p>תודה שהודעתם. אם זו בשורה טובה, שתהיה שעה טובה ומבורכת, ואם לא, תנוחמו מהשמיים. ` +
+        `אפשר למסור שמות חדשים בכל עת.</p>`;
+    const s = await hmac(secret(env), "why:" + o);
+    const pack = esc(JSON.stringify((removed || []).slice(0, 20).map((n) =>
+      ({ name: n.name || "", parent: n.parent || "", gender: n.gender || "" }))));
+    const base = "font:inherit;font-size:17px;border-radius:10px;padding:12px 18px;cursor:pointer;";
+    const btn = (v, t) => `<button type="submit" name="why" value="${v}" style="${base}display:block;width:100%;` +
+      `background:#fff;color:#1c1a17;border:1px solid #c9ab77;text-align:right;margin:8px 0">${t}</button>`;
+    return `<form method="post" action="${cfg.self}/why" style="margin-top:22px">` +
+      `<input type="hidden" name="o" value="${esc(o)}"><input type="hidden" name="s" value="${s}">` +
+      `<input type="hidden" name="names" value="${pack}">` +
+      `<p><b>אם תרצו, ספרו לנו מה הסיבה.</b></p>` +
+      btn("healed", isRefua ? "ברוך ה', הבריא/ה" : "הבקשה התמלאה, ברוך ה'") +
+      btn("passed", "חלילה נפטר/ה") +
+      btn("stop", "לא רוצים להמשיך") +
+      btn("other", "סיבה אחרת") +
+      `<button type="submit" name="why" value="none" style="${base}margin-top:10px;background:#6b6459;` +
+      `color:#fff;border:0;font-weight:bold">סיום</button></form>`;
+  }
+
+  function whyAnswer(why, removed) {
+    if (why === "healed") {
+      return page("ברוך שומע תפילה",
+        (isRefua ? `<p>ברוך ה', שמחים לשמוע על הבשורה הטובה, ומודים לה' יחד אתכם.</p>`
+          : `<p>ברוך ה', שמחים לשמוע שהבקשה התמלאה, ומודים לה' יחד אתכם.</p>`) +
+        `<p>אם תרצו לשתף את מי שהתפלל, הנה נוסח קצר בלי שם ובלי פרטים:</p>` +
+        `<p style="background:#f3ece0;border-right:4px solid #b08434;padding:12px 16px;border-radius:8px">${esc(WA_THANKS)}</p>` +
+        `<p><a href="https://wa.me/?text=${encodeURIComponent(WA_THANKS)}" style="background:#1f8f4e;color:#fff;` +
+        `text-decoration:none;padding:12px 24px;border-radius:8px;display:inline-block;font-weight:bold">לשיתוף בוואטסאפ</a></p>` +
+        `<p>יש שנוהגים לעשות סעודת הודיה על ישועה, ומי שרוצה יכול להודות גם בתרומה לכולל, ` +
+        `ובכך להחזיק את האברכים שלמדו והתפללו.</p>` +
+        `<p>${button(cfg.donate, "לתרומה חד פעמית")} ${button(cfg.keva, "להוראת קבע")}</p>`);
+    }
+    if (why === "passed") {
+      const links = removed.map((n) => {
+        const q = new URLSearchParams({ prefill: "1", name: n.name, parent: n.parent, gender: n.gender }).toString();
+        return `<p>${button(`${SITE}/neshama.html?${q}`, "להזכיר את " + esc(cfg.fullName(n)) + " לעילוי נשמה")}</p>`;
+      }).join("");
+      return page("משתתפים בצערכם",
+        `<p>משתתפים בצערכם. המקום ינחם אתכם בתוך שאר אבלי ציון וירושלים.</p>` +
+        (links ? `<p><b>האם תרצו להזכיר את השם לעילוי נשמה?</b></p>` +
+          `<p>בטופס עילוי הנשמה השם ושם ההורה כבר ממולאים, ונשאר רק להוסיף את תאריך הפטירה.</p>` + links
+          : `<p>אם תרצו להזכיר את השם לעילוי נשמה: <a href="${SITE}/neshama.html">לדף עילוי הנשמה</a></p>`));
+    }
+    if (why === "other")
+      return page("תודה שעדכנתם", `<p>השמות הוסרו מהרשימה. תודה שעדכנתם.</p>` +
+        `<p>אפשר למסור שמות חדשים בכל עת.</p>`);
+    return page("השמות הוסרו", `<p>השמות הוסרו מהרשימה.</p>`);
+  }
+
+  async function recordWhy(env, why) {
+    if (!WHY.includes(why)) return;
+    const d = new Date().toISOString();
+    await kv(env).put(`why:${d.slice(0, 10)}:${cfg.kind}:${why}:${Math.random().toString(36).slice(2, 8)}`, d);
+  }
+
   // ---------- נתבים ----------
   async function handle(request, env, url, headers) {
     const p = url.pathname;
-    if (p !== "/mine" && p !== "/renew" && p !== "/renewal-dry") return null;
+    if (p !== "/mine" && p !== "/renew" && p !== "/renewal-dry" && p !== "/why") return null;
     if (!kv(env) || !secret(env)) return new Response("not configured", { status: 503, headers });
+
+    // /why - התשובה לשאלה שאחרי ההסרה. שני מקורות: הטופס בדף ההסרה של הוורקר (POST טופס,
+    // חתום), והדף refua.html אחרי הסרה בתיקון (POST JSON, בלי זהות - נשמרות רק סיבה ותאריך).
+    if (p === "/why") {
+      if (request.method !== "POST") return new Response("method not allowed", { status: 405, headers });
+      if ((request.headers.get("Content-Type") || "").includes("application/json")) {
+        let d = {};
+        try { d = await request.json(); } catch (e) { d = {}; }
+        await recordWhy(env, String(d.why || ""));
+        return new Response("ok", { status: 200, headers });
+      }
+      let form;
+      try { form = new URLSearchParams(await request.text()); } catch (e) { form = new URLSearchParams(); }
+      const o = form.get("o") || "", s = form.get("s") || "";
+      if (!o || s !== (await hmac(secret(env), "why:" + o)))
+        return page("הקישור אינו תקין", `<p>השמות כבר הוסרו. אין צורך לעשות דבר נוסף.</p>`, 403);
+      let removed = [];
+      try { removed = JSON.parse(form.get("names") || "[]"); } catch (e) { removed = []; }
+      removed = (Array.isArray(removed) ? removed : []).slice(0, 20).map((n) => ({
+        name: String((n && n.name) || "").slice(0, 120), parent: String((n && n.parent) || "").slice(0, 120),
+        gender: (n && n.gender) === "f" ? "f" : (n && n.gender) === "m" ? "m" : "" })).filter((n) => n.name);
+      const why = form.get("why") || "none";
+      await recordWhy(env, why);
+      return whyAnswer(why, removed);
+    }
 
     // GET /mine?o=&s= - השמות של המוסר, לקישור העריכה האישי.
     if (p === "/mine") {
@@ -368,7 +463,7 @@ export function makeRenewal(cfg) {
   }
 
   return {
-    handle, editUrlFor, clearSubmitter,
+    handle, editUrlFor, clearSubmitter, whyForm,
     scheduled: (env) => scan(env, Date.now(), false),
     // לבדיקה מקומית ולרינדור דוגמאות
     _emails: { renewalEmail, keptEmail, healedEmail, passedEmail },

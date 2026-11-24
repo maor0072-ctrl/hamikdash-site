@@ -532,9 +532,9 @@ export default {
           subject: "הסרה מרשימת רפואה ושאר משאלות (קישור מהמייל)",
           html: `<div dir="rtl">הוסרו ${before.length - kept.length} שמות של מוסר ${esc(o)}.</div>`,
         });
-        return removePage("השמות הוסרו", `<p>הוסרו מהרשימה, ותודה שהודעתם. ` +
-          `אם זו בשורה טובה - שתהיה שעה טובה ומבורכת, ואם לא, תנוחמו מהשמיים. ` +
-          `אפשר למסור שמות חדשים בכל עת.</p>`);
+        // המחיקה כבר בוצעה; השאלה „למה" באה אחריה והיא רשות (24.11.2026).
+        return removePage("השמות הוסרו", `<p>השמות הוסרו מהרשימה.</p>` +
+          (await RENEW.whyForm(env, o, before.filter((e) => e.owner === o))));
       }
 
       return new Response("method not allowed", { status: 405, headers });

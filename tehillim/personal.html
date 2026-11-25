@@ -747,7 +747,7 @@ async function openReading(rd, pos, yday) {
     }
   } catch (e) { after += "<p class='err'>לא הצלחנו לטעון חלק מהטקסט. בדקו את החיבור ונסו שוב.</p>"; }
   after += "<div class='finish' id='finish'><h2>ישר כוח! סיימתם את הקריאה של היום</h2><p>אפשר להמשיך ולקרוא גם בספרים הפתוחים של תהילים ישראל, לרפואת אנשים שמחכים לתפילה, ולהצטרף לקהילת שמע רפא ומשאלות.</p>"
-    + "<a class='btn-p' href='/tehillim/sfarim'>לספרים הפתוחים</a><a class='btn-g' href='/tefilot/'>לשמע רפא ומשאלות</a><button class='btn-l' id='fin-home'>חזרה לרשימה</button></div>";
+    + "<a class='btn-p' href='/tehillim/sfarim'>לספרים הפתוחים</a><a class='btn-g' href='/tefilot/'>לשמע רפא ומשאלות</a><a class='btn-g' href='https://chok.reshimu.co.il'>חוק לישראל - הלימוד היומי</a><button class='btn-l' id='fin-home'>חזרה לרשימה</button></div>";
   const afterEl = document.createElement("div"); afterEl.innerHTML = after;
   afterEl.querySelector("#fin-home").onclick = () => leaveReading();
   unitKeys = U.map((u) => u.key);

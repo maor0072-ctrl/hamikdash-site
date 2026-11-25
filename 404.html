@@ -72,6 +72,18 @@ var PAGES = [["/", "בית"], ["/about.html", "אודות"], ["/chagim/", "חג�
 var URLS = PAGES.map(function (p) { return p[0]; });
 
 (function () {
+  /* כתובת עם לוכסן בסוף (/tehillim/) כשהדף הוא קובץ (/tehillim): בודקים שהגרסה בלי הלוכסן
+     קיימת ומעבירים אליה, כולל הפרמטרים. 25.11.2026 - שורטים מפנים ל-/tehillim, ודפדפנים מוסיפים לוכסן. */
+  var raw = location.pathname;
+  if (raw.length > 1 && /\/$/.test(raw)) {
+    var bare = raw.replace(/\/+$/, "");
+    fetch(bare, { method: "HEAD" }).then(function (r) {
+      if (r.ok) location.replace(bare + location.search + location.hash);
+    }).catch(function () {});
+  }
+})();
+
+(function () {
   var here = location.pathname.replace(/\/+$/, "") || "/";
   if (URLS.indexOf(here) !== -1 || URLS.indexOf(here + "/") !== -1) return;
 

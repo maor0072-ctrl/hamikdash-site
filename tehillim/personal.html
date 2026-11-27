@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Frank+Ruhl+Libre:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/style.css">
 <link rel="stylesheet" href="/tehillim/reader.css">
-<script src="/tehillim/reader.js"></script>
+<script src="/tehillim/reader.js?v=20261127"></script>
 <style>
 html,body{overflow-x:hidden}
 /* hidden על body הופך אותו למכל גלילה ושובר את ה-sticky של סרגל הקריאה; clip חותך בלי לשבור */
@@ -754,7 +754,7 @@ async function openReading(rd, pos, yday) {
   show("v-read");
   $("topbar").classList.add("hidden"); // לקורא יש פס עליון משלו
   rdr = THReader.create({
-    mount: $("rd"), units: U, start: startFrom(pos),
+    mount: $("rd"), units: U, start: startFrom(pos), keepEarlier: true,
     dedication: isYday ? "הקריאה של " + cur.dateLabel : "התהילים שלי להיום · " + n + (n === 1 ? " פרק" : " פרקים"),
     before, after: afterEl, autoMark: false, doneButton: false, backLabel: "חזרה לרשימה",
     onBack: () => leaveReading(),

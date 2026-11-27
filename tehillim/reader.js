@@ -110,6 +110,7 @@
                         read     - כבר נקרא על ידי הקורא הזה (מוצג "✓ נקרא", לא יסומן שוב)
                         note     - שורה קטנה ליד הכותרת ("נקרא כבר בסבב הזה")
      opts.start       { key, verse } - פתיחה באמצע: מהיחידה הזו, שני פסוקים לפני המקום
+     opts.keepEarlier פתיחה באמצע עם כל היחידות שלפני המקום מעליו, כדי שאפשר לגלול אחורה (תהילים אישי, 27.11.2026)
      opts.dedication  טקסט שורת ההקדשה
      opts.before / opts.after   HTML או Element - לפני היחידה הראשונה (רק כשמתחילים ממנה) ואחרי האחרונה
      opts.endText / opts.endLabel  שורה וכפתור בסוף הרצף (הכפתור קורא ל-onBack)
@@ -138,7 +139,7 @@
     var byKey = {};
     U.forEach(function (u) { byKey[String(u.d.key)] = u; });
 
-    var startIdx = 0, startVerse = 0;
+    var startIdx = 0, startVerse = 0, keepEarlier = !!opts.keepEarlier;
     if (opts.start && byKey[String(opts.start.key)]) {
       startIdx = byKey[String(opts.start.key)].k;
       startVerse = Number(opts.start.verse) || 0;
@@ -170,7 +171,7 @@
     var tmsg = toast.querySelector("span"), undoBtn = toast.querySelector("button");
     var progI = prog.querySelector("i");
 
-    if (startIdx === 0 && opts.before) {
+    if ((startIdx === 0 || keepEarlier) && opts.before) {
       var bf = el("div", "thr-before");
       put(bf, opts.before);
       main.appendChild(bf);
@@ -215,7 +216,7 @@
 
     function renderUnit(u, verses) {
       var d = u.d;
-      var sec = el("section", "thr-unit" + (u.k === startIdx ? " first" : "") + (d.title ? "" : " cont"));
+      var sec = el("section", "thr-unit" + (u.k === (keepEarlier ? 0 : startIdx) ? " first" : "") + (d.title ? "" : " cont"));
       sec.dataset.key = String(d.key);
       var head = el("div", "thr-head");
       if (d.title) head.appendChild(el("h2", null, esc(d.title)));
@@ -454,8 +455,22 @@
       window.scrollTo({ top: Math.max(rootTop, y), behavior: "instant" });
     }
     window.scrollTo({ top: root.getBoundingClientRect().top + window.pageYOffset, behavior: "instant" });
-    var ready = ensureAhead().then(function () {
-      if (startVerse && U[startIdx] && U[startIdx].rendered) {
+    // היחידות שלפני המקום נבנות קודם, בסדר, ורק אחריהן ממשיכים כרגיל מהמקום עצמו.
+    // נכשלה טעינה של אחת מהן - פותחים מהמקום בלי מה שלפניו, כמו קודם, ולא נתקעים.
+    function renderEarlier() {
+      if (!keepEarlier || startIdx === 0) return Promise.resolve();
+      var early = U.slice(0, startIdx);
+      var here = U[startIdx];
+      return Promise.all(early.concat([here]).map(getVerses)).then(function (all) {
+        if (dead) return;
+        early.forEach(function (u, j) { renderUnit(u, all[j]); });
+        // היחידה של המקום נבנית כאן ולא דרך ensureAhead, שמדלג כשהדף כבר ארוך
+        renderUnit(here, all[early.length]);
+        next = startIdx + 1;
+      }, function () { /* נפתח מהמקום בלבד */ });
+    }
+    var ready = renderEarlier().then(ensureAhead).then(function () {
+      if ((startVerse || (keepEarlier && startIdx > 0)) && U[startIdx] && U[startIdx].rendered) {
         scrollToVerse(U[startIdx], startVerse);
         return ensureAhead();
       }
